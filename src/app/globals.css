@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #F7F3EC;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #0A0A0A;
+  --color-text-secondary: #4A4A4A;
+  --color-accent-gold: #C4973A;
+  --color-accent-earth: #8B6914;
+  --color-muted-green: #3D5A3E;
+  --color-border: #E8E0D4;
+  --color-dark: #0A0A0A;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .heading-xl {
+    @apply font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight;
+  }
+  .heading-lg {
+    @apply font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+  }
+  .heading-md {
+    @apply font-serif text-3xl md:text-4xl font-bold leading-tight;
+  }
+  .heading-sm {
+    @apply font-serif text-2xl md:text-3xl font-bold leading-tight;
+  }
+  .body-lg {
+    @apply font-sans text-lg leading-relaxed;
+  }
+  .body-md {
+    @apply font-sans text-base leading-relaxed;
+  }
+  .body-sm {
+    @apply font-sans text-sm leading-relaxed;
+  }
+  .label {
+    @apply font-sans text-xs uppercase tracking-widest font-medium;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-gold);
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-accent-gold);
+  color: white;
+}
