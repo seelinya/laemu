@@ -120,6 +120,69 @@ const formations = [
   },
 ]
 
+const fachpartner = [
+  {
+    id: 'buechi',
+    name: 'Büchi Musikinstrumente',
+    ort: 'Luzern',
+    instrumente: ['Handorgel', 'Schwyzerörgeli'],
+    desc: 'Spezialist für diatonische Handorgeln und Schwyzerörgelis — von der Beratung bis zur Reparatur alles aus einer Hand.',
+    logo: '🪗',
+    url: '#',
+    marken: ['Serenellini', 'Guerrini', 'Castagnari'],
+  },
+  {
+    id: 'musikhaus-luzern',
+    name: 'Musikhaus Luzern',
+    ort: 'Luzern',
+    instrumente: ['Klavier', 'Flügel'],
+    desc: 'Fachhandel für Klaviere und Flügel aller Preisklassen. Eigene Werkstatt mit zertifizierten Klavierbauern vor Ort.',
+    logo: '🎹',
+    url: '#',
+    marken: ['Steinway', 'Yamaha', 'Bösendorfer'],
+  },
+  {
+    id: 'akkordeon-bauer',
+    name: 'Akkordeon-Bauer Kälin',
+    ort: 'Schwyz',
+    instrumente: ['Schwyzerörgeli', 'Steirische Harmonika'],
+    desc: 'Traditioneller Musikbauer aus Schwyz. Fertigt und repariert Schwyzerörgelis in Handarbeit seit drei Generationen.',
+    logo: '🎵',
+    url: '#',
+    marken: ['Handgefertigt', 'Eigene Produktion'],
+  },
+  {
+    id: 'piano-center',
+    name: 'Piano Center Zürich',
+    ort: 'Zürich',
+    instrumente: ['Klavier', 'Digitalpiano'],
+    desc: 'Grösste Klavierausstellung der Deutschschweiz mit über 80 Instrumenten zum Ausprobieren — neues und gebrauchtes Sortiment.',
+    logo: '🎹',
+    url: '#',
+    marken: ['Kawai', 'Roland', 'Yamaha', 'Fazioli'],
+  },
+  {
+    id: 'volksmusik-huber',
+    name: 'Volksmusik-Center Huber',
+    ort: 'Einsiedeln',
+    instrumente: ['Handorgel', 'Klarinette', 'Bass'],
+    desc: 'Das Fachgeschäft für Schweizer Volksmusik-Instrumente. Umfangreiches Sortiment an Handorgeln, Klarinetten und Bässen.',
+    logo: '🎷',
+    url: '#',
+    marken: ['Hohner', 'Buffet Crampon', 'Thomann'],
+  },
+  {
+    id: 'alpenklang',
+    name: 'Alpenklang Musikwerkstatt',
+    ort: 'Appenzell',
+    instrumente: ['Schwyzerörgeli', 'Handorgel'],
+    desc: 'Werkstatt und Fachhandel im Herzen von Appenzell. Spezialisiert auf die Instrumente der Innerrhoder Volksmusik-Tradition.',
+    logo: '🪗',
+    url: '#',
+    marken: ['Guerrini', 'Eigenmarke', 'Servizio'],
+  },
+]
+
 const musicStyles = ['Alle', 'Traditional', 'Modern Folk', 'Contemporary', 'Innerrhoden Style', 'Classical', 'Modern']
 const formationRegions = ['Alle Regionen', 'Zentralschweiz', 'Appenzell', 'Luzern', 'Freiburg', 'Zug', 'Valais', 'Bern', 'Uri', 'Basel']
 const formationTypes = ['Alle Typen', 'Kapelle', 'Trio', 'Quartett', 'Duo', 'Ensemble', 'Chor', 'Gruppe', 'Orchester']
@@ -240,6 +303,85 @@ export default function FormationsPage() {
                 </Link>
               </motion.div>
             ))}
+          </Section>
+        </div>
+      </section>
+
+      {/* FACHPARTNER */}
+      <section className="py-32 bg-surface">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <Section className="mb-16">
+            <motion.span variants={fadeUp} className="label text-accent-gold">Fachpartner</motion.span>
+            <motion.h2 variants={fadeUp} className="heading-lg mt-3 mb-4">
+              Instrumente & Fachgeschäfte.
+            </motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-text-secondary max-w-2xl">
+              Finde die richtigen Instrumente für deine Musik — von Handorgeln und Schwyzerörgelis
+              bis zu Klavieren und Klarinetten. Unsere Fachpartner beraten dich kompetent.
+            </motion.p>
+          </Section>
+
+          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {fachpartner.map((p) => (
+              <motion.div key={p.id} variants={fadeUp}>
+                <motion.div
+                  className="group bg-background border border-border p-6 h-full flex flex-col"
+                  whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(0,0,0,0.08)' }}
+                  transition={{ duration: 0.22 }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">{p.logo}</span>
+                      <div>
+                        <h3 className="font-serif text-lg font-bold group-hover:text-accent-gold transition-colors leading-tight">
+                          {p.name}
+                        </h3>
+                        <p className="font-sans text-xs text-text-secondary mt-0.5">📍 {p.ort}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {p.instrumente.map((inst) => (
+                      <span key={inst} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
+                        {inst}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-4 flex-1">
+                    {p.desc}
+                  </p>
+
+                  <div className="mb-5">
+                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Marken</p>
+                    <div className="flex flex-wrap gap-1">
+                      {p.marken.map((m) => (
+                        <span key={m} className="font-sans text-xs px-2 py-1 bg-background border border-border text-text-secondary">
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <a
+                    href={p.url}
+                    className="font-sans text-sm text-accent-gold group-hover:text-accent-earth transition-colors mt-auto"
+                  >
+                    Zum Fachgeschäft →
+                  </a>
+                </motion.div>
+              </motion.div>
+            ))}
+          </Section>
+
+          <Section className="mt-12 text-center">
+            <motion.p variants={fadeUp} className="font-sans text-sm text-text-secondary mb-4">
+              Bist du Musikbauer oder Fachhändler für Volksmusik-Instrumente?
+            </motion.p>
+            <motion.div variants={fadeUp}>
+              <Button href="/contact" variant="secondary" size="md">Als Fachpartner eintragen</Button>
+            </motion.div>
           </Section>
         </div>
       </section>
