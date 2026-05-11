@@ -20,7 +20,7 @@ const navLinks = [
 function LaemuLogo({ white = false }: { white?: boolean }) {
   return (
     <div className={`flex items-center leading-none select-none ${white ? 'text-white' : 'text-dark'}`}>
-      <span className="font-heading font-black text-[1.6rem] tracking-[-0.04em]">LAE</span>
+      <span className="font-heading font-bold text-[1.4rem] tracking-[-0.02em]">LAE</span>
       <svg
         width="36"
         height="28"
@@ -37,7 +37,7 @@ function LaemuLogo({ white = false }: { white?: boolean }) {
           strokeLinejoin="round"
         />
       </svg>
-      <span className="font-heading font-black text-[1.6rem] tracking-[-0.04em]">U</span>
+      <span className="font-heading font-bold text-[1.4rem] tracking-[-0.02em]">U</span>
     </div>
   )
 }

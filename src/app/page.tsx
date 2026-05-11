@@ -120,7 +120,7 @@ export default function HomePage() {
             </motion.span>
             <motion.h1
               variants={fadeUp}
-              className="font-heading text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.95] tracking-tight mb-8 whitespace-pre-line"
+              className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight mb-8 whitespace-pre-line"
             >
               {"Am Puls der\nLändlermusik."}
             </motion.h1>
@@ -269,7 +269,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <Section className="text-center mb-20">
             <motion.span variants={fadeUp} className="label text-accent-gold">Die Bewegung</motion.span>
-            <motion.h2 variants={fadeUp} className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mt-4 mb-8 max-w-4xl mx-auto">
+            <motion.h2 variants={fadeUp} className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mt-4 mb-8 max-w-4xl mx-auto">
               Die Ländlermusik verdient eine Bühne für die Zukunft.
             </motion.h2>
             <motion.p variants={fadeUp} className="body-lg text-white/60 max-w-2xl mx-auto">
@@ -284,7 +284,7 @@ export default function HomePage() {
                 variants={fadeUp}
                 className="text-center border border-white/10 p-8"
               >
-                <div className="font-heading text-5xl md:text-6xl font-bold text-accent-gold mb-2">
+                <div className="font-heading text-4xl md:text-5xl font-bold text-accent-gold mb-2">
                   {stat.value}
                 </div>
                 <div className="font-sans text-sm uppercase tracking-widest text-white/50">
