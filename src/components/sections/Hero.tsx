@@ -55,7 +55,7 @@ export function Hero({
           className="max-w-3xl"
         >
           <motion.h1
-            className="font-heading text-5xl md:text-7xl font-black text-white leading-[0.95] tracking-tight mb-6 whitespace-pre-line"
+            className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[0.95] tracking-tight mb-6 whitespace-pre-line"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}

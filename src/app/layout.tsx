@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { Syne, Inter } from 'next/font/google'
+import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
 import './globals.css'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 
-const syne = Syne({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-syne',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['600', '700', '800'],
 })
 
 const inter = Inter({
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="de" className={`${syne.variable} ${inter.variable}`}>
+    <html lang="de" className={`${plusJakarta.variable} ${inter.variable}`}>
       <body>
         <Navigation />
         <main>{children}</main>

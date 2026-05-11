@@ -22,8 +22,8 @@ const config: Config = {
         'dark-secondary': '#1A1A1A',
       },
       fontFamily: {
-        heading: ['var(--font-syne)', 'Syne', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-syne)', 'Syne', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-syne)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-syne)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
