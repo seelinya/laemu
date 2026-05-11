@@ -98,9 +98,9 @@ export default function MemberAcademyPage() {
   const currentCourse = courses[0]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-20">
       {/* TOP BAR */}
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
+      <div className="bg-white border-b border-border px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <h1 className="font-serif font-bold text-lg">LAEMU Academy</h1>
         </div>

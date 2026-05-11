@@ -141,8 +141,8 @@ export default function LernvideoDetailPage() {
   const [activeSheet, setActiveSheet] = useState(v.sheets[0].label)
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
+    <div className="min-h-screen bg-background pt-20">
+      <div className="bg-white border-b border-border px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors">← Datenbank</Link>
           <div>

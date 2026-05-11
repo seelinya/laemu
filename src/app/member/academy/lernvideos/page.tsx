@@ -54,8 +54,8 @@ export default function LernvideosPage() {
   })
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
+    <div className="min-h-screen bg-background pt-20">
+      <div className="bg-white border-b border-border px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors">← Academy</Link>
           <h1 className="font-serif font-bold text-lg">Lernvideo-Datenbank</h1>

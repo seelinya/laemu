@@ -2,15 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Font: Radona by Insigne (https://www.myfonts.com/de/collections/radona-font-insigne/)
+  To activate, purchase the font, place the files in /public/fonts/ and
+  uncomment the @font-face rules below. The Google Fonts fallback is active until then.
+
+  @font-face {
+    font-family: 'Radona';
+    src: url('/fonts/Radona-Black.woff2') format('woff2');
+    font-weight: 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Radona';
+    src: url('/fonts/Radona-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Radona';
+    src: url('/fonts/Radona-Regular.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Radona';
+    src: url('/fonts/Radona-Light.woff2') format('woff2');
+    font-weight: 300; font-style: normal; font-display: swap;
+  }
+*/
+
 :root {
-  --color-background: #F7F3EC;
+  --color-background: #EEEEEE;
   --color-surface: #FFFFFF;
+  --color-surface-2: #F6F6F6;
   --color-text-primary: #0A0A0A;
-  --color-text-secondary: #4A4A4A;
-  --color-accent-gold: #C4973A;
-  --color-accent-earth: #8B6914;
-  --color-muted-green: #3D5A3E;
-  --color-border: #E8E0D4;
+  --color-text-secondary: #5A5A5A;
+  --color-accent-gold: #C8A84B;
+  --color-accent-earth: #9A7830;
+  --color-accent-warm: #FFF3C8;
+  --color-muted-green: #2A5C2A;
+  --color-border: #D6D6D6;
   --color-dark: #0A0A0A;
 }
 
@@ -27,62 +56,69 @@ html {
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans), 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-weight: 300;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-serif), 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Display — hero impact, very large, commanding */
   .heading-xl {
-    @apply font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight;
+    @apply font-serif text-6xl md:text-8xl lg:text-9xl font-bold leading-none tracking-tight;
   }
+  /* Section headers — large, editorial */
   .heading-lg {
-    @apply font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+    @apply font-serif text-4xl md:text-5xl lg:text-7xl font-bold leading-none tracking-tight;
   }
+  /* Card/sub-section headers */
   .heading-md {
-    @apply font-serif text-3xl md:text-4xl font-bold leading-tight;
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight;
   }
+  /* Small headers */
   .heading-sm {
     @apply font-serif text-2xl md:text-3xl font-bold leading-tight;
   }
+  /* Body text — light, readable */
   .body-lg {
-    @apply font-sans text-lg leading-relaxed;
+    @apply font-sans text-lg leading-relaxed font-light;
   }
   .body-md {
-    @apply font-sans text-base leading-relaxed;
+    @apply font-sans text-base leading-relaxed font-light;
   }
   .body-sm {
     @apply font-sans text-sm leading-relaxed;
   }
+  /* All-caps label */
   .label {
-    @apply font-sans text-xs uppercase tracking-widest font-medium;
+    @apply font-sans text-xs uppercase tracking-[0.2em] font-medium;
+  }
+  /* Gradient backgrounds */
+  .bg-gradient-light {
+    background: linear-gradient(180deg, #FFFFFF 0%, #EEEEEE 100%);
+  }
+  .bg-gradient-dark {
+    background: linear-gradient(180deg, #1A1A1A 0%, #0A0A0A 100%);
   }
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-background);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent-gold);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-background); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-gold); }
 
-/* Selection color */
 ::selection {
   background-color: var(--color-accent-gold);
-  color: white;
+  color: #0A0A0A;
 }

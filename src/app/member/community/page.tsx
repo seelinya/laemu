@@ -620,9 +620,9 @@ export default function MemberCommunityPage() {
   const [feedTab, setFeedTab] = useState<'all' | 'following'>('all')
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-20">
       {/* TOP BAR */}
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
+      <div className="bg-white border-b border-border px-6 py-4 flex items-center justify-between">
         <h1 className="font-serif font-bold text-lg">Community</h1>
         <div className="flex items-center gap-2">
           <button className="p-2 hover:bg-background rounded-full transition-colors relative">
@@ -651,10 +651,14 @@ export default function MemberCommunityPage() {
                     <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center border-t border-border pt-4">
-                  <div><p className="font-serif font-bold text-lg">48</p><p className="font-sans text-xs text-text-secondary">Beiträge</p></div>
-                  <div><p className="font-serif font-bold text-lg">312</p><p className="font-sans text-xs text-text-secondary">Folge ich</p></div>
-                  <div><p className="font-serif font-bold text-lg">891</p><p className="font-sans text-xs text-text-secondary">Follower</p></div>
+                <div className="flex items-center justify-between border-t border-border pt-4 mt-1">
+                  <div className="text-center">
+                    <p className="font-sans font-bold text-lg">48</p>
+                    <p className="font-sans text-xs text-text-secondary">Beiträge</p>
+                  </div>
+                  <button onClick={() => { /* open profile */ }} className="font-sans text-xs text-accent-gold border border-accent-gold px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors">
+                    Mein Profil
+                  </button>
                 </div>
               </div>
 

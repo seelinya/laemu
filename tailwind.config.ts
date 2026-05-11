@@ -9,24 +9,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#F7F3EC',
+        background: '#EEEEEE',
+        'background-2': '#E6E6E6',
         surface: '#FFFFFF',
+        'surface-2': '#F6F6F6',
         'text-primary': '#0A0A0A',
-        'text-secondary': '#4A4A4A',
-        'accent-gold': '#C4973A',
-        'accent-earth': '#8B6914',
-        'muted-green': '#3D5A3E',
-        border: '#E8E0D4',
+        'text-secondary': '#5A5A5A',
+        'accent-gold': '#C8A84B',
+        'accent-earth': '#9A7830',
+        'accent-warm': '#FFF3C8',
+        'muted-green': '#2A5C2A',
+        border: '#D6D6D6',
         dark: '#0A0A0A',
       },
       fontFamily: {
-        serif: ['var(--font-playfair)', 'Playfair Display', 'Georgia', 'serif'],
-        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-serif)', 'Georgia', 'serif'],
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
         'fade-in': 'fadeIn 0.8s ease-out forwards',
-        'counter': 'counter 2s ease-out forwards',
       },
       keyframes: {
         fadeUp: {
