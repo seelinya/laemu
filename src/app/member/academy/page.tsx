@@ -102,7 +102,7 @@ export default function MemberAcademyPage() {
       {/* TOP BAR */}
       <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
         <div className="flex items-center gap-6">
-          <h1 className="font-serif font-bold text-lg">LAEMU Academy</h1>
+          <h1 className="font-heading font-bold text-lg">LAEMU Academy</h1>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-accent-gold/10 text-accent-gold border border-accent-gold/20 px-4 py-2">
@@ -134,7 +134,7 @@ export default function MemberAcademyPage() {
                     />
                   </div>
                   <div>
-                    <p className="font-serif font-bold text-sm">Niklaus Hess</p>
+                    <p className="font-heading font-bold text-sm">Niklaus Hess</p>
                     <p className="font-sans text-xs text-accent-gold">Pro-Kurs Mitglied</p>
                   </div>
                 </div>
@@ -180,7 +180,7 @@ export default function MemberAcademyPage() {
 
               {/* Quick stats */}
               <div className="bg-surface border border-border p-5">
-                <h3 className="font-serif font-bold text-sm mb-4">Statistiken</h3>
+                <h3 className="font-heading font-bold text-sm mb-4">Statistiken</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between font-sans text-sm">
                     <span className="text-text-secondary">Lektionen diese Woche</span>
@@ -208,7 +208,7 @@ export default function MemberAcademyPage() {
                 <div className="flex h-full" style={{ minHeight: '500px' }}>
                   <div className="w-64 border-r border-border flex-shrink-0">
                     <div className="p-4 border-b border-border">
-                      <h3 className="font-serif font-bold text-sm">Kurs-Chats</h3>
+                      <h3 className="font-heading font-bold text-sm">Kurs-Chats</h3>
                       <p className="font-sans text-xs text-text-secondary mt-1">Nur für eingeschriebene Kursteilnehmer</p>
                     </div>
                     {courseChats.map(c => (
@@ -259,13 +259,13 @@ export default function MemberAcademyPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen zurück</p>
-                  <h2 className="font-serif text-3xl font-bold text-white mb-2">Guten Tag, Niklaus 👋</h2>
+                  <h2 className="font-heading text-3xl font-bold text-white mb-2">Guten Tag, Niklaus 👋</h2>
                   <p className="font-sans text-white/60">Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!</p>
                 </div>
                 <div className="text-right">
                   <div className="bg-accent-gold/20 border border-accent-gold/30 px-4 py-3 text-center">
                     <p className="font-sans text-4xl mb-1">🔥</p>
-                    <p className="font-serif font-bold text-accent-gold text-2xl">7</p>
+                    <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
                     <p className="font-sans text-xs text-white/50">Tage Streak</p>
                   </div>
                 </div>
@@ -274,7 +274,7 @@ export default function MemberAcademyPage() {
 
             {/* Continue where you left off */}
             {activeNav !== 'chats' && <div>
-              <h3 className="font-serif font-bold text-xl mb-4">Weitermachen wo du aufgehört hast</h3>
+              <h3 className="font-heading font-bold text-xl mb-4">Weitermachen wo du aufgehört hast</h3>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -293,7 +293,7 @@ export default function MemberAcademyPage() {
                   <div className="md:col-span-2 p-6 flex flex-col justify-between">
                     <div>
                       <span className="font-sans text-xs text-accent-gold uppercase tracking-wider">{currentCourse.category}</span>
-                      <h4 className="font-serif text-xl font-bold mt-1 mb-1">{currentCourse.title}</h4>
+                      <h4 className="font-heading text-xl font-bold mt-1 mb-1">{currentCourse.title}</h4>
                       <p className="font-sans text-sm text-text-secondary mb-2">mit {currentCourse.instructor}</p>
                       <p className="font-sans text-sm font-medium text-text-primary mb-4">
                         ▶ {currentCourse.nextLesson}
@@ -316,7 +316,7 @@ export default function MemberAcademyPage() {
 
             {/* My Courses */}
             {activeNav !== 'chats' && <div>
-              <h3 className="font-serif font-bold text-xl mb-4">Meine Kurse</h3>
+              <h3 className="font-heading font-bold text-xl mb-4">Meine Kurse</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {courses.map((course, i) => (
                   <motion.div
@@ -335,7 +335,7 @@ export default function MemberAcademyPage() {
                     </div>
                     <div className="p-4">
                       <span className="font-sans text-xs text-accent-gold uppercase tracking-wider">{course.category}</span>
-                      <h4 className="font-serif font-bold text-sm mt-1 mb-1 group-hover:text-accent-gold transition-colors">{course.title}</h4>
+                      <h4 className="font-heading font-bold text-sm mt-1 mb-1 group-hover:text-accent-gold transition-colors">{course.title}</h4>
                       <p className="font-sans text-xs text-text-secondary mb-3">mit {course.instructor}</p>
                       <div className="flex justify-between text-xs font-sans mb-1.5">
                         <span className="text-text-secondary">{course.completedLessons}/{course.totalLessons}</span>
@@ -350,7 +350,7 @@ export default function MemberAcademyPage() {
 
             {/* Recommended Lessons */}
             {activeNav !== 'chats' && <div>
-              <h3 className="font-serif font-bold text-xl mb-4">Empfohlene Lektionen</h3>
+              <h3 className="font-heading font-bold text-xl mb-4">Empfohlene Lektionen</h3>
               <div className="space-y-3">
                 {recommendedLessons.map((lesson, i) => (
                   <motion.div
@@ -378,7 +378,7 @@ export default function MemberAcademyPage() {
 
             {/* Achievements */}
             {activeNav !== 'chats' && <div>
-              <h3 className="font-serif font-bold text-xl mb-4">Meine Achievements</h3>
+              <h3 className="font-heading font-bold text-xl mb-4">Meine Achievements</h3>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                 {achievements.map((a, i) => (
                   <motion.div

@@ -29,8 +29,8 @@ export function Hero({
   return (
     <section
       className={clsx(
-        'relative flex items-center overflow-hidden',
-        size === 'full' ? 'min-h-screen' : size === 'large' ? 'min-h-[80vh]' : 'min-h-[60vh]'
+        'relative flex items-end overflow-hidden',
+        size === 'full' ? 'min-h-screen' : size === 'large' ? 'min-h-[75vh]' : 'min-h-[55vh]'
       )}
     >
       {/* Background Image */}
@@ -43,11 +43,11 @@ export function Hero({
           priority
           unoptimized
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/30" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-32">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 pb-20 pt-40">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -55,7 +55,7 @@ export function Hero({
           className="max-w-3xl"
         >
           <motion.h1
-            className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mb-6 whitespace-pre-line"
+            className="font-heading text-5xl md:text-7xl font-black text-white leading-[0.95] tracking-tight mb-6 whitespace-pre-line"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
@@ -64,7 +64,7 @@ export function Hero({
           </motion.h1>
           {subtitle && (
             <motion.p
-              className="font-sans text-lg md:text-xl text-white/80 leading-relaxed mb-10 max-w-2xl"
+              className="font-sans text-lg font-light text-white/75 leading-relaxed mb-10 max-w-xl"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.25 }}
@@ -91,23 +91,6 @@ export function Hero({
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      {size === 'full' && (
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-        >
-          <span className="font-sans text-xs uppercase tracking-widest text-white/50">Scroll</span>
-          <motion.div
-            className="w-px h-12 bg-gradient-to-b from-white/50 to-transparent"
-            animate={{ scaleY: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-        </motion.div>
-      )}
     </section>
   )
 }

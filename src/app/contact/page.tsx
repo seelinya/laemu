@@ -75,7 +75,7 @@ export default function ContactPage() {
             className="max-w-3xl"
           >
             <motion.span variants={fadeUp} className="label text-accent-gold">Kontakt</motion.span>
-            <motion.h1 variants={fadeUp} className="font-serif text-6xl md:text-8xl font-bold leading-tight mt-4 mb-6">
+            <motion.h1 variants={fadeUp} className="font-heading text-6xl md:text-8xl font-bold leading-tight mt-4 mb-6">
               Lass uns sprechen.
             </motion.h1>
             <motion.p variants={fadeUp} className="font-sans text-xl text-text-secondary leading-relaxed max-w-xl">
@@ -102,7 +102,7 @@ export default function ContactPage() {
                     className="bg-muted-green/10 border border-muted-green/20 p-12 text-center"
                   >
                     <span className="text-5xl block mb-4">✓</span>
-                    <h3 className="font-serif text-2xl font-bold mb-2">Nachricht gesendet!</h3>
+                    <h3 className="font-heading text-2xl font-bold mb-2">Nachricht gesendet!</h3>
                     <p className="font-sans text-text-secondary">Wir melden uns so schnell wie möglich bei dir.</p>
                   </motion.div>
                 ) : (
@@ -176,7 +176,7 @@ export default function ContactPage() {
                           <img src={contact.img} alt={contact.name} className="w-full h-full object-cover" />
                         </div>
                         <div>
-                          <h4 className="font-serif font-bold">{contact.name}</h4>
+                          <h4 className="font-heading font-bold">{contact.name}</h4>
                           <p className="font-sans text-xs text-accent-gold">{contact.role}</p>
                         </div>
                       </div>

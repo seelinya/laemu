@@ -5,6 +5,200 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// ─── SVG Icon Set ─────────────────────────────────────────────────────────────
+
+function IconHome() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+      <path d="M9 21V12h6v9"/>
+    </svg>
+  )
+}
+function IconSearch() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  )
+}
+function IconMessage() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+  )
+}
+function IconUsers() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+    </svg>
+  )
+}
+function IconBookmark() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+    </svg>
+  )
+}
+function IconUser() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </svg>
+  )
+}
+function IconSettings() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+    </svg>
+  )
+}
+function IconHeart({ filled = false }: { filled?: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+    </svg>
+  )
+}
+function IconComment() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+    </svg>
+  )
+}
+function IconShare() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+    </svg>
+  )
+}
+function IconSave({ filled = false }: { filled?: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+    </svg>
+  )
+}
+function IconBell() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+    </svg>
+  )
+}
+function IconCamera() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+  )
+}
+function IconVideo() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+    </svg>
+  )
+}
+function IconLink() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+    </svg>
+  )
+}
+function IconText() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
+    </svg>
+  )
+}
+function IconMoreHoriz() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+    </svg>
+  )
+}
+function IconPlay() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+      <polygon points="5 3 19 12 5 21 5 3"/>
+    </svg>
+  )
+}
+function IconCard() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+    </svg>
+  )
+}
+function IconPhone() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+    </svg>
+  )
+}
+function IconLaptop() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+      <line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  )
+}
+function IconBlock() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+    </svg>
+  )
+}
+function IconEdit() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+  )
+}
+function IconKey() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+    </svg>
+  )
+}
+function IconLocation() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+    </svg>
+  )
+}
+function IconBilling() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+    </svg>
+  )
+}
+
+// ─── Mock data ─────────────────────────────────────────────────────────────────
+
 const mockPosts = [
   {
     id: 1,
@@ -25,7 +219,7 @@ const mockPosts = [
     name: 'Maria Kälin',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
     time: 'vor 5 Stunden',
-    text: 'Neues Video online! Eine kleine Improvisation auf meinem Schwyzerörgeli — traditionell, aber mit eigenem Touch. Was meint ihr? 🎼',
+    text: 'Neues Video online! Eine kleine Improvisation auf meinem Schwyzerörgeli — traditionell, aber mit eigenem Touch. Was meint ihr?',
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
     likes: 89,
     comments: 23,
@@ -38,7 +232,7 @@ const mockPosts = [
     name: 'Trio Alpstein',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80',
     time: 'vor 1 Tag',
-    text: '🏔️ Wir freuen uns: Nächsten Samstag spielen wir beim Dorffest Appenzell! Kommt vorbei und tanzt mit uns durch den Abend.',
+    text: 'Wir freuen uns: Nächsten Samstag spielen wir beim Dorffest Appenzell! Kommt vorbei und tanzt mit uns durch den Abend.',
     img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=800&q=80',
     likes: 134,
     comments: 41,
@@ -51,7 +245,7 @@ const mockPosts = [
     name: 'Kapelle Rigi',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
     time: 'vor 3 Stunden',
-    text: 'Wir suchen noch Mitspieler für unsere Kapelle! Handorgel und Bass sind noch frei. Wer Lust hat, melde sich. Hier unser WhatsApp-Link: wa.me/gruppenlink',
+    text: 'Wir suchen noch Mitspieler für unsere Kapelle! Handorgel und Bass sind noch frei. Wer Lust hat, melde sich.',
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
     likes: 22,
     comments: 8,
@@ -79,13 +273,13 @@ const laemuGroups = [
 ]
 
 const navItems = [
-  { icon: '🏠', label: 'Feed', id: 'feed' },
-  { icon: '🔍', label: 'Entdecken', id: 'discover' },
-  { icon: '💬', label: 'Nachrichten', id: 'messages' },
-  { icon: '👫', label: 'Gruppen', id: 'groups' },
-  { icon: '🔖', label: 'Gespeichert', id: 'saved' },
-  { icon: '👤', label: 'Mein Profil', id: 'profile' },
-  { icon: '⚙️', label: 'Einstellungen', id: 'settings' },
+  { icon: <IconHome />, label: 'Feed', id: 'feed' },
+  { icon: <IconSearch />, label: 'Entdecken', id: 'discover' },
+  { icon: <IconMessage />, label: 'Nachrichten', id: 'messages' },
+  { icon: <IconUsers />, label: 'Gruppen', id: 'groups' },
+  { icon: <IconBookmark />, label: 'Gespeichert', id: 'saved' },
+  { icon: <IconUser />, label: 'Mein Profil', id: 'profile' },
+  { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
 const followingList = [
@@ -98,6 +292,8 @@ const conversations = [
   { name: 'Maria Kälin', handle: '@maria_oergeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', last: 'Danke für das Feedback 🙏', time: 'Gestern', unread: 0 },
   { name: 'Handorgel-Onlinekurs', handle: 'Gruppe · 48 Mitglieder', img: '', last: 'Niklaus: Bis morgen dann!', time: 'Mo', unread: 5, isGroup: true },
 ]
+
+// ─── Components ───────────────────────────────────────────────────────────────
 
 function PostCard({ post }: { post: (typeof mockPosts)[number] }) {
   const [liked, setLiked] = useState(false)
@@ -117,29 +313,51 @@ function PostCard({ post }: { post: (typeof mockPosts)[number] }) {
           <Image src={post.avatar} alt={post.user} fill className="object-cover" unoptimized />
         </div>
         <div className="flex-1">
-          <p className="font-sans font-semibold text-sm">{post.name}</p>
+          <p className="font-heading font-bold text-sm">{post.name}</p>
           <div className="flex items-center gap-2">
             <p className="font-sans text-xs text-text-secondary">@{post.user}</p>
             <span className="text-text-secondary text-xs">·</span>
             <p className="font-sans text-xs text-text-secondary">{post.time}</p>
           </div>
         </div>
+        {post.type === 'event' && (
+          <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold text-white tracking-wide uppercase">Event</span>
+        )}
+        {post.type === 'video' && (
+          <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-dark text-white tracking-wide uppercase">Video</span>
+        )}
         <div className="relative">
-          <button onClick={() => setShowMenu(!showMenu)} className="p-1 hover:bg-background rounded transition-colors font-sans text-text-secondary text-lg leading-none">···</button>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-1.5 hover:bg-background rounded-full transition-colors text-text-secondary"
+          >
+            <IconMoreHoriz />
+          </button>
           <AnimatePresence>
             {showMenu && (
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute right-0 top-8 bg-surface border border-border shadow-lg z-10 min-w-[160px]">
-                <button onClick={() => { setSaved(!saved); setShowMenu(false) }} className="w-full text-left px-4 py-2.5 font-sans text-sm hover:bg-background transition-colors">
-                  {saved ? '🔖 Gespeichert' : '🔖 Als Inspiration speichern'}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                className="absolute right-0 top-9 bg-surface border border-border shadow-xl z-10 min-w-[180px]"
+              >
+                <button
+                  onClick={() => { setSaved(!saved); setShowMenu(false) }}
+                  className="w-full text-left px-4 py-3 font-sans text-sm hover:bg-background transition-colors flex items-center gap-2.5"
+                >
+                  <IconSave filled={saved} />
+                  {saved ? 'Gespeichert' : 'Als Inspiration speichern'}
                 </button>
-                <button className="w-full text-left px-4 py-2.5 font-sans text-sm hover:bg-background transition-colors">↗ Beitrag teilen</button>
-                <button className="w-full text-left px-4 py-2.5 font-sans text-sm text-red-500 hover:bg-red-50 transition-colors">🚫 Profil blockieren</button>
+                <button className="w-full text-left px-4 py-3 font-sans text-sm hover:bg-background transition-colors flex items-center gap-2.5">
+                  <IconShare /> Beitrag teilen
+                </button>
+                <button className="w-full text-left px-4 py-3 font-sans text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2.5">
+                  <IconBlock /> Profil blockieren
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-        {post.type === 'event' && <span className="font-sans text-xs px-2 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">Event</span>}
-        {post.type === 'video' && <span className="font-sans text-xs px-2 py-1 bg-blue-50 text-blue-600 border border-blue-200">Video</span>}
       </div>
 
       <div className="relative aspect-video overflow-hidden">
@@ -147,38 +365,58 @@ function PostCard({ post }: { post: (typeof mockPosts)[number] }) {
         {post.type === 'video' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
             <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <span className="text-white text-2xl ml-1">▶</span>
+              <IconPlay />
             </div>
           </div>
         )}
       </div>
 
       <div className="p-4">
-        <p className="font-sans text-sm text-text-secondary mb-4">{post.text}</p>
+        <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{post.text}</p>
         <div className="flex items-center gap-4 pt-3 border-t border-border">
-          <button onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1) }} className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}>
-            <span>{liked ? '❤️' : '🤍'}</span>
-            <span>{likeCount}</span>
+          <button
+            onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1) }}
+            className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}
+          >
+            <IconHeart filled={liked} />
+            <span className="text-xs">{likeCount}</span>
           </button>
-          <button onClick={() => setShowComment(!showComment)} className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-text-primary transition-colors">
-            <span>💬</span>
-            <span>{post.comments}</span>
+          <button
+            onClick={() => setShowComment(!showComment)}
+            className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors"
+          >
+            <IconComment />
+            <span className="text-xs">{post.comments}</span>
           </button>
-          <button className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-text-primary transition-colors">
-            <span>↗</span>
-            <span>Teilen</span>
+          <button className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors">
+            <IconShare />
+            <span className="text-xs">Teilen</span>
           </button>
-          <button onClick={() => setSaved(!saved)} className={`flex items-center gap-1.5 font-sans text-sm ml-auto transition-colors ${saved ? 'text-accent-gold' : 'text-text-secondary hover:text-accent-gold'}`}>
-            <span>{saved ? '🔖' : '🏷️'}</span>
+          <button
+            onClick={() => setSaved(!saved)}
+            className={`flex items-center gap-1.5 font-sans text-sm ml-auto transition-colors ${saved ? 'text-accent-gold' : 'text-text-secondary hover:text-accent-gold'}`}
+          >
+            <IconSave filled={saved} />
             <span className="text-xs">{saved ? 'Gespeichert' : 'Speichern'}</span>
           </button>
         </div>
         <AnimatePresence>
           {showComment && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-3 pt-3 border-t border-border overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 pt-3 border-t border-border overflow-hidden"
+            >
               <div className="flex gap-2">
-                <input type="text" placeholder="Kommentar schreiben..." className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
-                <button className="bg-accent-gold text-white px-3 py-2 font-sans text-sm hover:bg-accent-earth transition-colors">Senden</button>
+                <input
+                  type="text"
+                  placeholder="Kommentar schreiben..."
+                  className="flex-1 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
+                />
+                <button className="bg-dark text-white px-3 py-2 font-sans text-sm hover:bg-accent-gold transition-colors">
+                  Senden
+                </button>
               </div>
             </motion.div>
           )}
@@ -199,36 +437,60 @@ function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all'
           <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
             <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="You" fill className="object-cover" unoptimized />
           </div>
-          <input type="text" placeholder="Was möchtest du teilen?" className="flex-1 border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold bg-background" />
+          <input
+            type="text"
+            placeholder="Was möchtest du teilen?"
+            className="flex-1 border border-border px-4 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
+          />
         </div>
-        <div className="flex items-center gap-2 border-t border-border pt-3">
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-text-primary px-2 py-1.5 hover:bg-background rounded transition-colors"><span>📷</span> Foto</button>
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-text-primary px-2 py-1.5 hover:bg-background rounded transition-colors"><span>🎥</span> Video</button>
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-text-primary px-2 py-1.5 hover:bg-background rounded transition-colors"><span>🔗</span> Link</button>
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-text-primary px-2 py-1.5 hover:bg-background rounded transition-colors"><span>📝</span> Text</button>
-          <button className="ml-auto bg-accent-gold text-white font-sans text-sm px-4 py-2 hover:bg-accent-earth transition-colors">Posten</button>
+        <div className="flex items-center gap-1 border-t border-border pt-3">
+          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+            <IconCamera /> Foto
+          </button>
+          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+            <IconVideo /> Video
+          </button>
+          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+            <IconLink /> Link
+          </button>
+          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+            <IconText /> Text
+          </button>
+          <button className="ml-auto bg-dark text-white font-sans text-sm font-medium px-5 py-2 hover:bg-accent-gold transition-colors">
+            Posten
+          </button>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-border">
-        <button onClick={() => setTab('all')} className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'all' ? 'border-accent-gold text-accent-gold' : 'border-transparent text-text-secondary hover:text-text-primary'}`}>
+        <button
+          onClick={() => setTab('all')}
+          className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'all' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+        >
           Alle Beiträge
         </button>
-        <button onClick={() => setTab('following')} className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'following' ? 'border-accent-gold text-accent-gold' : 'border-transparent text-text-secondary hover:text-text-primary'}`}>
+        <button
+          onClick={() => setTab('following')}
+          className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'following' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+        >
           Gefolgte Profile
         </button>
       </div>
 
       {posts.length === 0 ? (
         <div className="bg-surface border border-border p-12 text-center">
-          <p className="font-sans text-text-secondary text-sm">Du folgst noch keinen Profilen. Entdecke die Community und folge anderen Musikern!</p>
+          <p className="font-sans text-text-secondary text-sm font-light">
+            Du folgst noch keinen Profilen. Entdecke die Community und folge anderen Musikern!
+          </p>
         </div>
       ) : (
         posts.map((post) => <PostCard key={post.id} post={post} />)
       )}
 
-      <button className="w-full py-4 font-sans text-sm text-text-secondary border border-border hover:bg-surface hover:text-text-primary transition-colors">Mehr laden...</button>
+      <button className="w-full py-4 font-sans text-sm text-text-secondary border border-border hover:bg-surface hover:text-dark transition-colors">
+        Mehr laden…
+      </button>
     </div>
   )
 }
@@ -240,56 +502,82 @@ function MessagesView() {
   return (
     <div className="bg-surface border border-border overflow-hidden" style={{ minHeight: '500px' }}>
       <div className="flex h-full" style={{ minHeight: '500px' }}>
-        {/* Conversation list */}
         <div className="w-72 border-r border-border flex-shrink-0">
           <div className="p-4 border-b border-border flex items-center justify-between">
-            <h3 className="font-serif font-bold text-sm">Nachrichten</h3>
-            <button className="font-sans text-xs text-accent-gold hover:text-accent-earth transition-colors">+ Neue Nachricht</button>
+            <h3 className="font-heading font-bold text-sm">Nachrichten</h3>
+            <button className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">+ Neu</button>
           </div>
           <div>
             {conversations.map((c, i) => (
-              <button key={i} onClick={() => setActiveConv(i)} className={`w-full flex items-center gap-3 p-4 border-b border-border transition-colors text-left ${activeConv === i ? 'bg-accent-gold/5' : 'hover:bg-background'}`}>
-                <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-accent-gold/20 flex items-center justify-center">
-                  {c.img ? <Image src={c.img} alt={c.name} fill className="object-cover" unoptimized /> : <span className="text-xl">👫</span>}
+              <button
+                key={i}
+                onClick={() => setActiveConv(i)}
+                className={`w-full flex items-center gap-3 p-4 border-b border-border transition-colors text-left ${activeConv === i ? 'bg-dark text-white' : 'hover:bg-background'}`}
+              >
+                <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-border flex items-center justify-center">
+                  {c.img ? <Image src={c.img} alt={c.name} fill className="object-cover" unoptimized /> : <IconUsers />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-0.5">
-                    <p className="font-sans font-semibold text-xs truncate">{c.name}</p>
-                    <span className="font-sans text-[10px] text-text-secondary ml-1 flex-shrink-0">{c.time}</span>
+                    <p className={`font-sans font-semibold text-xs truncate ${activeConv === i ? 'text-white' : ''}`}>{c.name}</p>
+                    <span className={`font-sans text-[10px] ml-1 flex-shrink-0 ${activeConv === i ? 'text-white/60' : 'text-text-secondary'}`}>{c.time}</span>
                   </div>
-                  <p className="font-sans text-xs text-text-secondary truncate">{c.last}</p>
+                  <p className={`font-sans text-xs truncate ${activeConv === i ? 'text-white/70' : 'text-text-secondary'}`}>{c.last}</p>
                 </div>
-                {c.unread > 0 && <span className="bg-accent-gold text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">{c.unread}</span>}
+                {c.unread > 0 && (
+                  <span className="bg-accent-gold text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">{c.unread}</span>
+                )}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Chat area */}
         {activeConv !== null ? (
           <div className="flex-1 flex flex-col">
             <div className="p-4 border-b border-border flex items-center gap-3">
-              <div className="relative w-8 h-8 rounded-full overflow-hidden bg-accent-gold/20">
-                {conversations[activeConv].img && <Image src={conversations[activeConv].img} alt="" fill className="object-cover" unoptimized />}
+              <div className="relative w-8 h-8 rounded-full overflow-hidden bg-border">
+                {conversations[activeConv].img && (
+                  <Image src={conversations[activeConv].img} alt="" fill className="object-cover" unoptimized />
+                )}
               </div>
               <div>
-                <p className="font-sans font-semibold text-sm">{conversations[activeConv].name}</p>
+                <p className="font-heading font-bold text-sm">{conversations[activeConv].name}</p>
                 <p className="font-sans text-xs text-text-secondary">{conversations[activeConv].handle}</p>
               </div>
             </div>
             <div className="flex-1 p-4 space-y-3 overflow-y-auto" style={{ minHeight: '300px' }}>
-              <div className="flex justify-start"><div className="bg-background border border-border px-3 py-2 rounded-lg max-w-xs"><p className="font-sans text-sm">Hoi! Wann ist das nächste Treffen?</p></div></div>
-              <div className="flex justify-end"><div className="bg-accent-gold text-white px-3 py-2 rounded-lg max-w-xs"><p className="font-sans text-sm">Am Samstag um 14 Uhr!</p></div></div>
-              <div className="flex justify-start"><div className="bg-background border border-border px-3 py-2 rounded-lg max-w-xs"><p className="font-sans text-sm">{conversations[activeConv].last}</p></div></div>
+              <div className="flex justify-start">
+                <div className="bg-background border border-border px-3 py-2 max-w-xs">
+                  <p className="font-sans text-sm font-light">Hoi! Wann ist das nächste Treffen?</p>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <div className="bg-dark text-white px-3 py-2 max-w-xs">
+                  <p className="font-sans text-sm font-light">Am Samstag um 14 Uhr!</p>
+                </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="bg-background border border-border px-3 py-2 max-w-xs">
+                  <p className="font-sans text-sm font-light">{conversations[activeConv].last}</p>
+                </div>
+              </div>
             </div>
             <div className="p-4 border-t border-border flex gap-2">
-              <input value={msg} onChange={e => setMsg(e.target.value)} type="text" placeholder="Nachricht schreiben..." className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
-              <button className="bg-accent-gold text-white px-4 py-2 font-sans text-sm hover:bg-accent-earth transition-colors">Senden</button>
+              <input
+                value={msg}
+                onChange={e => setMsg(e.target.value)}
+                type="text"
+                placeholder="Nachricht schreiben…"
+                className="flex-1 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark"
+              />
+              <button className="bg-dark text-white px-4 py-2 font-sans text-sm hover:bg-accent-gold transition-colors">
+                Senden
+              </button>
             </div>
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <p className="font-sans text-text-secondary text-sm">Wähle eine Unterhaltung</p>
+            <p className="font-sans text-text-secondary text-sm font-light">Wähle eine Unterhaltung</p>
           </div>
         )}
       </div>
@@ -301,26 +589,28 @@ function GroupsView() {
   return (
     <div className="space-y-6">
       <div className="bg-surface border border-border p-6">
-        <h3 className="font-serif font-bold text-lg mb-2">LAEMU-Gruppen</h3>
-        <p className="font-sans text-sm text-text-secondary mb-6">
+        <h3 className="font-heading font-bold text-lg mb-2">LAEMU-Gruppen</h3>
+        <p className="font-sans text-sm font-light text-text-secondary mb-6 leading-relaxed">
           Gruppen werden ausschliesslich von LAEMU verwaltet — für Onlinekurse und Events. Möchtest du eine eigene Gruppe starten? Poste einen Beitrag mit einem öffentlichen WhatsApp-Link.
         </p>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {laemuGroups.map((g) => (
-            <div key={g.name} className="flex items-center gap-4 p-4 border border-border hover:border-accent-gold transition-colors">
-              <span className="text-3xl">{g.icon}</span>
+            <div key={g.name} className="flex items-center gap-4 p-4 border border-border hover:border-dark transition-colors group">
+              <span className="text-2xl">{g.icon}</span>
               <div className="flex-1">
                 <p className="font-sans font-semibold text-sm">{g.name}</p>
-                <p className="font-sans text-xs text-text-secondary">{g.members} Mitglieder · Verwaltet von LAEMU</p>
+                <p className="font-sans text-xs font-light text-text-secondary">{g.members} Mitglieder · Verwaltet von LAEMU</p>
               </div>
-              <button className="font-sans text-xs text-accent-gold border border-accent-gold px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors">Beitreten</button>
+              <button className="font-sans text-xs text-dark border border-dark px-3 py-1.5 hover:bg-dark hover:text-white transition-colors">
+                Beitreten
+              </button>
             </div>
           ))}
         </div>
       </div>
-      <div className="bg-accent-gold/5 border border-accent-gold/20 p-6">
-        <p className="font-sans text-sm text-text-secondary">
-          <strong className="text-text-primary">Eigene Gruppe gründen?</strong> Erstelle einen öffentlichen Beitrag in der Community mit deinem WhatsApp-Gruppenlink, damit andere Mitglieder beitreten können.
+      <div className="bg-dark p-6">
+        <p className="font-sans text-sm font-light text-white/70 leading-relaxed">
+          <strong className="text-white font-semibold">Eigene Gruppe gründen?</strong> Erstelle einen öffentlichen Beitrag in der Community mit deinem WhatsApp-Gruppenlink.
         </p>
       </div>
     </div>
@@ -330,20 +620,20 @@ function GroupsView() {
 function SavedView() {
   return (
     <div className="space-y-4">
-      <h3 className="font-serif font-bold text-lg">Gespeicherte Beiträge</h3>
+      <h3 className="font-heading font-bold text-lg">Gespeicherte Beiträge</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mockPosts.slice(0, 2).map((post) => (
           <div key={post.id} className="bg-surface border border-border overflow-hidden group">
             <div className="relative aspect-video overflow-hidden">
-              <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
               <div className="absolute bottom-0 p-3">
-                <p className="font-sans text-white text-xs font-semibold">{post.name}</p>
-                <p className="font-sans text-white/70 text-xs line-clamp-2">{post.text}</p>
+                <p className="font-heading text-white text-sm font-bold">{post.name}</p>
+                <p className="font-sans text-white/70 text-xs font-light line-clamp-2">{post.text}</p>
               </div>
             </div>
             <div className="p-3 flex justify-between items-center">
-              <span className="font-sans text-xs text-text-secondary">{post.time}</span>
+              <span className="font-sans text-xs font-light text-text-secondary">{post.time}</span>
               <button className="font-sans text-xs text-red-500 hover:text-red-700 transition-colors">Entfernen</button>
             </div>
           </div>
@@ -358,61 +648,86 @@ function ProfileView() {
 
   return (
     <div className="space-y-6">
-      {/* Profile header */}
+      {/* Profile header — own profile: follower/following counts visible here */}
       <div className="bg-surface border border-border overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-accent-gold/20 to-muted-green/20 relative">
-          {editMode && <button className="absolute bottom-2 right-2 bg-white/80 text-xs px-2 py-1 font-sans hover:bg-white transition-colors">Titelbild ändern</button>}
+        <div className="h-36 bg-gradient-to-r from-dark via-dark-secondary to-dark relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20"
+            style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)' }}
+          />
+          {editMode && (
+            <button className="absolute bottom-3 right-3 bg-white/20 text-white text-xs px-3 py-1.5 font-sans hover:bg-white/30 transition-colors">
+              Titelbild ändern
+            </button>
+          )}
         </div>
         <div className="p-6 -mt-10">
-          <div className="flex items-end justify-between mb-4">
+          <div className="flex items-end justify-between mb-5">
             <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-surface bg-background">
               <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Profile" fill className="object-cover" unoptimized />
-              {editMode && <div className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer"><span className="text-white text-xs">Ändern</span></div>}
+              {editMode && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer">
+                  <span className="text-white"><IconEdit /></span>
+                </div>
+              )}
             </div>
-            <button onClick={() => setEditMode(!editMode)} className={`font-sans text-sm px-4 py-2 border transition-colors ${editMode ? 'border-accent-gold bg-accent-gold text-white' : 'border-border hover:border-accent-gold'}`}>
+            <button
+              onClick={() => setEditMode(!editMode)}
+              className={`font-sans text-sm font-medium px-4 py-2 border transition-colors ${editMode ? 'border-dark bg-dark text-white' : 'border-border hover:border-dark'}`}
+            >
               {editMode ? 'Speichern' : 'Profil bearbeiten'}
             </button>
           </div>
 
           {editMode ? (
             <div className="space-y-4">
-              <div>
-                <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">Profilname *</label>
-                <input defaultValue="Niklaus Hess" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
-              </div>
-              <div>
-                <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">Bio</label>
-                <textarea defaultValue="Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren." rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold resize-none" />
-              </div>
+              {[
+                { label: 'Profilname *', value: 'Niklaus Hess', type: 'input' },
+                { label: 'Bio', value: 'Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.', type: 'textarea' },
+              ].map(({ label, value, type }) => (
+                <div key={label}>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
+                  {type === 'textarea' ? (
+                    <textarea defaultValue={value} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none" />
+                  ) : (
+                    <input defaultValue={value} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  )}
+                </div>
+              ))}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">Formation</label>
-                  <input defaultValue="Kapelle Hess-Ruedi" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
-                </div>
-                <div>
-                  <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">Instrumente</label>
-                  <input defaultValue="Handorgel, Schwyzerörgeli" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
-                </div>
-              </div>
-              <div>
-                <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">Musikalische Vorbilder</label>
-                <input defaultValue="Ruedi Rymann, Kapelle Hess-Ruedi-Hegner" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
+                {[['Formation', 'Kapelle Hess-Ruedi'], ['Instrumente', 'Handorgel, Schwyzerörgeli'], ['Musikalische Vorbilder', 'Ruedi Rymann, Kapelle Hess-Ruedi-Hegner']].map(([label, value]) => (
+                  <div key={label} className={label === 'Musikalische Vorbilder' ? 'col-span-2' : ''}>
+                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
+                    <input defaultValue={value} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
             <div>
-              <h2 className="font-serif text-2xl font-bold">Niklaus Hess</h2>
+              <h2 className="font-heading text-2xl font-black">Niklaus Hess</h2>
               <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
-              <p className="font-sans text-sm text-text-secondary mb-4">Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.</p>
+              <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">
+                Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.
+              </p>
               <div className="flex flex-wrap gap-2 mb-4">
                 <span className="font-sans text-xs px-2 py-1 bg-background border border-border">🪗 Handorgel</span>
                 <span className="font-sans text-xs px-2 py-1 bg-background border border-border">🎶 Schwyzerörgeli</span>
                 <span className="font-sans text-xs px-2 py-1 bg-background border border-border">Formation: Kapelle Hess-Ruedi</span>
               </div>
+              {/* Own profile: show follower/following counts */}
               <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border text-center">
-                <div><p className="font-serif font-bold text-xl">48</p><p className="font-sans text-xs text-text-secondary">Beiträge</p></div>
-                <div><p className="font-serif font-bold text-xl">312</p><p className="font-sans text-xs text-text-secondary">Folge ich</p></div>
-                <div><p className="font-serif font-bold text-xl">891</p><p className="font-sans text-xs text-text-secondary">Follower</p></div>
+                <div>
+                  <p className="font-heading font-black text-xl">48</p>
+                  <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
+                </div>
+                <div>
+                  <p className="font-heading font-black text-xl">312</p>
+                  <p className="font-sans text-xs font-light text-text-secondary">Folge ich</p>
+                </div>
+                <div>
+                  <p className="font-heading font-black text-xl">891</p>
+                  <p className="font-sans text-xs font-light text-text-secondary">Follower</p>
+                </div>
               </div>
             </div>
           )}
@@ -422,16 +737,18 @@ function ProfileView() {
       {/* My posts */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-serif font-bold text-lg">Meine Beiträge</h3>
-          <button className="font-sans text-sm text-accent-gold hover:text-accent-earth transition-colors">+ Neuer Beitrag</button>
+          <h3 className="font-heading font-bold text-lg">Meine Beiträge</h3>
+          <button className="font-sans text-sm text-accent-gold hover:text-dark transition-colors">+ Neuer Beitrag</button>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {mockPosts.slice(0, 3).map((post) => (
             <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer">
               <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
-                <span className="text-white text-xs">❤️ {post.likes}</span>
-                <button className="text-white text-xs hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>🗑️</button>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
+                <button className="text-white/80 hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                </button>
               </div>
             </div>
           ))}
@@ -441,8 +758,8 @@ function ProfileView() {
       {/* Following list */}
       <div className="bg-surface border border-border p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-serif font-bold text-sm">Folgeliste</h3>
-          <button className="font-sans text-xs text-accent-gold hover:text-accent-earth transition-colors">+ Profil suchen</button>
+          <h3 className="font-heading font-bold text-sm">Folgeliste</h3>
+          <button className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">+ Profil suchen</button>
         </div>
         <div className="space-y-3">
           {followingList.map((f) => (
@@ -452,9 +769,11 @@ function ProfileView() {
               </div>
               <div className="flex-1">
                 <p className="font-sans font-semibold text-xs">{f.name}</p>
-                <p className="font-sans text-xs text-text-secondary">{f.handle}</p>
+                <p className="font-sans text-xs font-light text-text-secondary">{f.handle}</p>
               </div>
-              <button className="font-sans text-xs text-red-500 border border-red-200 px-2 py-1 hover:bg-red-50 transition-colors">Entfolgen</button>
+              <button className="font-sans text-xs text-red-500 border border-red-200 px-2 py-1 hover:bg-red-50 transition-colors">
+                Entfolgen
+              </button>
             </div>
           ))}
         </div>
@@ -466,40 +785,46 @@ function ProfileView() {
 function SettingsView() {
   const [activeSection, setActiveSection] = useState('billing')
 
+  const sections = [
+    { id: 'billing', label: 'Rechnungen', icon: <IconBilling /> },
+    { id: 'payment', label: 'Zahlungsmittel', icon: <IconCard /> },
+    { id: 'address', label: 'Adresse', icon: <IconLocation /> },
+    { id: 'password', label: 'Passwort', icon: <IconKey /> },
+    { id: 'devices', label: 'Geräte', icon: <IconPhone /> },
+    { id: 'blocked', label: 'Blockiert', icon: <IconBlock /> },
+  ]
+
   return (
     <div className="bg-surface border border-border overflow-hidden">
       <div className="flex border-b border-border overflow-x-auto">
-        {[
-          { id: 'billing', label: '💳 Rechnungen' },
-          { id: 'payment', label: '💰 Zahlungsmittel' },
-          { id: 'address', label: '📍 Adresse' },
-          { id: 'password', label: '🔑 Passwort' },
-          { id: 'devices', label: '📱 Geräte' },
-          { id: 'blocked', label: '🚫 Blockiert' },
-        ].map(s => (
-          <button key={s.id} onClick={() => setActiveSection(s.id)} className={`px-4 py-3 font-sans text-sm whitespace-nowrap transition-colors border-b-2 ${activeSection === s.id ? 'border-accent-gold text-accent-gold' : 'border-transparent text-text-secondary hover:text-text-primary'}`}>
-            {s.label}
+        {sections.map(s => (
+          <button
+            key={s.id}
+            onClick={() => setActiveSection(s.id)}
+            className={`flex items-center gap-1.5 px-4 py-3 font-sans text-sm whitespace-nowrap transition-colors border-b-2 ${activeSection === s.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark'}`}
+          >
+            {s.icon} {s.label}
           </button>
         ))}
       </div>
       <div className="p-6">
         {activeSection === 'billing' && (
           <div>
-            <h3 className="font-serif font-bold text-lg mb-4">Rechnungsverlauf</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Rechnungsverlauf</h3>
             <div className="space-y-3">
               {[
-                { date: 'Feb 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00', status: 'Bezahlt' },
-                { date: 'Jan 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00', status: 'Bezahlt' },
-                { date: 'Dez 2025', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00', status: 'Bezahlt' },
+                { date: 'Feb 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
+                { date: 'Jan 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
+                { date: 'Dez 2025', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
               ].map((r, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border border-border">
+                <div key={i} className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors">
                   <div>
                     <p className="font-sans text-sm font-medium">{r.desc}</p>
-                    <p className="font-sans text-xs text-text-secondary">{r.date}</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">{r.date}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-sans text-sm font-semibold">{r.amount}</p>
-                    <span className="font-sans text-xs text-muted-green">{r.status}</span>
+                    <span className="font-sans text-xs text-green-600 font-medium">Bezahlt</span>
                   </div>
                 </div>
               ))}
@@ -508,104 +833,110 @@ function SettingsView() {
         )}
         {activeSection === 'payment' && (
           <div>
-            <h3 className="font-serif font-bold text-lg mb-4">Zahlungsmittel</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Zahlungsmittel</h3>
             <div className="space-y-3 mb-4">
-              <div className="flex items-center justify-between p-4 border-2 border-accent-gold bg-accent-gold/5">
+              <div className="flex items-center justify-between p-4 border-2 border-dark bg-dark text-white">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">💳</span>
+                  <IconCard />
                   <div>
                     <p className="font-sans text-sm font-medium">Visa •••• 4242</p>
-                    <p className="font-sans text-xs text-text-secondary">Läuft ab 12/2027</p>
+                    <p className="font-sans text-xs text-white/60">Läuft ab 12/2027</p>
                   </div>
                 </div>
-                <span className="font-sans text-xs text-accent-gold border border-accent-gold px-2 py-0.5">Favorit</span>
+                <span className="font-sans text-xs text-accent-yellow border border-accent-yellow px-2 py-0.5">Favorit</span>
               </div>
-              <div className="flex items-center justify-between p-4 border border-border hover:border-accent-gold transition-colors cursor-pointer">
+              <div className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">💳</span>
+                  <IconCard />
                   <div>
                     <p className="font-sans text-sm font-medium">PostFinance •••• 8891</p>
-                    <p className="font-sans text-xs text-text-secondary">Läuft ab 03/2026</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Läuft ab 03/2026</p>
                   </div>
                 </div>
-                <button className="font-sans text-xs text-text-secondary hover:text-accent-gold transition-colors">Als Favorit</button>
+                <button className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">Als Favorit</button>
               </div>
             </div>
-            <button className="font-sans text-sm text-accent-gold hover:text-accent-earth transition-colors">+ Zahlungsmittel hinzufügen</button>
+            <button className="font-sans text-sm text-accent-gold hover:text-dark transition-colors">+ Zahlungsmittel hinzufügen</button>
           </div>
         )}
         {activeSection === 'address' && (
           <div>
-            <h3 className="font-serif font-bold text-lg mb-4">Wohnadresse</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Wohnadresse</h3>
             <div className="grid grid-cols-2 gap-4">
               {[['Vorname', 'Niklaus'], ['Nachname', 'Hess'], ['Strasse & Nr.', 'Musterstrasse 12'], ['PLZ', '6000'], ['Ort', 'Luzern'], ['Land', 'Schweiz']].map(([label, val]) => (
                 <div key={label}>
-                  <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">{label}</label>
-                  <input defaultValue={val} className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
+                  <label className="font-sans text-xs font-light text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
+                  <input defaultValue={val} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
               ))}
             </div>
-            <button className="mt-4 bg-accent-gold text-white font-sans text-sm px-6 py-2 hover:bg-accent-earth transition-colors">Speichern</button>
+            <button className="mt-4 bg-dark text-white font-sans text-sm px-6 py-2.5 hover:bg-accent-gold transition-colors">Speichern</button>
           </div>
         )}
         {activeSection === 'password' && (
           <div>
-            <h3 className="font-serif font-bold text-lg mb-4">Passwort ändern</h3>
+            <h3 className="font-heading font-bold text-lg mb-4">Passwort ändern</h3>
             <div className="space-y-4 max-w-sm">
               {['Aktuelles Passwort', 'Neues Passwort', 'Passwort bestätigen'].map(label => (
                 <div key={label}>
-                  <label className="font-sans text-xs text-text-secondary uppercase tracking-wider block mb-1">{label}</label>
-                  <input type="password" placeholder="••••••••" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
+                  <label className="font-sans text-xs font-light text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
+                  <input type="password" placeholder="••••••••" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
               ))}
-              <button className="bg-accent-gold text-white font-sans text-sm px-6 py-2 hover:bg-accent-earth transition-colors">Passwort aktualisieren</button>
+              <button className="bg-dark text-white font-sans text-sm px-6 py-2.5 hover:bg-accent-gold transition-colors">Passwort aktualisieren</button>
             </div>
           </div>
         )}
         {activeSection === 'devices' && (
           <div>
-            <h3 className="font-serif font-bold text-lg mb-2">Geräte-Verwaltung</h3>
-            <p className="font-sans text-sm text-text-secondary mb-4">Du kannst maximal 2 Geräte (Laptop und Smartphone) für den Zugriff auf dein Profil hinterlegen.</p>
+            <h3 className="font-heading font-bold text-lg mb-2">Geräte-Verwaltung</h3>
+            <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">
+              Du kannst maximal 2 Geräte (Laptop und Smartphone) für den Zugriff hinterlegen.
+            </p>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 border-2 border-accent-gold bg-accent-gold/5">
+              <div className="flex items-center justify-between p-4 border-2 border-dark bg-dark text-white">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">💻</span>
+                  <IconLaptop />
                   <div>
                     <p className="font-sans text-sm font-medium">MacBook Pro · Safari</p>
-                    <p className="font-sans text-xs text-accent-gold">Aktuelles Gerät · Luzern, CH</p>
+                    <p className="font-sans text-xs text-accent-yellow">Aktuelles Gerät · Luzern, CH</p>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-4 border border-border">
+              <div className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">📱</span>
+                  <IconPhone />
                   <div>
                     <p className="font-sans text-sm font-medium">iPhone 15 · Safari</p>
-                    <p className="font-sans text-xs text-text-secondary">Letzter Zugriff: heute, 08:32</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Letzter Zugriff: heute, 08:32</p>
                   </div>
                 </div>
                 <button className="font-sans text-xs text-red-500 border border-red-200 px-2 py-1 hover:bg-red-50 transition-colors">Entfernen</button>
               </div>
             </div>
-            <p className="font-sans text-xs text-text-secondary mt-4">Möchtest du ein drittes Gerät hinzufügen? Entferne zuerst ein bestehendes.</p>
+            <p className="font-sans text-xs font-light text-text-secondary mt-4">
+              Möchtest du ein drittes Gerät hinzufügen? Entferne zuerst ein bestehendes.
+            </p>
           </div>
         )}
         {activeSection === 'blocked' && (
           <div>
-            <h3 className="font-serif font-bold text-lg mb-4">Blockierte Profile</h3>
-            <p className="font-sans text-sm text-text-secondary mb-4">Blockierte Profile können dir nicht mehr schreiben und sehen deine Beiträge nicht.</p>
+            <h3 className="font-heading font-bold text-lg mb-4">Blockierte Profile</h3>
+            <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">
+              Blockierte Profile können dir nicht mehr schreiben und sehen deine Beiträge nicht.
+            </p>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-4 border border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-border flex items-center justify-center">
-                    <span className="font-sans text-xs text-text-secondary">N/A</span>
+                  <div className="w-9 h-9 rounded-full bg-border flex items-center justify-center text-text-secondary">
+                    <IconUser />
                   </div>
                   <div>
                     <p className="font-sans text-sm font-medium">Gesperrtes Profil</p>
-                    <p className="font-sans text-xs text-text-secondary">@gesperrtes_profil</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">@gesperrtes_profil</p>
                   </div>
                 </div>
-                <button className="font-sans text-xs text-text-secondary border border-border px-2 py-1 hover:border-accent-gold hover:text-accent-gold transition-colors">Entsperren</button>
+                <button className="font-sans text-xs text-text-secondary border border-border px-2 py-1 hover:border-dark hover:text-dark transition-colors">Entsperren</button>
               </div>
             </div>
           </div>
@@ -615,22 +946,24 @@ function SettingsView() {
   )
 }
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('feed')
   const [feedTab, setFeedTab] = useState<'all' | 'following'>('all')
 
   return (
     <div className="min-h-screen bg-background">
-      {/* TOP BAR */}
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
-        <h1 className="font-serif font-bold text-lg">Community</h1>
-        <div className="flex items-center gap-2">
-          <button className="p-2 hover:bg-background rounded-full transition-colors relative">
-            <span>🔔</span>
-            <span className="absolute top-1 right-1 w-2 h-2 bg-accent-gold rounded-full"></span>
+      {/* TOP BAR — embedded as section between nav and content, not sticky overlay */}
+      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between mt-20">
+        <h1 className="font-heading font-black text-lg text-white tracking-tight">Community</h1>
+        <div className="flex items-center gap-1">
+          <button className="p-2 hover:bg-white/10 rounded-full transition-colors relative text-white">
+            <IconBell />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-yellow rounded-full"></span>
           </button>
-          <button onClick={() => setActiveNav('messages')} className="p-2 hover:bg-background rounded-full transition-colors">
-            <span>💬</span>
+          <button onClick={() => setActiveNav('messages')} className="p-2 hover:bg-white/10 rounded-full transition-colors text-white">
+            <IconMessage />
           </button>
         </div>
       </div>
@@ -640,21 +973,31 @@ export default function MemberCommunityPage() {
 
           {/* LEFT SIDEBAR */}
           <div className="hidden lg:block">
-            <div className="sticky top-36 space-y-6">
+            <div className="sticky top-8 space-y-4">
+              {/* Own profile quick-card: follower counts visible for own profile */}
               <div className="bg-surface border border-border p-5">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
                     <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Profile" fill className="object-cover" unoptimized />
                   </div>
                   <div>
-                    <p className="font-serif font-bold text-sm">Niklaus Hess</p>
+                    <p className="font-heading font-bold text-sm">Niklaus Hess</p>
                     <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center border-t border-border pt-4">
-                  <div><p className="font-serif font-bold text-lg">48</p><p className="font-sans text-xs text-text-secondary">Beiträge</p></div>
-                  <div><p className="font-serif font-bold text-lg">312</p><p className="font-sans text-xs text-text-secondary">Folge ich</p></div>
-                  <div><p className="font-serif font-bold text-lg">891</p><p className="font-sans text-xs text-text-secondary">Follower</p></div>
+                  <div>
+                    <p className="font-heading font-black text-lg">48</p>
+                    <p className="font-sans text-[10px] font-light text-text-secondary">Beiträge</p>
+                  </div>
+                  <div>
+                    <p className="font-heading font-black text-lg">312</p>
+                    <p className="font-sans text-[10px] font-light text-text-secondary">Folge ich</p>
+                  </div>
+                  <div>
+                    <p className="font-heading font-black text-lg">891</p>
+                    <p className="font-sans text-[10px] font-light text-text-secondary">Follower</p>
+                  </div>
                 </div>
               </div>
 
@@ -664,12 +1007,16 @@ export default function MemberCommunityPage() {
                     key={item.id}
                     onClick={() => setActiveNav(item.id)}
                     className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
-                      activeNav === item.id ? 'bg-accent-gold/5 text-accent-gold font-medium' : 'text-text-secondary hover:bg-background hover:text-text-primary'
+                      activeNav === item.id
+                        ? 'bg-dark text-white font-medium'
+                        : 'text-text-secondary hover:bg-background hover:text-dark'
                     }`}
                   >
-                    <span>{item.icon}</span>
+                    <span className={activeNav === item.id ? 'text-accent-yellow' : ''}>{item.icon}</span>
                     {item.label}
-                    {item.id === 'messages' && <span className="ml-auto bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded-full">7</span>}
+                    {item.id === 'messages' && (
+                      <span className="ml-auto bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">7</span>
+                    )}
                   </button>
                 ))}
               </nav>
@@ -686,19 +1033,26 @@ export default function MemberCommunityPage() {
             {activeNav === 'settings' && <SettingsView />}
             {activeNav === 'discover' && (
               <div className="space-y-4">
-                <h3 className="font-serif font-bold text-lg">Profile entdecken</h3>
-                <input type="text" placeholder="Profile suchen..." className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface" />
+                <h3 className="font-heading font-bold text-xl">Profile entdecken</h3>
+                <input
+                  type="text"
+                  placeholder="Profile suchen…"
+                  className="w-full border border-border px-4 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
+                />
+                {/* Discover view: no follower counts shown on other profiles */}
                 <div className="space-y-3">
                   {[...mockPosts.map(p => ({ name: p.name, handle: `@${p.user}`, img: p.avatar, type: 'Musiker' })), ...suggestedProfiles].map((p, i) => (
-                    <div key={i} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-accent-gold transition-colors">
+                    <div key={i} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
                       <div className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
                         <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
                       </div>
                       <div className="flex-1">
-                        <p className="font-sans font-semibold text-sm">{p.name}</p>
-                        <p className="font-sans text-xs text-text-secondary">{p.handle} · {p.type}</p>
+                        <p className="font-sans font-semibold text-sm group-hover:text-dark transition-colors">{p.name}</p>
+                        <p className="font-sans text-xs font-light text-text-secondary">{p.handle} · {p.type}</p>
                       </div>
-                      <button className="font-sans text-xs text-accent-gold border border-accent-gold px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors">Folgen</button>
+                      <button className="font-sans text-xs font-medium text-dark border border-dark px-3 py-1.5 hover:bg-dark hover:text-white transition-colors">
+                        Folgen
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -708,9 +1062,10 @@ export default function MemberCommunityPage() {
 
           {/* RIGHT SIDEBAR */}
           <div className="hidden lg:block">
-            <div className="sticky top-36 space-y-6">
+            <div className="sticky top-8 space-y-4">
+              {/* Suggested profiles: no follower counts */}
               <div className="bg-surface border border-border p-5">
-                <h3 className="font-serif font-bold text-sm mb-4">Empfohlene Profile</h3>
+                <h3 className="font-heading font-bold text-sm mb-4">Empfohlene Profile</h3>
                 <div className="space-y-4">
                   {suggestedProfiles.map((p) => (
                     <div key={p.name} className="flex items-center gap-3">
@@ -719,44 +1074,51 @@ export default function MemberCommunityPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-sans font-medium text-xs truncate">{p.name}</p>
-                        <p className="font-sans text-xs text-text-secondary">{p.type}</p>
+                        <p className="font-sans text-[10px] font-light text-text-secondary">{p.type}</p>
                       </div>
-                      <button className="font-sans text-xs text-accent-gold border border-accent-gold px-2 py-1 hover:bg-accent-gold hover:text-white transition-colors flex-shrink-0">Folgen</button>
+                      <button className="font-sans text-xs font-medium text-dark border border-dark px-2 py-1 hover:bg-dark hover:text-white transition-colors flex-shrink-0">
+                        Folgen
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
+
               <div className="bg-surface border border-border p-5">
-                <h3 className="font-serif font-bold text-sm mb-4">Kommende Events</h3>
+                <h3 className="font-heading font-bold text-sm mb-4">Kommende Events</h3>
                 <div className="space-y-3">
                   {upcomingEvents.map((e) => (
                     <div key={e.title} className="flex gap-3">
-                      <span className="font-sans text-xs text-accent-gold font-medium min-w-[40px]">{e.date}</span>
+                      <span className="font-sans text-xs text-accent-gold font-semibold min-w-[42px]">{e.date}</span>
                       <div>
                         <p className="font-sans text-xs font-medium">{e.title}</p>
-                        <span className="font-sans text-[10px] text-text-secondary">{e.type}</span>
+                        <span className="font-sans text-[10px] font-light text-text-secondary">{e.type}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-                <Link href="/events" className="block mt-4 font-sans text-xs text-accent-gold hover:text-accent-earth transition-colors">Alle Events →</Link>
+                <Link href="/events" className="block mt-4 font-sans text-xs text-accent-gold hover:text-dark transition-colors font-medium">
+                  Alle Events →
+                </Link>
               </div>
-              <div className="bg-surface border border-border p-5">
-                <h3 className="font-serif font-bold text-sm mb-4">LAEMU-Gruppen</h3>
+
+              <div className="bg-dark p-5">
+                <h3 className="font-heading font-bold text-sm mb-4 text-white">LAEMU-Gruppen</h3>
                 <div className="space-y-3">
                   {laemuGroups.map((g) => (
                     <div key={g.name} className="flex items-center justify-between cursor-pointer group">
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{g.icon}</span>
-                        <p className="font-sans text-xs group-hover:text-accent-gold transition-colors">{g.name}</p>
+                        <p className="font-sans text-xs text-white/70 group-hover:text-white transition-colors">{g.name}</p>
                       </div>
-                      <span className="font-sans text-[10px] text-text-secondary">{g.members}</span>
+                      <span className="font-sans text-[10px] text-white/40">{g.members}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
