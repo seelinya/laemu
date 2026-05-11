@@ -58,7 +58,7 @@ export default function LernvideosPage() {
       <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
         <div className="flex items-center gap-4">
           <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors">← Academy</Link>
-          <h1 className="font-serif font-bold text-lg">Lernvideo-Datenbank</h1>
+          <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
         </div>
       </div>
 
@@ -120,7 +120,7 @@ export default function LernvideosPage() {
                       {v.purchased && <div className="absolute top-2 right-2 bg-muted-green text-white text-[10px] px-1.5 py-0.5">✓ Gekauft</div>}
                     </div>
                     <div className="p-4">
-                      <h4 className="font-serif font-bold text-sm mb-0.5 group-hover:text-accent-gold transition-colors">{v.title}</h4>
+                      <h4 className="font-heading font-bold text-sm mb-0.5 group-hover:text-accent-gold transition-colors">{v.title}</h4>
                       <p className="font-sans text-xs text-text-secondary mb-2">{v.artist} · {v.year}</p>
                       <div className="flex items-center gap-2 mb-3">
                         <div className="flex gap-0.5">
@@ -152,7 +152,7 @@ export default function LernvideosPage() {
           <div className="max-w-3xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="font-serif font-bold text-xl">Stückwünsche</h2>
+                <h2 className="font-heading font-bold text-xl">Stückwünsche</h2>
                 <p className="font-sans text-sm text-text-secondary mt-1">Stimme für Stücke, die du dir als Lernvideo wünschst. Sobald ein Stück produziert wird, erhältst du eine Benachrichtigung.</p>
               </div>
               <button onClick={() => setShowWishForm(!showWishForm)} className="bg-accent-gold text-white font-sans text-sm px-4 py-2 hover:bg-accent-earth transition-colors flex-shrink-0">
@@ -164,7 +164,7 @@ export default function LernvideosPage() {
               {showWishForm && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
                   <div className="bg-surface border border-accent-gold/30 p-6 space-y-4">
-                    <h3 className="font-serif font-bold text-sm">Stückwunsch erfassen</h3>
+                    <h3 className="font-heading font-bold text-sm">Stückwunsch erfassen</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="font-sans text-xs uppercase tracking-wider text-text-secondary block mb-1">Titel des Stückes *</label>
@@ -203,7 +203,7 @@ export default function LernvideosPage() {
                     <span className="font-sans font-bold text-sm">{w.votes + (wishVotes[w.id] ? 1 : 0) - (w.voted ? 1 : 0)}</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-serif font-bold text-sm">{w.title}</h4>
+                    <h4 className="font-heading font-bold text-sm">{w.title}</h4>
                     <p className="font-sans text-xs text-text-secondary">{w.artist} · {w.instrument}</p>
                   </div>
                   <span className={`font-sans text-xs px-2 py-1 border ${w.status === 'in Produktion' ? 'bg-muted-green/10 text-muted-green border-muted-green/20' : 'bg-border/50 text-text-secondary border-border'}`}>

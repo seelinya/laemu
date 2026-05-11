@@ -146,7 +146,7 @@ export default function LernvideoDetailPage() {
         <div className="flex items-center gap-4">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors">← Datenbank</Link>
           <div>
-            <h1 className="font-serif font-bold text-lg">{v.title}</h1>
+            <h1 className="font-heading font-bold text-lg">{v.title}</h1>
             <p className="font-sans text-xs text-text-secondary">{v.artist} · {v.year}</p>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function LernvideoDetailPage() {
 
             {/* Intro */}
             <div className="bg-surface border border-border p-6">
-              <h2 className="font-serif font-bold text-xl mb-3">Über das Stück</h2>
+              <h2 className="font-heading font-bold text-xl mb-3">Über das Stück</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="font-sans text-sm text-text-secondary leading-relaxed mb-4">{v.intro}</p>
@@ -230,7 +230,7 @@ export default function LernvideoDetailPage() {
                 <div>
                   <VideoPlayer img={v.img} label={activeLesson.label} />
                   <div className="mt-4 bg-surface border border-border p-4">
-                    <h4 className="font-serif font-bold text-sm mb-3">Aktiv: {activeLesson.label}</h4>
+                    <h4 className="font-heading font-bold text-sm mb-3">Aktiv: {activeLesson.label}</h4>
                   </div>
                 </div>
               )}
@@ -238,7 +238,7 @@ export default function LernvideoDetailPage() {
 
             {/* Sheet music */}
             <div className="bg-surface border border-border p-6">
-              <h3 className="font-serif font-bold text-lg mb-4">Notenblätter</h3>
+              <h3 className="font-heading font-bold text-lg mb-4">Notenblätter</h3>
               <div className="flex flex-wrap gap-2 mb-4">
                 {v.sheets.map(s => (
                   <button key={s.label} onClick={() => setActiveSheet(s.label)} className={`flex items-center gap-1.5 font-sans text-xs px-3 py-2 border transition-colors ${activeSheet === s.label ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border hover:border-accent-gold text-text-secondary'}`}>
@@ -266,7 +266,7 @@ export default function LernvideoDetailPage() {
 
             {/* LAEMU Player */}
             <div className="bg-surface border border-border p-6">
-              <h3 className="font-serif font-bold text-lg mb-4">LAEMU-Player</h3>
+              <h3 className="font-heading font-bold text-lg mb-4">LAEMU-Player</h3>
               <p className="font-sans text-sm text-text-secondary mb-4">Stelle den Mix selbst zusammen, passe die Geschwindigkeit an und mute einzelne Stimmen.</p>
               <VideoPlayer img={v.img} label="LAEMU-Player" />
               <div className="mt-4">
@@ -276,7 +276,7 @@ export default function LernvideoDetailPage() {
 
             {/* Original recordings */}
             <div className="bg-surface border border-border p-6">
-              <h3 className="font-serif font-bold text-lg mb-4">Originalaufnahmen & weitere Versionen</h3>
+              <h3 className="font-heading font-bold text-lg mb-4">Originalaufnahmen & weitere Versionen</h3>
               <div className="space-y-3">
                 {v.originalRecordings.map((r, i) => (
                   <div key={i} className="flex items-center justify-between p-4 border border-border hover:border-accent-gold transition-colors">
@@ -298,13 +298,13 @@ export default function LernvideoDetailPage() {
 
             {/* Teacher */}
             <div className="bg-surface border border-border p-6">
-              <h3 className="font-serif font-bold text-lg mb-4">Lehrperson</h3>
+              <h3 className="font-heading font-bold text-lg mb-4">Lehrperson</h3>
               <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
                   <Image src={v.teacher.img} alt={v.teacher.name} fill className="object-cover" unoptimized />
                 </div>
                 <div>
-                  <h4 className="font-serif font-bold">{v.teacher.name}</h4>
+                  <h4 className="font-heading font-bold">{v.teacher.name}</h4>
                   <p className="font-sans text-sm text-text-secondary">{v.teacher.instrument}</p>
                   <Link href="/member/community" className="font-sans text-xs text-accent-gold hover:text-accent-earth transition-colors">Profil anzeigen {v.teacher.handle} →</Link>
                 </div>
@@ -313,7 +313,7 @@ export default function LernvideoDetailPage() {
 
             {/* Comments */}
             <div className="bg-surface border border-border p-6">
-              <h3 className="font-serif font-bold text-lg mb-4">Community-Kommentare ({comments.length})</h3>
+              <h3 className="font-heading font-bold text-lg mb-4">Community-Kommentare ({comments.length})</h3>
               <div className="space-y-4 mb-6">
                 {comments.map((c, i) => (
                   <div key={i} className="flex gap-3">
@@ -342,7 +342,7 @@ export default function LernvideoDetailPage() {
             <div className="sticky top-36 space-y-6">
               <div className="bg-surface border border-border overflow-hidden">
                 <div className="p-4 border-b border-border">
-                  <h3 className="font-serif font-bold text-sm">Lernvideos zu diesem Stück</h3>
+                  <h3 className="font-heading font-bold text-sm">Lernvideos zu diesem Stück</h3>
                 </div>
                 <div>
                   {v.learningVideos.map((lv) => (
@@ -360,7 +360,7 @@ export default function LernvideoDetailPage() {
               </div>
 
               <div className="bg-surface border border-border p-4 space-y-2">
-                <h4 className="font-serif font-bold text-sm mb-3">Aktionen</h4>
+                <h4 className="font-heading font-bold text-sm mb-3">Aktionen</h4>
                 <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-accent-gold text-text-secondary'}`}>
                   {favorited ? '⭐' : '☆'} {favorited ? 'Als Favorit gespeichert' : 'Als Favorit markieren'}
                 </button>

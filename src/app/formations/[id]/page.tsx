@@ -123,10 +123,10 @@ export default function FormationDetailPage() {
                 </span>
               ))}
             </div>
-            <h1 className="font-serif text-6xl md:text-8xl font-bold text-white mb-4">
+            <h1 className="font-heading text-6xl md:text-8xl font-bold text-white mb-4">
               Ländlerkapelle Hess
             </h1>
-            <p className="font-serif text-2xl italic text-white/70">
+            <p className="font-heading text-2xl italic text-white/70">
               "Musik, die das Herz berührt."
             </p>
           </motion.div>
@@ -174,7 +174,7 @@ export default function FormationDetailPage() {
             </div>
             <div>
               <Section className="space-y-4">
-                <motion.h3 variants={fadeUp} className="font-serif font-bold text-lg mb-4">Informationen</motion.h3>
+                <motion.h3 variants={fadeUp} className="font-heading font-bold text-lg mb-4">Informationen</motion.h3>
                 {infoItems.map((item) => (
                   <motion.div key={item.label} variants={fadeUp} className="flex gap-3 p-4 bg-surface border border-border">
                     <span>{item.icon}</span>
@@ -207,7 +207,7 @@ export default function FormationDetailPage() {
                     <span className="font-sans text-xs text-white/70">{m.social}</span>
                   </div>
                 </div>
-                <h4 className="font-serif font-bold text-lg mb-1">{m.name}</h4>
+                <h4 className="font-heading font-bold text-lg mb-1">{m.name}</h4>
                 <p className="font-sans text-sm text-accent-gold mb-2">{m.instrument}</p>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">{m.bio}</p>
               </motion.div>
@@ -320,7 +320,7 @@ export default function FormationDetailPage() {
             </Section>
             <Section>
               <motion.div variants={fadeUp} className="bg-surface p-8">
-                <h3 className="font-serif text-xl font-bold mb-6">Anfrage senden</h3>
+                <h3 className="font-heading text-xl font-bold mb-6">Anfrage senden</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="label text-text-secondary block mb-2">Name</label>
@@ -365,7 +365,7 @@ export default function FormationDetailPage() {
                   <div className="p-5 flex items-center justify-between">
                     <div>
                       <h4 className="font-sans font-medium text-sm">{p.name}</h4>
-                      <p className="font-serif font-bold text-accent-gold mt-1">{p.price}</p>
+                      <p className="font-heading font-bold text-accent-gold mt-1">{p.price}</p>
                     </div>
                     <Button href="/shop" variant="secondary" size="sm">Kaufen</Button>
                   </div>
@@ -388,10 +388,10 @@ export default function FormationDetailPage() {
               <motion.div key={e.title} variants={fadeUp}>
                 <div className="flex items-center gap-6 p-6 bg-background border border-border hover:border-accent-gold transition-colors group cursor-pointer">
                   <div className="min-w-[80px]">
-                    <span className="font-serif font-bold text-accent-gold text-sm">{e.date}</span>
+                    <span className="font-heading font-bold text-accent-gold text-sm">{e.date}</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-serif font-bold group-hover:text-accent-gold transition-colors">{e.title}</h4>
+                    <h4 className="font-heading font-bold group-hover:text-accent-gold transition-colors">{e.title}</h4>
                     <p className="font-sans text-sm text-text-secondary">{e.location}</p>
                   </div>
                   <span className="font-sans text-xs px-3 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">

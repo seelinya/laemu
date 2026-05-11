@@ -9,24 +9,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#F7F3EC',
+        background: '#F0F0F0',
         surface: '#FFFFFF',
         'text-primary': '#0A0A0A',
-        'text-secondary': '#4A4A4A',
+        'text-secondary': '#5A5A5A',
         'accent-gold': '#C4973A',
-        'accent-earth': '#8B6914',
-        'muted-green': '#3D5A3E',
-        border: '#E8E0D4',
+        'accent-warm': '#D4A84B',
+        'accent-yellow': '#EDD84B',
+        border: '#DCDCDC',
+        'border-dark': '#B0B0B0',
         dark: '#0A0A0A',
+        'dark-secondary': '#1A1A1A',
       },
       fontFamily: {
-        serif: ['var(--font-playfair)', 'Playfair Display', 'Georgia', 'serif'],
+        heading: ['var(--font-syne)', 'Syne', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-syne)', 'Syne', 'system-ui', 'sans-serif'],
         sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
         'fade-in': 'fadeIn 0.8s ease-out forwards',
-        'counter': 'counter 2s ease-out forwards',
       },
       keyframes: {
         fadeUp: {

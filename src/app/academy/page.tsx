@@ -101,8 +101,8 @@ export default function AcademyPage() {
                   <div className="hidden md:block absolute top-8 left-full w-full h-px bg-border z-0 -translate-x-4" />
                 )}
                 <div className="relative z-10">
-                  <div className="font-serif text-6xl font-bold text-accent-gold/20 mb-4">{step.num}</div>
-                  <h3 className="font-serif text-xl font-bold mb-3">{step.title}</h3>
+                  <div className="font-heading text-6xl font-bold text-accent-gold/20 mb-4">{step.num}</div>
+                  <h3 className="font-heading text-xl font-bold mb-3">{step.title}</h3>
                   <p className="font-sans text-text-secondary text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </motion.div>
@@ -126,7 +126,7 @@ export default function AcademyPage() {
               <motion.div key={inst.name} variants={fadeUp}>
                 <Card hover padding="md" className="text-center cursor-pointer group">
                   <span className="text-4xl block mb-3">{inst.emoji}</span>
-                  <h4 className="font-serif font-bold text-base mb-1 group-hover:text-accent-gold transition-colors">{inst.name}</h4>
+                  <h4 className="font-heading font-bold text-base mb-1 group-hover:text-accent-gold transition-colors">{inst.name}</h4>
                   <p className="font-sans text-xs text-text-secondary mb-3">{inst.desc}</p>
                   <div className="flex flex-wrap gap-1 justify-center">
                     {inst.tiers.map(t => (
@@ -191,11 +191,11 @@ export default function AcademyPage() {
                     </div>
                   )}
                   <div className="mb-6">
-                    <h3 className={`font-serif text-2xl font-bold mb-1 ${plan.popular ? 'text-white' : ''}`}>{plan.name}</h3>
+                    <h3 className={`font-heading text-2xl font-bold mb-1 ${plan.popular ? 'text-white' : ''}`}>{plan.name}</h3>
                     <p className={`font-sans text-sm ${plan.popular ? 'text-white/60' : 'text-text-secondary'}`}>{plan.tag}</p>
                   </div>
                   <div className="mb-8">
-                    <span className={`font-serif text-5xl font-bold ${plan.popular ? 'text-accent-gold' : ''}`}>{plan.price}</span>
+                    <span className={`font-heading text-5xl font-bold ${plan.popular ? 'text-accent-gold' : ''}`}>{plan.price}</span>
                     <span className={`font-sans text-sm ${plan.popular ? 'text-white/50' : 'text-text-secondary'}`}>{plan.period}</span>
                   </div>
                   <ul className="space-y-3 mb-8 flex-1">
@@ -238,7 +238,7 @@ export default function AcademyPage() {
                     <span className="font-sans text-xs text-accent-gold">{t.instrument}</span>
                   </div>
                 </div>
-                <h4 className="font-serif font-bold text-base mb-1">{t.name}</h4>
+                <h4 className="font-heading font-bold text-base mb-1">{t.name}</h4>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">{t.bio}</p>
               </motion.div>
             ))}
@@ -258,7 +258,7 @@ export default function AcademyPage() {
               <motion.div key={g.title} variants={fadeUp}>
                 <div className="text-center p-8 border border-white/10 hover:border-accent-gold transition-colors">
                   <span className="text-5xl block mb-4">{g.icon}</span>
-                  <h3 className="font-serif text-lg font-bold text-white mb-2">{g.title}</h3>
+                  <h3 className="font-heading text-lg font-bold text-white mb-2">{g.title}</h3>
                   <p className="font-sans text-white/50 text-sm">{g.desc}</p>
                 </div>
               </motion.div>
@@ -285,7 +285,7 @@ export default function AcademyPage() {
                   </div>
                   <p className="font-sans text-text-secondary text-sm leading-relaxed mb-4 italic">"{t.text}"</p>
                   <div>
-                    <p className="font-serif font-bold text-sm">{t.name}</p>
+                    <p className="font-heading font-bold text-sm">{t.name}</p>
                     <p className="font-sans text-xs text-text-secondary">{t.location}</p>
                   </div>
                 </Card>
@@ -314,7 +314,7 @@ export default function AcademyPage() {
                   <motion.div key={item.title} variants={fadeUp} className="flex gap-4">
                     <span className="text-2xl">{item.icon}</span>
                     <div>
-                      <h4 className="font-serif font-bold">{item.title}</h4>
+                      <h4 className="font-heading font-bold">{item.title}</h4>
                       <p className="font-sans text-sm text-text-secondary">{item.desc}</p>
                     </div>
                   </motion.div>
@@ -349,7 +349,7 @@ export default function AcademyPage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 >
                   <div className="flex items-center justify-between p-6">
-                    <h4 className="font-serif font-bold">{faq.q}</h4>
+                    <h4 className="font-heading font-bold">{faq.q}</h4>
                     <motion.span
                       className="text-accent-gold text-xl font-light"
                       animate={{ rotate: openFaq === i ? 45 : 0 }}

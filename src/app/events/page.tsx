@@ -174,7 +174,7 @@ export default function EventsPage() {
                     </span>
                   </div>
                   <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-serif text-xl font-bold mb-2">{event.name}</h3>
+                    <h3 className="font-heading text-xl font-bold mb-2">{event.name}</h3>
                     <div className="flex items-center gap-2 text-sm text-text-secondary mb-1">
                       <span>📍</span>
                       <span className="font-sans">{event.location}</span>

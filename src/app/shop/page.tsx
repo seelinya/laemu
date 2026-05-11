@@ -87,7 +87,7 @@ export default function ShopPage() {
             className="max-w-2xl"
           >
             <motion.span variants={fadeUp} className="label text-accent-gold">LAEMU Shop</motion.span>
-            <motion.h1 variants={fadeUp} className="font-serif text-6xl md:text-8xl font-bold text-white leading-tight mt-4 mb-6">
+            <motion.h1 variants={fadeUp} className="font-heading text-6xl md:text-8xl font-bold text-white leading-tight mt-4 mb-6">
               Trage die Bewegung.
             </motion.h1>
             <motion.p variants={fadeUp} className="font-sans text-xl text-white/60 leading-relaxed">
@@ -147,7 +147,7 @@ export default function ShopPage() {
                     <h4 className="font-sans font-medium text-sm mb-1 group-hover:text-accent-gold transition-colors">{product.name}</h4>
                     <p className="font-sans text-xs text-text-secondary mb-3">{product.category}</p>
                     <div className="flex items-center justify-between">
-                      <span className="font-serif font-bold text-accent-gold">{product.price}</span>
+                      <span className="font-heading font-bold text-accent-gold">{product.price}</span>
                       <motion.button
                         onClick={() => handleAddToCart(product.id)}
                         className={`font-sans text-xs px-3 py-1.5 transition-all ${
@@ -186,7 +186,7 @@ export default function ShopPage() {
                   </div>
                   <p className="font-sans text-text-secondary text-sm leading-relaxed mb-4 italic">"{r.text}"</p>
                   <div>
-                    <p className="font-serif font-bold text-sm">{r.name}</p>
+                    <p className="font-heading font-bold text-sm">{r.name}</p>
                     <p className="font-sans text-xs text-text-secondary">{r.location}</p>
                   </div>
                 </Card>
@@ -223,7 +223,7 @@ export default function ShopPage() {
             </Section>
             <Section>
               <motion.div variants={fadeUp} className="bg-surface p-8">
-                <h3 className="font-serif text-xl font-bold mb-6">Als Anbieter registrieren</h3>
+                <h3 className="font-heading text-xl font-bold mb-6">Als Anbieter registrieren</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="label text-text-secondary block mb-2">Name / Formation</label>

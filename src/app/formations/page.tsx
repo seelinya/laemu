@@ -285,7 +285,7 @@ export default function FormationsPage() {
                     </div>
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-serif text-xl font-bold group-hover:text-accent-gold transition-colors">{f.name}</h3>
+                        <h3 className="font-heading text-xl font-bold group-hover:text-accent-gold transition-colors">{f.name}</h3>
                         <span className="font-sans text-xs px-2 py-1 bg-background border border-border ml-2 whitespace-nowrap">{f.region}</span>
                       </div>
                       <p className="font-sans text-xs text-accent-gold uppercase tracking-wider mb-3">{f.style}</p>
@@ -333,7 +333,7 @@ export default function FormationsPage() {
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{p.logo}</span>
                       <div>
-                        <h3 className="font-serif text-lg font-bold group-hover:text-accent-gold transition-colors leading-tight">
+                        <h3 className="font-heading text-lg font-bold group-hover:text-accent-gold transition-colors leading-tight">
                           {p.name}
                         </h3>
                         <p className="font-sans text-xs text-text-secondary mt-0.5">📍 {p.ort}</p>
@@ -412,7 +412,7 @@ export default function FormationsPage() {
             >
               <div className="text-center p-8">
                 <span className="text-8xl block mb-6">🗺️</span>
-                <p className="font-serif text-2xl font-bold mb-2">Schweiz</p>
+                <p className="font-heading text-2xl font-bold mb-2">Schweiz</p>
                 <p className="font-sans text-sm text-text-secondary">Interaktive Karte</p>
                 <div className="mt-6 flex flex-wrap gap-2 justify-center">
                   {['Zürich', 'Bern', 'Luzern', 'Uri', 'Appenzell', 'Basel'].map((c) => (

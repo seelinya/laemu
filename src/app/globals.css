@@ -3,15 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --color-background: #F7F3EC;
+  --color-background: #F0F0F0;
   --color-surface: #FFFFFF;
   --color-text-primary: #0A0A0A;
-  --color-text-secondary: #4A4A4A;
+  --color-text-secondary: #5A5A5A;
   --color-accent-gold: #C4973A;
-  --color-accent-earth: #8B6914;
-  --color-muted-green: #3D5A3E;
-  --color-border: #E8E0D4;
+  --color-accent-warm: #D4A84B;
+  --color-accent-yellow: #EDD84B;
+  --color-border: #DCDCDC;
+  --color-border-dark: #B0B0B0;
   --color-dark: #0A0A0A;
+  --color-dark-secondary: #1A1A1A;
 }
 
 * {
@@ -33,7 +35,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-syne), 'Syne', system-ui, sans-serif;
 }
 
 @layer utilities {
@@ -41,41 +43,50 @@ h1, h2, h3, h4, h5, h6 {
     text-wrap: balance;
   }
   .heading-xl {
-    @apply font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight;
+    @apply font-heading text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight;
   }
   .heading-lg {
-    @apply font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+    @apply font-heading text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight;
   }
   .heading-md {
-    @apply font-serif text-3xl md:text-4xl font-bold leading-tight;
+    @apply font-heading text-3xl md:text-4xl font-black leading-tight tracking-tight;
   }
   .heading-sm {
-    @apply font-serif text-2xl md:text-3xl font-bold leading-tight;
+    @apply font-heading text-2xl md:text-3xl font-bold leading-tight;
   }
   .body-lg {
-    @apply font-sans text-lg leading-relaxed;
+    @apply font-sans text-lg font-light leading-relaxed;
   }
   .body-md {
-    @apply font-sans text-base leading-relaxed;
+    @apply font-sans text-base font-light leading-relaxed;
   }
   .body-sm {
-    @apply font-sans text-sm leading-relaxed;
+    @apply font-sans text-sm font-light leading-relaxed;
   }
   .label {
-    @apply font-sans text-xs uppercase tracking-widest font-medium;
+    @apply font-sans text-xs uppercase tracking-[0.2em] font-medium;
+  }
+  .gradient-hero {
+    background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+  }
+  .gradient-section {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
+  }
+  .gradient-surface {
+    background: linear-gradient(180deg, #F8F8F8 0%, #F0F0F0 100%);
   }
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-background);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+  background: var(--color-border-dark);
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-gold);

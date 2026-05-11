@@ -20,11 +20,11 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-accent-gold text-white hover:bg-accent-earth border-2 border-accent-gold hover:border-accent-earth',
+  primary: 'bg-accent-gold text-white hover:bg-accent-warm border-2 border-accent-gold hover:border-accent-warm',
   secondary: 'bg-background text-text-primary hover:bg-border border-2 border-border',
-  outline: 'bg-transparent text-white hover:bg-white hover:text-text-primary border-2 border-white',
+  outline: 'bg-transparent text-white hover:bg-white hover:text-dark border-2 border-white',
   ghost: 'bg-transparent text-text-primary hover:bg-border border-2 border-transparent',
-  dark: 'bg-dark text-white hover:bg-text-secondary border-2 border-dark',
+  dark: 'bg-dark text-white hover:bg-accent-gold border-2 border-dark hover:border-accent-gold',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {

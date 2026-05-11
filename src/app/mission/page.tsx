@@ -102,7 +102,7 @@ export default function MissionPage() {
             className="max-w-4xl"
           >
             <motion.span variants={fadeUp} className="label text-accent-gold">Die Mission</motion.span>
-            <motion.h1 variants={fadeUp} className="font-serif text-6xl md:text-8xl font-bold text-white leading-tight mt-4 mb-8">
+            <motion.h1 variants={fadeUp} className="font-heading text-6xl md:text-8xl font-bold text-white leading-tight mt-4 mb-8">
               Etwas Grosses beginnt immer mit den Ersten.
             </motion.h1>
             <motion.p variants={fadeUp} className="font-sans text-xl text-white/60 leading-relaxed max-w-2xl">
@@ -163,7 +163,7 @@ export default function MissionPage() {
               <motion.div key={usp.title} variants={fadeUp}>
                 <div className="border border-white/10 p-10 h-full hover:border-accent-gold transition-colors duration-300">
                   <span className="text-5xl block mb-6">{usp.icon}</span>
-                  <h3 className="font-serif text-2xl font-bold text-white mb-1">{usp.title}</h3>
+                  <h3 className="font-heading text-2xl font-bold text-white mb-1">{usp.title}</h3>
                   <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-4">{usp.subtitle}</p>
                   <p className="font-sans text-white/60 text-sm leading-relaxed">{usp.desc}</p>
                 </div>
@@ -188,7 +188,7 @@ export default function MissionPage() {
               <motion.div key={item.title} variants={fadeUp}>
                 <Card hover padding="lg">
                   <span className="text-3xl block mb-4">{item.icon}</span>
-                  <h3 className="font-serif text-xl font-bold mb-2">{item.title}</h3>
+                  <h3 className="font-heading text-xl font-bold mb-2">{item.title}</h3>
                   <p className="font-sans text-sm text-text-secondary leading-relaxed">{item.desc}</p>
                 </Card>
               </motion.div>
@@ -231,7 +231,7 @@ export default function MissionPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-0 p-6">
                     <span className="font-sans text-xs text-accent-gold">{founder.role}</span>
-                    <h3 className="font-serif text-2xl font-bold text-white">{founder.name}</h3>
+                    <h3 className="font-heading text-2xl font-bold text-white">{founder.name}</h3>
                   </div>
                 </motion.div>
                 <div className="flex flex-col justify-center">
@@ -260,7 +260,7 @@ export default function MissionPage() {
                 <div className="relative aspect-square overflow-hidden mb-3">
                   <Image src={t.img} alt={t.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500" unoptimized />
                 </div>
-                <h4 className="font-serif font-bold">{t.name}</h4>
+                <h4 className="font-heading font-bold">{t.name}</h4>
                 <p className="font-sans text-xs text-accent-gold">{t.instrument}</p>
               </motion.div>
             ))}
@@ -304,7 +304,7 @@ export default function MissionPage() {
             {contributeOptions.map((opt) => (
               <motion.div key={opt.title} variants={fadeUp} className="text-center border border-white/10 p-8 hover:border-accent-gold transition-colors duration-300">
                 <span className="text-4xl block mb-4">{opt.icon}</span>
-                <h3 className="font-serif text-lg font-bold text-white mb-2">{opt.title}</h3>
+                <h3 className="font-heading text-lg font-bold text-white mb-2">{opt.title}</h3>
                 <p className="font-sans text-white/50 text-sm mb-6 leading-relaxed">{opt.desc}</p>
                 <Button href={opt.href} variant="outline" size="sm">{opt.cta}</Button>
               </motion.div>
