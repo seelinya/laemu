@@ -35,12 +35,11 @@ const steps = [
 ]
 
 const instruments = [
-  { emoji: '🪗', name: 'Handorgel', desc: 'Das Herzstück der Ländlermusik', courses: 12 },
-  { emoji: '🎶', name: 'Schwyzerörgeli', desc: 'Diatonisch und voller Seele', courses: 8 },
-  { emoji: '🎹', name: 'Piano', desc: 'Harmonischer Anker der Kapelle', courses: 10 },
-  { emoji: '🎸', name: 'Bass', desc: 'Das Fundament des Klangs', courses: 7 },
-  { emoji: '🎵', name: 'Klarinette', desc: 'Melodisch und ausdrucksstark', courses: 9 },
-  { emoji: '🎷', name: 'Saxofon', desc: 'Modern interpretiert', courses: 6 },
+  { emoji: '🪗', name: 'Handorgel', desc: 'Das Herzstück der Ländlermusik', tiers: ['Schnupper', 'Starter', 'Pro'] },
+  { emoji: '🎶', name: 'Schwyzerörgeli', desc: 'Diatonisch und voller Seele', tiers: ['Schnupper', 'Starter', 'Pro'] },
+  { emoji: '🎹', name: 'Klavier', desc: 'Harmonischer Anker der Kapelle', tiers: ['Einsteiger', 'Fortgeschritten', 'Profi'] },
+  { emoji: '🎸', name: 'Bass', desc: 'Das Fundament des Klangs', tiers: ['Einsteiger', 'Fortgeschritten', 'Profi'] },
+  { emoji: '🎵', name: 'Klarinette', desc: 'Melodisch und ausdrucksstark', tiers: ['Einsteiger', 'Fortgeschritten', 'Profi'] },
 ]
 
 const teachers = [
@@ -122,14 +121,18 @@ export default function AcademyPage() {
               Wähle dein Instrument und tauche ein in die Welt der Ländlermusik.
             </motion.p>
           </Section>
-          <Section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {instruments.map((inst) => (
               <motion.div key={inst.name} variants={fadeUp}>
                 <Card hover padding="md" className="text-center cursor-pointer group">
                   <span className="text-4xl block mb-3">{inst.emoji}</span>
                   <h4 className="font-serif font-bold text-base mb-1 group-hover:text-accent-gold transition-colors">{inst.name}</h4>
-                  <p className="font-sans text-xs text-text-secondary mb-2">{inst.desc}</p>
-                  <span className="font-sans text-xs text-accent-gold">{inst.courses} Kurse</span>
+                  <p className="font-sans text-xs text-text-secondary mb-3">{inst.desc}</p>
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {inst.tiers.map(t => (
+                      <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{t}</span>
+                    ))}
+                  </div>
                 </Card>
               </motion.div>
             ))}
@@ -147,30 +150,30 @@ export default function AcademyPage() {
           <Section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
               {
-                name: 'Schnupperkurs',
+                name: 'Schnupper',
                 price: 'CHF 29',
                 period: 'einmalig',
                 tag: 'Für Neugierige',
                 popular: false,
-                features: ['3 vollständige Lektionen', 'Basis-Feedback', 'LAEMU Community-Zugang', 'Kein Abo'],
+                features: ['3 vollständige Lektionen', 'Basis-Feedback', 'Community-Zugang inklusive', 'Kein Abo, keine Bindung'],
                 cta: 'Jetzt schnuppern',
               },
               {
-                name: 'Starterkurs',
+                name: 'Starter',
                 price: 'CHF 79',
                 period: '/Monat',
                 tag: 'Für Einsteiger',
                 popular: false,
-                features: ['Unbegrenzte Videobubiothek', 'Community-Zugang', 'Monatliche Live-Calls', 'Fortschritts-Tracking', 'Achievements & Badges'],
+                features: ['Strukturierter Lehrgang', 'Community-Zugang inklusive', 'Kurs-Chat mit Mitschülern', 'Monatliche Live-Calls', 'Fortschritts-Tracking & Badges'],
                 cta: 'Starter beginnen',
               },
               {
-                name: 'Pro-Kurs',
+                name: 'Pro',
                 price: 'CHF 149',
                 period: '/Monat',
                 tag: 'Für Ambitionierte',
                 popular: true,
-                features: ['Alles aus Starterkurs', 'Persönliches Video-Feedback', 'Zugang zu Camps & Events', 'Exklusiv-Content', 'Prioritäts-Support', 'Direktzugang zu Lehrern'],
+                features: ['Alles aus Starter', 'Lernvideo-Datenbank (alle Stücke)', 'Persönliches Video-Feedback', 'Zugang zu Camps & Events', 'Direktzugang zu Lehrern', 'Einzelne Lernvideos kaufen (CHF 18)'],
                 cta: 'Pro starten',
               },
             ].map((plan) => (

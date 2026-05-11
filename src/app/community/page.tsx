@@ -28,12 +28,14 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 }
 
 const features = [
-  { icon: '👤', title: 'Profil erstellen', desc: 'Präsentiere dich, dein Instrument und deine musikalische Reise der ganzen Community.' },
-  { icon: '📝', title: 'Beiträge teilen', desc: 'Poste deine Gedanken, Neuigkeiten und musikalischen Erfahrungen.' },
-  { icon: '🎥', title: 'Videos & Fotos', desc: 'Teile deine Auftritte, Proben und besonderen Momente mit anderen.' },
-  { icon: '🔔', title: 'Formationen folgen', desc: 'Bleib auf dem Laufenden über die Neuigkeiten deiner Lieblingsformationen.' },
-  { icon: '👫', title: 'Gruppen beitreten', desc: 'Finde Gleichgesinnte in themenbezogenen Gruppen und Diskussionen.' },
-  { icon: '💬', title: 'Direktnachrichten', desc: 'Verbinde dich direkt mit Musikern, Fans und Organisatoren.' },
+  { icon: '👤', title: 'Eigenes Profil', desc: 'Profilname, Bild, Formation, Instrumente, musikalische Vorbilder und Bio — alles auf deiner persönlichen Seite.' },
+  { icon: '🎬', title: 'Videos & Medien', desc: 'Lade eigene Videos hoch, poste Bilder, Texte und teile Links von YouTube, Facebook und mehr.' },
+  { icon: '📋', title: 'Feed verwalten', desc: 'Zwei Tabs: alle Beiträge nach Datum, oder nur der Inhalt der Profile, denen du folgst.' },
+  { icon: '❤️', title: 'Interagieren', desc: 'Like, kommentiere, teile Beiträge und speichere sie als Inspiration auf deinem Profil.' },
+  { icon: '💬', title: 'Direktnachrichten', desc: 'Chatte direkt mit anderen Musikern und tritt LAEMU-Gruppen für Kurse und Events bei.' },
+  { icon: '🎓', title: 'Academy-Zugang', desc: 'Jedes Community-Mitglied erhält automatisch Zugang zur LAEMU Academy inklusive Kurs-Chats.' },
+  { icon: '📅', title: 'Event-Chats', desc: 'Bei Event-Anmeldung erhältst du Zugang zum LAEMU-Chat für den jeweiligen Anlass.' },
+  { icon: '🔒', title: 'Profil & Privatsphäre', desc: 'Verwalte Geräte (max. 2), Blockliste, Zahlungsangaben, Rechnungsverlauf und Passwort.' },
 ]
 
 const mockPosts = [
@@ -96,7 +98,7 @@ export default function CommunityPage() {
               Die LAEMU Community bietet dir alle Werkzeuge, um dich zu vernetzen und zu wachsen.
             </motion.p>
           </Section>
-          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f) => (
               <motion.div key={f.title} variants={fadeUp}>
                 <Card hover padding="lg">
@@ -171,11 +173,11 @@ export default function CommunityPage() {
                   <p className="font-sans text-text-secondary text-sm">Für alle die verbinden wollen</p>
                 </div>
                 <div className="mb-8">
-                  <span className="font-serif text-5xl font-bold">CHF 1</span>
+                  <span className="font-serif text-5xl font-bold">CHF 5</span>
                   <span className="font-sans text-text-secondary">/Monat</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {['Community-Profil', 'Beiträge & Posts', 'Gruppen beitreten', 'Events entdecken', 'Formationen folgen'].map((item) => (
+                  {['Eigenes Community-Profil', 'Beiträge, Videos & Links posten', 'Direktnachrichten (Chat)', 'Academy-Zugang inklusive', 'Event-Chats bei Anmeldung', 'Geräte-Verwaltung (max. 2)', 'Blockliste & Datenschutz'].map((item) => (
                     <li key={item} className="flex items-center gap-3 font-sans text-sm">
                       <span className="text-muted-green">✓</span>
                       {item}
@@ -200,7 +202,7 @@ export default function CommunityPage() {
                   <span className="font-serif text-5xl font-bold text-accent-gold">Inklusive</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {['Alles aus Community', 'Unbegrenzte Kurse', 'Live-Calls mit Lehrern', 'Persönliches Feedback', 'Exklusive Events'].map((item) => (
+                  {['Alles aus Community (CHF 5/Mt.)', 'Strukturierte Lehrgänge (Handorgel, Schwyzerörgeli, Klavier, Bass, Klarinette)', 'Lernvideo-Datenbank für Fortgeschrittene', 'Kurs-Chat pro Lehrgang', 'Live-Calls & persönliches Feedback'].map((item) => (
                     <li key={item} className="flex items-center gap-3 font-sans text-sm text-white/80">
                       <span className="text-accent-gold">✓</span>
                       {item}

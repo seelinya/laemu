@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 
 const courses = [
@@ -64,11 +64,18 @@ const recommendedLessons = [
 ]
 
 const navItems = [
-  { icon: '📚', label: 'Meine Kurse', active: true },
-  { icon: '👩‍🏫', label: 'Lehrpersonen', active: false },
-  { icon: '📈', label: 'Fortschritt', active: false },
-  { icon: '🏆', label: 'Achievements', active: false },
-  { icon: '⚙️', label: 'Einstellungen', active: false },
+  { icon: '📚', label: 'Meine Kurse', id: 'kurse' },
+  { icon: '🎬', label: 'Lernvideo-Datenbank', id: 'lernvideos', href: '/member/academy/lernvideos' },
+  { icon: '💬', label: 'Kurs-Chats', id: 'chats' },
+  { icon: '👩‍🏫', label: 'Lehrpersonen', id: 'lehrer' },
+  { icon: '📈', label: 'Fortschritt', id: 'fortschritt' },
+  { icon: '🏆', label: 'Achievements', id: 'achievements' },
+]
+
+const courseChats = [
+  { id: 'ho', name: 'Handorgel-Lehrgang', icon: '🪗', members: 48, last: 'Hansruedi: Übungsaufgabe bis Freitag!', time: '10:30', unread: 3 },
+  { id: 'oe', name: 'Schwyzerörgeli-Lehrgang', icon: '🎶', members: 34, last: 'Maria: Sehr gut gemacht alle!', time: 'Gestern', unread: 0 },
+  { id: 'kl', name: 'Klavier-Lehrgang', icon: '🎹', members: 29, last: 'Lisa: Nächster Live-Call am Dienstag', time: 'Mo', unread: 1 },
 ]
 
 function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
@@ -85,7 +92,9 @@ function ProgressBar({ value, className = '' }: { value: number; className?: str
 }
 
 export default function MemberAcademyPage() {
-  const [activeNav, setActiveNav] = useState('Meine Kurse')
+  const [activeNav, setActiveNav] = useState('kurse')
+  const [activeChatId, setActiveChatId] = useState<string | null>('ho')
+  const [chatMsg, setChatMsg] = useState('')
   const currentCourse = courses[0]
 
   return (
@@ -142,18 +151,30 @@ export default function MemberAcademyPage() {
               {/* Navigation */}
               <nav className="bg-surface border border-border overflow-hidden">
                 {navItems.map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => setActiveNav(item.label)}
-                    className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
-                      activeNav === item.label
-                        ? 'bg-accent-gold/5 text-accent-gold font-medium'
-                        : 'text-text-secondary hover:bg-background hover:text-text-primary'
-                    }`}
-                  >
-                    <span>{item.icon}</span>
-                    {item.label}
-                  </button>
+                  item.href ? (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className="w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left text-text-secondary hover:bg-background hover:text-accent-gold"
+                    >
+                      <span>{item.icon}</span>
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveNav(item.id)}
+                      className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
+                        activeNav === item.id
+                          ? 'bg-accent-gold/5 text-accent-gold font-medium'
+                          : 'text-text-secondary hover:bg-background hover:text-text-primary'
+                      }`}
+                    >
+                      <span>{item.icon}</span>
+                      {item.label}
+                      {item.id === 'chats' && <span className="ml-auto bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded-full">4</span>}
+                    </button>
+                  )
                 ))}
               </nav>
 
@@ -181,8 +202,56 @@ export default function MemberAcademyPage() {
           {/* MAIN CONTENT */}
           <div className="lg:col-span-3 space-y-8">
 
-            {/* Greeting + Streak */}
-            <motion.div
+            {/* Kurs-Chats */}
+            {activeNav === 'chats' && (
+              <div className="bg-surface border border-border overflow-hidden" style={{ minHeight: '500px' }}>
+                <div className="flex h-full" style={{ minHeight: '500px' }}>
+                  <div className="w-64 border-r border-border flex-shrink-0">
+                    <div className="p-4 border-b border-border">
+                      <h3 className="font-serif font-bold text-sm">Kurs-Chats</h3>
+                      <p className="font-sans text-xs text-text-secondary mt-1">Nur für eingeschriebene Kursteilnehmer</p>
+                    </div>
+                    {courseChats.map(c => (
+                      <button key={c.id} onClick={() => setActiveChatId(c.id)} className={`w-full flex items-center gap-3 p-4 border-b border-border text-left transition-colors ${activeChatId === c.id ? 'bg-accent-gold/5' : 'hover:bg-background'}`}>
+                        <span className="text-2xl flex-shrink-0">{c.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-sans text-xs font-semibold truncate">{c.name}</p>
+                          <p className="font-sans text-[10px] text-text-secondary truncate">{c.last}</p>
+                        </div>
+                        {c.unread > 0 && <span className="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0">{c.unread}</span>}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex-1 flex flex-col">
+                    {activeChatId ? (() => {
+                      const chat = courseChats.find(c => c.id === activeChatId)!
+                      return (
+                        <>
+                          <div className="p-4 border-b border-border flex items-center gap-3">
+                            <span className="text-2xl">{chat.icon}</span>
+                            <div>
+                              <p className="font-sans font-semibold text-sm">{chat.name}</p>
+                              <p className="font-sans text-xs text-text-secondary">{chat.members} Mitglieder · Verwaltet von LAEMU</p>
+                            </div>
+                          </div>
+                          <div className="flex-1 p-4 space-y-3 overflow-y-auto" style={{ minHeight: '280px' }}>
+                            <div className="flex justify-start"><div className="bg-background border border-border px-3 py-2 max-w-xs"><p className="font-sans text-xs font-semibold text-accent-gold mb-0.5">Hansruedi Wenger (Lehrer)</p><p className="font-sans text-sm">Willkommen im Kurs-Chat! Hier können wir Fragen besprechen.</p></div></div>
+                            <div className="flex justify-start"><div className="bg-background border border-border px-3 py-2 max-w-xs"><p className="font-sans text-xs font-semibold mb-0.5">Maria Kälin</p><p className="font-sans text-sm">Super, ich freue mich auf den Austausch!</p></div></div>
+                            <div className="flex justify-end"><div className="bg-accent-gold text-white px-3 py-2 max-w-xs"><p className="font-sans text-sm">Ich auch! Frage zur Lektion 3…</p></div></div>
+                          </div>
+                          <div className="p-4 border-t border-border flex gap-2">
+                            <input value={chatMsg} onChange={e => setChatMsg(e.target.value)} placeholder="Nachricht schreiben..." className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-accent-gold" />
+                            <button className="bg-accent-gold text-white px-4 py-2 font-sans text-sm hover:bg-accent-earth transition-colors">Senden</button>
+                          </div>
+                        </>
+                      )
+                    })() : <div className="flex-1 flex items-center justify-center"><p className="font-sans text-text-secondary text-sm">Wähle einen Kurs-Chat</p></div>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeNav !== 'chats' && <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-dark p-8"
@@ -201,10 +270,10 @@ export default function MemberAcademyPage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </motion.div>}
 
             {/* Continue where you left off */}
-            <div>
+            {activeNav !== 'chats' && <div>
               <h3 className="font-serif font-bold text-xl mb-4">Weitermachen wo du aufgehört hast</h3>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -243,10 +312,10 @@ export default function MemberAcademyPage() {
                   </div>
                 </div>
               </motion.div>
-            </div>
+            </div>}
 
             {/* My Courses */}
-            <div>
+            {activeNav !== 'chats' && <div>
               <h3 className="font-serif font-bold text-xl mb-4">Meine Kurse</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {courses.map((course, i) => (
@@ -277,10 +346,10 @@ export default function MemberAcademyPage() {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {/* Recommended Lessons */}
-            <div>
+            {activeNav !== 'chats' && <div>
               <h3 className="font-serif font-bold text-xl mb-4">Empfohlene Lektionen</h3>
               <div className="space-y-3">
                 {recommendedLessons.map((lesson, i) => (
@@ -305,10 +374,10 @@ export default function MemberAcademyPage() {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {/* Achievements */}
-            <div>
+            {activeNav !== 'chats' && <div>
               <h3 className="font-serif font-bold text-xl mb-4">Meine Achievements</h3>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                 {achievements.map((a, i) => (
@@ -328,7 +397,7 @@ export default function MemberAcademyPage() {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </div>}
           </div>
         </div>
       </div>
