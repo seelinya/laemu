@@ -65,6 +65,10 @@ const formations = [
   { id: 'rigi', name: 'Quartett Rigi' },
 ]
 
+const lernvideoPricing = { monthly: 12, yearly: 115 }
+
+type CourseSelection = { instrumentId: string; tierId: string }
+
 // ─── AcademySubscribeModal ────────────────────────────────────────────────────
 
 type ModalProps = {
@@ -76,8 +80,10 @@ type ModalProps = {
 function AcademySubscribeModal({ onClose, initialInstrumentId, initialTierId }: ModalProps) {
   const [step, setStep] = useState(1)
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
-  const [selectedInstrument, setSelectedInstrument] = useState<string>(initialInstrumentId ?? '')
-  const [selectedTier, setSelectedTier] = useState<string>(initialTierId ?? '')
+  const [courses, setCourses] = useState<CourseSelection[]>([
+    { instrumentId: initialInstrumentId ?? '', tierId: initialTierId ?? '' },
+  ])
+  const [lernvideoAddon, setLernvideoAddon] = useState(false)
   const [purchaserType, setPurchaserType] = useState<'individual' | 'formation' | ''>('')
   const [selectedFormation, setSelectedFormation] = useState<string>('')
   const [customFormation, setCustomFormation] = useState('')
@@ -88,18 +94,45 @@ function AcademySubscribeModal({ onClose, initialInstrumentId, initialTierId }: 
   const [newPassword, setNewPassword] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const instrument = planInstruments.find(i => i.id === selectedInstrument)
-  const tier = planTiers.find(t => t.id === selectedTier)
-  const tierPricing = selectedInstrument && selectedTier ? pricing[selectedInstrument]?.[selectedTier] : undefined
-  const isOneTime = tier?.oneTime ?? false
-  const basePrice = isOneTime
-    ? (tierPricing?.one ?? 0)
-    : billing === 'monthly'
-    ? (tierPricing?.monthly ?? 0)
-    : (tierPricing?.yearly ?? 0)
+  function updateCourse(idx: number, field: keyof CourseSelection, value: string) {
+    setCourses(prev => {
+      const next = [...prev]
+      next[idx] = field === 'instrumentId'
+        ? { instrumentId: value, tierId: '' }
+        : { ...next[idx], [field]: value }
+      return next
+    })
+  }
+  function removeCourse(idx: number) {
+    setCourses(prev => prev.filter((_, i) => i !== idx))
+  }
+  function selectAllPlatform() {
+    setCourses(planInstruments.map(i => ({ instrumentId: i.id, tierId: 'all' })))
+    setLernvideoAddon(false)
+  }
+
+  function coursePrice(c: CourseSelection): number {
+    if (!c.instrumentId || !c.tierId) return 0
+    const p = pricing[c.instrumentId]?.[c.tierId]
+    const t = planTiers.find(x => x.id === c.tierId)
+    return t?.oneTime ? (p?.one ?? 0) : billing === 'monthly' ? (p?.monthly ?? 0) : (p?.yearly ?? 0)
+  }
+
+  const validCourses = courses.filter(c => c.instrumentId && c.tierId)
+  const lernvideoIncluded = validCourses.some(c => c.tierId === 'all')
+  const addonPrice = !lernvideoIncluded && lernvideoAddon
+    ? (billing === 'monthly' ? lernvideoPricing.monthly : lernvideoPricing.yearly)
+    : 0
+  const coursesTotal = validCourses.reduce((s, c) => s + coursePrice(c), 0)
+  const baseTotal = coursesTotal + addonPrice
   const hasFormationDiscount = purchaserType === 'formation'
-  const discountedPrice = hasFormationDiscount ? Math.round(basePrice * 0.8) : basePrice
-  const canProceedStep1 = !!selectedInstrument && !!selectedTier
+  const discountedTotal = hasFormationDiscount ? Math.round(baseTotal * 0.8) : baseTotal
+  const allOneTime = validCourses.length > 0 && validCourses.every(c => planTiers.find(t => t.id === c.tierId)?.oneTime)
+  const billingLabel = allOneTime ? ' einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'
+  const canProceedStep1 = validCourses.length > 0
+  const gesamtPrice = billing === 'monthly'
+    ? planInstruments.reduce((s, i) => s + (pricing[i.id]?.all?.monthly ?? 0), 0)
+    : planInstruments.reduce((s, i) => s + (pricing[i.id]?.all?.yearly ?? 0), 0)
 
   const stepTitles = [
     { title: 'Plan wählen', subtitle: 'Wähle deinen Lehrgang aus.' },
@@ -176,81 +209,172 @@ function AcademySubscribeModal({ onClose, initialInstrumentId, initialTierId }: 
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Instrument picker */}
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-3">1. Instrument wählen</p>
-                <div className="grid grid-cols-2 gap-2 mb-5">
-                  {planInstruments.map(inst => (
-                    <button
-                      key={inst.id}
-                      onClick={() => { setSelectedInstrument(inst.id); setSelectedTier('') }}
-                      className={`text-left p-3 border transition-all ${selectedInstrument === inst.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                    >
-                      <span className="text-lg mr-1.5">{inst.emoji}</span>
-                      <span className="font-heading font-bold text-sm">{inst.label}</span>
-                      <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">{inst.subtitle}</p>
-                    </button>
-                  ))}
+                {/* Billing toggle */}
+                <div className="flex items-center gap-2 mb-5">
+                  <button
+                    onClick={() => setBilling('monthly')}
+                    className={`font-sans text-xs px-3 py-1.5 border transition-colors ${billing === 'monthly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                  >
+                    Monatlich
+                  </button>
+                  <button
+                    onClick={() => setBilling('yearly')}
+                    className={`font-sans text-xs px-3 py-1.5 border transition-colors ${billing === 'yearly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                  >
+                    Jährlich <span className="text-accent-gold ml-0.5">–20%</span>
+                  </button>
                 </div>
 
-                {/* Tier picker — shown after instrument selected */}
-                <AnimatePresence>
-                  {selectedInstrument && (
-                    <motion.div
-                      key="tier-picker"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="overflow-hidden"
-                    >
-                      <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-3">2. Paket wählen</p>
+                {/* Course entries */}
+                {courses.map((course, idx) => (
+                  <div key={idx} className="border border-border p-3 mb-3 relative">
+                    {courses.length > 1 && (
+                      <button
+                        onClick={() => removeCourse(idx)}
+                        className="absolute top-2.5 right-2.5 font-sans text-base text-text-secondary hover:text-dark leading-none"
+                        aria-label="Lehrgang entfernen"
+                      >
+                        ×
+                      </button>
+                    )}
+                    <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wide mb-2">
+                      {courses.length > 1 ? `Lehrgang ${idx + 1}` : 'Instrument'}
+                    </p>
 
-                      {/* Billing toggle — hidden when Schnupper selected */}
-                      {selectedTier !== 'schnupper' && (
-                        <div className="flex items-center gap-2 mb-4">
-                          <button
-                            onClick={() => setBilling('monthly')}
-                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${billing === 'monthly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                          >
-                            Monatlich
-                          </button>
-                          <button
-                            onClick={() => setBilling('yearly')}
-                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${billing === 'yearly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                          >
-                            Jährlich <span className="text-accent-gold ml-0.5">–20%</span>
-                          </button>
-                        </div>
+                    {/* Instrument row */}
+                    <div className="grid grid-cols-2 gap-1.5 mb-3">
+                      {planInstruments.map(inst => (
+                        <button
+                          key={inst.id}
+                          onClick={() => updateCourse(idx, 'instrumentId', inst.id)}
+                          className={`text-left px-2.5 py-2 border text-xs transition-all ${course.instrumentId === inst.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                        >
+                          <span className="mr-1">{inst.emoji}</span>
+                          <span className="font-heading font-bold">{inst.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Tier row — shown after instrument selected */}
+                    <AnimatePresence>
+                      {course.instrumentId && (
+                        <motion.div
+                          key={`tiers-${idx}`}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wide mb-1.5">Paket</p>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {planTiers.map(t => {
+                              const p = pricing[course.instrumentId]?.[t.id]
+                              const price = t.oneTime ? p?.one : billing === 'monthly' ? p?.monthly : p?.yearly
+                              const period = t.oneTime ? 'einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'
+                              const active = course.tierId === t.id
+                              return (
+                                <button
+                                  key={t.id}
+                                  onClick={() => updateCourse(idx, 'tierId', t.id)}
+                                  className={`text-left px-2.5 py-2 border transition-all relative ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                                >
+                                  {t.badge && (
+                                    <span className="absolute top-1.5 right-1.5 text-[8px] bg-accent-gold text-white px-1 py-0.5 font-sans">{t.badge}</span>
+                                  )}
+                                  <p className="font-heading font-bold text-xs">{t.label}</p>
+                                  <p className="font-sans text-[10px] text-text-secondary">
+                                    CHF {price ?? '–'}<span className="ml-0.5">{period}</span>
+                                  </p>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </motion.div>
                       )}
+                    </AnimatePresence>
+                  </div>
+                ))}
 
-                      <div className="grid grid-cols-2 gap-2 mb-5">
-                        {planTiers.map(t => {
-                          const p = pricing[selectedInstrument]?.[t.id]
-                          const price = t.oneTime ? p?.one : billing === 'monthly' ? p?.monthly : p?.yearly
-                          const period = t.oneTime ? 'einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'
-                          const active = selectedTier === t.id
-                          return (
-                            <button
-                              key={t.id}
-                              onClick={() => setSelectedTier(t.id)}
-                              className={`text-left p-3 border transition-all relative ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                            >
-                              {t.badge && (
-                                <span className="absolute top-2 right-2 text-[9px] bg-accent-gold text-white px-1.5 py-0.5 font-sans font-medium">{t.badge}</span>
-                              )}
-                              <p className="font-heading font-bold text-sm mb-1">{t.label}</p>
-                              <p className="font-sans text-[11px] text-text-secondary leading-snug mb-2">{t.desc}</p>
-                              <p className="font-heading font-bold text-sm">
-                                CHF {price ?? '–'}
-                                <span className="font-sans text-[11px] text-text-secondary font-normal ml-0.5">{period}</span>
-                              </p>
-                            </button>
-                          )
-                        })}
+                {/* Add another course */}
+                <button
+                  onClick={() => setCourses(prev => [...prev, { instrumentId: '', tierId: '' }])}
+                  className="w-full border border-dashed border-border py-2.5 font-sans text-xs text-text-secondary hover:border-dark hover:text-dark transition-colors mb-4"
+                >
+                  + Weiteren Lehrgang hinzufügen
+                </button>
+
+                {/* Lernvideo addon */}
+                {lernvideoIncluded ? (
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-accent-gold/5 border border-accent-gold/30">
+                    <span className="text-accent-gold text-sm">✓</span>
+                    <span className="font-sans text-xs text-dark">Lernvideo-Bibliothek bereits via All-Paket inklusive</span>
+                  </div>
+                ) : (
+                  <div className="border border-border p-3 mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-heading font-bold text-sm">📹 Lernvideo-Bibliothek</p>
+                      <p className="font-sans text-xs text-text-secondary">200+ Stücke · Ständig erweitert</p>
+                      <p className="font-sans text-xs text-accent-gold mt-0.5">
+                        +CHF {billing === 'monthly' ? lernvideoPricing.monthly : lernvideoPricing.yearly}{billing === 'monthly' ? '/Mt.' : '/Jahr'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setLernvideoAddon(v => !v)}
+                      className={`flex-shrink-0 px-3 py-1.5 border font-sans text-xs font-medium transition-colors ${lernvideoAddon ? 'bg-accent-gold text-white border-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
+                    >
+                      {lernvideoAddon ? '✓ Aktiv' : '+ Hinzufügen'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Gesamtzugang preset */}
+                <div className="border border-dashed border-accent-gold/40 p-3 mb-4 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-heading font-bold text-sm">🎓 Gesamtzugang</p>
+                    <p className="font-sans text-xs text-text-secondary">Alle 4 Lehrgänge im All-Paket + Lernvideo-Bibliothek</p>
+                    <p className="font-sans text-xs text-accent-gold mt-0.5">
+                      CHF {gesamtPrice}{billing === 'monthly' ? '/Mt.' : '/Jahr'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={selectAllPlatform}
+                    className="flex-shrink-0 px-3 py-1.5 border border-accent-gold text-accent-gold font-sans text-xs font-medium hover:bg-accent-gold hover:text-white transition-colors"
+                  >
+                    Aktivieren
+                  </button>
+                </div>
+
+                {/* Price breakdown */}
+                {validCourses.length > 0 && (
+                  <div className="bg-background border border-border p-3 mb-4">
+                    {validCourses.map((c, idx) => {
+                      const inst = planInstruments.find(i => i.id === c.instrumentId)
+                      const t = planTiers.find(x => x.id === c.tierId)
+                      const price = coursePrice(c)
+                      const period = t?.oneTime ? ' einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'
+                      return (
+                        <div key={idx} className="flex justify-between font-sans text-xs mb-1.5">
+                          <span className="text-text-secondary">{inst?.emoji} {inst?.label} — {t?.label}</span>
+                          <span className="font-medium">CHF {price}<span className="text-text-secondary">{period}</span></span>
+                        </div>
+                      )
+                    })}
+                    {!lernvideoIncluded && lernvideoAddon && (
+                      <div className="flex justify-between font-sans text-xs mb-1.5">
+                        <span className="text-text-secondary">📹 Lernvideo-Bibliothek</span>
+                        <span className="font-medium">+CHF {addonPrice}<span className="text-text-secondary">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span></span>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    )}
+                    <div className="border-t border-border mt-2 pt-2 flex justify-between">
+                      <span className="font-sans text-sm font-medium">Total</span>
+                      <span className="font-heading font-bold">
+                        CHF {baseTotal}
+                        <span className="font-sans text-xs text-text-secondary font-normal ml-0.5">{billingLabel}</span>
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   disabled={!canProceedStep1}
@@ -321,19 +445,33 @@ function AcademySubscribeModal({ onClose, initialInstrumentId, initialTierId }: 
                 )}
 
                 {/* Price summary */}
-                {purchaserType && instrument && tier && (
-                  <div className="border border-border p-4 mb-6 bg-background">
-                    <div className="flex items-center justify-between">
-                      <span className="font-sans text-sm text-text-secondary">{instrument.emoji} {instrument.label} — {tier.label}</span>
+                {purchaserType && validCourses.length > 0 && (
+                  <div className="border border-border p-4 mb-6 bg-background space-y-1.5">
+                    {validCourses.map((c, idx) => {
+                      const inst = planInstruments.find(i => i.id === c.instrumentId)
+                      const t = planTiers.find(x => x.id === c.tierId)
+                      return (
+                        <div key={idx} className="flex justify-between font-sans text-xs">
+                          <span className="text-text-secondary">{inst?.emoji} {inst?.label} — {t?.label}</span>
+                          <span>CHF {coursePrice(c)}</span>
+                        </div>
+                      )
+                    })}
+                    {!lernvideoIncluded && lernvideoAddon && (
+                      <div className="flex justify-between font-sans text-xs">
+                        <span className="text-text-secondary">📹 Lernvideo-Bibliothek</span>
+                        <span>+CHF {addonPrice}</span>
+                      </div>
+                    )}
+                    <div className="border-t border-border pt-2 flex justify-between items-center">
+                      <span className="font-sans text-sm text-text-secondary">Total</span>
                       <div className="text-right">
                         {hasFormationDiscount && (
-                          <span className="font-sans text-xs text-text-secondary line-through mr-2">CHF {basePrice}</span>
+                          <span className="font-sans text-xs text-text-secondary line-through mr-2">CHF {baseTotal}</span>
                         )}
                         <span className="font-heading font-bold">
-                          CHF {discountedPrice}
-                          <span className="font-sans text-xs text-text-secondary font-normal ml-0.5">
-                            {isOneTime ? ' einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'}
-                          </span>
+                          CHF {discountedTotal}
+                          <span className="font-sans text-xs text-text-secondary font-normal ml-0.5">{billingLabel}</span>
                         </span>
                       </div>
                     </div>
@@ -475,34 +613,46 @@ function AcademySubscribeModal({ onClose, initialInstrumentId, initialTierId }: 
                   {!success ? (
                     <motion.div key="confirm" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
                       {/* Summary */}
-                      <div className="border border-border p-5 mb-6 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Instrument</span>
-                          <span className="font-heading font-bold text-sm">{instrument?.emoji} {instrument?.label}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Paket</span>
-                          <span className="font-heading font-bold text-sm">{tier?.label}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
+                      <div className="border border-border p-5 mb-6 space-y-2">
+                        {validCourses.map((c, idx) => {
+                          const inst = planInstruments.find(i => i.id === c.instrumentId)
+                          const t = planTiers.find(x => x.id === c.tierId)
+                          return (
+                            <div key={idx} className="flex justify-between items-center">
+                              <span className="font-sans text-xs text-text-secondary">{inst?.emoji} {inst?.label}</span>
+                              <span className="font-heading font-bold text-sm">{t?.label} — CHF {coursePrice(c)}</span>
+                            </div>
+                          )
+                        })}
+                        {!lernvideoIncluded && lernvideoAddon && (
+                          <div className="flex justify-between items-center">
+                            <span className="font-sans text-xs text-text-secondary">📹 Lernvideo-Bibliothek</span>
+                            <span className="font-heading font-bold text-sm">+CHF {addonPrice}</span>
+                          </div>
+                        )}
+                        {lernvideoIncluded && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-accent-gold text-xs">✓</span>
+                            <span className="font-sans text-xs text-text-secondary">Lernvideo-Bibliothek inklusive</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center pt-1">
                           <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Abrechnung</span>
-                          <span className="font-sans text-sm">{isOneTime ? 'Einmalig' : billing === 'monthly' ? 'Monatlich' : 'Jährlich'}</span>
+                          <span className="font-sans text-sm">{allOneTime ? 'Einmalig' : billing === 'monthly' ? 'Monatlich' : 'Jährlich'}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Käufer</span>
                           <span className="font-sans text-sm">{purchaserType === 'individual' ? 'Einzelperson' : 'Formation'}</span>
                         </div>
                         <div className="border-t border-border pt-3 flex justify-between items-center">
-                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Preis</span>
+                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Total</span>
                           <div className="text-right">
                             {hasFormationDiscount && (
-                              <span className="font-sans text-xs text-text-secondary line-through mr-2">CHF {basePrice}</span>
+                              <span className="font-sans text-xs text-text-secondary line-through mr-2">CHF {baseTotal}</span>
                             )}
                             <span className="font-heading font-bold text-lg">
-                              CHF {discountedPrice}
-                              <span className="font-sans text-sm text-text-secondary font-normal ml-0.5">
-                                {isOneTime ? ' einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'}
-                              </span>
+                              CHF {discountedTotal}
+                              <span className="font-sans text-sm text-text-secondary font-normal ml-0.5">{billingLabel}</span>
                             </span>
                           </div>
                         </div>
