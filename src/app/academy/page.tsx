@@ -10,13 +10,54 @@ import { Hero } from '@/components/sections/Hero'
 
 // ─── Subscription data ───────────────────────────────────────────────────────
 
-const plans = [
-  { id: 'handorgel', label: 'Handorgel-Lehrgang', emoji: '🪗', monthlyChf: 29, yearlyChf: 278, desc: 'Strukturierter Lehrgang von Grundlagen bis Fortgeschrittenenstufe.' },
-  { id: 'schwyzer', label: 'Schwyzerörgeli-Lehrgang', emoji: '🎶', monthlyChf: 29, yearlyChf: 278, desc: 'Diatonisch und voller Seele — von Anfänger bis Profi.' },
-  { id: 'begleit', label: 'Begleitinstrument-Lehrgang', emoji: '🎸', monthlyChf: 25, yearlyChf: 240, desc: 'Bass, Klarinette, Klavier — dein Fundament in der Kapelle.' },
-  { id: 'buehne', label: 'Bühnenpräsenz-Lehrgang', emoji: '🎤', monthlyChf: 39, yearlyChf: 374, desc: 'Auftritt, Ausdruck und Bühnenwirkung für Ländlermusiker.' },
-  { id: 'videos', label: 'Lernvideo-Bibliothek', emoji: '🎬', monthlyChf: 15, yearlyChf: 144, desc: 'Zugang zur gesamten Lernvideo-Datenbank mit 200+ Stücken.' },
+const planInstruments = [
+  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
+  { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', subtitle: 'Diatonisch und voller Seele' },
+  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', subtitle: 'Bass · Klarinette · Klavier' },
+  { id: 'buehne', label: 'Bühnenpräsenz', emoji: '🎤', subtitle: 'Auftreten mit Ausstrahlung' },
 ]
+
+const planTiers = [
+  {
+    id: 'schnupper',
+    label: 'Schnupper',
+    oneTime: true,
+    desc: '3 Einführungslektionen zum Kennenlernen — ohne Abo-Bindung.',
+    features: ['3 Schnupperlektionen', 'Kurs-Chat (14 Tage)', 'Einmalige Zahlung'],
+    badge: null as string | null,
+  },
+  {
+    id: 'starter',
+    label: 'Starter',
+    oneTime: false,
+    desc: 'Alle Einsteiger-Lektionen, strukturiert und im eigenen Tempo.',
+    features: ['Alle Einsteiger-Lektionen', 'Kurs-Chat', 'Monatlich kündbar'],
+    badge: null as string | null,
+  },
+  {
+    id: 'pro',
+    label: 'Pro',
+    oneTime: false,
+    desc: 'Voller Zugang mit persönlichem Feedback vom Lehrer.',
+    features: ['Alle Lektionen', 'Persönliches Video-Feedback', 'Monatliche Live-Calls', 'Kurs-Chat'],
+    badge: null as string | null,
+  },
+  {
+    id: 'all',
+    label: 'All',
+    oneTime: false,
+    desc: 'Alle Lektionen + komplette Lernvideo-Bibliothek.',
+    features: ['Alle Lektionen', 'Lernvideo-Bibliothek (200+ Stücke)', 'Persönliches Feedback', 'Live-Calls', 'Priority-Support'],
+    badge: 'Bestseller' as string | null,
+  },
+]
+
+const pricing: Record<string, Record<string, { one?: number; monthly?: number; yearly?: number }>> = {
+  handorgel: { schnupper: { one: 29 }, starter: { monthly: 15, yearly: 144 }, pro: { monthly: 29, yearly: 278 }, all: { monthly: 39, yearly: 374 } },
+  schwyzer:  { schnupper: { one: 29 }, starter: { monthly: 15, yearly: 144 }, pro: { monthly: 29, yearly: 278 }, all: { monthly: 39, yearly: 374 } },
+  begleit:   { schnupper: { one: 25 }, starter: { monthly: 12, yearly: 115 }, pro: { monthly: 25, yearly: 240 }, all: { monthly: 35, yearly: 336 } },
+  buehne:    { schnupper: { one: 39 }, starter: { monthly: 19, yearly: 182 }, pro: { monthly: 39, yearly: 374 }, all: { monthly: 49, yearly: 470 } },
+}
 
 const formations = [
   { id: 'hess', name: 'Ländlerkapelle Hess' },
@@ -28,13 +69,15 @@ const formations = [
 
 type ModalProps = {
   onClose: () => void
-  initialPlanId?: string
+  initialInstrumentId?: string
+  initialTierId?: string
 }
 
-function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
+function AcademySubscribeModal({ onClose, initialInstrumentId, initialTierId }: ModalProps) {
   const [step, setStep] = useState(1)
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
-  const [selectedPlan, setSelectedPlan] = useState<string>(initialPlanId ?? '')
+  const [selectedInstrument, setSelectedInstrument] = useState<string>(initialInstrumentId ?? '')
+  const [selectedTier, setSelectedTier] = useState<string>(initialTierId ?? '')
   const [purchaserType, setPurchaserType] = useState<'individual' | 'formation' | ''>('')
   const [selectedFormation, setSelectedFormation] = useState<string>('')
   const [customFormation, setCustomFormation] = useState('')
@@ -45,10 +88,18 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
   const [newPassword, setNewPassword] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const plan = plans.find(p => p.id === selectedPlan)
-  const basePrice = billing === 'monthly' ? (plan?.monthlyChf ?? 0) : (plan?.yearlyChf ?? 0)
+  const instrument = planInstruments.find(i => i.id === selectedInstrument)
+  const tier = planTiers.find(t => t.id === selectedTier)
+  const tierPricing = selectedInstrument && selectedTier ? pricing[selectedInstrument]?.[selectedTier] : undefined
+  const isOneTime = tier?.oneTime ?? false
+  const basePrice = isOneTime
+    ? (tierPricing?.one ?? 0)
+    : billing === 'monthly'
+    ? (tierPricing?.monthly ?? 0)
+    : (tierPricing?.yearly ?? 0)
   const hasFormationDiscount = purchaserType === 'formation'
   const discountedPrice = hasFormationDiscount ? Math.round(basePrice * 0.8) : basePrice
+  const canProceedStep1 = !!selectedInstrument && !!selectedTier
 
   const stepTitles = [
     { title: 'Plan wählen', subtitle: 'Wähle deinen Lehrgang aus.' },
@@ -125,53 +176,86 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* Billing toggle */}
-                <div className="flex items-center gap-3 mb-6">
-                  <button
-                    className={`font-sans text-sm px-4 py-2 border transition-colors ${billing === 'monthly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                    onClick={() => setBilling('monthly')}
-                  >
-                    Monatlich
-                  </button>
-                  <button
-                    className={`font-sans text-sm px-4 py-2 border transition-colors ${billing === 'yearly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                    onClick={() => setBilling('yearly')}
-                  >
-                    Jährlich
-                    <span className="ml-1.5 text-accent-gold text-xs font-medium">–20%</span>
-                  </button>
+                {/* Instrument picker */}
+                <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-3">1. Instrument wählen</p>
+                <div className="grid grid-cols-2 gap-2 mb-5">
+                  {planInstruments.map(inst => (
+                    <button
+                      key={inst.id}
+                      onClick={() => { setSelectedInstrument(inst.id); setSelectedTier('') }}
+                      className={`text-left p-3 border transition-all ${selectedInstrument === inst.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                    >
+                      <span className="text-lg mr-1.5">{inst.emoji}</span>
+                      <span className="font-heading font-bold text-sm">{inst.label}</span>
+                      <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">{inst.subtitle}</p>
+                    </button>
+                  ))}
                 </div>
 
-                {/* Plan cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                  {plans.map(p => {
-                    const price = billing === 'monthly' ? p.monthlyChf : p.yearlyChf
-                    const period = billing === 'monthly' ? '/Mt.' : '/Jahr'
-                    const active = selectedPlan === p.id
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => setSelectedPlan(p.id)}
-                        className={`text-left p-4 border transition-all ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-2xl">{p.emoji}</span>
-                          <span className="font-heading font-bold text-base">
-                            CHF {price}
-                            <span className="font-sans text-xs text-text-secondary font-normal ml-0.5">{period}</span>
-                          </span>
+                {/* Tier picker — shown after instrument selected */}
+                <AnimatePresence>
+                  {selectedInstrument && (
+                    <motion.div
+                      key="tier-picker"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-3">2. Paket wählen</p>
+
+                      {/* Billing toggle — hidden when Schnupper selected */}
+                      {selectedTier !== 'schnupper' && (
+                        <div className="flex items-center gap-2 mb-4">
+                          <button
+                            onClick={() => setBilling('monthly')}
+                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${billing === 'monthly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                          >
+                            Monatlich
+                          </button>
+                          <button
+                            onClick={() => setBilling('yearly')}
+                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${billing === 'yearly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                          >
+                            Jährlich <span className="text-accent-gold ml-0.5">–20%</span>
+                          </button>
                         </div>
-                        <p className="font-heading font-bold text-sm mb-1">{p.label}</p>
-                        <p className="font-sans text-xs text-text-secondary leading-snug">{p.desc}</p>
-                      </button>
-                    )
-                  })}
-                </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-2 mb-5">
+                        {planTiers.map(t => {
+                          const p = pricing[selectedInstrument]?.[t.id]
+                          const price = t.oneTime ? p?.one : billing === 'monthly' ? p?.monthly : p?.yearly
+                          const period = t.oneTime ? 'einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'
+                          const active = selectedTier === t.id
+                          return (
+                            <button
+                              key={t.id}
+                              onClick={() => setSelectedTier(t.id)}
+                              className={`text-left p-3 border transition-all relative ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                            >
+                              {t.badge && (
+                                <span className="absolute top-2 right-2 text-[9px] bg-accent-gold text-white px-1.5 py-0.5 font-sans font-medium">{t.badge}</span>
+                              )}
+                              <p className="font-heading font-bold text-sm mb-1">{t.label}</p>
+                              <p className="font-sans text-[11px] text-text-secondary leading-snug mb-2">{t.desc}</p>
+                              <p className="font-heading font-bold text-sm">
+                                CHF {price ?? '–'}
+                                <span className="font-sans text-[11px] text-text-secondary font-normal ml-0.5">{period}</span>
+                              </p>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <button
-                  disabled={!selectedPlan}
+                  disabled={!canProceedStep1}
                   onClick={() => setStep(2)}
-                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${selectedPlan ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedStep1 ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Weiter →
                 </button>
@@ -237,10 +321,10 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
                 )}
 
                 {/* Price summary */}
-                {purchaserType && plan && (
+                {purchaserType && instrument && tier && (
                   <div className="border border-border p-4 mb-6 bg-background">
                     <div className="flex items-center justify-between">
-                      <span className="font-sans text-sm text-text-secondary">{plan.label}</span>
+                      <span className="font-sans text-sm text-text-secondary">{instrument.emoji} {instrument.label} — {tier.label}</span>
                       <div className="text-right">
                         {hasFormationDiscount && (
                           <span className="font-sans text-xs text-text-secondary line-through mr-2">CHF {basePrice}</span>
@@ -248,7 +332,7 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
                         <span className="font-heading font-bold">
                           CHF {discountedPrice}
                           <span className="font-sans text-xs text-text-secondary font-normal ml-0.5">
-                            {billing === 'monthly' ? '/Mt.' : '/Jahr'}
+                            {isOneTime ? ' einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'}
                           </span>
                         </span>
                       </div>
@@ -393,12 +477,16 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
                       {/* Summary */}
                       <div className="border border-border p-5 mb-6 space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Plan</span>
-                          <span className="font-heading font-bold text-sm">{plan?.emoji} {plan?.label}</span>
+                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Instrument</span>
+                          <span className="font-heading font-bold text-sm">{instrument?.emoji} {instrument?.label}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Paket</span>
+                          <span className="font-heading font-bold text-sm">{tier?.label}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Abrechnung</span>
-                          <span className="font-sans text-sm">{billing === 'monthly' ? 'Monatlich' : 'Jährlich'}</span>
+                          <span className="font-sans text-sm">{isOneTime ? 'Einmalig' : billing === 'monthly' ? 'Monatlich' : 'Jährlich'}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-sans text-xs text-text-secondary uppercase tracking-wide">Käufer</span>
@@ -413,7 +501,7 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
                             <span className="font-heading font-bold text-lg">
                               CHF {discountedPrice}
                               <span className="font-sans text-sm text-text-secondary font-normal ml-0.5">
-                                {billing === 'monthly' ? '/Mt.' : '/Jahr'}
+                                {isOneTime ? ' einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'}
                               </span>
                             </span>
                           </div>
@@ -472,8 +560,9 @@ function AcademySubscribeModal({ onClose, initialPlanId }: ModalProps) {
 
 // ─── SubscribePlans section ───────────────────────────────────────────────────
 
-function SubscribePlans({ onSelectPlan }: { onSelectPlan: (planId: string) => void }) {
+function SubscribePlans({ onSelectPlan }: { onSelectPlan: (instrumentId: string, tierId: string) => void }) {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
+  const [activeInstrument, setActiveInstrument] = useState('handorgel')
 
   return (
     <section className="py-32 bg-surface">
@@ -482,8 +571,22 @@ function SubscribePlans({ onSelectPlan }: { onSelectPlan: (planId: string) => vo
           <span className="label text-accent-gold">Abonnements</span>
           <h2 className="heading-lg mt-3 mb-4">Dein Lehrgang. Dein Preis.</h2>
           <p className="body-lg text-text-secondary max-w-xl mx-auto mb-8">
-            Wähle deinen Lehrgang und starte noch heute. Monatlich kündbar.
+            Wähle dein Instrument und dein Paket — monatlich kündbar.
           </p>
+
+          {/* Instrument tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {planInstruments.map(inst => (
+              <button
+                key={inst.id}
+                onClick={() => setActiveInstrument(inst.id)}
+                className={`font-sans text-sm px-4 py-2 border transition-colors ${activeInstrument === inst.id ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+              >
+                {inst.emoji} {inst.label}
+              </button>
+            ))}
+          </div>
+
           {/* Billing toggle */}
           <div className="inline-flex border border-border">
             <button
@@ -501,23 +604,38 @@ function SubscribePlans({ onSelectPlan }: { onSelectPlan: (planId: string) => vo
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {plans.map(p => {
-            const price = billing === 'monthly' ? p.monthlyChf : p.yearlyChf
-            const period = billing === 'monthly' ? '/Mt.' : '/Jahr'
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {planTiers.map(tier => {
+            const p = pricing[activeInstrument]?.[tier.id]
+            const price = tier.oneTime ? p?.one : billing === 'monthly' ? p?.monthly : p?.yearly
+            const period = tier.oneTime ? 'einmalig' : billing === 'monthly' ? '/Mt.' : '/Jahr'
+            const isPopular = tier.badge === 'Bestseller'
             return (
-              <div key={p.id} className="border border-border p-6 flex flex-col hover:border-accent-gold transition-colors group">
-                <span className="text-4xl mb-4 block">{p.emoji}</span>
-                <h3 className="font-heading font-bold text-base mb-2 group-hover:text-accent-gold transition-colors leading-snug">
-                  {p.label}
-                </h3>
-                <p className="font-sans text-xs text-text-secondary leading-relaxed mb-4 flex-1">{p.desc}</p>
+              <div
+                key={tier.id}
+                className={`relative border p-6 flex flex-col transition-colors group ${isPopular ? 'border-accent-gold' : 'border-border hover:border-accent-gold'}`}
+              >
+                {tier.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent-gold text-white text-xs px-4 py-1 font-sans font-medium whitespace-nowrap">
+                    {tier.badge}
+                  </div>
+                )}
+                <h3 className="font-heading font-bold text-lg mb-2 group-hover:text-accent-gold transition-colors">{tier.label}</h3>
+                <p className="font-sans text-xs text-text-secondary leading-relaxed mb-4">{tier.desc}</p>
+                <ul className="space-y-2 mb-5 flex-1">
+                  {tier.features.map(f => (
+                    <li key={f} className="flex items-start gap-2 font-sans text-xs">
+                      <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
                 <div className="mb-4">
-                  <span className="font-heading text-2xl font-bold">CHF {price}</span>
+                  <span className="font-heading text-2xl font-bold">CHF {price ?? '–'}</span>
                   <span className="font-sans text-xs text-text-secondary ml-1">{period}</span>
                 </div>
                 <button
-                  onClick={() => onSelectPlan(p.id)}
+                  onClick={() => onSelectPlan(activeInstrument, tier.id)}
                   className="w-full py-2.5 bg-dark text-white font-sans text-sm font-medium hover:bg-accent-gold transition-colors"
                 >
                   Jetzt starten
@@ -598,10 +716,12 @@ const faqs = [
 export default function AcademyPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalPlanId, setModalPlanId] = useState<string | undefined>(undefined)
+  const [modalInstrumentId, setModalInstrumentId] = useState<string | undefined>(undefined)
+  const [modalTierId, setModalTierId] = useState<string | undefined>(undefined)
 
-  function openModal(planId?: string) {
-    setModalPlanId(planId)
+  function openModal(instrumentId?: string, tierId?: string) {
+    setModalInstrumentId(instrumentId)
+    setModalTierId(tierId)
     setModalOpen(true)
   }
 
@@ -611,7 +731,8 @@ export default function AcademyPage() {
         {modalOpen && (
           <AcademySubscribeModal
             onClose={() => setModalOpen(false)}
-            initialPlanId={modalPlanId}
+            initialInstrumentId={modalInstrumentId}
+            initialTierId={modalTierId}
           />
         )}
       </AnimatePresence>
@@ -875,7 +996,7 @@ export default function AcademyPage() {
       </section>
 
       {/* SUBSCRIBE PLANS */}
-      <SubscribePlans onSelectPlan={(planId) => openModal(planId)} />
+      <SubscribePlans onSelectPlan={(instrumentId, tierId) => openModal(instrumentId, tierId)} />
 
       {/* FAQ */}
       <section className="py-32 bg-background">
