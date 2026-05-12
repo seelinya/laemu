@@ -58,8 +58,8 @@ const features = [
   { icon: <IconMedia />, title: 'Videos & Medien', desc: 'Lade eigene Videos hoch, poste Bilder, Texte und teile Links von YouTube, Facebook und mehr.' },
   { icon: <IconFeed />, title: 'Feed verwalten', desc: 'Zwei Tabs: alle Beiträge nach Datum, oder nur der Inhalt der Profile, denen du folgst.' },
   { icon: <IconHeart />, title: 'Interagieren', desc: 'Like, kommentiere, teile Beiträge und speichere sie als Inspiration auf deinem Profil.' },
-  { icon: <IconMessage />, title: 'Direktnachrichten', desc: 'Chatte direkt mit anderen Musikern und tritt LAEMU-Gruppen für Kurse und Events bei.' },
-  { icon: <IconGraduate />, title: 'Academy-Zugang', desc: 'Jedes Community-Mitglied erhält automatisch Zugang zur LAEMU Academy inklusive Kurs-Chats.' },
+  { icon: <IconMessage />, title: 'Direktnachrichten', desc: 'Chatte direkt mit anderen Mitglieder:innen und tritt LAEMU-Gruppen für Kurse und Events bei.' },
+  { icon: <IconGraduate />, title: 'Academy-Zugang', desc: 'Jedes Academy-Mitglied erhält automatisch Zugang zur LAEMU Community inklusive Kurs-Chats.' },
   { icon: <IconCalendar />, title: 'Event-Chats', desc: 'Bei Event-Anmeldung erhältst du Zugang zum LAEMU-Chat für den jeweiligen Anlass.' },
   { icon: <IconShield />, title: 'Profil & Privatsphäre', desc: 'Verwalte Geräte (max. 2), Blockliste, Zahlungsangaben, Rechnungsverlauf und Passwort.' },
 ]
