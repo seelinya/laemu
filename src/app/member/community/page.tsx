@@ -231,7 +231,7 @@ const mockPosts: Post[] = [
     likes: 47,
     comments: 12,
     type: 'photo' as const,
-    following: true,
+    following: false,
   },
   {
     id: 2,
@@ -317,7 +317,6 @@ const mockPosts: Post[] = [
 ]
 
 const suggestedProfiles = [
-  { name: 'Trio Alpstein', handle: '@trio_alpstein', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', type: 'Formation' },
   { name: 'Lisa Frei', handle: '@lisa_piano', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', type: 'Lehrperson' },
   { name: 'Peter Gasser', handle: '@peter_klarinette', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', type: 'Musiker' },
 ]
@@ -510,72 +509,236 @@ function PostCard({ post }: { post: Post }) {
   )
 }
 
-function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all' | 'following') => void }) {
-  const posts = tab === 'following' ? mockPosts.filter(p => p.following) : mockPosts
+function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'photo' | 'video' | 'link'; onClose: () => void }) {
+  const [type, setType] = useState<'text' | 'photo' | 'video' | 'link'>(initialType)
+  const [text, setText] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
+
+  const types = [
+    { id: 'text' as const, label: 'Text', icon: <IconText /> },
+    { id: 'photo' as const, label: 'Foto', icon: <IconCamera /> },
+    { id: 'video' as const, label: 'Video', icon: <IconVideo /> },
+    { id: 'link' as const, label: 'Link', icon: <IconLink /> },
+  ]
+
+  const canPost = text.trim().length > 0 || type === 'photo' || type === 'video'
 
   return (
-    <div className="space-y-6">
-      {/* Post composer */}
-      <div className="bg-surface border border-border p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-            <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="You" fill className="object-cover" unoptimized />
+    <div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ duration: 0.2 }}
+        className="bg-surface w-full max-w-lg overflow-hidden shadow-2xl"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="You" fill className="object-cover" unoptimized />
+            </div>
+            <div>
+              <p className="font-heading font-bold text-sm">Niklaus Hess</p>
+              <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
+            </div>
           </div>
-          <input
-            type="text"
-            placeholder="Was möchtest du teilen?"
-            className="flex-1 border border-border px-4 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
+          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary hover:text-dark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        {/* Type tabs */}
+        <div className="flex border-b border-border">
+          {types.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setType(t.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 font-sans text-xs font-medium transition-colors border-b-2 ${type === t.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Body */}
+        <div className="p-5">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={type === 'link' ? 'Beschreibe den Link…' : 'Was möchtest du teilen?'}
+            rows={type === 'link' ? 2 : 4}
+            className="w-full font-sans text-sm font-light focus:outline-none resize-none bg-transparent placeholder:text-border"
+            autoFocus
           />
-        </div>
-        <div className="flex items-center gap-1 border-t border-border pt-3">
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
-            <IconCamera /> Foto
-          </button>
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
-            <IconVideo /> Video
-          </button>
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
-            <IconLink /> Link
-          </button>
-          <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
-            <IconText /> Text
-          </button>
-          <button className="ml-auto bg-dark text-white font-sans text-sm font-medium px-5 py-2 hover:bg-accent-gold transition-colors">
-            Posten
-          </button>
-        </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-border">
-        <button
-          onClick={() => setTab('all')}
-          className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'all' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-        >
-          Alle Beiträge
-        </button>
-        <button
-          onClick={() => setTab('following')}
-          className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'following' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-        >
-          Gefolgte Profile
-        </button>
-      </div>
+          {type === 'photo' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-3 border-2 border-dashed border-border hover:border-dark transition-colors p-8 text-center cursor-pointer group"
+            >
+              <div className="flex justify-center mb-2 text-text-secondary group-hover:text-dark transition-colors">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+              </div>
+              <p className="font-sans text-sm text-text-secondary">Foto auswählen</p>
+              <p className="font-sans text-xs text-text-secondary/60 mt-1">PNG, JPG bis 10 MB</p>
+            </motion.div>
+          )}
 
-      {posts.length === 0 ? (
-        <div className="bg-surface border border-border p-12 text-center">
-          <p className="font-sans text-text-secondary text-sm font-light">
-            Du folgst noch keinen Profilen. Entdecke die Community und folge anderen Musikern!
+          {type === 'video' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-3 border-2 border-dashed border-border hover:border-dark transition-colors p-8 text-center cursor-pointer group"
+            >
+              <div className="flex justify-center mb-2 text-text-secondary group-hover:text-dark transition-colors">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <p className="font-sans text-sm text-text-secondary">Video hochladen</p>
+              <p className="font-sans text-xs text-text-secondary/60 mt-1">MP4, MOV bis 500 MB</p>
+            </motion.div>
+          )}
+
+          {type === 'link' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-3 space-y-2"
+            >
+              <input
+                type="url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://"
+                className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-background"
+              />
+              {linkUrl && (
+                <div className="border border-border p-3 bg-background flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-accent-gold flex-shrink-0" />
+                  <p className="font-sans text-xs text-text-secondary">Link-Vorschau wird nach dem Posten generiert</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-5 py-4 border-t border-border">
+          <p className="font-sans text-xs text-text-secondary">
+            {text.length > 0 && `${text.length} Zeichen`}
           </p>
+          <div className="flex items-center gap-2">
+            <button onClick={onClose} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
+              Abbrechen
+            </button>
+            <button
+              onClick={onClose}
+              disabled={!canPost}
+              className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Posten
+            </button>
+          </div>
         </div>
-      ) : (
-        posts.map((post) => <PostCard key={post.id} post={post} />)
-      )}
-
-      <button className="w-full py-4 font-sans text-sm text-text-secondary border border-border hover:bg-surface hover:text-dark transition-colors">
-        Mehr laden…
-      </button>
+      </motion.div>
     </div>
+  )
+}
+
+function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all' | 'following') => void }) {
+  const [composerOpen, setComposerOpen] = useState(false)
+  const [composerType, setComposerType] = useState<'text' | 'photo' | 'video' | 'link'>('text')
+  const posts = tab === 'following' ? mockPosts.filter(p => p.following) : mockPosts
+
+  const openComposer = (type: 'text' | 'photo' | 'video' | 'link') => {
+    setComposerType(type)
+    setComposerOpen(true)
+  }
+
+  return (
+    <>
+      <AnimatePresence>
+        {composerOpen && (
+          <PostComposerModal
+            key="composer"
+            initialType={composerType}
+            onClose={() => setComposerOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="space-y-6">
+        {/* Post composer */}
+        <div className="bg-surface border border-border p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="You" fill className="object-cover" unoptimized />
+            </div>
+            <button
+              onClick={() => openComposer('text')}
+              className="flex-1 border border-border px-4 py-3 font-sans text-sm font-light text-text-secondary text-left bg-background hover:border-dark transition-colors"
+            >
+              Was möchtest du teilen?
+            </button>
+          </div>
+          <div className="flex items-center gap-1 border-t border-border pt-3">
+            <button onClick={() => openComposer('photo')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+              <IconCamera /> Foto
+            </button>
+            <button onClick={() => openComposer('video')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+              <IconVideo /> Video
+            </button>
+            <button onClick={() => openComposer('link')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+              <IconLink /> Link
+            </button>
+            <button onClick={() => openComposer('text')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-background transition-colors">
+              <IconText /> Text
+            </button>
+            <button onClick={() => openComposer('text')} className="ml-auto bg-dark text-white font-sans text-sm font-medium px-5 py-2 hover:bg-accent-gold transition-colors">
+              Posten
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs — Gefolgte Profile left (default), Alle Beiträge right */}
+        <div className="flex border-b border-border">
+          <button
+            onClick={() => setTab('following')}
+            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'following' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+          >
+            Gefolgte Profile
+          </button>
+          <button
+            onClick={() => setTab('all')}
+            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'all' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+          >
+            Alle Beiträge
+          </button>
+        </div>
+
+        {posts.length === 0 ? (
+          <div className="bg-surface border border-border p-12 text-center">
+            <p className="font-sans text-text-secondary text-sm font-light">
+              Du folgst noch keinen Profilen. Entdecke die Community und folge anderen Musikern!
+            </p>
+          </div>
+        ) : (
+          posts.map((post) => <PostCard key={post.id} post={post} />)
+        )}
+
+        <button className="w-full py-4 font-sans text-sm text-text-secondary border border-border hover:bg-surface hover:text-dark transition-colors">
+          Mehr laden…
+        </button>
+      </div>
+    </>
   )
 }
 
@@ -1125,7 +1288,12 @@ export default function MemberCommunityPage() {
                 />
                 {/* Discover view: no follower counts shown on other profiles */}
                 <div className="space-y-3">
-                  {[...mockPosts.map(p => ({ name: p.name, handle: `@${p.user}`, img: p.avatar, type: 'Musiker' })), ...suggestedProfiles].map((p, i) => (
+                  {[
+                    ...mockPosts
+                      .filter(p => ['hansruedi_akkordeon', 'maria_oergeli'].includes(p.user))
+                      .map(p => ({ name: p.name, handle: `@${p.user}`, img: p.avatar, type: 'Musiker' })),
+                    ...suggestedProfiles,
+                  ].map((p, i) => (
                     <div key={i} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
                       <div className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
                         <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />

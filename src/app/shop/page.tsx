@@ -38,20 +38,34 @@ const products = [
   { id: 6, name: 'LAEMU Tote Bag', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 29', badge: null, img: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=600&q=80' },
   { id: 7, name: 'LAEMU Sticker-Set', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 12', badge: null, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
   { id: 8, name: 'LAEMU Poster A2', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=600&q=80' },
-  // Formationen Merch
-  { id: 9, name: 'T-Shirt Ländlerkapelle Hess', category: 'Kleidung', subcategory: 'Formationen', price: 'CHF 35', badge: null, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
-  { id: 10, name: 'Cap Trio Alpstein', category: 'Accessoires', subcategory: 'Formationen', price: 'CHF 40', badge: null, img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80' },
+  // Formation Merch
+  { id: 9, name: 'T-Shirt Hess-Rusch-Hegner', category: 'Kleidung', subcategory: 'Hess-Rusch-Hegner', price: 'CHF 35', badge: null, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
+  { id: 10, name: 'Cap Rusch-Büeblä', category: 'Accessoires', subcategory: 'Rusch-Büeblä', price: 'CHF 40', badge: 'Neu', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80' },
+  { id: 16, name: 'T-Shirt Bodäständix', category: 'Kleidung', subcategory: 'Bodäständix', price: 'CHF 35', badge: null, img: 'https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?w=600&q=80' },
+  { id: 17, name: 'Hoodie Bürgler-Gisler-Hess', category: 'Kleidung', subcategory: 'Bürgler-Gisler-Hess', price: 'CHF 69', badge: null, img: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80' },
   // CDs
   { id: 11, name: 'LAEMU CD Sampler Vol. 1', category: 'CDs', subcategory: 'LAEMU', price: 'CHF 22', badge: 'Neu', img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
-  { id: 12, name: 'Ländlerkapelle Hess – Live 2023', category: 'CDs', subcategory: 'Formationen', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
-  { id: 13, name: 'Trio Alpstein – Bergsound', category: 'CDs', subcategory: 'Formationen', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  { id: 12, name: 'Hess-Rusch-Hegner – Live 2023', category: 'CDs', subcategory: 'Hess-Rusch-Hegner', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  { id: 13, name: 'Gasser-Hess-Zumstein – Bergsound', category: 'CDs', subcategory: 'Gasser-Hess-Zumstein', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  { id: 18, name: 'Echo vom Hindere-Litzä – Debut', category: 'CDs', subcategory: 'Echo vom Hindere-Litzä', price: 'CHF 25', badge: 'Neu', img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
   // Spiele
   { id: 14, name: 'Ländlermusik-Quiz', category: 'Spiele', subcategory: 'LAEMU', price: 'CHF 34', badge: 'Neu', img: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=600&q=80' },
   { id: 15, name: 'Volksmusik-Memo', category: 'Spiele', subcategory: 'LAEMU', price: 'CHF 24', badge: null, img: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=600&q=80' },
 ]
 
 const categories = ['Alle', 'Kleidung', 'Accessoires', 'CDs', 'Spiele']
-const sources = ['Alle Anbieter', 'LAEMU', 'Formationen']
+const brands = [
+  'Alle Marken',
+  'LAEMU',
+  'Rusch-Büeblä',
+  'Hess-Rusch-Hegner',
+  'Gasser-Hess-Zumstein',
+  'Bürgler-Gisler-Hess',
+  'Echo vom Hindere-Litzä',
+  'Bodäständix',
+  'LT Widertäktig',
+  'Ländlertrio Augenschmaus',
+]
 
 const reviews = [
   { name: 'Sabrina K.', location: 'Luzern', rating: 5, text: 'Der Hoodie ist wunderschön und die Qualität ist top. Trage ihn bei jedem Konzert!' },
@@ -61,13 +75,13 @@ const reviews = [
 
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState('Alle')
-  const [activeSource, setActiveSource] = useState('Alle Anbieter')
+  const [activeBrand, setActiveBrand] = useState('Alle Marken')
   const [addedToCart, setAddedToCart] = useState<number | null>(null)
 
   const filtered = products.filter((p) => {
     const catMatch = activeCategory === 'Alle' || p.category === activeCategory
-    const srcMatch = activeSource === 'Alle Anbieter' || p.subcategory === activeSource
-    return catMatch && srcMatch
+    const brandMatch = activeBrand === 'Alle Marken' || p.subcategory === activeBrand
+    return catMatch && brandMatch
   })
 
   const handleAddToCart = (id: number) => {
@@ -129,21 +143,22 @@ export default function ShopPage() {
               {filtered.length} Produkte
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border overflow-x-auto">
-            <span className="font-sans text-xs text-text-secondary whitespace-nowrap mr-1">Anbieter:</span>
-            {sources.map((src) => (
-              <button
-                key={src}
-                onClick={() => setActiveSource(src)}
-                className={`font-sans text-xs px-3 py-1.5 transition-all whitespace-nowrap border ${
-                  activeSource === src
-                    ? 'border-dark bg-dark text-white'
-                    : 'border-border text-text-secondary hover:border-dark'
-                }`}
+          <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border">
+            <span className="font-sans text-xs text-text-secondary whitespace-nowrap">Marke:</span>
+            <div className="relative">
+              <select
+                value={activeBrand}
+                onChange={(e) => setActiveBrand(e.target.value)}
+                className="appearance-none border border-border bg-background font-sans text-sm text-dark px-4 py-2 pr-8 focus:outline-none focus:border-dark cursor-pointer hover:border-dark transition-colors"
               >
-                {src}
-              </button>
-            ))}
+                {brands.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
           </div>
         </div>
       </section>
