@@ -68,12 +68,12 @@ const stats = [
 ]
 
 const supporters = [
-  { name: 'Seebi Diener', instrument: 'Handorgel / Akkordeon', img: '/images/seebi-diener.jpg' },
+  { name: 'Seebi Diener', instrument: 'Bass / Schwyzerörgeli', img: '/images/seebi-diener.jpg' },
   { name: 'Cyrill Rusch', instrument: 'Schwyzerörgeli', img: '/images/cyrill-rusch.jpg' },
-  { name: 'Cécile Schmidig', instrument: 'Klarinette', img: '/images/cecile-schmidig.jpg' },
-  { name: 'Franz Hess', instrument: 'Akkordeon', img: '/images/franz-hess.jpg' },
-  { name: 'Simon Rusch', instrument: 'Schwyzerörgeli', img: '/images/simon-rusch.jpg' },
-  { name: 'Simon Lüthi', instrument: 'Bass / Kontrabass', img: '/images/simon-luethi.jpg' },
+  { name: 'Cécile Schmidig', instrument: 'Handorgel', img: '/images/cecile-schmidig.jpg' },
+  { name: 'Franz Hess', instrument: 'Klavier', img: '/images/franz-hess.jpg' },
+  { name: 'Simon Rusch', instrument: 'Handorgel', img: '/images/simon-rusch.jpg' },
+  { name: 'Simon Lüthi', instrument: 'Handorgel / Schwyzerörgeli', img: '/images/simon-luethi.jpg' },
 ]
 
 const formations = [
