@@ -348,6 +348,22 @@ const followingList = [
   { name: 'Maria Kälin', handle: '@maria_oergeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
 ]
 
+const knownFormations = [
+  { name: 'Ländlerkapelle Hess', id: 'hess' },
+  { name: 'Trio Alpstein', id: 'alpstein' },
+  { name: 'Quartett Rigi', id: 'rigi' },
+]
+
+const communityMentions = [
+  { handle: 'hansruedi_akkordeon', name: 'Hansruedi Wenger', type: 'person' as const, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
+  { handle: 'maria_oergeli', name: 'Maria Kälin', type: 'person' as const, img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
+  { handle: 'lisa_piano', name: 'Lisa Frei', type: 'person' as const, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80' },
+  { handle: 'peter_klarinette', name: 'Peter Gasser', type: 'person' as const, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80' },
+  { handle: 'trio_alpstein', name: 'Trio Alpstein', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', href: '/formations/alpstein' },
+  { handle: 'kapelle_hess', name: 'Ländlerkapelle Hess', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=100&q=80', href: '/formations/hess' },
+  { handle: 'quartett_rigi', name: 'Quartett Rigi', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=100&q=80', href: '/formations/rigi' },
+]
+
 const conversations = [
   { name: 'Hansruedi Wenger', handle: '@hansruedi_akkordeon', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', last: 'Auf bald am Konzert!', time: '10:24', unread: 2 },
   { name: 'Maria Kälin', handle: '@maria_oergeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', last: 'Danke für das Feedback 🙏', time: 'Gestern', unread: 0 },
@@ -362,6 +378,12 @@ function PostCard({ post }: { post: Post }) {
   const [showComment, setShowComment] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
+
+  const handleShare = () => {
+    setShareCopied(true)
+    setTimeout(() => setShareCopied(false), 2000)
+  }
 
   return (
     <motion.div
@@ -370,11 +392,11 @@ function PostCard({ post }: { post: Post }) {
       className="bg-surface border border-border overflow-hidden"
     >
       <div className="p-4 flex items-center gap-3">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+        <Link href="/member/profile" className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
           <Image src={post.avatar} alt={post.user} fill className="object-cover" unoptimized />
-        </div>
+        </Link>
         <div className="flex-1">
-          <p className="font-heading font-bold text-sm">{post.name}</p>
+          <Link href="/member/profile" className="font-heading font-bold text-sm hover:text-accent-gold transition-colors">{post.name}</Link>
           <div className="flex items-center gap-2">
             <p className="font-sans text-xs text-text-secondary">@{post.user}</p>
             <span className="text-text-secondary text-xs">·</span>
@@ -434,13 +456,13 @@ function PostCard({ post }: { post: Post }) {
         </div>
       )}
       {post.type === 'link' && post.linkUrl && (
-        <div className="mx-4 mb-3 border border-border p-4 bg-background hover:border-dark transition-colors cursor-pointer flex items-start gap-3">
+        <a href={post.linkUrl} target="_blank" rel="noopener noreferrer" className="mx-4 mb-3 border border-border p-4 bg-background hover:border-dark transition-colors cursor-pointer flex items-start gap-3 block">
           <div className="flex-1">
             <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wider mb-1">{post.linkDomain}</p>
             <p className="font-sans text-sm font-medium leading-snug">{post.linkTitle}</p>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-text-secondary mt-0.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </div>
+        </a>
       )}
       {post.type === 'event-announcement' && post.eventDate && (
         <div className="mx-4 mb-3 bg-dark text-white p-5">
@@ -471,9 +493,9 @@ function PostCard({ post }: { post: Post }) {
             <IconComment />
             <span className="text-xs">{post.comments}</span>
           </button>
-          <button className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors">
+          <button onClick={handleShare} className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${shareCopied ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}>
             <IconShare />
-            <span className="text-xs">Teilen</span>
+            <span className="text-xs">{shareCopied ? 'Link kopiert ✓' : 'Teilen'}</span>
           </button>
           <button
             onClick={() => setSaved(!saved)}
@@ -509,10 +531,90 @@ function PostCard({ post }: { post: Post }) {
   )
 }
 
+function FormationCreateModal({ initialName, onClose }: { initialName: string; onClose: () => void }) {
+  const [step, setStep] = useState(1)
+  const [formName, setFormName] = useState(initialName)
+  const [formType, setFormType] = useState('Duo')
+  const [region, setRegion] = useState('')
+  const [members, setMembers] = useState('')
+
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ duration: 0.2 }} className="bg-surface w-full max-w-md overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div>
+            <p className="font-heading font-bold text-sm">Formation-Profil erstellen</p>
+            <p className="font-sans text-xs text-text-secondary">Schritt {step} von 3</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        {/* Step indicators */}
+        <div className="flex border-b border-border">
+          {[1, 2, 3].map(s => (
+            <div key={s} className={`flex-1 h-1 transition-colors ${s <= step ? 'bg-dark' : 'bg-border'}`} />
+          ))}
+        </div>
+        <div className="p-5 space-y-4">
+          {step === 1 && (
+            <>
+              <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Name der Formation</p>
+              <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. Kapelle Hess-Ruedi" />
+              <div>
+                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Art der Formation</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {['Duo', 'Trio', 'Quartett', 'Kapelle'].map(t => (
+                    <button key={t} onClick={() => setFormType(t)} className={`py-2 font-sans text-xs font-medium border transition-colors ${formType === t ? 'bg-dark text-white border-dark' : 'border-border hover:border-dark'}`}>{t}</button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <div>
+                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Region</p>
+                <input value={region} onChange={e => setRegion(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. Zentralschweiz" />
+              </div>
+              <div>
+                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Mitglieder (kommagetrennt)</p>
+                <input value={members} onChange={e => setMembers(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. @niklaus_hess, @maria_oergeli" />
+              </div>
+              <p className="font-sans text-xs text-text-secondary leading-relaxed">Mitglieder erhalten eine Einladung und müssen das Profil bestätigen.</p>
+            </>
+          )}
+          {step === 3 && (
+            <div className="text-center py-4">
+              <div className="w-14 h-14 bg-accent-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C4973A" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <p className="font-heading font-bold text-lg mb-1">{formName}</p>
+              <p className="font-sans text-sm text-text-secondary mb-2">{formType} · {region || 'Schweiz'}</p>
+              <p className="font-sans text-xs text-text-secondary leading-relaxed">Das Formation-Profil wird nach der Bestätigung aller Mitglieder öffentlich sichtbar und kann dann getaggt werden.</p>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center justify-between px-5 py-4 border-t border-border">
+          {step > 1
+            ? <button onClick={() => setStep(s => s - 1)} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Zurück</button>
+            : <button onClick={onClose} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Abbrechen</button>
+          }
+          {step < 3
+            ? <button onClick={() => setStep(s => s + 1)} disabled={step === 1 && !formName.trim()} className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40">Weiter →</button>
+            : <button onClick={onClose} className="font-sans text-sm px-5 py-2 bg-accent-gold text-white hover:bg-dark transition-colors">Einladungen senden ✓</button>
+          }
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'photo' | 'video' | 'link'; onClose: () => void }) {
   const [type, setType] = useState<'text' | 'photo' | 'video' | 'link'>(initialType)
   const [text, setText] = useState('')
   const [linkUrl, setLinkUrl] = useState('')
+  const [mentions, setMentions] = useState<typeof communityMentions>([])
 
   const types = [
     { id: 'text' as const, label: 'Text', icon: <IconText /> },
@@ -520,6 +622,21 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
     { id: 'video' as const, label: 'Video', icon: <IconVideo /> },
     { id: 'link' as const, label: 'Link', icon: <IconLink /> },
   ]
+
+  // @mention detection
+  const atMatch = text.match(/@(\w*)$/)
+  const mentionQuery = atMatch ? atMatch[1].toLowerCase() : null
+  const mentionSuggestions = mentionQuery !== null
+    ? communityMentions.filter(m =>
+        m.handle.toLowerCase().startsWith(mentionQuery) || m.name.toLowerCase().includes(mentionQuery)
+      ).slice(0, 5)
+    : []
+
+  const insertMention = (m: typeof communityMentions[0]) => {
+    const newText = text.replace(/@\w*$/, `@${m.handle} `)
+    setText(newText)
+    if (!mentions.find(x => x.handle === m.handle)) setMentions(prev => [...prev, m])
+  }
 
   const canPost = text.trim().length > 0 || type === 'photo' || type === 'video'
 
@@ -566,14 +683,46 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
 
         {/* Body */}
         <div className="p-5">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={type === 'link' ? 'Beschreibe den Link…' : 'Was möchtest du teilen?'}
-            rows={type === 'link' ? 2 : 4}
-            className="w-full font-sans text-sm font-light focus:outline-none resize-none bg-transparent placeholder:text-border"
-            autoFocus
-          />
+          <div className="relative">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={type === 'link' ? 'Beschreibe den Link…' : 'Was möchtest du teilen? Tippe @ um jemanden zu erwähnen.'}
+              rows={type === 'link' ? 2 : 4}
+              className="w-full font-sans text-sm font-light focus:outline-none resize-none bg-transparent placeholder:text-border"
+              autoFocus
+            />
+            {/* @mention suggestions */}
+            <AnimatePresence>
+              {mentionSuggestions.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} className="absolute left-0 right-0 bg-surface border border-border shadow-xl z-10">
+                  {mentionSuggestions.map(m => (
+                    <button key={m.handle} onClick={() => insertMention(m)} className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-background transition-colors text-left">
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <Image src={m.img} alt={m.name} fill className="object-cover" unoptimized />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-sm font-medium truncate">{m.name}</p>
+                        <p className="font-sans text-xs text-text-secondary">@{m.handle} · {m.type === 'formation' ? 'Formation' : 'Musiker/in'}</p>
+                      </div>
+                      {m.type === 'formation' && <span className="font-sans text-[10px] text-accent-gold font-semibold uppercase tracking-wide">Formation</span>}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          {/* Mention chips */}
+          {mentions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2 mb-1">
+              {mentions.map(m => (
+                <span key={m.handle} className={`inline-flex items-center gap-1 font-sans text-xs px-2 py-0.5 rounded-full ${m.type === 'formation' ? 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30' : 'bg-dark/5 text-dark border border-dark/20'}`}>
+                  @{m.handle}
+                  <button onClick={() => setMentions(prev => prev.filter(x => x.handle !== m.handle))} className="ml-0.5 opacity-50 hover:opacity-100">×</button>
+                </span>
+              ))}
+            </div>
+          )}
 
           {type === 'photo' && (
             <motion.div
@@ -832,7 +981,24 @@ function MessagesView() {
   )
 }
 
+const groupCourseLinks: Record<string, string> = {
+  'Handorgel-Onlinekurs': '/member/academy',
+  'Schwyzerörgeli-Onlinekurs': '/member/academy',
+  'Klavier-Onlinekurs': '/member/academy',
+}
+
 function GroupsView() {
+  const [joined, setJoined] = useState<Record<string, boolean>>({})
+  const [joining, setJoining] = useState<string | null>(null)
+
+  const handleJoin = (name: string) => {
+    setJoining(name)
+    setTimeout(() => {
+      setJoined(prev => ({ ...prev, [name]: true }))
+      setJoining(null)
+    }, 800)
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-surface border border-border p-6">
@@ -842,15 +1008,25 @@ function GroupsView() {
         </p>
         <div className="space-y-3">
           {laemuGroups.map((g) => (
-            <div key={g.name} className="flex items-center gap-4 p-4 border border-border hover:border-dark transition-colors group">
+            <div key={g.name} className={`flex items-center gap-4 p-4 border transition-colors group ${joined[g.name] ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
               <span className="text-2xl">{g.icon}</span>
               <div className="flex-1">
                 <p className="font-sans font-semibold text-sm">{g.name}</p>
                 <p className="font-sans text-xs font-light text-text-secondary">{g.members} Mitglieder · Verwaltet von LAEMU</p>
               </div>
-              <button className="font-sans text-xs text-dark border border-dark px-3 py-1.5 hover:bg-dark hover:text-white transition-colors">
-                Beitreten
-              </button>
+              {joined[g.name] ? (
+                <Link href={groupCourseLinks[g.name] ?? '/member/academy'} className="font-sans text-xs font-medium text-accent-gold border border-accent-gold px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors">
+                  Zum Kurs →
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handleJoin(g.name)}
+                  disabled={joining === g.name}
+                  className="font-sans text-xs text-dark border border-dark px-3 py-1.5 hover:bg-dark hover:text-white transition-colors disabled:opacity-60"
+                >
+                  {joining === g.name ? 'Beitrete…' : 'Beitreten'}
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -894,6 +1070,7 @@ function ProfileView() {
   const [editMode, setEditMode] = useState(false)
   const [eventsVisible, setEventsVisible] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
+  const [createFormationName, setCreateFormationName] = useState<string | null>(null)
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
@@ -932,6 +1109,9 @@ function ProfileView() {
       <AnimatePresence>
         {composerOpen && (
           <PostComposerModal key="profile-composer" initialType="text" onClose={() => setComposerOpen(false)} />
+        )}
+        {createFormationName && (
+          <FormationCreateModal key="formation-create" initialName={createFormationName} onClose={() => setCreateFormationName(null)} />
         )}
       </AnimatePresence>
 
@@ -999,6 +1179,23 @@ function ProfileView() {
                   <div>
                     <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Formation(en)</label>
                     <input value={draftFormation} onChange={e => setDraftFormation(e.target.value)} placeholder="Mehrere: kommagetrennt" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    {/* Formation picker suggestions */}
+                    {draftFormation.length > 0 && (
+                      <div className="border border-border bg-surface mt-0.5 shadow-sm">
+                        {knownFormations.filter(kf => kf.name.toLowerCase().includes(draftFormation.split(',').pop()!.trim().toLowerCase())).map(kf => (
+                          <button key={kf.id} onClick={() => {
+                            const parts = draftFormation.split(',').map(s => s.trim()).filter(Boolean)
+                            parts[parts.length - 1] = kf.name
+                            setDraftFormation(parts.join(', '))
+                          }} className="w-full text-left px-3 py-2 font-sans text-xs hover:bg-background transition-colors flex items-center gap-2">
+                            <span className="text-accent-gold">✓</span> {kf.name}
+                          </button>
+                        ))}
+                        <button onClick={() => setCreateFormationName(draftFormation.split(',').pop()!.trim())} className="w-full text-left px-3 py-2 font-sans text-xs text-text-secondary hover:bg-background transition-colors flex items-center gap-2 border-t border-border">
+                          <span>+</span> «{draftFormation.split(',').pop()!.trim()}» als neue Formation erfassen…
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
@@ -1035,10 +1232,19 @@ function ProfileView() {
                   {instruments.split(',').map(i => (
                     <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
                   ))}
-                  {formation.split(',').map(f => (
-                    <span key={f} className="font-sans text-xs px-2 py-1 bg-background border border-border">Formation: {f.trim()}</span>
-                  ))}
+                  {formation.split(',').map(f => {
+                    const trimmed = f.trim()
+                    const known = knownFormations.find(kf => kf.name.toLowerCase() === trimmed.toLowerCase())
+                    return known
+                      ? <Link key={f} href={`/formations/${known.id}`} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold hover:bg-accent-gold hover:text-white transition-colors">Formation: {trimmed} ↗</Link>
+                      : <button key={f} onClick={() => setCreateFormationName(trimmed)} title="Kein öffentliches Profil vorhanden — jetzt erstellen" className="font-sans text-xs px-2 py-1 bg-background border border-dashed border-border hover:border-dark transition-colors flex items-center gap-1">Formation: {trimmed} <span className="text-text-secondary">+</span></button>
+                  })}
                 </div>
+                {vorbilder && (
+                  <p className="font-sans text-xs text-text-secondary mb-3">
+                    <span className="font-medium text-dark">Vorbilder:</span> {vorbilder}
+                  </p>
+                )}
                 <div className="flex items-center gap-1.5 text-xs font-sans text-text-secondary mb-4">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {eventsVisible
@@ -1285,6 +1491,65 @@ function SettingsView() {
   )
 }
 
+function DiscoverProfiles() {
+  const [followed, setFollowed] = useState<Record<string, boolean>>({})
+  const profiles = [
+    ...mockPosts
+      .filter(p => ['hansruedi_akkordeon', 'maria_oergeli'].includes(p.user))
+      .map(p => ({ name: p.name, handle: `@${p.user}`, img: p.avatar, type: 'Musiker', href: '/member/profile' })),
+    ...suggestedProfiles.map(p => ({ ...p, href: '/member/profile' })),
+  ]
+  return (
+    <div className="space-y-3">
+      {profiles.map((p, i) => (
+        <div key={i} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
+          <Link href={p.href} className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
+            <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
+          </Link>
+          <div className="flex-1">
+            <Link href={p.href} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
+            <p className="font-sans text-xs font-light text-text-secondary">{p.handle} · {p.type}</p>
+          </div>
+          <button
+            onClick={() => setFollowed(prev => ({ ...prev, [p.handle]: !prev[p.handle] }))}
+            className={`font-sans text-xs font-medium px-3 py-1.5 border transition-colors ${followed[p.handle] ? 'border-accent-gold text-accent-gold hover:bg-accent-gold hover:text-white' : 'border-dark text-dark hover:bg-dark hover:text-white'}`}
+          >
+            {followed[p.handle] ? 'Gefolgt ✓' : 'Folgen'}
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function SuggestedProfilesSidebar() {
+  const [followed, setFollowed] = useState<Record<string, boolean>>({})
+  return (
+    <div className="bg-surface border border-border p-5">
+      <h3 className="font-heading font-bold text-sm mb-4">Empfohlene Profile</h3>
+      <div className="space-y-4">
+        {suggestedProfiles.map((p) => (
+          <div key={p.name} className="flex items-center gap-3">
+            <Link href="/member/profile" className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
+              <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
+            </Link>
+            <div className="flex-1 min-w-0">
+              <Link href="/member/profile" className="font-sans font-medium text-xs truncate hover:text-accent-gold transition-colors block">{p.name}</Link>
+              <p className="font-sans text-[10px] font-light text-text-secondary">{p.type}</p>
+            </div>
+            <button
+              onClick={() => setFollowed(prev => ({ ...prev, [p.name]: !prev[p.name] }))}
+              className={`font-sans text-xs font-medium px-2 py-1 border transition-colors flex-shrink-0 ${followed[p.name] ? 'border-accent-gold text-accent-gold' : 'border-dark text-dark hover:bg-dark hover:text-white'}`}
+            >
+              {followed[p.name] ? '✓' : 'Folgen'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MemberCommunityPage() {
@@ -1314,7 +1579,7 @@ export default function MemberCommunityPage() {
           <div className="hidden lg:block">
             <div className="sticky top-8 space-y-4">
               {/* Own profile quick-card: follower counts visible for own profile */}
-              <div className="bg-surface border border-border p-5">
+              <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
                     <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Profile" fill className="object-cover" unoptimized />
@@ -1338,7 +1603,7 @@ export default function MemberCommunityPage() {
                     <p className="font-sans text-[10px] font-light text-text-secondary">Follower</p>
                   </div>
                 </div>
-              </div>
+              </button>
 
               <nav className="bg-surface border border-border overflow-hidden">
                 {navItems.map((item) => (
@@ -1379,27 +1644,7 @@ export default function MemberCommunityPage() {
                   className="w-full border border-border px-4 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
                 />
                 {/* Discover view: no follower counts shown on other profiles */}
-                <div className="space-y-3">
-                  {[
-                    ...mockPosts
-                      .filter(p => ['hansruedi_akkordeon', 'maria_oergeli'].includes(p.user))
-                      .map(p => ({ name: p.name, handle: `@${p.user}`, img: p.avatar, type: 'Musiker' })),
-                    ...suggestedProfiles,
-                  ].map((p, i) => (
-                    <div key={i} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
-                      <div className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
-                        <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-sans font-semibold text-sm group-hover:text-dark transition-colors">{p.name}</p>
-                        <p className="font-sans text-xs font-light text-text-secondary">{p.handle} · {p.type}</p>
-                      </div>
-                      <button className="font-sans text-xs font-medium text-dark border border-dark px-3 py-1.5 hover:bg-dark hover:text-white transition-colors">
-                        Folgen
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                <DiscoverProfiles />
               </div>
             )}
           </div>
@@ -1408,37 +1653,19 @@ export default function MemberCommunityPage() {
           <div className="hidden lg:block">
             <div className="sticky top-8 space-y-4">
               {/* Suggested profiles: no follower counts */}
-              <div className="bg-surface border border-border p-5">
-                <h3 className="font-heading font-bold text-sm mb-4">Empfohlene Profile</h3>
-                <div className="space-y-4">
-                  {suggestedProfiles.map((p) => (
-                    <div key={p.name} className="flex items-center gap-3">
-                      <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
-                        <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-sans font-medium text-xs truncate">{p.name}</p>
-                        <p className="font-sans text-[10px] font-light text-text-secondary">{p.type}</p>
-                      </div>
-                      <button className="font-sans text-xs font-medium text-dark border border-dark px-2 py-1 hover:bg-dark hover:text-white transition-colors flex-shrink-0">
-                        Folgen
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <SuggestedProfilesSidebar />
 
               <div className="bg-surface border border-border p-5">
                 <h3 className="font-heading font-bold text-sm mb-4">Kommende Events</h3>
                 <div className="space-y-3">
                   {upcomingEvents.map((e) => (
-                    <div key={e.title} className="flex gap-3">
+                    <Link key={e.title} href="/events" className="flex gap-3 hover:opacity-80 transition-opacity group">
                       <span className="font-sans text-xs text-accent-gold font-semibold min-w-[42px]">{e.date}</span>
                       <div>
-                        <p className="font-sans text-xs font-medium">{e.title}</p>
+                        <p className="font-sans text-xs font-medium group-hover:text-accent-gold transition-colors">{e.title}</p>
                         <span className="font-sans text-[10px] font-light text-text-secondary">{e.type}</span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
                 <Link href="/events" className="block mt-4 font-sans text-xs text-accent-gold hover:text-dark transition-colors font-medium">
@@ -1450,13 +1677,13 @@ export default function MemberCommunityPage() {
                 <h3 className="font-heading font-bold text-sm mb-4 text-white">LAEMU-Gruppen</h3>
                 <div className="space-y-3">
                   {laemuGroups.map((g) => (
-                    <div key={g.name} className="flex items-center justify-between cursor-pointer group">
+                    <button key={g.name} onClick={() => setActiveNav('groups')} className="w-full flex items-center justify-between cursor-pointer group text-left">
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{g.icon}</span>
                         <p className="font-sans text-xs text-white/70 group-hover:text-white transition-colors">{g.name}</p>
                       </div>
                       <span className="font-sans text-[10px] text-white/40">{g.members}</span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
