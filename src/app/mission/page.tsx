@@ -200,28 +200,31 @@ export default function MissionPage() {
       {/* FOUNDERS */}
       <section className="py-32 bg-surface">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <Section className="text-center mb-20">
+          <Section className="mb-12">
             <motion.span variants={fadeUp} className="label text-accent-gold">Die Gründer</motion.span>
             <motion.h2 variants={fadeUp} className="heading-lg mt-3 mb-4">
               Zwei Stärken. Eine gemeinsame Mission.
             </motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-text-secondary max-w-3xl">
+              Hinter dem Beginn von LAEMU stehen Niklaus und Selina — zwei Menschen mit unterschiedlichen Stärken, aber derselben Überzeugung: <strong>Für die LAEndlerMUsik kann und soll etwas Grosses entstehen.</strong>
+            </motion.p>
           </Section>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {[
               {
                 name: 'Niklaus Hess',
-                role: 'Co-Founder & Musikdirektor',
+                role: 'Co-Founder',
                 img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80',
-                bio1: 'Niklaus Hess ist von Kindsbeinen an mit der Ländlermusik aufgewachsen. Als Gründer der Ländlerkapelle Hess hat er sich als einer der bekanntesten Handorgelspieler der Zentralschweiz etabliert.',
-                bio2: 'Mit LAEMU will Niklaus der Ländlermusik die Plattform geben, die sie verdient. Sein tiefes Wissen über die Szene, ihre Menschen und ihre Traditionen ist das Fundament, auf dem LAEMU gebaut ist.',
+                bio1: 'Niklaus bringt die ursprüngliche Vision von LAEMU mit. Als leidenschaftlicher Volksmusikant ist er tief in der Szene verwurzelt und kennt ihre Menschen, Werte und ihr enormes Potenzial.',
+                bio2: 'Früh geprägt durch die Musik, entwickelte er schon jung den Mut, Tradition mit neuen Ideen zu verbinden. Mit LAEMU will er die Schweizer Ländlermusik verbinden und neue Chancen für die Volksmusikszene schaffen.',
                 contact: 'niklaus@laemu.ch',
               },
               {
                 name: 'Selina Strickler',
-                role: 'Co-Founder & Creative Director',
+                role: 'Co-Founder',
                 img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80',
-                bio1: 'Selina Strickler bringt Expertise in Branding, digitale Strategie und modernes Marketing mit. Bevor sie zu LAEMU stiess, baute sie erfolgreiche Marken in der Schweizer Kulturszene auf.',
-                bio2: 'Bei LAEMU verantwortet Selina alles, was die Marke sichtbar und greifbar macht — von der visuellen Identität bis zur digitalen Kommunikation. Ihr Ziel: LAEMU zu einer Marke zu machen, die man fühlt.',
+                bio1: 'Selina bringt ein feines Gespür für Branding, Marketing und digitale Lösungen ein. Mit LAEMU will sie die Ländlermusik neu denken, die Community verbinden und stärken, Bestehendes vereinfachen und professionell vermarkten.',
+                bio2: 'Ihre positive Energie soll für neue Menschen spürbar werden. Begeistert von der Natürlichkeit, Lebensfreude und Echtheit der Ländlerszene.',
                 contact: 'selina@laemu.ch',
               },
             ].map((founder) => (
@@ -244,6 +247,11 @@ export default function MissionPage() {
               </Section>
             ))}
           </div>
+          <Section className="mt-12 text-center border-t border-border pt-8">
+            <motion.p variants={fadeUp} className="font-sans font-semibold text-text-secondary">
+              Gemeinsam ergänzen wir uns perfekt: Wurzeln und Zukunft, Tradition und Innovation, Herz und Umsetzung.
+            </motion.p>
+          </Section>
         </div>
       </section>
 
@@ -251,17 +259,25 @@ export default function MissionPage() {
       <section className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <Section className="mb-16">
-            <motion.span variants={fadeUp} className="label text-accent-gold">Team</motion.span>
-            <motion.h2 variants={fadeUp} className="heading-lg mt-3 mb-4">Lehrpersonen</motion.h2>
+            <motion.span variants={fadeUp} className="label text-accent-gold">Bekannte Gesichter</motion.span>
+            <motion.h2 variants={fadeUp} className="heading-lg mt-3 mb-4">Lehrpersonen & Botschafter</motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-text-secondary max-w-xl">Musikerinnen und Musiker, die LAEMU unterstützen und mitgestalten.</motion.p>
           </Section>
-          <Section className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {teachers.map((t) => (
+          <Section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[
+              { name: 'Seebi Diener', instrument: 'Bass / Schwyzerörgeli', img: '/images/seebi-diener.jpg' },
+              { name: 'Cyrill Rusch', instrument: 'Schwyzerörgeli', img: '/images/cyrill-rusch.jpg' },
+              { name: 'Cécile Schmidig', instrument: 'Handorgel', img: '/images/cecile-schmidig.jpg' },
+              { name: 'Franz Hess', instrument: 'Klavier', img: '/images/franz-hess.jpg' },
+              { name: 'Simon Rusch', instrument: 'Handorgel', img: '/images/simon-rusch.jpg' },
+              { name: 'Simon Lüthi', instrument: 'Handorgel / Schwyzerörgeli', img: '/images/simon-luethi.jpg' },
+            ].map((t) => (
               <motion.div key={t.name} variants={fadeUp} className="group text-center">
                 <div className="relative aspect-square overflow-hidden mb-3">
-                  <Image src={t.img} alt={t.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500" unoptimized />
+                  <Image src={t.img} alt={t.name} fill className="object-cover grayscale group-hover:grayscale-0 group-hover:saturate-[1.2] group-hover:contrast-[1.05] transition-all duration-500" unoptimized />
                 </div>
-                <h4 className="font-heading font-bold">{t.name}</h4>
-                <p className="font-sans text-xs text-accent-gold">{t.instrument}</p>
+                <h4 className="font-heading font-bold text-sm">{t.name}</h4>
+                <p className="font-sans text-xs text-accent-gold mt-0.5">{t.instrument}</p>
               </motion.div>
             ))}
           </Section>
