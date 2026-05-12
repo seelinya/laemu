@@ -51,9 +51,13 @@ const products = [
   // Spiele
   { id: 14, name: 'Ländlermusik-Quiz', category: 'Spiele', subcategory: 'LAEMU', price: 'CHF 34', badge: 'Neu', img: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=600&q=80' },
   { id: 15, name: 'Volksmusik-Memo', category: 'Spiele', subcategory: 'LAEMU', price: 'CHF 24', badge: null, img: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=600&q=80' },
+  // Instrumente & Zubehör
+  { id: 19, name: 'Chlefeli-Set Professionell', category: 'Instrumente', subcategory: 'LAEMU', price: 'CHF 28', badge: 'Neu', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600&q=80' },
+  { id: 20, name: 'Holzlöffel-Set (4-teilig)', category: 'Instrumente', subcategory: 'LAEMU', price: 'CHF 18', badge: null, img: 'https://images.unsplash.com/photo-1519924879-7d66f81399fa?w=600&q=80' },
+  { id: 21, name: 'Notenhefter A4 (LAEMU)', category: 'Instrumente', subcategory: 'LAEMU', price: 'CHF 15', badge: null, img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600&q=80' },
 ]
 
-const categories = ['Alle', 'Kleidung', 'Accessoires', 'CDs', 'Spiele']
+const categories = ['Alle', 'Kleidung', 'Accessoires', 'CDs', 'Spiele', 'Instrumente']
 const brands = [
   'Alle Marken',
   'LAEMU',
