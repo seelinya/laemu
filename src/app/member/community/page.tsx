@@ -1039,6 +1039,11 @@ function ProfileView() {
                     <span key={f} className="font-sans text-xs px-2 py-1 bg-background border border-border">Formation: {f.trim()}</span>
                   ))}
                 </div>
+                {vorbilder && (
+                  <p className="font-sans text-xs text-text-secondary mb-3">
+                    <span className="font-medium text-dark">Vorbilder:</span> {vorbilder}
+                  </p>
+                )}
                 <div className="flex items-center gap-1.5 text-xs font-sans text-text-secondary mb-4">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {eventsVisible
