@@ -892,10 +892,50 @@ function SavedView() {
 
 function ProfileView() {
   const [editMode, setEditMode] = useState(false)
+  const [eventsVisible, setEventsVisible] = useState(true)
+  const [composerOpen, setComposerOpen] = useState(false)
+
+  // Committed profile values
+  const [name, setName] = useState('Niklaus Hess')
+  const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
+  const [formation, setFormation] = useState('Kapelle Hess-Ruedi')
+  const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
+  const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
+
+  // Draft values (live while editing)
+  const [draftName, setDraftName] = useState('')
+  const [draftBio, setDraftBio] = useState('')
+  const [draftFormation, setDraftFormation] = useState('')
+  const [draftInstruments, setDraftInstruments] = useState('')
+  const [draftVorbilder, setDraftVorbilder] = useState('')
+
+  const startEdit = () => {
+    setDraftName(name)
+    setDraftBio(bio)
+    setDraftFormation(formation)
+    setDraftInstruments(instruments)
+    setDraftVorbilder(vorbilder)
+    setEditMode(true)
+  }
+
+  const saveEdit = () => {
+    setName(draftName.trim() || name)
+    setBio(draftBio)
+    setFormation(draftFormation)
+    setInstruments(draftInstruments)
+    setVorbilder(draftVorbilder)
+    setEditMode(false)
+  }
 
   return (
     <div className="space-y-6">
-      {/* Profile header — own profile: follower/following counts visible here */}
+      <AnimatePresence>
+        {composerOpen && (
+          <PostComposerModal key="profile-composer" initialType="text" onClose={() => setComposerOpen(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Profile header */}
       <div className="bg-surface border border-border overflow-hidden">
         <div className="h-36 bg-gradient-to-r from-dark via-dark-secondary to-dark relative overflow-hidden">
           <div className="absolute inset-0 opacity-20"
@@ -917,67 +957,114 @@ function ProfileView() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setEditMode(!editMode)}
-              className={`font-sans text-sm font-medium px-4 py-2 border transition-colors ${editMode ? 'border-dark bg-dark text-white' : 'border-border hover:border-dark'}`}
-            >
-              {editMode ? 'Speichern' : 'Profil bearbeiten'}
-            </button>
+            <div className="flex items-center gap-2">
+              {editMode ? (
+                <>
+                  <button
+                    onClick={() => setEditMode(false)}
+                    className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    onClick={saveEdit}
+                    className="font-sans text-sm font-semibold px-4 py-2 bg-accent-gold text-white hover:bg-dark transition-colors"
+                  >
+                    Speichern ✓
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={startEdit}
+                  className="font-sans text-sm font-medium px-4 py-2 border border-border hover:border-dark transition-colors"
+                >
+                  Profil bearbeiten
+                </button>
+              )}
+            </div>
           </div>
 
-          {editMode ? (
-            <div className="space-y-4">
-              {[
-                { label: 'Profilname *', value: 'Niklaus Hess', type: 'input' },
-                { label: 'Bio', value: 'Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.', type: 'textarea' },
-              ].map(({ label, value, type }) => (
-                <div key={label}>
-                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
-                  {type === 'textarea' ? (
-                    <textarea defaultValue={value} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none" />
-                  ) : (
-                    <input defaultValue={value} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                  )}
+          <AnimatePresence mode="wait">
+            {editMode ? (
+              <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                <div>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Profilname *</label>
+                  <input value={draftName} onChange={e => setDraftName(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
-              ))}
-              <div className="grid grid-cols-2 gap-4">
-                {[['Formation', 'Kapelle Hess-Ruedi'], ['Instrumente', 'Handorgel, Schwyzerörgeli'], ['Musikalische Vorbilder', 'Ruedi Rymann, Kapelle Hess-Ruedi-Hegner']].map(([label, value]) => (
-                  <div key={label} className={label === 'Musikalische Vorbilder' ? 'col-span-2' : ''}>
-                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
-                    <input defaultValue={value} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                <div>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Bio</label>
+                  <textarea value={draftBio} onChange={e => setDraftBio(e.target.value)} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Formation(en)</label>
+                    <input value={draftFormation} onChange={e => setDraftFormation(e.target.value)} placeholder="Mehrere: kommagetrennt" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                   </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <h2 className="font-heading text-2xl font-black">Niklaus Hess</h2>
-              <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
-              <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">
-                Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="font-sans text-xs px-2 py-1 bg-background border border-border">🪗 Handorgel</span>
-                <span className="font-sans text-xs px-2 py-1 bg-background border border-border">🎶 Schwyzerörgeli</span>
-                <span className="font-sans text-xs px-2 py-1 bg-background border border-border">Formation: Kapelle Hess-Ruedi</span>
-              </div>
-              {/* Own profile: show follower/following counts */}
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border text-center">
-                <div>
-                  <p className="font-heading font-black text-xl">48</p>
-                  <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
+                  <div>
+                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
+                    <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  </div>
                 </div>
                 <div>
-                  <p className="font-heading font-black text-xl">312</p>
-                  <p className="font-sans text-xs font-light text-text-secondary">Folge ich</p>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
+                  <input value={draftVorbilder} onChange={e => setDraftVorbilder(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
-                <div>
-                  <p className="font-heading font-black text-xl">891</p>
-                  <p className="font-sans text-xs font-light text-text-secondary">Follower</p>
+                {/* Events toggle inside edit mode */}
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div>
+                    <p className="font-sans text-sm font-medium">Event-Teilnahmen sichtbar</p>
+                    <p className="font-sans text-xs text-text-secondary mt-0.5">
+                      {eventsVisible ? 'Andere Nutzer sehen deine Events.' : 'Events sind für andere ausgeblendet.'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setEventsVisible(!eventsVisible)}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${eventsVisible ? 'bg-dark' : 'bg-border'}`}
+                    aria-label="Events ein-/ausblenden"
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${eventsVisible ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            ) : (
+              <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <h2 className="font-heading text-2xl font-black">{name}</h2>
+                <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
+                <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {instruments.split(',').map(i => (
+                    <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
+                  ))}
+                  {formation.split(',').map(f => (
+                    <span key={f} className="font-sans text-xs px-2 py-1 bg-background border border-border">Formation: {f.trim()}</span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs font-sans text-text-secondary mb-4">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {eventsVisible
+                      ? <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>
+                      : <><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
+                    }
+                  </svg>
+                  Events: {eventsVisible ? 'für andere sichtbar' : 'ausgeblendet'}
+                </div>
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border text-center">
+                  <div>
+                    <p className="font-heading font-black text-xl">48</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
+                  </div>
+                  <div>
+                    <p className="font-heading font-black text-xl">312</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Folge ich</p>
+                  </div>
+                  <div>
+                    <p className="font-heading font-black text-xl">891</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Follower</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -985,7 +1072,12 @@ function ProfileView() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-heading font-bold text-lg">Meine Beiträge</h3>
-          <button className="font-sans text-sm text-accent-gold hover:text-dark transition-colors">+ Neuer Beitrag</button>
+          <button
+            onClick={() => setComposerOpen(true)}
+            className="font-sans text-sm text-accent-gold hover:text-dark transition-colors"
+          >
+            + Neuer Beitrag
+          </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {mockPosts.slice(0, 3).map((post) => (
