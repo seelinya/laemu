@@ -66,7 +66,7 @@ const teachers = [
     rating: 4.9,
     instruments: ['Handorgel', 'Akkordeon', 'Steirische Harmonika'],
     location: 'Luzern',
-    profileHref: '/member/community',
+    profileHref: '/member/profile',
   },
   {
     id: 'kaelin',
@@ -79,7 +79,7 @@ const teachers = [
     rating: 4.8,
     instruments: ['Schwyzerörgeli', 'Volksgesang'],
     location: 'Appenzell',
-    profileHref: '/member/community',
+    profileHref: '/member/profile',
   },
   {
     id: 'frei',
@@ -92,7 +92,7 @@ const teachers = [
     rating: 4.9,
     instruments: ['Klavier', 'Flügel'],
     location: 'Zürich',
-    profileHref: '/member/community',
+    profileHref: '/member/profile',
   },
   {
     id: 'gasser',
@@ -105,7 +105,7 @@ const teachers = [
     rating: 4.7,
     instruments: ['Klarinette', 'Bassklarinette'],
     location: 'Schwyz',
-    profileHref: '/member/community',
+    profileHref: '/member/profile',
   },
   {
     id: 'mueller',
@@ -118,7 +118,7 @@ const teachers = [
     rating: 4.8,
     instruments: ['Kontrabass', 'E-Bass'],
     location: 'Bern',
-    profileHref: '/member/community',
+    profileHref: '/member/profile',
   },
 ]
 

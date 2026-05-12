@@ -13,6 +13,7 @@ const navLinks = [
   { label: 'Academy', href: '/academy' },
   { label: 'Events', href: '/events' },
   { label: 'Formationen', href: '/formations' },
+  { label: 'Partner', href: '/partner' },
   { label: 'Mission', href: '/mission' },
   { label: 'Shop', href: '/shop' },
 ]
@@ -122,7 +123,7 @@ export function Navigation() {
             {/* CTA + Hamburger */}
             <div className="flex items-center gap-4">
               <Link
-                href="/member/community"
+                href="/register"
                 className={clsx(
                   'hidden lg:inline-flex items-center px-5 py-2.5 font-sans text-sm font-semibold tracking-wide transition-all duration-200',
                   isDark
@@ -130,7 +131,7 @@ export function Navigation() {
                     : 'bg-dark text-white hover:bg-accent-gold'
                 )}
               >
-                Mitmachen
+                Anmelden
               </Link>
 
               <button
@@ -199,10 +200,10 @@ export function Navigation() {
                 transition={{ delay: 0.4 }}
               >
                 <Link
-                  href="/member/community"
+                  href="/register"
                   className="block w-full text-center py-4 bg-white text-dark font-heading font-black tracking-wide text-lg hover:bg-accent-gold hover:text-white transition-colors"
                 >
-                  Mitmachen
+                  Anmelden
                 </Link>
               </motion.div>
             </div>

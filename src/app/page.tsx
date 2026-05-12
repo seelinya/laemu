@@ -436,19 +436,22 @@ export default function HomePage() {
             <motion.h2 variants={fadeUp} className="heading-lg text-white mt-3 mb-4">
               Zwei Stärken. Eine gemeinsame Mission.
             </motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-white/50 max-w-2xl mx-auto">
+              Hinter dem Beginn von LAEMU stehen Niklaus und Selina — derselben Überzeugung: Für die LAEndlerMUsik kann und soll etwas Grosses entstehen.
+            </motion.p>
           </Section>
           <Section className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
               {
                 name: 'Niklaus Hess',
                 role: 'Co-Founder',
-                bio: 'Tief verwurzelt in der Ländlermusik. Niklaus bringt das Herz der Szene in jede Entscheidung.',
+                bio: 'Als leidenschaftlicher Volksmusikant tief in der Szene verwurzelt. Niklaus bringt die ursprüngliche Vision von LAEMU mit — und will die Schweizer Ländlermusik verbinden und neue Chancen für die Volksmusikszene schaffen.',
                 img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80',
               },
               {
                 name: 'Selina Strickler',
                 role: 'Co-Founder',
-                bio: 'Branding, digitale Strategie und modernes Marketing. Selina gibt LAEMU seine unverkennbare Stimme.',
+                bio: 'Selina bringt ein feines Gespür für Branding, Marketing und digitale Lösungen ein. Begeistert von der Natürlichkeit, Lebensfreude und Echtheit der Ländlerszene — und entschlossen, sie professionell zu vermarkten.',
                 img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80',
               },
             ].map((founder) => (

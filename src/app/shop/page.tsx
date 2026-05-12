@@ -28,21 +28,30 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 }
 
 const products = [
-  { id: 1, name: 'LAEMU Hoodie Black', category: 'Clothing', price: 'CHF 79', badge: 'Bestseller', img: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80' },
-  { id: 2, name: 'LAEMU Hoodie Beige', category: 'Clothing', price: 'CHF 79', badge: null, img: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80' },
-  { id: 3, name: 'LAEMU T-Shirt White', category: 'Clothing', price: 'CHF 39', badge: null, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
-  { id: 4, name: 'LAEMU T-Shirt Olive', category: 'Clothing', price: 'CHF 39', badge: null, img: 'https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?w=600&q=80' },
-  { id: 5, name: 'LAEMU Cap', category: 'Accessoires', price: 'CHF 49', badge: 'Neu', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80' },
-  { id: 6, name: 'LAEMU Tote Bag', category: 'Accessoires', price: 'CHF 29', badge: null, img: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=600&q=80' },
-  { id: 7, name: 'LAEMU Sticker Pack', category: 'Accessoires', price: 'CHF 12', badge: null, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
-  { id: 8, name: 'LAEMU Poster A2', category: 'Accessoires', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=600&q=80' },
-  { id: 9, name: 'LAEMU Aufkleber Swiss', category: 'Accessoires', price: 'CHF 8', badge: null, img: 'https://images.unsplash.com/photo-1533561052604-c3beb6d55b8d?w=600&q=80' },
-  { id: 10, name: 'LAEMU Beanie', category: 'Clothing', price: 'CHF 45', badge: null, img: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=600&q=80' },
-  { id: 11, name: 'Formation Merch Hess', category: 'Formationen', price: 'CHF 35', badge: null, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
-  { id: 12, name: 'LAEMU CD Sampler', category: 'Musik', price: 'CHF 22', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  // LAEMU Eigenprodukte – Kleidung
+  { id: 1, name: 'LAEMU Hoodie Schwarz', category: 'Kleidung', subcategory: 'LAEMU', price: 'CHF 79', badge: 'Bestseller', img: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80' },
+  { id: 2, name: 'LAEMU T-Shirt Weiss', category: 'Kleidung', subcategory: 'LAEMU', price: 'CHF 39', badge: null, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
+  { id: 3, name: 'LAEMU T-Shirt Schwarz', category: 'Kleidung', subcategory: 'LAEMU', price: 'CHF 39', badge: null, img: 'https://images.unsplash.com/photo-1622470953794-aa9c70b0fb9d?w=600&q=80' },
+  { id: 4, name: 'LAEMU Beanie', category: 'Kleidung', subcategory: 'LAEMU', price: 'CHF 45', badge: null, img: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=600&q=80' },
+  // LAEMU Eigenprodukte – Accessoires
+  { id: 5, name: 'LAEMU Cap', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 49', badge: 'Neu', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80' },
+  { id: 6, name: 'LAEMU Tote Bag', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 29', badge: null, img: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=600&q=80' },
+  { id: 7, name: 'LAEMU Sticker-Set', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 12', badge: null, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+  { id: 8, name: 'LAEMU Poster A2', category: 'Accessoires', subcategory: 'LAEMU', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=600&q=80' },
+  // Formationen Merch
+  { id: 9, name: 'T-Shirt Ländlerkapelle Hess', category: 'Kleidung', subcategory: 'Formationen', price: 'CHF 35', badge: null, img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80' },
+  { id: 10, name: 'Cap Trio Alpstein', category: 'Accessoires', subcategory: 'Formationen', price: 'CHF 40', badge: null, img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80' },
+  // CDs
+  { id: 11, name: 'LAEMU CD Sampler Vol. 1', category: 'CDs', subcategory: 'LAEMU', price: 'CHF 22', badge: 'Neu', img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  { id: 12, name: 'Ländlerkapelle Hess – Live 2023', category: 'CDs', subcategory: 'Formationen', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  { id: 13, name: 'Trio Alpstein – Bergsound', category: 'CDs', subcategory: 'Formationen', price: 'CHF 25', badge: null, img: 'https://images.unsplash.com/photo-1511715112108-9acc5b103dfc?w=600&q=80' },
+  // Spiele
+  { id: 14, name: 'Ländlermusik-Quiz', category: 'Spiele', subcategory: 'LAEMU', price: 'CHF 34', badge: 'Neu', img: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=600&q=80' },
+  { id: 15, name: 'Volksmusik-Memo', category: 'Spiele', subcategory: 'LAEMU', price: 'CHF 24', badge: null, img: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=600&q=80' },
 ]
 
-const categories = ['Alle', 'Clothing', 'Accessoires', 'Musik', 'Formationen']
+const categories = ['Alle', 'Kleidung', 'Accessoires', 'CDs', 'Spiele']
+const sources = ['Alle Anbieter', 'LAEMU', 'Formationen']
 
 const reviews = [
   { name: 'Sabrina K.', location: 'Luzern', rating: 5, text: 'Der Hoodie ist wunderschön und die Qualität ist top. Trage ihn bei jedem Konzert!' },
@@ -52,11 +61,13 @@ const reviews = [
 
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState('Alle')
+  const [activeSource, setActiveSource] = useState('Alle Anbieter')
   const [addedToCart, setAddedToCart] = useState<number | null>(null)
 
   const filtered = products.filter((p) => {
-    if (activeCategory === 'Alle') return true
-    return p.category === activeCategory
+    const catMatch = activeCategory === 'Alle' || p.category === activeCategory
+    const srcMatch = activeSource === 'Alle Anbieter' || p.subcategory === activeSource
+    return catMatch && srcMatch
   })
 
   const handleAddToCart = (id: number) => {
@@ -117,6 +128,22 @@ export default function ShopPage() {
             <span className="ml-auto font-sans text-sm text-text-secondary whitespace-nowrap">
               {filtered.length} Produkte
             </span>
+          </div>
+          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border overflow-x-auto">
+            <span className="font-sans text-xs text-text-secondary whitespace-nowrap mr-1">Anbieter:</span>
+            {sources.map((src) => (
+              <button
+                key={src}
+                onClick={() => setActiveSource(src)}
+                className={`font-sans text-xs px-3 py-1.5 transition-all whitespace-nowrap border ${
+                  activeSource === src
+                    ? 'border-dark bg-dark text-white'
+                    : 'border-border text-text-secondary hover:border-dark'
+                }`}
+              >
+                {src}
+              </button>
+            ))}
           </div>
         </div>
       </section>

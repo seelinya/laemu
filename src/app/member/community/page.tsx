@@ -199,7 +199,27 @@ function IconBilling() {
 
 // ─── Mock data ─────────────────────────────────────────────────────────────────
 
-const mockPosts = [
+interface Post {
+  id: number
+  user: string
+  name: string
+  avatar: string
+  time: string
+  text: string
+  img?: string
+  likes: number
+  comments: number
+  type: 'photo' | 'video' | 'event' | 'event-announcement' | 'link' | 'text'
+  following: boolean
+  linkUrl?: string
+  linkTitle?: string
+  linkDomain?: string
+  eventDate?: string
+  eventTime?: string
+  eventLocation?: string
+}
+
+const mockPosts: Post[] = [
   {
     id: 1,
     user: 'hansruedi_akkordeon',
@@ -252,6 +272,48 @@ const mockPosts = [
     type: 'photo' as const,
     following: false,
   },
+  {
+    id: 5,
+    user: 'handorgel_hoeck_sz',
+    name: 'Handorgelhöck Schwyz',
+    avatar: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=100&q=80',
+    time: 'vor 5 Tagen',
+    text: 'Kommt vorbei und bringt eure Handorgeln mit! Organisiert zusammen mit Familie Camenzind aus Immensee SZ. Wir freuen uns auf einen unvergesslichen Nachmittag.',
+    likes: 76,
+    comments: 18,
+    type: 'event-announcement' as const,
+    following: true,
+    eventDate: 'So, 31. Mai 2025',
+    eventTime: '14–20 Uhr',
+    eventLocation: 'Rest. Sagi, Haltikon SZ',
+  },
+  {
+    id: 6,
+    user: 'volksmusik_magazin',
+    name: 'Volksmusik Magazin',
+    avatar: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=100&q=80',
+    time: 'vor 2 Tagen',
+    text: 'Lesenswerter Beitrag: Wie die Ländlermusik die junge Generation neu begeistert — und was das für die Szene bedeutet.',
+    likes: 41,
+    comments: 7,
+    type: 'link' as const,
+    following: true,
+    linkUrl: 'https://www.volksmusik.ch/nachwuchs',
+    linkTitle: 'Ländlermusik und die Jugend — eine neue Beziehung',
+    linkDomain: 'volksmusik.ch',
+  },
+  {
+    id: 7,
+    user: 'maria_oergeli',
+    name: 'Maria Kälin',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
+    time: 'vor 4 Stunden',
+    text: 'Heute war ein wunderschöner Tag auf der Alp — nur das Örgeli und die Stille der Berge. Manchmal braucht es keine Worte. 🏔️',
+    likes: 54,
+    comments: 9,
+    type: 'text' as const,
+    following: true,
+  },
 ]
 
 const suggestedProfiles = [
@@ -295,7 +357,7 @@ const conversations = [
 
 // ─── Components ───────────────────────────────────────────────────────────────
 
-function PostCard({ post }: { post: (typeof mockPosts)[number] }) {
+function PostCard({ post }: { post: Post }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes)
   const [showComment, setShowComment] = useState(false)
@@ -320,7 +382,7 @@ function PostCard({ post }: { post: (typeof mockPosts)[number] }) {
             <p className="font-sans text-xs text-text-secondary">{post.time}</p>
           </div>
         </div>
-        {post.type === 'event' && (
+        {(post.type === 'event' || post.type === 'event-announcement') && (
           <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold text-white tracking-wide uppercase">Event</span>
         )}
         {post.type === 'video' && (
@@ -360,16 +422,38 @@ function PostCard({ post }: { post: (typeof mockPosts)[number] }) {
         </div>
       </div>
 
-      <div className="relative aspect-video overflow-hidden">
-        <Image src={post.img} alt={post.user} fill className="object-cover" unoptimized />
-        {post.type === 'video' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <IconPlay />
+      {post.img && (
+        <div className="relative aspect-video overflow-hidden">
+          <Image src={post.img} alt={post.user} fill className="object-cover" unoptimized />
+          {post.type === 'video' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <IconPlay />
+              </div>
             </div>
+          )}
+        </div>
+      )}
+      {post.type === 'link' && post.linkUrl && (
+        <div className="mx-4 mb-3 border border-border p-4 bg-background hover:border-dark transition-colors cursor-pointer flex items-start gap-3">
+          <div className="flex-1">
+            <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wider mb-1">{post.linkDomain}</p>
+            <p className="font-sans text-sm font-medium leading-snug">{post.linkTitle}</p>
           </div>
-        )}
-      </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-text-secondary mt-0.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </div>
+      )}
+      {post.type === 'event-announcement' && post.eventDate && (
+        <div className="mx-4 mb-3 bg-dark text-white p-5">
+          <p className="font-sans text-[10px] text-accent-gold uppercase tracking-widest mb-2">SAVE THE DATE</p>
+          <p className="font-heading text-2xl font-bold mb-3">{post.eventDate}</p>
+          <div className="flex items-center gap-4 text-sm font-sans">
+            <span className="text-white/70">{post.eventTime}</span>
+            <span className="text-white/30">·</span>
+            <span className="text-white/70">{post.eventLocation}</span>
+          </div>
+        </div>
+      )}
 
       <div className="p-4">
         <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{post.text}</p>
@@ -625,7 +709,7 @@ function SavedView() {
         {mockPosts.slice(0, 2).map((post) => (
           <div key={post.id} className="bg-surface border border-border overflow-hidden group">
             <div className="relative aspect-video overflow-hidden">
-              <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+              <Image src={post.img ?? ''} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
               <div className="absolute bottom-0 p-3">
                 <p className="font-heading text-white text-sm font-bold">{post.name}</p>
@@ -743,7 +827,7 @@ function ProfileView() {
         <div className="grid grid-cols-3 gap-2">
           {mockPosts.slice(0, 3).map((post) => (
             <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer">
-              <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+              <Image src={post.img ?? ''} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                 <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
                 <button className="text-white/80 hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>
@@ -950,7 +1034,7 @@ function SettingsView() {
 
 export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('feed')
-  const [feedTab, setFeedTab] = useState<'all' | 'following'>('all')
+  const [feedTab, setFeedTab] = useState<'all' | 'following'>('following')
 
   return (
     <div className="min-h-screen bg-background">
