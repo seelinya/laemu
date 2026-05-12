@@ -11,12 +11,11 @@ const profile = {
   name: 'Hansruedi Wenger',
   handle: '@hansruedi_akkordeon',
   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
-  bio: 'Handorgelist und Akkordeonlehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Academy und spiele in der Kapelle Hess-Ruedi-Hegner.',
+  bio: 'Handorgelist und Akkordeonlehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Academy und spiele in mehreren Formationen der Innerschweiz.',
   location: 'Luzern LU',
   instruments: ['Handorgel', 'Akkordeon', 'Steirische Harmonika'],
-  formation: 'Kapelle Hess-Ruedi-Hegner',
-  role: 'Lehrperson & Musiker',
-  showEvents: true,
+  formations: ['Hess-Rusch-Hegner', 'Ländlertrio Freiamt'],
+  roles: ['Lehrperson', 'Musiker'],
 }
 
 type PostType = 'photo' | 'video' | 'text' | 'link' | 'event-announcement'
@@ -176,6 +175,7 @@ function PostCard({ post }: { post: ProfilePost }) {
 export default function MemberProfilePage() {
   const [following, setFollowing] = useState(false)
   const [activeTab, setActiveTab] = useState<'posts' | 'events'>('posts')
+  const [eventsVisible, setEventsVisible] = useState(true)
 
   return (
     <div className="min-h-screen bg-background">
@@ -223,17 +223,21 @@ export default function MemberProfilePage() {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 {profile.location}
               </span>
-              <span className="flex items-center gap-1.5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                {profile.formation}
-              </span>
+              {profile.formations.map((f) => (
+                <span key={f} className="flex items-center gap-1.5">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                  {f}
+                </span>
+              ))}
             </div>
 
             <div className="flex flex-wrap gap-1.5">
               {profile.instruments.map((inst) => (
                 <span key={inst} className="font-sans text-xs px-2 py-1 bg-background border border-border">{inst}</span>
               ))}
-              <span className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">{profile.role}</span>
+              {profile.roles.map((r) => (
+                <span key={r} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">{r}</span>
+              ))}
             </div>
           </div>
         </motion.div>
@@ -246,14 +250,15 @@ export default function MemberProfilePage() {
           >
             Beiträge
           </button>
-          {profile.showEvents && (
-            <button
-              onClick={() => setActiveTab('events')}
-              className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'events' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-            >
-              Events
-            </button>
-          )}
+          <button
+            onClick={() => setActiveTab('events')}
+            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 flex items-center justify-center gap-2 ${activeTab === 'events' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+          >
+            Events
+            {!eventsVisible && (
+              <span className="font-sans text-[10px] text-text-secondary/60 border border-border px-1.5 py-0.5 leading-tight">versteckt</span>
+            )}
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -262,22 +267,66 @@ export default function MemberProfilePage() {
               {posts.map((post) => <PostCard key={post.id} post={post} />)}
             </motion.div>
           )}
-          {activeTab === 'events' && profile.showEvents && (
+          {activeTab === 'events' && (
             <motion.div key="events" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-              <p className="font-sans text-sm text-text-secondary mb-4">Anstehende Events von {profile.name}:</p>
-              {upcomingEvents.map((event, i) => (
-                <div key={i} className="bg-surface border border-border p-5 hover:border-dark transition-colors">
-                  <p className="font-sans text-xs text-accent-gold font-semibold mb-1">{event.date}</p>
-                  <h3 className="font-heading font-bold text-base mb-1">{event.title}</h3>
-                  <p className="font-sans text-xs text-text-secondary flex items-center gap-1.5">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    {event.location}
+
+              {/* Visibility toggle — owner-only setting */}
+              <div className="bg-surface border border-border px-5 py-4 flex items-center justify-between">
+                <div>
+                  <p className="font-sans text-sm font-medium">Events für andere sichtbar</p>
+                  <p className="font-sans text-xs text-text-secondary mt-0.5">
+                    {eventsVisible
+                      ? 'Andere Nutzer sehen deine Events im Profil.'
+                      : 'Events werden anderen Nutzern nicht angezeigt.'}
                   </p>
                 </div>
-              ))}
-              <p className="font-sans text-xs text-text-secondary mt-4 leading-relaxed">
-                Die Sichtbarkeit von Events im öffentlichen Profil kann jeder Nutzer selbst in den Einstellungen steuern.
-              </p>
+                <button
+                  onClick={() => setEventsVisible(!eventsVisible)}
+                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${eventsVisible ? 'bg-dark' : 'bg-border'}`}
+                  aria-label="Events ein-/ausblenden"
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${eventsVisible ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {eventsVisible ? (
+                  <motion.div
+                    key="events-on"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-3 overflow-hidden"
+                  >
+                    <p className="font-sans text-sm text-text-secondary pt-2">Anstehende Events:</p>
+                    {upcomingEvents.map((event, i) => (
+                      <div key={i} className="bg-surface border border-border p-5 hover:border-dark transition-colors">
+                        <p className="font-sans text-xs text-accent-gold font-semibold mb-1">{event.date}</p>
+                        <h3 className="font-heading font-bold text-base mb-1">{event.title}</h3>
+                        <p className="font-sans text-xs text-text-secondary flex items-center gap-1.5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          {event.location}
+                        </p>
+                      </div>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="events-off"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="bg-background border border-dashed border-border p-8 text-center"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary mx-auto mb-3">
+                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                    <p className="font-sans text-sm text-text-secondary">Events sind ausgeblendet.</p>
+                    <p className="font-sans text-xs text-text-secondary/60 mt-1">Andere Nutzer sehen diesen Tab nicht.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
