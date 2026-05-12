@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -173,41 +174,43 @@ export default function ShopPage() {
           <Section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filtered.map((product) => (
               <motion.div key={product.id} variants={fadeUp}>
-                <Card hover padding="none" className="overflow-hidden group">
-                  <div className="relative aspect-square overflow-hidden">
-                    <Image
-                      src={product.img}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      unoptimized
-                    />
-                    {product.badge && (
-                      <div className="absolute top-3 left-3 bg-accent-gold text-white text-xs px-2 py-1 font-sans">
-                        {product.badge}
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-sans font-medium text-sm mb-1 group-hover:text-accent-gold transition-colors">{product.name}</h4>
-                    <p className="font-sans text-xs text-text-secondary mb-3">{product.category}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-heading font-bold text-accent-gold">{product.price}</span>
-                      <motion.button
-                        onClick={() => handleAddToCart(product.id)}
-                        className={`font-sans text-xs px-3 py-1.5 transition-all ${
-                          addedToCart === product.id
-                            ? 'bg-muted-green text-white'
-                            : 'bg-dark text-white hover:bg-accent-gold'
-                        }`}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {addedToCart === product.id ? '✓ Hinzugefügt' : 'In den Warenkorb'}
-                      </motion.button>
+                <Link href={`/shop/${product.id}`} className="block group">
+                  <Card hover padding="none" className="overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden">
+                      <Image
+                        src={product.img}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        unoptimized
+                      />
+                      {product.badge && (
+                        <div className="absolute top-3 left-3 bg-accent-gold text-white text-xs px-2 py-1 font-sans">
+                          {product.badge}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     </div>
-                  </div>
-                </Card>
+                    <div className="p-4">
+                      <h4 className="font-sans font-medium text-sm mb-1 group-hover:text-accent-gold transition-colors">{product.name}</h4>
+                      <p className="font-sans text-xs text-text-secondary mb-3">{product.category}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-heading font-bold text-accent-gold">{product.price}</span>
+                        <motion.button
+                          onClick={(e) => { e.preventDefault(); handleAddToCart(product.id) }}
+                          className={`font-sans text-xs px-3 py-1.5 transition-all ${
+                            addedToCart === product.id
+                              ? 'bg-muted-green text-white'
+                              : 'bg-dark text-white hover:bg-accent-gold'
+                          }`}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {addedToCart === product.id ? '✓ Hinzugefügt' : 'In den Warenkorb'}
+                        </motion.button>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </Section>
