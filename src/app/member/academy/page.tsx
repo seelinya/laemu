@@ -367,22 +367,24 @@ export default function MemberAcademyPage() {
                   <h3 className="font-heading font-bold text-xl mb-4">Meine Kurse</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {courses.map((course, i) => (
-                      <motion.div key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-surface border border-border overflow-hidden group cursor-pointer hover:border-dark transition-colors">
-                        <div className="relative aspect-video overflow-hidden">
-                          <Image src={course.img} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
-                          <div className="absolute top-2 left-2 bg-accent-gold/90 text-white text-xs px-2 py-0.5">{course.level}</div>
-                        </div>
-                        <div className="p-4">
-                          <span className="font-sans text-xs text-accent-gold uppercase tracking-wider">{course.category}</span>
-                          <h4 className="font-heading font-bold text-sm mt-1 mb-1 group-hover:text-accent-gold transition-colors">{course.title}</h4>
-                          <p className="font-sans text-xs text-text-secondary mb-3">mit {course.instructor}</p>
-                          <div className="flex justify-between text-xs font-sans mb-1.5">
-                            <span className="text-text-secondary">{course.completedLessons}/{course.totalLessons}</span>
-                            <span className="font-medium">{course.progress}%</span>
+                      <Link key={course.id} href={`/member/academy/lernvideos/${course.id}`}>
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-surface border border-border overflow-hidden group cursor-pointer hover:border-dark transition-colors">
+                          <div className="relative aspect-video overflow-hidden">
+                            <Image src={course.img} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                            <div className="absolute top-2 left-2 bg-accent-gold/90 text-white text-xs px-2 py-0.5">{course.level}</div>
                           </div>
-                          <ProgressBar value={course.progress} />
-                        </div>
-                      </motion.div>
+                          <div className="p-4">
+                            <span className="font-sans text-xs text-accent-gold uppercase tracking-wider">{course.category}</span>
+                            <h4 className="font-heading font-bold text-sm mt-1 mb-1 group-hover:text-accent-gold transition-colors">{course.title}</h4>
+                            <p className="font-sans text-xs text-text-secondary mb-3">mit {course.instructor}</p>
+                            <div className="flex justify-between text-xs font-sans mb-1.5">
+                              <span className="text-text-secondary">{course.completedLessons}/{course.totalLessons}</span>
+                              <span className="font-medium">{course.progress}%</span>
+                            </div>
+                            <ProgressBar value={course.progress} />
+                          </div>
+                        </motion.div>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -391,19 +393,21 @@ export default function MemberAcademyPage() {
                   <h3 className="font-heading font-bold text-xl mb-4">Empfohlene Lektionen</h3>
                   <div className="space-y-3">
                     {recommendedLessons.map((lesson, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 + 0.3 }} className="bg-surface border border-border flex items-center gap-4 p-4 cursor-pointer group hover:border-dark transition-colors">
-                        <div className="relative w-20 h-14 flex-shrink-0 overflow-hidden">
-                          <Image src={lesson.img} alt={lesson.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      <Link key={i} href={`/member/academy/lernvideos/${i + 1}`}>
+                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 + 0.3 }} className="bg-surface border border-border flex items-center gap-4 p-4 cursor-pointer group hover:border-dark transition-colors">
+                          <div className="relative w-20 h-14 flex-shrink-0 overflow-hidden">
+                            <Image src={lesson.img} alt={lesson.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex-1">
-                          <h5 className="font-sans font-medium text-sm group-hover:text-accent-gold transition-colors">{lesson.title}</h5>
-                          <p className="font-sans text-xs text-text-secondary">{lesson.instructor}</p>
-                        </div>
-                        <span className="font-sans text-xs text-text-secondary whitespace-nowrap">{lesson.duration}</span>
-                      </motion.div>
+                          <div className="flex-1">
+                            <h5 className="font-sans font-medium text-sm group-hover:text-accent-gold transition-colors">{lesson.title}</h5>
+                            <p className="font-sans text-xs text-text-secondary">{lesson.instructor}</p>
+                          </div>
+                          <span className="font-sans text-xs text-text-secondary whitespace-nowrap">{lesson.duration}</span>
+                        </motion.div>
+                      </Link>
                     ))}
                   </div>
                 </div>

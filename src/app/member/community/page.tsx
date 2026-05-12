@@ -1355,9 +1355,49 @@ function SettingsView() {
       <div className="p-6">
         {activeSection === 'billing' && (
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Rechnungsverlauf</h3>
+            {/* Active subscriptions */}
+            <div className="mb-6">
+              <h3 className="font-heading font-bold text-lg mb-3">Aktive Abonnements</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 border border-accent-gold/40 bg-accent-gold/5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">🪗</span>
+                    <div>
+                      <p className="font-sans text-sm font-semibold">LAEMU Academy – Handorgel-Lehrgang</p>
+                      <p className="font-sans text-xs text-text-secondary">Jahresabo · nächste Verlängerung 1. Feb 2027</p>
+                      <span className="font-sans text-[10px] text-accent-gold font-medium">Formation-Rabatt aktiv (Kapelle Hess-Ruedi)</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-sans text-sm font-semibold text-accent-gold">CHF 222.40 / Jahr</p>
+                    <span className="font-sans text-[10px] text-text-secondary line-through">CHF 278.00</span>
+                    <div className="mt-1">
+                      <button className="font-sans text-xs text-red-500 hover:text-red-700 transition-colors">Kündigen</button>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 border border-border">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">🌐</span>
+                    <div>
+                      <p className="font-sans text-sm font-semibold">LAEMU Community – Mitgliedschaft</p>
+                      <p className="font-sans text-xs text-text-secondary">Monatlich · nächste Verlängerung 1. Mär 2026</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-sans text-sm font-semibold">CHF 5.00 / Monat</p>
+                    <div className="mt-1">
+                      <button className="font-sans text-xs text-red-500 hover:text-red-700 transition-colors">Kündigen</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Invoice history */}
+            <h3 className="font-heading font-bold text-lg mb-3">Rechnungsverlauf</h3>
             <div className="space-y-3">
               {[
+                { date: 'Feb 2026', desc: 'LAEMU Academy – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
                 { date: 'Feb 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
                 { date: 'Jan 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
                 { date: 'Dez 2025', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
