@@ -123,7 +123,7 @@ export function Navigation() {
             {/* CTA + Hamburger */}
             <div className="flex items-center gap-4">
               <Link
-                href="/register"
+                href="/login"
                 className={clsx(
                   'hidden lg:inline-flex items-center px-5 py-2.5 font-sans text-sm font-semibold tracking-wide transition-all duration-200',
                   isDark
@@ -200,7 +200,7 @@ export function Navigation() {
                 transition={{ delay: 0.4 }}
               >
                 <Link
-                  href="/register"
+                  href="/login"
                   className="block w-full text-center py-4 bg-white text-dark font-heading font-black tracking-wide text-lg hover:bg-accent-gold hover:text-white transition-colors"
                 >
                   Anmelden
