@@ -94,6 +94,63 @@ const mockPosts = [
   },
 ]
 
+const fachpartner = [
+  {
+    id: 'buechi',
+    name: 'Büchi Musikinstrumente',
+    ort: 'Luzern',
+    instrumente: ['Handorgel', 'Schwyzerörgeli'],
+    desc: 'Spezialist für diatonische Handorgeln und Schwyzerörgelis — von der Beratung bis zur Reparatur alles aus einer Hand.',
+    url: '#',
+    marken: ['Serenellini', 'Guerrini', 'Castagnari'],
+  },
+  {
+    id: 'musikhaus-luzern',
+    name: 'Musikhaus Luzern',
+    ort: 'Luzern',
+    instrumente: ['Klavier', 'Flügel'],
+    desc: 'Fachhandel für Klaviere und Flügel aller Preisklassen. Eigene Werkstatt mit zertifizierten Klavierbauern vor Ort.',
+    url: '#',
+    marken: ['Steinway', 'Yamaha', 'Bösendorfer'],
+  },
+  {
+    id: 'akkordeon-bauer',
+    name: 'Akkordeon-Bauer Kälin',
+    ort: 'Schwyz',
+    instrumente: ['Schwyzerörgeli', 'Steirische Harmonika'],
+    desc: 'Traditioneller Musikbauer aus Schwyz. Fertigt und repariert Schwyzerörgelis in Handarbeit seit drei Generationen.',
+    url: '#',
+    marken: ['Handgefertigt', 'Eigene Produktion'],
+  },
+  {
+    id: 'piano-center',
+    name: 'Piano Center Zürich',
+    ort: 'Zürich',
+    instrumente: ['Klavier', 'Digitalpiano'],
+    desc: 'Grösste Klavierausstellung der Deutschschweiz mit über 80 Instrumenten zum Ausprobieren — neues und gebrauchtes Sortiment.',
+    url: '#',
+    marken: ['Kawai', 'Roland', 'Yamaha', 'Fazioli'],
+  },
+  {
+    id: 'volksmusik-huber',
+    name: 'Volksmusik-Center Huber',
+    ort: 'Einsiedeln',
+    instrumente: ['Handorgel', 'Klarinette', 'Bass'],
+    desc: 'Das Fachgeschäft für Schweizer Volksmusik-Instrumente. Umfangreiches Sortiment an Handorgeln, Klarinetten und Bässen.',
+    url: '#',
+    marken: ['Hohner', 'Buffet Crampon', 'Thomann'],
+  },
+  {
+    id: 'alpenklang',
+    name: 'Alpenklang Musikwerkstatt',
+    ort: 'Appenzell',
+    instrumente: ['Schwyzerörgeli', 'Handorgel'],
+    desc: 'Werkstatt und Fachhandel im Herzen von Appenzell. Spezialisiert auf die Instrumente der Innerrhoder Volksmusik-Tradition.',
+    url: '#',
+    marken: ['Guerrini', 'Eigenmarke', 'Servizio'],
+  },
+]
+
 const upcomingEvents = [
   { date: '15. Feb', title: 'Community-Abend Luzern', location: 'Kultur- und Kongresszentrum, Luzern', type: 'Community' },
   { date: '22. Feb', title: 'Online-Jam Session', location: 'LAEMU Live Stream', type: 'Online' },
@@ -242,6 +299,80 @@ export default function CommunityPage() {
                   Academy entdecken
                 </Button>
               </div>
+            </motion.div>
+          </Section>
+        </div>
+      </section>
+
+      {/* FACHPARTNER */}
+      <section id="fachpartner" className="py-28 bg-white">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <Section className="mb-16">
+            <motion.span variants={fadeUp} className="label text-accent-gold">Fachpartner</motion.span>
+            <motion.h2 variants={fadeUp} className="heading-lg mt-3 mb-4">
+              Instrumente & Fachgeschäfte.
+            </motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-text-secondary max-w-2xl">
+              Finde die richtigen Instrumente für deine Musik — von Handorgeln und Schwyzerörgelis
+              bis zu Klavieren und Klarinetten. Unsere Fachpartner beraten dich kompetent.
+            </motion.p>
+          </Section>
+
+          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {fachpartner.map((p) => (
+              <motion.div key={p.id} variants={fadeUp}>
+                <motion.div
+                  className="group bg-background border border-border p-6 h-full flex flex-col"
+                  whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(0,0,0,0.08)' }}
+                  transition={{ duration: 0.22 }}
+                >
+                  <div className="mb-4">
+                    <h3 className="font-heading text-lg font-bold group-hover:text-accent-gold transition-colors leading-tight mb-1">
+                      {p.name}
+                    </h3>
+                    <div className="flex items-center gap-1 text-text-secondary">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      <p className="font-sans text-xs">{p.ort}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {p.instrumente.map((inst) => (
+                      <span key={inst} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
+                        {inst}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-4 flex-1">
+                    {p.desc}
+                  </p>
+
+                  <div className="mb-5">
+                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Marken</p>
+                    <div className="flex flex-wrap gap-1">
+                      {p.marken.map((m) => (
+                        <span key={m} className="font-sans text-xs px-2 py-1 bg-white border border-border text-text-secondary">
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <a href={p.url} className="font-sans text-sm text-accent-gold hover:text-dark transition-colors mt-auto">
+                    Zum Fachgeschäft →
+                  </a>
+                </motion.div>
+              </motion.div>
+            ))}
+          </Section>
+
+          <Section className="mt-12 text-center">
+            <motion.p variants={fadeUp} className="font-sans text-sm text-text-secondary mb-4">
+              Bist du Musikbauer oder Fachhändler für Volksmusik-Instrumente?
+            </motion.p>
+            <motion.div variants={fadeUp}>
+              <Button href="/contact" variant="secondary" size="md">Als Fachpartner eintragen</Button>
             </motion.div>
           </Section>
         </div>

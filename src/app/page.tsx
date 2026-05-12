@@ -68,12 +68,12 @@ const stats = [
 ]
 
 const supporters = [
-  { name: 'Hansruedi Wenger', instrument: 'Akkordeon', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
-  { name: 'Maria Kälin', instrument: 'Schwyzerörgeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' },
-  { name: 'Peter Gasser', instrument: 'Klarinette', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80' },
-  { name: 'Lisa Frei', instrument: 'Piano', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80' },
-  { name: 'Thomas Müller', instrument: 'Bass', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80' },
-  { name: 'Anna Huber', instrument: 'Gesang', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80' },
+  { name: 'Seebi Diener', instrument: 'Handorgel / Akkordeon', img: '/images/seebi-diener.jpg' },
+  { name: 'Cyrill Rusch', instrument: 'Schwyzerörgeli', img: '/images/cyrill-rusch.jpg' },
+  { name: 'Cécile Schmidig', instrument: 'Klarinette', img: '/images/cecile-schmidig.jpg' },
+  { name: 'Franz Hess', instrument: 'Akkordeon', img: '/images/franz-hess.jpg' },
+  { name: 'Simon Rusch', instrument: 'Schwyzerörgeli', img: '/images/simon-rusch.jpg' },
+  { name: 'Simon Lüthi', instrument: 'Bass / Kontrabass', img: '/images/simon-luethi.jpg' },
 ]
 
 const formations = [
@@ -324,7 +324,7 @@ export default function HomePage() {
                     src={person.img}
                     alt={person.name}
                     fill
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                    className="object-cover grayscale group-hover:grayscale-0 group-hover:saturate-[1.2] group-hover:contrast-[1.05] transition-all duration-500"
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
