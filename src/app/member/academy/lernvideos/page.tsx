@@ -26,7 +26,7 @@ const videos = [
     autoTags: ['Schwyzerörgeli', 'Starter'],
     notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80',
-    price: 18, purchased: false,
+    price: 18, purchased: true,
   },
   {
     id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', formation: 'Quartett',
@@ -36,7 +36,7 @@ const videos = [
     autoTags: ['Handorgel', 'Pro'],
     notesAvailable: { violinschluessel: false, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80',
-    price: 18, purchased: false,
+    price: 18, purchased: true,
   },
   {
     id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', formation: 'Trio',
@@ -46,7 +46,7 @@ const videos = [
     autoTags: ['Klarinette', 'Starter'],
     notesAvailable: { violinschluessel: false, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80',
-    price: 18, purchased: false,
+    price: 18, purchased: true,
   },
   {
     id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', formation: 'Solo',
@@ -66,7 +66,7 @@ const videos = [
     autoTags: ['Bass', 'Pro'],
     notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80',
-    price: 18, purchased: false,
+    price: 18, purchased: true,
   },
   {
     id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', formation: 'Trio',
@@ -663,18 +663,9 @@ export default function LernvideosPage() {
                           {planLabels[v.difficultyPlan]}
                         </span>
                         <div className="mt-auto">
-                          {v.purchased ? (
-                            <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
-                              Öffnen →
-                            </Link>
-                          ) : (
-                            <div className="flex flex-col items-end gap-1">
-                              {v.price > 0 && <span className="font-sans text-sm font-semibold">CHF {v.price}.–</span>}
-                              <button className="bg-accent-gold text-white font-sans text-xs px-3 py-1.5 hover:bg-accent-warm transition-colors whitespace-nowrap">
-                                {v.price > 0 ? 'Kaufen' : 'Öffnen'}
-                              </button>
-                            </div>
-                          )}
+                          <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
+                            Öffnen →
+                          </Link>
                         </div>
                       </div>
                     </div>

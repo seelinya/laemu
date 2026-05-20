@@ -145,11 +145,11 @@ const mockSearchResults: MockSearchResult[] = [
 
 const inlineLernvideos = [
   { id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', instrument: 'Handorgel', taktart: 'Walzer', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80' },
-  { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', plan: 'starter', purchased: false, img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80' },
-  { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', plan: 'pro', purchased: false, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80' },
-  { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', plan: 'starter', purchased: false, img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
+  { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80' },
+  { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', plan: 'pro', purchased: true, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80' },
+  { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
   { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', plan: 'free', purchased: true, img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80' },
-  { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', plan: 'pro', purchased: false, img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80' },
+  { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', plan: 'pro', purchased: true, img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80' },
   { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, plan: 'free', purchased: true, img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80' },
 ]
 
@@ -381,6 +381,28 @@ export default function MemberAcademyPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* MOBILE NAV (only visible below lg breakpoint) */}
+          <div className="lg:hidden lg:col-span-4 -mb-4">
+            <div className="flex overflow-x-auto gap-2 pb-2 -mx-4 px-4">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveNav(item.id)}
+                  className={`flex-shrink-0 font-sans text-sm px-4 py-2 border transition-colors flex items-center gap-1.5 ${
+                    activeNav === item.id
+                      ? 'bg-dark text-white border-dark'
+                      : 'border-border text-text-secondary hover:border-dark hover:text-dark'
+                  }`}
+                >
+                  {item.label}
+                  {item.badge != null && (
+                    <span className="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 leading-none">{item.badge}</span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -801,15 +823,9 @@ export default function MemberAcademyPage() {
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${inlinePlanColors[v.plan]}`}>{inlinePlanLabels[v.plan]}</span>
-                            {v.purchased ? (
-                              <Link href={`/member/academy/lernvideos/${v.id}`} className="font-sans text-xs bg-dark text-white px-2.5 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
-                                Öffnen →
-                              </Link>
-                            ) : (
-                              <button className="font-sans text-xs bg-accent-gold text-white px-2.5 py-1.5 hover:bg-accent-warm transition-colors whitespace-nowrap">
-                                Kaufen
-                              </button>
-                            )}
+                            <Link href={`/member/academy/lernvideos/${v.id}`} className="font-sans text-xs bg-dark text-white px-2.5 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
+                              Öffnen →
+                            </Link>
                           </div>
                         </div>
                       </motion.div>
