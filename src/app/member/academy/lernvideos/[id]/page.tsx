@@ -359,7 +359,6 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
   const [progress] = useState(35)
   const [dragging, setDragging] = useState<null | 'A' | 'B'>(null)
   const barRef = useRef<HTMLDivElement>(null)
-  const speedOptions = [25, 50, 75, 100, 125, 150, 200]
 
   const handleBarClick = (e: React.MouseEvent) => {
     if (!barRef.current) return
@@ -400,13 +399,19 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
         </div>
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <span className="font-sans text-white/50 text-xs">3:42 / 12:15</span>
-          <div className="flex items-center gap-2">
-            <span className="font-sans text-xs text-white/40">Tempo</span>
-            <div className="flex gap-0.5">
-              {speedOptions.map(s => (
-                <button key={s} onClick={() => setSpeed(s)} className={`font-sans text-[10px] px-1.5 py-0.5 transition-colors ${speed === s ? 'bg-accent-gold text-white' : 'text-white/35 hover:text-white/70'}`}>{s}%</button>
-              ))}
-            </div>
+          <div className="flex items-center gap-3 flex-1 min-w-0 max-w-xs">
+            <span className="font-sans text-xs text-white/40 flex-shrink-0">Tempo</span>
+            <input
+              type="range"
+              min={25}
+              max={200}
+              step={1}
+              value={speed}
+              onChange={e => setSpeed(Number(e.target.value))}
+              className="flex-1 cursor-pointer"
+              style={{ accentColor: '#C4973A' }}
+            />
+            <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/50'}`}>{speed}%</span>
           </div>
           <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
             <IconRepeat /> Loop {loopEnabled ? 'AN' : 'AUS'}

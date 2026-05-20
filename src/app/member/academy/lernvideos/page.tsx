@@ -87,7 +87,6 @@ const wishes = [
 ]
 
 const INSTRUMENTS = ['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette']
-const FORMATIONS = ['Alle', 'Solo', 'Duo', 'Trio', 'Quartett', 'Kapelle']
 const TAKTARTEN = ['Alle', 'Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
 const PLANS = ['Alle', 'Free', 'Starter', 'Pro']
 const ART_OPTIONS = ['Alle', 'Volkstümlich', 'Bekannte Melodie']
@@ -107,7 +106,6 @@ const planLabels: Record<string, string> = { free: 'Free', starter: 'Starter', p
 export default function LernvideosPage() {
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
-  const [filterForm, setFilterForm] = useState('Alle')
   const [filterTakt, setFilterTakt] = useState('Alle')
   const [filterPlan, setFilterPlan] = useState('Alle')
   const [filterArt, setFilterArt] = useState('Alle')
@@ -126,7 +124,6 @@ export default function LernvideosPage() {
     const q = search.toLowerCase()
     if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q) && !v.autoTags.some(t => t.toLowerCase().includes(q))) return false
     if (filterInst !== 'Alle' && v.instrument !== filterInst) return false
-    if (filterForm !== 'Alle' && v.formation !== filterForm) return false
     if (filterTakt !== 'Alle' && v.taktart !== filterTakt) return false
     if (filterPlan !== 'Alle' && v.difficultyPlan !== filterPlan.toLowerCase()) return false
     if (filterArt !== 'Alle') {
@@ -144,7 +141,7 @@ export default function LernvideosPage() {
   })
 
   const activeFilterCount = [
-    filterInst !== 'Alle', filterForm !== 'Alle', filterTakt !== 'Alle',
+    filterInst !== 'Alle', filterTakt !== 'Alle',
     filterPlan !== 'Alle', filterArt !== 'Alle', filterStyleTag !== null, filterNoten !== 'Alle',
   ].filter(Boolean).length
 
@@ -180,7 +177,7 @@ export default function LernvideosPage() {
                 <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Filter</p>
                 {activeFilterCount > 0 && (
                   <button
-                    onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterForm('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }}
+                    onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }}
                     className="font-sans text-xs text-accent-gold hover:underline"
                   >
                     Zurücksetzen ({activeFilterCount})
@@ -202,7 +199,6 @@ export default function LernvideosPage() {
               {/* Dropdowns */}
               {([
                 { label: 'Instrument', value: filterInst, set: setFilterInst, opts: INSTRUMENTS },
-                { label: 'Formation', value: filterForm, set: setFilterForm, opts: FORMATIONS },
                 { label: 'Taktart', value: filterTakt, set: setFilterTakt, opts: TAKTARTEN },
               ]).map(f => (
                 <div key={f.label}>
@@ -292,6 +288,7 @@ export default function LernvideosPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterInst}</span>}
                     {filterTakt !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterTakt}</span>}
+
                     {filterPlan !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterPlan}</span>}
                     {filterArt !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterArt}</span>}
                     {filterStyleTag && <span className="font-sans text-xs px-2 py-1 bg-accent-gold text-white">{filterStyleTag}</span>}
@@ -399,7 +396,7 @@ export default function LernvideosPage() {
                 <div className="text-center py-16">
                   <p className="font-heading font-bold text-lg mb-2">Keine Lernvideos gefunden</p>
                   <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche die gesamte Datenbank.</p>
-                  <button onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterForm('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
+                  <button onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
                     Alle Filter zurücksetzen
                   </button>
                 </div>
