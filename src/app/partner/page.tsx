@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 
@@ -23,7 +24,7 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
   )
 }
 
-type PartnerCategory = 'Alle' | 'Instrumentenbauer' | 'Fachgeschäfte' | 'Musikschulen' | 'Ländlerlokale' | 'Vereine' | 'Stiftungen'
+type PartnerCategory = 'Alle' | 'Instrumentenbauer' | 'Fachgeschäfte' | 'Musikschulen' | 'Ländlerlokale' | 'Vereine' | 'Stiftungen' | 'Formationen'
 
 interface Partner {
   name: string
@@ -109,7 +110,7 @@ const partners: Partner[] = [
     badge: 'Partner',
   },
   {
-    name: 'LAEMU Academy',
+    name: 'LAEMU Musikschule',
     type: 'Online-Musikschule',
     category: 'Musikschulen',
     location: 'Online – Schweizweit',
@@ -195,9 +196,43 @@ const partners: Partner[] = [
     description: 'Nationale Kulturstiftung für Schweizer Volksmusik und traditionelle Künste. Unterstützt Aufnahmen, Tourneen und Bildungsprojekte.',
     tags: ['National', 'Aufnahmen', 'Bildung', 'Tourneen'],
   },
+  // Formationen
+  {
+    name: 'Ländlerkapelle Hess',
+    type: 'Formation',
+    category: 'Formationen',
+    location: 'Innerschweiz',
+    description: 'Die Ländlerkapelle Hess aus der Innerschweiz begeistert seit 20 Jahren mit authentischer Ländlermusik auf Bühnen in der ganzen Schweiz.',
+    tags: ['Handorgel', 'Schwyzerörgeli', 'Bass', 'Klarinette'],
+    badge: 'LAEMU Partner',
+  },
+  {
+    name: 'Trio Alpstein',
+    type: 'Formation',
+    category: 'Formationen',
+    location: 'Appenzell AI',
+    description: 'Das Trio Alpstein verbindet traditionelle Appenzeller Musik mit frischen Arrangements für die neue Generation.',
+    tags: ['Schwyzerörgeli', 'Handorgel', 'Kontrabass'],
+  },
+  {
+    name: 'Quartett Rigi',
+    type: 'Formation',
+    category: 'Formationen',
+    location: 'Zentralschweiz',
+    description: 'Modernes Ländlerquartett mit Einflüssen aus Jazz und Weltmusik. Bekannt für ausdrucksstarke Eigenkomposition.',
+    tags: ['Handorgel', 'Klarinette', 'Klavier', 'Bass'],
+  },
+  {
+    name: 'Schwyzerörgeli Duo Kälin & Müller',
+    type: 'Formation',
+    category: 'Formationen',
+    location: 'Schwyz SZ',
+    description: 'Zweistimmige Darbietungen auf höchstem Niveau. Spezialisiert auf diatonische Ländlermusik aus dem Kanton Schwyz.',
+    tags: ['Schwyzerörgeli', 'Volksmusik'],
+  },
 ]
 
-const categories: PartnerCategory[] = ['Alle', 'Instrumentenbauer', 'Fachgeschäfte', 'Musikschulen', 'Ländlerlokale', 'Vereine', 'Stiftungen']
+const categories: PartnerCategory[] = ['Alle', 'Instrumentenbauer', 'Fachgeschäfte', 'Musikschulen', 'Ländlerlokale', 'Vereine', 'Stiftungen', 'Formationen']
 
 const categoryDescriptions: Record<string, string> = {
   Instrumentenbauer: 'Meisterbetriebe für Volksmusik-Instrumente',
@@ -206,7 +241,26 @@ const categoryDescriptions: Record<string, string> = {
   Ländlerlokale: 'Konzertlokale, Beizli & mietbare Räume',
   Vereine: 'Volksmusikvereine & Gesellschaften',
   Stiftungen: 'Förderungen & Kulturbeiträge',
+  Formationen: 'Musikgruppen & Kapellen',
 }
+
+const formationUsps = [
+  {
+    icon: '🌐',
+    title: 'Professionelle Präsenz',
+    description: 'Formation-Profil, Auftrittskalender, Medienarchiv',
+  },
+  {
+    icon: '🤝',
+    title: 'Interessante Kontakte',
+    description: 'Vernetzung mit Veranstaltern, Labels und der ganzen Szene',
+  },
+  {
+    icon: '🎓',
+    title: 'Vergünstigtes Musikschul-Abo',
+    description: 'CHF 2\'499/Jahr statt Einzelpreise — für die ganze Formation',
+  },
+]
 
 export default function PartnerPage() {
   const [activeCategory, setActiveCategory] = useState<PartnerCategory>('Alle')
@@ -226,8 +280,44 @@ export default function PartnerPage() {
               Von und für die Szene.
             </motion.h1>
             <motion.p variants={fadeUp} className="font-sans text-xl text-white/60 leading-relaxed max-w-2xl">
-              Von Instrumentenbauern über Ländlerlokale bis zu Vereinen und Stiftungen — das LAEMU-Partnernetzwerk verbindet die ganze Schweizer Volksmusikszene.
+              Von Instrumentenbauern über Ländlerlokale bis zu Vereinen, Stiftungen und Formationen — das LAEMU-Partnernetzwerk verbindet die ganze Schweizer Volksmusikszene.
             </motion.p>
+          </Section>
+        </div>
+      </section>
+
+      {/* FORMATIONEN ALS PARTNER */}
+      <section className="bg-dark border-t border-white/10 py-20">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <Section>
+            <motion.div variants={fadeUp} className="mb-3 flex items-center gap-3">
+              <span className="label text-accent-gold">Für Formationen</span>
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="font-heading text-4xl md:text-5xl font-bold text-white mb-4">
+              Formationen als Partner
+            </motion.h2>
+            <motion.p variants={fadeUp} className="font-sans text-lg text-white/60 max-w-2xl mb-12">
+              Registriere deine Formation im LAEMU-Netzwerk und profitiere von Sichtbarkeit, Kontakten und exklusiven Vorteilen für die ganze Gruppe.
+            </motion.p>
+            <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {formationUsps.map((usp) => (
+                <div key={usp.title} className="border border-white/10 bg-white/5 p-6">
+                  <div className="text-3xl mb-3">{usp.icon}</div>
+                  <h3 className="font-heading font-bold text-white text-lg mb-2">
+                    <span className="text-accent-gold">{usp.title}</span>
+                  </h3>
+                  <p className="font-sans text-sm text-white/60 leading-relaxed">{usp.description}</p>
+                </div>
+              ))}
+            </motion.div>
+            <motion.div variants={fadeUp}>
+              <Link
+                href="/register"
+                className="inline-block bg-accent-gold text-white font-sans font-semibold px-8 py-3 hover:bg-white hover:text-dark transition-colors"
+              >
+                Formation registrieren
+              </Link>
+            </motion.div>
           </Section>
         </div>
       </section>
@@ -235,7 +325,7 @@ export default function PartnerPage() {
       {/* STATS */}
       <section className="bg-surface border-b border-border py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-px bg-border">
+          <div className="grid grid-cols-3 md:grid-cols-7 gap-px bg-border">
             {categories.slice(1).map((cat) => {
               const count = partners.filter(p => p.category === cat).length
               return (
@@ -329,12 +419,12 @@ export default function PartnerPage() {
               Dein Betrieb fehlt noch?
             </motion.h2>
             <motion.p variants={fadeUp} className="body-lg text-white/60 mb-8">
-              Bist du Instrumentenbauer, Musikschule, Lokal oder Verein und möchtest im LAEMU-Netzwerk sichtbar werden? Meld dich bei uns.
+              Bist du Instrumentenbauer, Musikschule, Lokal, Verein oder Formation und möchtest im LAEMU-Netzwerk sichtbar werden? Meld dich bei uns.
             </motion.p>
             <motion.div variants={fadeUp} className="max-w-md mx-auto space-y-3">
               <input
                 type="text"
-                placeholder="Name / Betrieb"
+                placeholder="Name / Betrieb / Formation"
                 className="w-full border border-white/20 bg-white/5 text-white placeholder:text-white/30 px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold"
               />
               <input
@@ -344,7 +434,7 @@ export default function PartnerPage() {
               />
               <textarea
                 rows={3}
-                placeholder="Kurze Beschreibung deines Betriebs / Vereins"
+                placeholder="Kurze Beschreibung deines Betriebs / Vereins / Formation"
                 className="w-full border border-white/20 bg-white/5 text-white placeholder:text-white/30 px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold resize-none"
               />
               <button className="w-full bg-accent-gold text-white font-sans font-semibold py-3 hover:bg-white hover:text-dark transition-colors">
@@ -367,7 +457,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
             <h3 className="font-heading font-bold text-base group-hover:text-accent-gold transition-colors">{partner.name}</h3>
             {partner.badge && (
               <span className={`font-sans text-[10px] font-semibold px-2 py-0.5 whitespace-nowrap ${
-                partner.badge === 'LAEMU' ? 'bg-dark text-white' :
+                partner.badge === 'LAEMU' || partner.badge === 'LAEMU Partner' ? 'bg-dark text-white' :
                 partner.badge === 'Förderstelle' ? 'bg-muted-green/20 text-muted-green border border-muted-green/30' :
                 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30'
               }`}>{partner.badge}</span>
