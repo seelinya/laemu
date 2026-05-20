@@ -42,22 +42,25 @@ const ecosystemItems = [
   ), title: 'Musikschule', subtitle: 'Lerne & wachse', desc: 'Online-Kurse von den Besten der Szene — für Anfänger bis Profis, ohne Notenkenntnisse.', href: '/musikschule' },
   { icon: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-  ), title: 'Events', subtitle: 'Erlebe live', desc: 'Entdecke Konzerte, Tanzabende und Festivals in deiner Region.', href: '/events' },
+  ), title: 'Events', subtitle: 'Erlebe live', desc: 'Konzerte, Tanzabende, Stubetäs, Reisen und Festivals — erlebe die Szene hautnah.', href: '/events' },
   { icon: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
   ), title: 'Formationen', subtitle: 'Entdecke Bands', desc: 'Durchstöbere die vielfältige Landschaft der Schweizer Ländlermusik-Formationen.', href: '/formations' },
   { icon: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
-  ), title: 'Streaming', subtitle: 'Höre & schaue', desc: 'Die beste Ländlermusik — kuratiert und immer griffbereit.', href: '/' },
+  ), title: 'Streaming', subtitle: 'Entdecke das Archiv', desc: 'Ein riesiges Archiv an Liedern — kuratiert, vielfältig und immer griffbereit.', href: '/' },
   { icon: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-  ), title: 'Shop', subtitle: 'Trage die Kultur', desc: 'Exklusives LAEMU-Merchandise und Produkte aus der Szene.', href: '/shop' },
+  ), title: 'Shop', subtitle: 'Direkt aus der Szene', desc: 'Produkte von Formationen und Künstlern — authentisch, handverlesen, für echte Fans.', href: '/shop' },
   { icon: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
-  ), title: 'Instrumente', subtitle: 'Spielzeug für die Seele', desc: 'Alles über Handorgel, Schwyzerörgeli, Klarinette und mehr.', href: '/musikschule' },
+  ), title: 'Instrumente', subtitle: 'Mietservice mit Qualität', desc: 'Lerne dein Lieblingsinstrument ganz einfach — mit unserem unkomplizierten Mietservice.', href: '/musikschule' },
   { icon: (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
   ), title: 'Musikkultur', subtitle: 'Tradition trifft Zukunft', desc: 'LAEMU bewahrt das Erbe und öffnet Türen in eine moderne Zukunft.', href: '/mission' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11h6m-3-3v6"/></svg>
+  ), title: 'Partner', subtitle: 'Gemeinsam stärker', desc: 'Musik-Brands, Veranstalter und Institutionen — vereint im Netzwerk für die Ländlermusik.', href: '/partner' },
 ]
 
 const stats = [
@@ -168,7 +171,7 @@ export default function HomePage() {
               LAEMU verbindet alles, was die Ländlermusik lebendig macht.
             </motion.p>
           </Section>
-          <Section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Section className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {ecosystemItems.map((item) => (
               <motion.div key={item.title} variants={fadeUp}>
                 <Link href={item.href}>
