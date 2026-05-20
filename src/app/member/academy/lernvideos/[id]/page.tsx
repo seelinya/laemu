@@ -5,6 +5,20 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type Voice = { id: string; label: string; volume: number; muted: boolean; color: string }
+type JamMusician = { id: string; name: string; voice: string; instrument: string; singing?: string; volume: number; muted: boolean; color: string }
+type StimmeSection = {
+  id: string; label: string; instrument: string; color: string
+  lernvideos: { id: string; label: string; duration: string; done: boolean }[]
+  noten: { label: string; key: string; price?: number }[]
+  audioSamples: { id: string; label: string; duration: string; type: 'audio' | 'youtube' }[]
+  hasLaemuPlayer: boolean
+}
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+
 const videoData = {
   id: 1,
   title: 'Dr Alperose',
@@ -17,6 +31,141 @@ const videoData = {
   difficulty: 3,
   level: 2,
   img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
+  intro: 'Dr Alperose ist ein klassischer Ländlerwalzer im 3/4-Takt, komponiert von Willi Valotti im Jahr 1978. Das Stück gehört zum Standardrepertoire jeder Schweizer Ländlerkapelle und zeichnet sich durch seine eingängige Melodielinie und charakteristischen Begleitfiguren aus. Besondere Aufmerksamkeit verdient der harmonische Übergang von Teil A nach Teil B — ein Merkmal, das viele Ländler der 1970er-Jahre kennzeichnet und den Stücken eine besondere Tiefe verleiht.',
+  masterVideo: { type: 'laemu' as const },
+  hasJamPlayer: true,
+  jamMusicians: [
+    { id: 'j1', name: 'Seebi Diener', voice: '1. Stimme', instrument: 'Handorgel', volume: 85, muted: false, color: '#C4973A' },
+    { id: 'j2', name: 'Cyrill Rusch', voice: '2. Stimme', instrument: 'Schwyzerörgeli', volume: 75, muted: false, color: '#5A8A6A' },
+    { id: 'j3', name: 'Franz Hess', voice: 'Begleitung', instrument: 'Klavier', volume: 70, muted: false, color: '#7A6A9A' },
+    { id: 'j4', name: 'Simon Rusch', voice: 'Bassbegleitung', instrument: 'Bass', volume: 68, muted: true, color: '#8A5A4A' },
+  ] as JamMusician[],
+  voices: [
+    { id: 'v1_ho', label: '1. Stimme Handorgel', volume: 80, muted: false, color: '#C4973A' },
+    { id: 'v2_ho', label: '2. Stimme Handorgel', volume: 70, muted: false, color: '#C4973A' },
+    { id: 'v1_oe', label: '1. Stimme Schwyzerörgeli', volume: 80, muted: false, color: '#5A8A6A' },
+    { id: 'v2_oe', label: '2. Stimme Schwyzerörgeli', volume: 70, muted: false, color: '#5A8A6A' },
+    { id: 'bass', label: 'Bassbegleitung', volume: 75, muted: false, color: '#8A5A4A' },
+    { id: 'klavier', label: 'Klavierbegleitung', volume: 65, muted: true, color: '#7A6A9A' },
+  ] as Voice[],
+  stimmenSections: [
+    {
+      id: 's1', label: '1. Stimme Handorgel', instrument: 'Handorgel', color: '#C4973A',
+      lernvideos: [
+        { id: 'lv1', label: '1. Stimme — Einführung & Takt 1–8', duration: '12 Min.', done: true },
+        { id: 'lv2', label: '1. Stimme — Takt 9–16 mit Übergängen', duration: '14 Min.', done: true },
+        { id: 'lv3', label: '1. Stimme — Teil B & Zusammenfassung', duration: '11 Min.', done: false },
+      ],
+      noten: [
+        { label: 'Violinschlüssel', key: 'violin', price: 5 },
+        { label: 'Griffschrift', key: 'griff', price: 5 },
+        { label: 'LAEMU-Notation', key: 'laemu', price: 5 },
+      ],
+      audioSamples: [
+        { id: 'a1', label: 'Vorspielen — ganzes Stück', duration: '3:42', type: 'audio' as const },
+        { id: 'a2', label: 'Slow-Version 50%', duration: '7:24', type: 'audio' as const },
+        { id: 'a3', label: 'Zusammenspiel Trio', duration: '3:42', type: 'youtube' as const },
+      ],
+      hasLaemuPlayer: true,
+    },
+    {
+      id: 's2', label: '2. Stimme Handorgel', instrument: 'Handorgel', color: '#C4973A',
+      lernvideos: [
+        { id: 'lv4', label: '2. Stimme — Einführung & Begleitfiguren', duration: '10 Min.', done: false },
+        { id: 'lv5', label: '2. Stimme — Rhythmus & Zusammenspiel', duration: '12 Min.', done: false },
+      ],
+      noten: [
+        { label: 'Violinschlüssel', key: 'violin', price: 5 },
+        { label: 'LAEMU-Notation', key: 'laemu', price: 5 },
+      ],
+      audioSamples: [
+        { id: 'a4', label: 'Vorspielen — 2. Stimme solo', duration: '3:42', type: 'audio' as const },
+      ],
+      hasLaemuPlayer: true,
+    },
+    {
+      id: 's3', label: '1. Stimme Schwyzerörgeli', instrument: 'Schwyzerörgeli', color: '#5A8A6A',
+      lernvideos: [
+        { id: 'lv6', label: '1. Stimme SÖ — Einführung & Grifftechnik', duration: '13 Min.', done: false },
+        { id: 'lv7', label: '1. Stimme SÖ — Teil A komplett', duration: '11 Min.', done: false },
+      ],
+      noten: [
+        { label: 'Griffschrift Schwyzerörgeli', key: 'griff-soe', price: 5 },
+        { label: 'Violinschlüssel', key: 'violin', price: 5 },
+      ],
+      audioSamples: [
+        { id: 'a5', label: 'Vorspielen — Schwyzerörgeli', duration: '3:42', type: 'audio' as const },
+      ],
+      hasLaemuPlayer: false,
+    },
+    {
+      id: 's4', label: '2. Stimme Schwyzerörgeli', instrument: 'Schwyzerörgeli', color: '#5A8A6A',
+      lernvideos: [
+        { id: 'lv8', label: '2. Stimme SÖ — Einführung', duration: '10 Min.', done: false },
+      ],
+      noten: [
+        { label: 'Griffschrift Schwyzerörgeli', key: 'griff-soe', price: 5 },
+      ],
+      audioSamples: [],
+      hasLaemuPlayer: false,
+    },
+    {
+      id: 's5', label: 'Bassbegleitung', instrument: 'Bass', color: '#8A5A4A',
+      lernvideos: [
+        { id: 'lv9', label: 'Bass — Grundrhythmus im 3/4-Takt', duration: '9 Min.', done: false },
+        { id: 'lv10', label: 'Bass — Variationen & Fills', duration: '8 Min.', done: false },
+      ],
+      noten: [
+        { label: 'Bassbegleitung (Notation)', key: 'bass', price: 5 },
+      ],
+      audioSamples: [
+        { id: 'a6', label: 'Bassbegleitung solo', duration: '3:42', type: 'audio' as const },
+      ],
+      hasLaemuPlayer: true,
+    },
+    {
+      id: 's6', label: 'Klavierbegleitung', instrument: 'Klavier', color: '#7A6A9A',
+      lernvideos: [
+        { id: 'lv11', label: 'Klavier — Begleitpattern Walzer', duration: '11 Min.', done: false },
+      ],
+      noten: [
+        { label: 'Klavierpartitur', key: 'klavier', price: 5 },
+      ],
+      audioSamples: [],
+      hasLaemuPlayer: false,
+    },
+  ] as StimmeSection[],
+  notenheftUrl: '#',
+  sheets: [
+    { label: 'Violinschlüssel', key: 'violin', price: 5 },
+    { label: 'Vl. Einfachtonart', key: 'violin-simple', price: 5 },
+    { label: 'LAEMU-Notation', key: 'laemu', price: 5 },
+    { label: 'Griffschrift', key: 'griff', price: 5 },
+    { label: 'Bassbegleitung', key: 'bass', price: 5 },
+  ],
+  spotify: 'https://open.spotify.com/',
+  lyrics: `Teil A\nWo d'Alperose blüeht im Abedsunneschii,\nDört isch mis Herz, dört mueß i immer sii.\nD'Vögu singe hell, dr Wind rauscht dür ds Tal,\nS'isch niemes so schö wie dänk einisch amol.\n\nRefrain\nAlperose, du roti Blueme,\nDu schaffsch mir Freud und nimmsch mini Grubme.\nIm Herz bisch du tiif, wie s'Felse im See,\nUnd ohni di mag i niemer meh.`,
+  tontraeger: [
+    { label: 'LAEMU – Best of Ländlermusik Vol. 3', year: 2022, artist: 'Verschiedene Künstler', url: '#' },
+    { label: 'Willi Valotti – Original-Aufnahmen', year: 1978, artist: 'Willi Valotti', url: '#' },
+  ],
+  originalRecordings: [
+    { label: 'Originalaufnahme 1978 (Ur-Formation)', type: 'audio' as const, artist: 'Willi Valotti' },
+    { label: 'Hess-Rusch-Hegner Trio', type: 'youtube' as const, artist: 'Live-Aufnahme 2019', url: '#' },
+    { label: 'Bodästänix', type: 'youtube' as const, artist: 'Konzert Luzern 2022', url: '#' },
+    { label: 'Ländlerkapelle Schwyz', type: 'audio' as const, artist: 'Studio 2015' },
+  ],
+  composerInfo: {
+    name: 'Willi Valotti',
+    years: '1932–2001',
+    bio: 'Willi Valotti war einer der bedeutendsten Schweizer Volksmusikkomponisten des 20. Jahrhunderts. Seine Melodien zeichnen sich durch eine unverwechselbare lyrische Qualität aus und sind tief in der Innerschweizer Volksmusiktradition verwurzelt.',
+    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+  },
+  performerInfo: {
+    name: 'Kapelle Valotti',
+    bio: 'Die Originalbesetzung der Kapelle Valotti gilt als Musterbeispiel für authentische Schweizer Ländlermusik. Willi Valotti spielte selbst Handorgel und leitete seine Formation mit grossem Gefühl für die natürliche Energie seiner Stücke.',
+    img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80',
+  },
   teacher: {
     name: 'Hansruedi Wenger',
     handle: '@hansruedi_wenger',
@@ -26,141 +175,168 @@ const videoData = {
     courses: 3,
     students: 156,
   },
-  intro: 'Dr Alperose ist ein klassischer Ländlerwalzer im 3/4-Takt, komponiert von Willi Valotti im Jahr 1978. Das Stück gehört zum Standardrepertoire jeder Schweizer Ländlerkapelle und zeichnet sich durch seine eingängige Melodielinie und charakteristischen Begleitfiguren aus. Besondere Aufmerksamkeit verdient der harmonische Übergang von Teil A nach Teil B.',
-  lyrics: `Teil A (1. Strophe)
-Wo d'Alperose blüeht im Abedsunneschii,
-Dört isch mis Herz, dört mueß i immer sii.
-D'Vögu singe hell, dr Wind rauscht dür ds Tal,
-S'isch niemes so schö wie dänk einisch amol.
-
-Teil B (Refrain)
-Alperose, du roti Blueme,
-Du schaffsch mir Freud und nimmsch mini Grubme.
-Im Herz bisch du tiif, wie s'Felse im See,
-Und ohni di mag i niemer meh.`,
-  voices: [
-    { id: 'v1_ho', label: '1. Stimme Handorgel', volume: 80, muted: false, color: '#C4973A' },
-    { id: 'v2_ho', label: '2. Stimme Handorgel', volume: 70, muted: false, color: '#C4973A' },
-    { id: 'begl_ho', label: 'Begl. Handorgel', volume: 60, muted: true, color: '#C4973A' },
-    { id: 'v1_oe', label: '1. Stimme Schwyzerörgeli', volume: 80, muted: false, color: '#5A8A6A' },
-    { id: 'v2_oe', label: '2. Stimme Schwyzerörgeli', volume: 70, muted: false, color: '#5A8A6A' },
-    { id: 'begl_oe', label: 'Begl. Schwyzerörgeli', volume: 60, muted: true, color: '#5A8A6A' },
-    { id: 'bass', label: 'Begleitvorschlag Bass', volume: 75, muted: false, color: '#7A6A9A' },
-    { id: 'klavier', label: 'Klavier + Bass', volume: 70, muted: true, color: '#7A6A9A' },
-  ],
-  stimmenVideos: [
-    { id: 'sv1', label: '1. Stimme Handorgel', duration: '8 Min.', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80', instrument: 'Handorgel' },
-    { id: 'sv2', label: '2. Stimme Handorgel', duration: '7 Min.', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80', instrument: 'Handorgel' },
-    { id: 'sv3', label: '1. Stimme Schwyzerörgeli', duration: '9 Min.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80', instrument: 'Schwyzerörgeli' },
-    { id: 'sv4', label: '2. Stimme Schwyzerörgeli', duration: '8 Min.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80', instrument: 'Schwyzerörgeli' },
-    { id: 'sv5', label: 'Bassbegleitung', duration: '6 Min.', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80', instrument: 'Bass' },
-    { id: 'sv6', label: 'Klavierbegleitung', duration: '7 Min.', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80', instrument: 'Klavier' },
-  ],
-  learningVideos: [
-    { id: 'lv1', label: '1. Stimme Handorgel – Teil 1', duration: '12 Min.', done: true },
-    { id: 'lv2', label: '1. Stimme Handorgel – Teil 2', duration: '14 Min.', done: true },
-    { id: 'lv3', label: '1. Stimme Handorgel – Teil 3', duration: '11 Min.', done: false },
-    { id: 'lv4', label: '1. Stimme Schwyzerörgeli – Teil 1', duration: '13 Min.', done: false },
-    { id: 'lv5', label: '2. Stimme Schwyzerörgeli – Teil 1', duration: '10 Min.', done: false },
-    { id: 'lv6', label: 'Begleitversion Bass – Teil 1', duration: '9 Min.', done: false },
-  ],
-  sheets: [
-    { label: 'Violinschlüssel', key: 'violin' },
-    { label: 'Vl. Einfachtonart', key: 'violin-simple' },
-    { label: 'Vl. Originaltonart', key: 'violin-orig' },
-    { label: 'LAEMU-Notation', key: 'laemu' },
-    { label: 'Griffschrift', key: 'griff' },
-  ],
-  originalRecordings: [
-    { label: 'Originalaufnahme 1978 (Ur-Formation)', type: 'audio', artist: 'Willi Valotti' },
-    { label: 'Hess-Rusch-Hegner Trio', type: 'youtube', artist: 'Live-Aufnahme 2019', url: '#' },
-    { label: 'Bodästänix', type: 'youtube', artist: 'Konzert Luzern 2022', url: '#' },
-    { label: 'Ländlerkapelle Schwyz', type: 'audio', artist: 'Studio 2015' },
-  ],
 }
 
 const comments = [
-  { user: 'maria_oergeli', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Wunderschönes Stück! Die Übergänge zwischen den Teilen sind super erklärt.', time: 'vor 3 Tagen', likes: 7 },
-  { user: 'peter_bass', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Für die Bassbegleitung: Achtet auf den Schlag auf die 2. Zählzeit im 2. Teil!', time: 'vor 1 Woche', likes: 12 },
-  { user: 'lisa_piano', name: 'Lisa Frei', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', text: 'Die LAEMU-Notation macht es so viel einfacher zum Einstieg. Danke Hansruedi!', time: 'vor 2 Wochen', likes: 5 },
+  { user: 'maria', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Wunderschönes Stück! Die Übergänge zwischen den Teilen sind super erklärt.', time: 'vor 3 Tagen', likes: 7 },
+  { user: 'peter', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Für die Bassbegleitung: Achtet auf den Schlag auf die 2. Zählzeit im 2. Teil!', time: 'vor 1 Woche', likes: 12 },
+  { user: 'lisa', name: 'Lisa Frei', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', text: 'Die LAEMU-Notation macht es so viel einfacher zum Einstieg. Danke Hansruedi!', time: 'vor 2 Wochen', likes: 5 },
 ]
 
-type Voice = { id: string; label: string; volume: number; muted: boolean; color: string }
+// ─── Icons ───────────────────────────────────────────────────────────────────
 
-function IconPlay() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> }
-function IconPause() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> }
-function IconVolume({ muted }: { muted: boolean }) {
-  if (muted) return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg>
-}
-function IconStar({ filled }: { filled: boolean }) {
-  return <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-}
-function IconPlus() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> }
-function IconDownload() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> }
-function IconShare() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> }
-function IconRepeat() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg> }
-function IconMusic() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> }
-function IconHeart({ filled }: { filled: boolean }) { return <svg width="14" height="14" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> }
+function IconPlay() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> }
+function IconPause() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> }
+function IconRepeat() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg> }
+function IconDownload() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> }
+function IconShare() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> }
+function IconPlus() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> }
+function IconStar({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> }
+function IconCheck() { return <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
+function IconHeart({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> }
+function IconMusic() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> }
+function IconVolOff() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg> }
+function IconVolOn() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg> }
+function IconMixer() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg> }
+function IconDisc() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> }
+function IconChevron({ up }: { up: boolean }) { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${up ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg> }
+function IconBack() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg> }
 
-function VoiceMixer({ voices }: { voices: Voice[] }) {
-  const [state, setState] = useState<Voice[]>(voices)
+// ─── Jam Faders (Vertical, for master video) ─────────────────────────────────
+
+function JamFaders({ musicians }: { musicians: JamMusician[] }) {
+  const [state, setState] = useState(musicians)
 
   const toggleMute = (id: string) =>
-    setState(prev => prev.map(v => v.id === id ? { ...v, muted: !v.muted } : v))
+    setState(prev => prev.map(m => m.id === id ? { ...m, muted: !m.muted } : m))
   const setVolume = (id: string, vol: number) =>
-    setState(prev => prev.map(v => v.id === id ? { ...v, volume: vol } : v))
-  const soloVoice = (id: string) =>
+    setState(prev => prev.map(m => m.id === id ? { ...m, volume: vol } : m))
+  const soloMusician = (id: string) =>
     setState(prev => {
-      const isAlreadySolo = prev.filter(v => !v.muted).length === 1 && !prev.find(v => v.id === id)?.muted
+      const isAlreadySolo = prev.filter(m => !m.muted).length === 1 && !prev.find(m => m.id === id)?.muted
       return isAlreadySolo
-        ? prev.map(v => ({ ...v, muted: false }))
-        : prev.map(v => ({ ...v, muted: v.id !== id }))
+        ? prev.map(m => ({ ...m, muted: false }))
+        : prev.map(m => ({ ...m, muted: m.id !== id }))
     })
+  const resetAll = () => setState(musicians)
 
   return (
-    <div className="space-y-2">
+    <div className="bg-[#111] border-t border-white/10">
+      <div className="px-4 py-2.5 flex items-center justify-between border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <span className="text-accent-gold"><IconMixer /></span>
+          <span className="font-sans text-xs uppercase tracking-widest text-white/50">Jam-Player</span>
+          <span className="font-sans text-[10px] text-white/25 hidden sm:inline">— Stimmen individuell steuern</span>
+        </div>
+        <button onClick={resetAll} className="font-sans text-[10px] text-white/30 hover:text-white/60 transition-colors">
+          Zurücksetzen
+        </button>
+      </div>
+      <div className="px-6 py-6 overflow-x-auto">
+        <div className="flex items-end gap-10 min-w-max">
+          {state.map(m => {
+            const vol = m.muted ? 0 : m.volume
+            return (
+              <div key={m.id} className={`flex flex-col items-center gap-2 transition-opacity duration-200 ${m.muted ? 'opacity-40' : ''}`}>
+                {/* Solo */}
+                <button
+                  onClick={() => soloMusician(m.id)}
+                  title="Solo"
+                  className="font-sans text-[10px] font-bold tracking-widest w-8 h-6 border transition-colors border-white/20 text-white/40 hover:border-accent-gold hover:text-accent-gold"
+                >
+                  S
+                </button>
+                {/* Mute */}
+                <button
+                  onClick={() => toggleMute(m.id)}
+                  title={m.muted ? 'Unmute' : 'Mute'}
+                  className={`font-sans text-[10px] font-bold tracking-widest w-8 h-6 border transition-colors ${m.muted ? 'border-red-400/70 text-red-400' : 'border-white/20 text-white/40 hover:border-red-400/60 hover:text-red-400/60'}`}
+                >
+                  M
+                </button>
+                {/* Vertical fader */}
+                <div className="relative" style={{ width: 36, height: 110 }}>
+                  {/* Track bg */}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-white/10" />
+                  {/* Fill */}
+                  <div
+                    className="absolute left-1/2 -translate-x-1/2 bottom-0 w-1 transition-none"
+                    style={{ height: `${vol}%`, backgroundColor: m.color }}
+                  />
+                  {/* Thumb */}
+                  <div
+                    className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white shadow-lg pointer-events-none border-2"
+                    style={{ bottom: `calc(${vol}% - 8px)`, borderColor: m.color }}
+                  />
+                  {/* Invisible rotated input */}
+                  <input
+                    type="range" min={0} max={100}
+                    value={vol}
+                    onChange={e => setVolume(m.id, parseInt(e.target.value))}
+                    disabled={m.muted}
+                    className="absolute opacity-0 cursor-pointer disabled:cursor-default"
+                    style={{
+                      width: 110,
+                      height: 36,
+                      top: (110 - 36) / 2,
+                      left: (36 - 110) / 2,
+                      transform: 'rotate(-90deg)',
+                    }}
+                  />
+                </div>
+                {/* Volume readout */}
+                <span className="font-mono text-[10px] text-white/30 w-8 text-center">{m.muted ? '—' : `${m.volume}`}</span>
+                {/* Divider */}
+                <div className="w-8 h-px bg-white/10 my-0.5" />
+                {/* Musician info */}
+                <div className="text-center" style={{ maxWidth: 80 }}>
+                  <p className="font-heading font-bold text-[11px] text-white leading-tight truncate">{m.name}</p>
+                  <p className="font-sans text-[9px] text-white/40 leading-tight mt-0.5">{m.voice}</p>
+                  <p className="font-sans text-[9px] leading-tight mt-0.5" style={{ color: m.color }}>{m.instrument}</p>
+                  {m.singing && <p className="font-sans text-[9px] text-white/30 leading-tight mt-0.5">{m.singing}</p>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── VoiceMixer (horizontal, for LAEMU Player) ───────────────────────────────
+
+function VoiceMixer({ voices }: { voices: Voice[] }) {
+  const [state, setState] = useState(voices)
+  const toggleMute = (id: string) => setState(prev => prev.map(v => v.id === id ? { ...v, muted: !v.muted } : v))
+  const setVol = (id: string, vol: number) => setState(prev => prev.map(v => v.id === id ? { ...v, volume: vol } : v))
+  const solo = (id: string) => setState(prev => {
+    const isSolo = prev.filter(v => !v.muted).length === 1 && !prev.find(v => v.id === id)?.muted
+    return isSolo ? prev.map(v => ({ ...v, muted: false })) : prev.map(v => ({ ...v, muted: v.id !== id }))
+  })
+  return (
+    <div className="space-y-1.5">
       {state.map(voice => (
-        <div key={voice.id} className={`flex items-center gap-3 py-1.5 px-2 transition-opacity ${voice.muted ? 'opacity-40' : ''}`}>
-          <button
-            onClick={() => soloVoice(voice.id)}
-            className="font-sans text-[10px] uppercase tracking-wide w-6 h-5 flex items-center justify-center border border-border text-text-secondary hover:border-accent-gold hover:text-accent-gold transition-colors flex-shrink-0"
-            title="Solo"
-          >
-            S
-          </button>
-          <button
-            onClick={() => toggleMute(voice.id)}
-            className={`flex items-center justify-center w-7 h-7 transition-colors flex-shrink-0 ${voice.muted ? 'text-text-secondary' : 'text-dark'}`}
-            title={voice.muted ? 'Unmute' : 'Mute'}
-          >
-            <IconVolume muted={voice.muted} />
+        <div key={voice.id} className={`flex items-center gap-3 py-1 px-1 transition-opacity ${voice.muted ? 'opacity-40' : ''}`}>
+          <button onClick={() => solo(voice.id)} className="font-sans text-[9px] uppercase tracking-wide w-6 h-5 border border-border text-text-secondary hover:border-accent-gold hover:text-accent-gold transition-colors flex-shrink-0">S</button>
+          <button onClick={() => toggleMute(voice.id)} className={`flex items-center justify-center w-6 h-6 transition-colors flex-shrink-0 ${voice.muted ? 'text-text-secondary' : 'text-dark'}`}>
+            {voice.muted ? <IconVolOff /> : <IconVolOn />}
           </button>
           <span className="font-sans text-xs text-text-secondary w-44 flex-shrink-0 truncate">{voice.label}</span>
           <div className="flex-1 relative h-1 bg-border">
-            <div
-              className="absolute left-0 top-0 h-full transition-all"
-              style={{ width: `${voice.muted ? 0 : voice.volume}%`, backgroundColor: voice.color }}
-            />
-            <input
-              type="range" min={0} max={100}
-              value={voice.muted ? 0 : voice.volume}
-              onChange={e => setVolume(voice.id, parseInt(e.target.value))}
-              disabled={voice.muted}
-              className="absolute inset-0 w-full opacity-0 cursor-pointer disabled:cursor-default"
-              style={{ height: '100%' }}
-            />
+            <div className="absolute left-0 top-0 h-full transition-all" style={{ width: `${voice.muted ? 0 : voice.volume}%`, backgroundColor: voice.color }} />
+            <input type="range" min={0} max={100} value={voice.muted ? 0 : voice.volume} onChange={e => setVol(voice.id, parseInt(e.target.value))} disabled={voice.muted} className="absolute inset-0 w-full opacity-0 cursor-pointer disabled:cursor-default" />
           </div>
-          <span className="font-sans text-xs text-text-secondary w-8 text-right flex-shrink-0">
-            {voice.muted ? '—' : `${voice.volume}%`}
-          </span>
+          <span className="font-sans text-xs text-text-secondary w-8 text-right flex-shrink-0">{voice.muted ? '—' : `${voice.volume}%`}</span>
         </div>
       ))}
     </div>
   )
 }
 
-function VideoPlayer({ img, label, showMixer = false, voices }: { img: string; label: string; showMixer?: boolean; voices?: Voice[] }) {
+// ─── VideoPlayer ─────────────────────────────────────────────────────────────
+
+function VideoPlayer({ img, label }: { img: string; label: string }) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(100)
   const [loopEnabled, setLoopEnabled] = useState(false)
@@ -169,8 +345,7 @@ function VideoPlayer({ img, label, showMixer = false, voices }: { img: string; l
   const [progress] = useState(35)
   const [dragging, setDragging] = useState<null | 'A' | 'B'>(null)
   const barRef = useRef<HTMLDivElement>(null)
-
-  const speedOptions = [25, 50, 75, 100, 125, 150, 175, 200]
+  const speedOptions = [25, 50, 75, 100, 125, 150, 200]
 
   const handleBarClick = (e: React.MouseEvent) => {
     if (!barRef.current) return
@@ -183,19 +358,14 @@ function VideoPlayer({ img, label, showMixer = false, voices }: { img: string; l
   return (
     <div className="bg-dark">
       <div className="relative aspect-video overflow-hidden">
-        <Image src={img} alt={label} fill className="object-cover opacity-60" unoptimized />
+        <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
-          <button
-            onClick={() => setPlaying(!playing)}
-            className="w-20 h-20 bg-accent-gold hover:bg-accent-warm flex items-center justify-center transition-colors"
-          >
-            <span className={`text-white ${playing ? '' : 'ml-1'}`}>
-              {playing ? <IconPause /> : <IconPlay />}
-            </span>
+          <button onClick={() => setPlaying(!playing)} className="w-16 h-16 bg-accent-gold hover:bg-accent-warm flex items-center justify-center transition-colors">
+            <span className={`text-white ${playing ? '' : 'ml-1'}`}>{playing ? <IconPause /> : <IconPlay />}</span>
           </button>
         </div>
         <div className="absolute top-3 left-3">
-          <span className="font-sans text-xs text-white/70 bg-black/50 px-2 py-1">{label}</span>
+          <span className="font-sans text-xs text-white/60 bg-black/50 px-2 py-1">{label}</span>
         </div>
         {loopEnabled && (
           <div className="absolute top-3 right-3">
@@ -203,109 +373,58 @@ function VideoPlayer({ img, label, showMixer = false, voices }: { img: string; l
           </div>
         )}
       </div>
-
-      {/* Controls */}
       <div className="px-4 py-3 space-y-3">
-        {/* Progress bar */}
-        <div
-          ref={barRef}
-          className="relative h-2 bg-white/15 cursor-pointer"
-          onClick={handleBarClick}
-        >
+        <div ref={barRef} className="relative h-2 bg-white/15 cursor-pointer" onClick={handleBarClick}>
           <div className="h-full bg-accent-gold/80" style={{ width: `${progress}%` }} />
           {loopEnabled && (
             <>
-              <div
-                className="absolute top-0 h-full bg-blue-400/25"
-                style={{ left: `${loopA}%`, width: `${loopB - loopA}%` }}
-              />
-              <button
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-blue-400 rounded-full cursor-ew-resize hover:scale-125 transition-transform"
-                style={{ left: `${loopA}%` }}
-                onMouseDown={() => setDragging('A')}
-                onMouseUp={() => setDragging(null)}
-              />
-              <button
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-blue-400 rounded-full cursor-ew-resize hover:scale-125 transition-transform"
-                style={{ left: `${loopB}%` }}
-                onMouseDown={() => setDragging('B')}
-                onMouseUp={() => setDragging(null)}
-              />
+              <div className="absolute top-0 h-full bg-blue-400/25" style={{ left: `${loopA}%`, width: `${loopB - loopA}%` }} />
+              <button className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-blue-400 cursor-ew-resize" style={{ left: `${loopA}%` }} onMouseDown={() => setDragging('A')} onMouseUp={() => setDragging(null)} />
+              <button className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-blue-400 cursor-ew-resize" style={{ left: `${loopB}%` }} onMouseDown={() => setDragging('B')} onMouseUp={() => setDragging(null)} />
             </>
           )}
         </div>
-
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <span className="font-sans text-white/50 text-xs">3:42 / 12:15</span>
-
-          {/* Speed */}
           <div className="flex items-center gap-2">
-            <span className="font-sans text-xs text-white/50">Tempo</span>
-            <div className="flex gap-1">
+            <span className="font-sans text-xs text-white/40">Tempo</span>
+            <div className="flex gap-0.5">
               {speedOptions.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setSpeed(s)}
-                  className={`font-sans text-[10px] px-1.5 py-0.5 transition-colors ${speed === s ? 'bg-accent-gold text-white' : 'text-white/40 hover:text-white/80'}`}
-                >
-                  {s}%
-                </button>
+                <button key={s} onClick={() => setSpeed(s)} className={`font-sans text-[10px] px-1.5 py-0.5 transition-colors ${speed === s ? 'bg-accent-gold text-white' : 'text-white/35 hover:text-white/70'}`}>{s}%</button>
               ))}
             </div>
           </div>
-
-          {/* Loop toggle */}
-          <button
-            onClick={() => setLoopEnabled(!loopEnabled)}
-            className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/50 hover:border-white/50'}`}
-          >
-            <IconRepeat />
-            Loop A–B {loopEnabled ? 'AN' : 'AUS'}
+          <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
+            <IconRepeat /> Loop {loopEnabled ? 'AN' : 'AUS'}
           </button>
         </div>
-
-        {loopEnabled && (
-          <div className="flex items-center gap-4 text-xs font-sans text-white/50">
-            <span>A: {loopA}%</span>
-            <div className="flex-1 relative h-px bg-white/10">
-              <div className="absolute top-1/2 -translate-y-1/2 h-2 bg-blue-400/30" style={{ left: `${loopA}%`, width: `${loopB - loopA}%` }} />
-            </div>
-            <span>B: {loopB}%</span>
-          </div>
-        )}
       </div>
-
-      {showMixer && voices && (
-        <div className="border-t border-white/10 px-4 py-4 bg-dark">
-          <p className="font-sans text-xs uppercase tracking-widest text-white/40 mb-3">Stimmen-Mix</p>
-          <VoiceMixer voices={voices} />
-        </div>
-      )}
     </div>
   )
 }
 
+// ─── Page ────────────────────────────────────────────────────────────────────
+
 export default function LernvideoDetailPage() {
   const v = videoData
-  const [activeVideoTab, setActiveVideoTab] = useState<'master' | 'stimmen' | 'learn'>('master')
-  const [activeLesson, setActiveLesson] = useState(v.learningVideos[0])
-  const [activeStimme, setActiveStimme] = useState(v.stimmenVideos[0])
+  const [mainTab, setMainTab] = useState<'ueberblick' | 'stimmen'>('ueberblick')
+  const [activeStimmeId, setActiveStimmeId] = useState(v.stimmenSections[0].id)
+  const [stimmeSubTab, setStimmeSubTab] = useState<'lernvideos' | 'noten' | 'audio'>('lernvideos')
   const [favorited, setFavorited] = useState(false)
-  const [showMixer, setShowMixer] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
-  const [transposeInst, setTransposeInst] = useState('Handorgel')
-  const [activeSheet, setActiveSheet] = useState(v.sheets[0].label)
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
+  const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
+
+  const activeStimme = v.stimmenSections.find(s => s.id === activeStimmeId)!
 
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between mt-20">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            Datenbank
+            <IconBack /> Datenbank
           </Link>
           <span className="text-white/20">/</span>
           <div>
@@ -313,13 +432,9 @@ export default function LernvideoDetailPage() {
             <p className="font-sans text-xs text-white/40">{v.artist} · {v.year}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setFavorited(!favorited)}
-            className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}
-          >
-            <span className={favorited ? 'text-accent-gold' : ''}><IconStar filled={favorited} /></span>
-            {favorited ? 'Gespeichert' : 'Merken'}
+        <div className="flex items-center gap-2">
+          <button onClick={() => setFavorited(!favorited)} className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}>
+            <IconStar filled={favorited} /> {favorited ? 'Gespeichert' : 'Merken'}
           </button>
           <button className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
             <IconPlus /> Playlist
@@ -330,401 +445,496 @@ export default function LernvideoDetailPage() {
         </div>
       </div>
 
+      {/* MAIN TABS */}
+      <div className="border-b border-border bg-surface">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex">
+            {([
+              { id: 'ueberblick', label: 'Überblick' },
+              { id: 'stimmen', label: `Stimmen (${v.stimmenSections.length})` },
+            ] as const).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setMainTab(tab.id)}
+                className={`px-6 py-4 font-sans text-sm font-medium border-b-2 -mb-px transition-colors ${mainTab === tab.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* LEFT: Main content */}
-          <div className="lg:col-span-2 space-y-8">
+          {/* MAIN CONTENT */}
+          <div className="lg:col-span-2 space-y-6">
 
-            {/* INTRO */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border p-6">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <div className="md:col-span-3">
-                  <h2 className="font-heading text-2xl font-bold mb-1">{v.title}</h2>
-                  <p className="font-sans text-accent-gold text-sm mb-3">{v.artist} · {v.year} · {v.composer !== v.artist ? `Komp.: ${v.composer}` : ''}</p>
-                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-4">{v.intro}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="font-sans text-xs px-2 py-1 bg-background border border-border flex items-center gap-1">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                      {v.meter}
-                    </span>
-                    <span className="font-sans text-xs px-2 py-1 bg-background border border-border">{v.instrument}</span>
-                    <span className="font-sans text-xs px-2 py-1 bg-background border border-border">{v.formation}</span>
+            {/* ── ÜBERBLICK TAB ── */}
+            {mainTab === 'ueberblick' && (
+              <>
+                {/* 1 — MASTER VIDEO */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
+                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
+                </motion.div>
+
+                {/* 2 — STÜCK-INFORMATION */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border p-6">
+                  <h2 className="font-heading font-bold text-2xl mb-1">{v.title}</h2>
+                  <p className="font-sans text-sm text-accent-gold mb-4">
+                    {v.artist} · {v.year}{v.composer !== v.artist ? ` · Komp.: ${v.composer}` : ''}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {[v.meter, v.instrument, v.formation, `Harmoniestufe ${v.level}`].map(tag => (
+                      <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{tag}</span>
+                    ))}
                   </div>
-                </div>
-                <div className="md:col-span-2 space-y-3">
-                  <div>
-                    <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Schwierigkeit</p>
-                    <div className="flex gap-1.5">
+                  <div className="mb-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-sans text-xs text-text-secondary uppercase tracking-widest">Schwierigkeit</span>
+                      <span className="font-sans text-xs font-medium">{v.difficulty} / 6</span>
+                    </div>
+                    <div className="flex gap-1">
                       {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className={`flex-1 h-2 ${i < v.difficulty ? 'bg-accent-gold' : 'bg-border'}`} />
+                        <div key={i} className={`flex-1 h-1.5 ${i < v.difficulty ? 'bg-accent-gold' : 'bg-border'}`} />
                       ))}
                     </div>
                   </div>
-                  <div className="flex justify-between font-sans text-sm py-2 border-b border-border">
-                    <span className="text-text-secondary">Harmonielehre-Stufe</span>
-                    <span className="font-medium">Stufe {v.level}</span>
-                  </div>
-                  <div className="flex justify-between font-sans text-sm py-2 border-b border-border">
-                    <span className="text-text-secondary">Takt</span>
-                    <span className="font-medium">{v.meter}</span>
-                  </div>
-                  <div className="flex justify-between font-sans text-sm py-2">
-                    <span className="text-text-secondary">Instrumente</span>
-                    <span className="font-medium">{v.instrument}</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+                  <p className="font-sans text-sm text-text-secondary leading-relaxed">{v.intro}</p>
+                </motion.div>
 
-            {/* VIDEO TABS */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-              <div className="flex border-b border-border mb-0">
-                {[
-                  { id: 'master', label: 'Master-Aufnahme' },
-                  { id: 'stimmen', label: 'Einzelstimmen' },
-                  { id: 'learn', label: 'Lernvideos' },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveVideoTab(tab.id as typeof activeVideoTab)}
-                    className={`px-5 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${activeVideoTab === tab.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* MASTER TAB */}
-              {activeVideoTab === 'master' && (
-                <div className="space-y-0">
-                  <VideoPlayer img={v.img} label={`Master: ${v.title}`} showMixer={showMixer} voices={v.voices} />
-                  <button
-                    onClick={() => setShowMixer(!showMixer)}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-surface border border-t-0 border-border font-sans text-sm hover:bg-background transition-colors"
-                  >
-                    <span className="flex items-center gap-2">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                      Stimmen-Mixer
-                    </span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showMixer ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-                </div>
-              )}
-
-              {/* STIMMEN TAB */}
-              {activeVideoTab === 'stimmen' && (
-                <div>
-                  <VideoPlayer img={activeStimme.img} label={activeStimme.label} />
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                    {v.stimmenVideos.map(sv => (
-                      <button
-                        key={sv.id}
-                        onClick={() => setActiveStimme(sv)}
-                        className={`group flex items-center gap-3 p-3 border text-left transition-all ${activeStimme.id === sv.id ? 'border-dark bg-dark text-white' : 'border-border bg-surface hover:border-dark'}`}
-                      >
-                        <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${activeStimme.id === sv.id ? 'bg-accent-gold text-white' : 'bg-border text-text-secondary group-hover:bg-dark group-hover:text-white'}`}>
-                          <IconPlay />
+                {/* 3 — NOTEN */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="bg-surface border border-border p-6">
+                  <h3 className="font-heading font-bold text-lg mb-1 flex items-center gap-2"><IconMusic /> Noten</h3>
+                  <p className="font-sans text-sm text-text-secondary mb-5">Einzelne Notenblätter à CHF 5 — für alle Instrumente und Notationsarten.</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-5">
+                    {v.sheets.map(s => (
+                      <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">
+                        <div>
+                          <p className="font-heading font-bold text-sm">{s.label}</p>
+                          <p className="font-sans text-xs text-text-secondary">{v.title}</p>
                         </div>
-                        <div className="min-w-0">
-                          <p className={`font-sans text-xs font-medium truncate ${activeStimme.id === sv.id ? 'text-white' : ''}`}>{sv.label}</p>
-                          <p className={`font-sans text-[10px] ${activeStimme.id === sv.id ? 'text-white/50' : 'text-text-secondary'}`}>{sv.duration}</p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
+                          <button className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                            <IconDownload /> Kaufen
+                          </button>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                  {v.notenheftUrl && (
+                    <div className="border border-accent-gold/30 bg-accent-gold/5 p-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-heading font-bold text-sm">Komplettes Notenheft</p>
+                        <p className="font-sans text-xs text-text-secondary">Alle Stimmen · alle Notationsarten · inkl. Transpositionsvarianten</p>
+                      </div>
+                      <Link href={v.notenheftUrl} className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
+                        Zum Notenheft →
+                      </Link>
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* 4 — LAEMU PLAYER */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface border border-border overflow-hidden">
+                  <button
+                    onClick={() => setShowLaemuPlayer(!showLaemuPlayer)}
+                    className="w-full px-5 py-4 flex items-center justify-between hover:bg-background transition-colors border-b border-border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-text-secondary"><IconMixer /></span>
+                      <div className="text-left">
+                        <p className="font-heading font-bold text-base">LAEMU-Player</p>
+                        <p className="font-sans text-xs text-text-secondary">Tempo 25–200% · Stimmen individuell steuerbar</p>
+                      </div>
+                    </div>
+                    <IconChevron up={showLaemuPlayer} />
+                  </button>
+                  <AnimatePresence>
+                    {showLaemuPlayer && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                        <VideoPlayer img={v.img} label="LAEMU-Player" />
+                        <div className="border-t border-border px-5 py-4 bg-background">
+                          <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Stimmen-Mix</p>
+                          <VoiceMixer voices={v.voices} />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+
+                {/* 5 — VERWEISE */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="bg-surface border border-border p-6 space-y-6">
+                  <h3 className="font-heading font-bold text-lg">Verweise & Entdecken</h3>
+
+                  {/* Spotify */}
+                  {v.spotify && (
+                    <div className="flex items-center justify-between p-3 border border-border hover:border-dark transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-[#1DB954] flex items-center justify-center flex-shrink-0">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                        </div>
+                        <div>
+                          <p className="font-sans text-sm font-medium">Auf Spotify anhören</p>
+                          <p className="font-sans text-xs text-text-secondary">{v.title} — {v.artist}</p>
+                        </div>
+                      </div>
+                      <a href={v.spotify} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors">Öffnen →</a>
+                    </div>
+                  )}
+
+                  {/* Originalaufnahmen */}
+                  <div>
+                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Originalaufnahmen & Versionen</p>
+                    <div className="space-y-2">
+                      {v.originalRecordings.map((r, i) => (
+                        <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark group transition-colors">
+                          <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:border-dark group-hover:text-white transition-colors flex-shrink-0">
+                            {r.type === 'youtube' ? <IconPlay /> : <IconVolOn />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-sans text-sm font-medium truncate">{r.label}</p>
+                            <p className="font-sans text-xs text-text-secondary">{r.artist} · {r.type === 'youtube' ? 'YouTube' : 'Audio'}</p>
+                          </div>
+                          <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Abspielen</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Liedtext */}
+                  {v.lyrics && (
+                    <div className="border border-border">
+                      <button onClick={() => setShowLyrics(!showLyrics)} className="w-full flex items-center justify-between px-4 py-3 font-heading font-bold text-sm hover:bg-background transition-colors">
+                        Liedtext
+                        <IconChevron up={showLyrics} />
                       </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      <AnimatePresence>
+                        {showLyrics && (
+                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                            <pre className="px-4 pb-4 font-sans text-sm text-text-secondary leading-loose whitespace-pre-wrap">{v.lyrics}</pre>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
 
-              {/* LEARN TAB */}
-              {activeVideoTab === 'learn' && (
-                <div>
-                  <VideoPlayer img={v.img} label={activeLesson.label} />
-                  <div className="mt-2 space-y-px bg-border">
-                    {v.learningVideos.map(lv => (
-                      <button
-                        key={lv.id}
-                        onClick={() => setActiveLesson(lv)}
-                        className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${activeLesson.id === lv.id ? 'bg-dark text-white' : 'bg-surface hover:bg-background'}`}
-                      >
-                        <div className={`w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs ${lv.done ? 'bg-accent-gold text-white' : activeLesson.id === lv.id ? 'bg-white/20 text-white' : 'bg-border text-text-secondary'}`}>
-                          {lv.done
-                            ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            : <IconPlay />
-                          }
+                  {/* Tonträger */}
+                  {v.tontraeger && v.tontraeger.length > 0 && (
+                    <div>
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Auf diesen Tonträgern erhältlich</p>
+                      <div className="space-y-2">
+                        {v.tontraeger.map((t, i) => (
+                          <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark transition-colors">
+                            <div className="w-8 h-8 bg-background border border-border flex items-center justify-center text-text-secondary flex-shrink-0">
+                              <IconDisc />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-sans text-sm font-medium truncate">{t.label}</p>
+                              <p className="font-sans text-xs text-text-secondary">{t.artist} · {t.year}</p>
+                            </div>
+                            {t.url && <a href={t.url} className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Info →</a>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* 6 — KOMPONIST & MUSIKER */}
+                {(v.composerInfo || v.performerInfo) && (
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }} className="bg-surface border border-border p-6 space-y-5">
+                    <h3 className="font-heading font-bold text-lg">Komponist & Musiker:in</h3>
+                    {v.composerInfo && (
+                      <div className="flex items-start gap-4">
+                        {v.composerInfo.img && (
+                          <div className="relative w-16 h-16 overflow-hidden flex-shrink-0">
+                            <Image src={v.composerInfo.img} alt={v.composerInfo.name} fill className="object-cover grayscale" unoptimized />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-heading font-bold text-base">{v.composerInfo.name}</p>
+                          {v.composerInfo.years && <p className="font-sans text-xs text-accent-gold mb-2">{v.composerInfo.years}</p>}
+                          <p className="font-sans text-sm text-text-secondary leading-relaxed">{v.composerInfo.bio}</p>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`font-sans text-xs font-medium truncate ${activeLesson.id === lv.id ? 'text-white' : ''}`}>{lv.label}</p>
+                      </div>
+                    )}
+                    {v.performerInfo && (
+                      <>
+                        {v.composerInfo && <div className="border-t border-border" />}
+                        <div className="flex items-start gap-4">
+                          {v.performerInfo.img && (
+                            <div className="relative w-16 h-16 overflow-hidden flex-shrink-0">
+                              <Image src={v.performerInfo.img} alt={v.performerInfo.name} fill className="object-cover" unoptimized />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <p className="font-heading font-bold text-base">{v.performerInfo.name}</p>
+                            <p className="font-sans text-sm text-text-secondary leading-relaxed">{v.performerInfo.bio}</p>
+                          </div>
                         </div>
-                        <span className={`font-sans text-xs whitespace-nowrap ${activeLesson.id === lv.id ? 'text-white/50' : 'text-text-secondary'}`}>{lv.duration}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </motion.div>
-
-            {/* NOTENBLÄTTER */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="bg-surface border border-border p-6">
-              <h3 className="font-heading font-bold text-lg mb-4 flex items-center gap-2">
-                <IconMusic />
-                Notenblätter
-              </h3>
-              <div className="flex flex-wrap gap-2 mb-5">
-                {v.sheets.map(s => (
-                  <button
-                    key={s.key}
-                    onClick={() => setActiveSheet(s.label)}
-                    className={`font-sans text-xs px-3 py-2 border transition-colors ${activeSheet === s.label ? 'border-dark bg-dark text-white' : 'border-border hover:border-dark text-text-secondary'}`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-              <div className="bg-background border border-border p-10 text-center mb-5">
-                <div className="w-16 h-16 border-2 border-border flex items-center justify-center mx-auto mb-4 text-text-secondary">
-                  <IconMusic />
-                </div>
-                <p className="font-heading font-bold text-base mb-1">{activeSheet}</p>
-                <p className="font-sans text-sm text-text-secondary">{v.title} — {v.artist}</p>
-                <p className="font-sans text-xs text-text-secondary mt-1">PDF-Vorschau</p>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <button className="flex items-center gap-2 font-sans text-sm px-4 py-2.5 bg-dark text-white hover:bg-accent-gold transition-colors">
-                  <IconDownload />
-                  Noten herunterladen
-                </button>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={transposeInst}
-                    onChange={e => setTransposeInst(e.target.value)}
-                    className="border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                  >
-                    {['Handorgel', 'Schwyzerörgeli', 'Klarinette (B)', 'Trompete (B)', 'Altsaxofon', 'Violine'].map(i => (
-                      <option key={i}>{i}</option>
-                    ))}
-                  </select>
-                  <button className="font-sans text-sm px-4 py-2.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-2">
-                    <IconDownload />
-                    Transponiert laden
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* LYRICS */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface border border-border p-6">
-              <button
-                onClick={() => setShowLyrics(!showLyrics)}
-                className="w-full flex items-center justify-between font-heading font-bold text-lg hover:text-accent-gold transition-colors"
-              >
-                Liedtext
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showLyrics ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <AnimatePresence>
-                {showLyrics && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <pre className="mt-4 font-sans text-sm text-text-secondary leading-loose whitespace-pre-wrap">{v.lyrics}</pre>
+                      </>
+                    )}
                   </motion.div>
                 )}
-              </AnimatePresence>
-            </motion.div>
 
-            {/* LAEMU PLAYER */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="bg-surface border border-border overflow-hidden">
-              <div className="p-6 border-b border-border">
-                <h3 className="font-heading font-bold text-lg mb-1">LAEMU Player</h3>
-                <p className="font-sans text-sm text-text-secondary">Volle Kontrolle: Tempo von 25% bis 200%, jede Stimme einzeln regulierbar.</p>
-              </div>
-              <VideoPlayer img={v.img} label="LAEMU Player" showMixer voices={v.voices} />
-            </motion.div>
+                {/* 7 — KOMMENTARE */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
+                  <h3 className="font-heading font-bold text-lg mb-5">Kommentare ({comments.length})</h3>
+                  <div className="space-y-4 mb-6">
+                    {comments.map((c) => (
+                      <div key={c.user} className="flex gap-3">
+                        <div className="relative w-9 h-9 overflow-hidden flex-shrink-0">
+                          <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
+                        </div>
+                        <div className="flex-1 bg-background p-4 border border-border">
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="font-sans font-semibold text-xs">{c.name}</p>
+                            <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
+                          </div>
+                          <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
+                          <button onClick={() => setCommentLikes(prev => ({ ...prev, [c.user]: !prev[c.user] }))} className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.user] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}>
+                            <IconHeart filled={!!commentLikes[c.user]} />
+                            {c.likes + (commentLikes[c.user] ? 1 : 0)}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div className="flex-1 flex gap-2">
+                      <input value={comment} onChange={e => setComment(e.target.value)} type="text" placeholder="Kommentar schreiben..." className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" onKeyDown={e => e.key === 'Enter' && setComment('')} />
+                      <button onClick={() => setComment('')} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
 
-            {/* ORIGINAL RECORDINGS */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }} className="bg-surface border border-border p-6">
-              <h3 className="font-heading font-bold text-lg mb-5">Originalaufnahmen & Versionen</h3>
-              <div className="space-y-2">
-                {v.originalRecordings.map((r, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border border-border hover:border-dark group transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:text-white transition-colors">
-                        {r.type === 'youtube'
-                          ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                          : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+            {/* ── STIMMEN TAB ── */}
+            {mainTab === 'stimmen' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                {/* Stimme selector */}
+                <div className="overflow-x-auto -mx-4 px-4">
+                  <div className="flex gap-0 min-w-max border-b border-border">
+                    {v.stimmenSections.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => { setActiveStimmeId(s.id); setStimmeSubTab('lernvideos') }}
+                        className={`flex items-center gap-2 px-4 py-3 font-sans text-sm whitespace-nowrap border-b-2 -mb-px transition-colors ${activeStimmeId === s.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark'}`}
+                      >
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Active stimme card */}
+                <div className="bg-surface border border-border overflow-hidden">
+                  {/* Header */}
+                  <div className="px-5 py-4 border-b border-border flex items-center gap-3 bg-background">
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: activeStimme.color }} />
+                    <h3 className="font-heading font-bold text-base">{activeStimme.label}</h3>
+                    <span className="ml-auto font-sans text-xs text-text-secondary">{activeStimme.instrument}</span>
+                  </div>
+
+                  {/* Sub-tabs */}
+                  <div className="flex border-b border-border">
+                    {([
+                      { id: 'lernvideos', label: `Lernvideos (${activeStimme.lernvideos.length})` },
+                      { id: 'noten', label: `Noten (${activeStimme.noten.length})` },
+                      { id: 'audio', label: `Hörproben (${activeStimme.audioSamples.length})` },
+                    ] as const).map(t => (
+                      <button key={t.id} onClick={() => setStimmeSubTab(t.id)} className={`px-5 py-3 font-sans text-sm transition-colors border-b-2 -mb-px ${stimmeSubTab === t.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark'}`}>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Sub-tab content */}
+                  <div className="p-5">
+                    {stimmeSubTab === 'lernvideos' && (
+                      <div className="space-y-2">
+                        {activeStimme.lernvideos.length === 0
+                          ? <p className="font-sans text-sm text-text-secondary text-center py-8">Keine Lernvideos verfügbar</p>
+                          : activeStimme.lernvideos.map(lv => (
+                            <div key={lv.id} className="flex items-center gap-4 p-4 border border-border hover:border-dark transition-colors group">
+                              <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 transition-colors ${lv.done ? 'bg-accent-gold text-white' : 'bg-border text-text-secondary group-hover:bg-dark group-hover:text-white'}`}>
+                                {lv.done ? <IconCheck /> : <IconPlay />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
+                                <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
+                              </div>
+                              {lv.done && <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Abgeschlossen</span>}
+                              <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5 flex-shrink-0">
+                                <IconPlay /> Starten
+                              </button>
+                            </div>
+                          ))
                         }
                       </div>
-                      <div>
-                        <p className="font-sans text-sm font-medium">{r.label}</p>
-                        <p className="font-sans text-xs text-text-secondary">{r.artist} · {r.type === 'youtube' ? 'YouTube' : 'Audio'}</p>
+                    )}
+
+                    {stimmeSubTab === 'noten' && (
+                      <div className="space-y-3">
+                        {activeStimme.noten.length === 0
+                          ? <p className="font-sans text-sm text-text-secondary text-center py-8">Keine Noten verfügbar</p>
+                          : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {activeStimme.noten.map(n => (
+                                <div key={n.key} className="border border-border p-4 flex items-center justify-between hover:border-dark transition-colors">
+                                  <div>
+                                    <p className="font-heading font-bold text-sm">{n.label}</p>
+                                    <p className="font-sans text-xs text-text-secondary">{activeStimme.label}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    {n.price && <span className="font-sans text-sm font-semibold text-accent-gold">CHF {n.price}</span>}
+                                    <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                                      <IconDownload /> Kaufen
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        }
+                      </div>
+                    )}
+
+                    {stimmeSubTab === 'audio' && (
+                      <div className="space-y-2">
+                        {activeStimme.audioSamples.length === 0
+                          ? <p className="font-sans text-sm text-text-secondary text-center py-8">Keine Hörproben verfügbar</p>
+                          : activeStimme.audioSamples.map(a => (
+                            <div key={a.id} className="flex items-center gap-3 p-4 border border-border hover:border-dark group transition-colors">
+                              <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:text-white group-hover:border-dark transition-colors flex-shrink-0">
+                                {a.type === 'youtube' ? <IconPlay /> : <IconVolOn />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-sans text-sm font-medium">{a.label}</p>
+                                <p className="font-sans text-xs text-text-secondary">{a.type === 'youtube' ? 'YouTube' : 'Audio'} · {a.duration}</p>
+                              </div>
+                              <button className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Abspielen</button>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    )}
+                  </div>
+
+                  {/* LAEMU Player for this stimme */}
+                  {activeStimme.hasLaemuPlayer && (
+                    <div className="border-t border-border">
+                      <div className="px-5 py-3 bg-background flex items-center gap-2 border-b border-border">
+                        <span className="text-text-secondary"><IconMixer /></span>
+                        <p className="font-sans text-xs text-text-secondary">LAEMU-Player · {activeStimme.label}</p>
+                      </div>
+                      <VideoPlayer img={v.img} label={`LAEMU-Player · ${activeStimme.label}`} />
+                      <div className="border-t border-border px-5 py-4 bg-background">
+                        <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Stimmen-Mix</p>
+                        <VoiceMixer voices={v.voices} />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button className="font-sans text-xs text-dark border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
-                        Abspielen
-                      </button>
-                      <button className="font-sans text-xs text-text-secondary border border-border px-3 py-1.5 hover:border-dark hover:text-dark transition-colors flex items-center gap-1">
-                        <IconPlus /> Playlist
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* LEHRPERSON */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
-              <h3 className="font-heading font-bold text-lg mb-4">Lehrperson</h3>
-              <div className="flex items-start gap-5">
-                <div className="relative w-20 h-20 overflow-hidden flex-shrink-0">
-                  <Image src={v.teacher.img} alt={v.teacher.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+                  )}
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-heading font-bold text-lg">{v.teacher.name}</h4>
-                  <p className="font-sans text-sm text-accent-gold mb-1">{v.teacher.instrument}</p>
-                  <p className="font-sans text-sm text-text-secondary mb-3">{v.teacher.bio}</p>
-                  <div className="flex items-center gap-5 text-sm font-sans mb-4">
-                    <span><strong className="font-heading">{v.teacher.courses}</strong> <span className="text-text-secondary">Kurse</span></span>
-                    <span><strong className="font-heading">{v.teacher.students}</strong> <span className="text-text-secondary">Schüler</span></span>
-                  </div>
-                  <Link
-                    href="/member/community"
-                    className="inline-flex items-center gap-2 font-sans text-sm px-4 py-2 border border-dark hover:bg-dark hover:text-white transition-colors"
-                  >
-                    Profil auf LAEMU ansehen
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* COMMUNITY COMMENTS */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="bg-surface border border-border p-6">
-              <h3 className="font-heading font-bold text-lg mb-5">Community-Kommentare ({comments.length})</h3>
-              <div className="space-y-4 mb-6">
-                {comments.map((c, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="relative w-9 h-9 overflow-hidden flex-shrink-0">
-                      <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
-                    </div>
-                    <div className="flex-1 bg-background p-4 border border-border">
-                      <div className="flex items-center gap-2 mb-2">
-                        <p className="font-sans font-semibold text-xs">{c.name}</p>
-                        <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
-                      </div>
-                      <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
-                      <button
-                        onClick={() => setCommentLikes(prev => ({ ...prev, [c.user]: !prev[c.user] }))}
-                        className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.user] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
-                      >
-                        <IconHeart filled={!!commentLikes[c.user]} />
-                        {c.likes + (commentLikes[c.user] ? 1 : 0)}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-3">
-                <div className="relative w-9 h-9 overflow-hidden flex-shrink-0 bg-background border border-border flex items-center justify-center">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <div className="flex-1 flex gap-2">
-                  <input
-                    value={comment}
-                    onChange={e => setComment(e.target.value)}
-                    type="text"
-                    placeholder="Kommentar schreiben..."
-                    className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                    onKeyDown={e => e.key === 'Enter' && setComment('')}
-                  />
-                  <button
-                    onClick={() => setComment('')}
-                    className="bg-dark text-white px-5 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors"
-                  >
-                    Senden
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
           </div>
 
           {/* RIGHT SIDEBAR */}
           <div>
             <div className="sticky top-8 space-y-4">
-              {/* Learning videos list */}
-              <div className="bg-surface border border-border overflow-hidden">
-                <div className="p-4 border-b border-border bg-dark text-white">
-                  <h3 className="font-heading font-bold text-sm">Lernvideos zu diesem Stück</h3>
-                  <p className="font-sans text-xs text-white/40 mt-0.5">{v.learningVideos.filter(l => l.done).length} / {v.learningVideos.length} abgeschlossen</p>
-                </div>
-                <div>
-                  {v.learningVideos.map(lv => (
-                    <button
-                      key={lv.id}
-                      onClick={() => { setActiveLesson(lv); setActiveVideoTab('learn') }}
-                      className={`w-full flex items-center gap-3 p-4 border-b border-border last:border-0 text-left transition-colors ${activeLesson.id === lv.id && activeVideoTab === 'learn' ? 'bg-dark text-white' : 'hover:bg-background'}`}
-                    >
-                      <div className={`w-6 h-6 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : activeLesson.id === lv.id && activeVideoTab === 'learn' ? 'bg-white/20 text-white' : 'bg-border text-text-secondary'}`}>
-                        {lv.done
-                          ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                          : <IconPlay />
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-sans text-xs font-medium truncate ${activeLesson.id === lv.id && activeVideoTab === 'learn' ? 'text-white' : ''}`}>{lv.label}</p>
-                        <span className={`font-sans text-[10px] ${activeLesson.id === lv.id && activeVideoTab === 'learn' ? 'text-white/40' : 'text-text-secondary'}`}>{lv.duration}</span>
-                      </div>
-                    </button>
+              {/* Metadata */}
+              <div className="bg-surface border border-border p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Stück-Info</p>
+                <div className="space-y-0">
+                  {([
+                    { label: 'Komponist', value: v.composer },
+                    { label: 'Jahr', value: String(v.year) },
+                    { label: 'Takt', value: v.meter },
+                    { label: 'Formation', value: v.formation },
+                    { label: 'Harmoniestufe', value: `Stufe ${v.level}` },
+                  ]).map(item => (
+                    <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
+                      <span className="font-sans text-xs text-text-secondary">{item.label}</span>
+                      <span className="font-sans text-xs font-medium">{item.value}</span>
+                    </div>
                   ))}
+                </div>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-sans text-xs text-text-secondary">Schwierigkeit</span>
+                    <span className="font-sans text-xs font-medium">{v.difficulty} / 6</span>
+                  </div>
+                  <div className="flex gap-1">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className={`flex-1 h-1.5 ${i < v.difficulty ? 'bg-accent-gold' : 'bg-border'}`} />
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Stimmen quick nav */}
+              {/* Stimmen overview */}
               <div className="bg-surface border border-border overflow-hidden">
-                <div className="p-4 border-b border-border">
-                  <h3 className="font-heading font-bold text-sm">Einzelstimmen</h3>
+                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                  <p className="font-heading font-bold text-sm">Stimmen</p>
+                  <button onClick={() => setMainTab('stimmen')} className="font-sans text-xs text-accent-gold hover:underline">Alle ansehen →</button>
                 </div>
-                <div>
-                  {v.stimmenVideos.map(sv => (
-                    <button
-                      key={sv.id}
-                      onClick={() => { setActiveStimme(sv); setActiveVideoTab('stimmen') }}
-                      className={`w-full flex items-center gap-3 p-3 border-b border-border last:border-0 text-left transition-colors ${activeStimme.id === sv.id && activeVideoTab === 'stimmen' ? 'bg-dark text-white' : 'hover:bg-background'}`}
-                    >
-                      <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 ${activeStimme.id === sv.id && activeVideoTab === 'stimmen' ? 'text-accent-gold' : 'text-text-secondary'}`}>
-                        <IconPlay />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-sans text-xs truncate ${activeStimme.id === sv.id && activeVideoTab === 'stimmen' ? 'text-white font-medium' : ''}`}>{sv.label}</p>
-                      </div>
-                      <span className={`font-sans text-[10px] ${activeStimme.id === sv.id && activeVideoTab === 'stimmen' ? 'text-white/40' : 'text-text-secondary'}`}>{sv.duration}</span>
-                    </button>
-                  ))}
-                </div>
+                {v.stimmenSections.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => { setMainTab('stimmen'); setActiveStimmeId(s.id) }}
+                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left hover:bg-background transition-colors"
+                  >
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                    <span className="font-sans text-xs flex-1 truncate">{s.label}</span>
+                    <span className="font-sans text-[10px] text-text-secondary flex-shrink-0">{s.lernvideos.length} Videos</span>
+                  </button>
+                ))}
               </div>
 
               {/* Actions */}
               <div className="bg-surface border border-border p-4 space-y-2">
-                <h4 className="font-heading font-bold text-sm mb-3">Aktionen</h4>
-                <button
-                  onClick={() => setFavorited(!favorited)}
-                  className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}
-                >
-                  <IconStar filled={favorited} />
-                  {favorited ? 'Als Favorit gespeichert' : 'Als Favorit merken'}
+                <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}>
+                  <IconStar filled={favorited} /> {favorited ? 'Gespeichert' : 'Als Favorit merken'}
                 </button>
                 <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
-                  <IconPlus /> Zur Playlist hinzufügen
+                  <IconPlus /> Zur Playlist
                 </button>
                 <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
                   <IconShare /> Teilen
                 </button>
-                <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
-                  <IconDownload /> Noten herunterladen
-                </button>
+                <div className="border-t border-border pt-2 mt-2">
+                  <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 bg-dark text-white hover:bg-accent-gold transition-colors">
+                    <IconDownload /> Noten-Paket · CHF 20
+                  </button>
+                </div>
+              </div>
+
+              {/* Teacher */}
+              <div className="bg-surface border border-border p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Lehrperson</p>
+                <div className="flex items-start gap-3">
+                  <div className="relative w-12 h-12 overflow-hidden flex-shrink-0">
+                    <Image src={v.teacher.img} alt={v.teacher.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+                  </div>
+                  <div>
+                    <p className="font-heading font-bold text-sm">{v.teacher.name}</p>
+                    <p className="font-sans text-xs text-accent-gold mb-2">{v.teacher.instrument}</p>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{v.teacher.bio}</p>
+                    <Link href="/member/community" className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
+                      Profil ansehen
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
