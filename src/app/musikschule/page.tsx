@@ -100,6 +100,16 @@ const individualPlanMeta: Record<IndividualPlan, { label: string; emoji: string;
 
 // ─── Onboarding Quiz ─────────────────────────────────────────────────────────
 
+type QuizAnswers = {
+  experience: 'none' | 'childhood' | 'adult' | 'longtime' | null
+  experienceType: string | null
+  musicStyle: string | null
+  learnerType: string | null
+  isFormation: boolean | null
+  instrument: string | null
+  probeLektion: 'yes' | 'consultation' | null
+}
+
 type QuizResult = {
   label: string
   plan: IndividualPlan | FormationPlan
@@ -110,194 +120,560 @@ type QuizResult = {
   tag: string
 }
 
-function deriveRecommendation(
-  isFormation: boolean,
-  level: 'beginner' | 'intermediate' | 'pro' | '',
-  scope: Scope | '',
-): QuizResult | null {
-  if (!level) return null
-
-  if (isFormation) {
-    if (level === 'pro') {
+function deriveQuizRecommendation(answers: QuizAnswers): QuizResult | null {
+  if (answers.isFormation === true) {
+    if (answers.experience === 'longtime') {
       return { label: 'Lernvideodatenbank', plan: 'formation_lernvideo', isFormation: true, yearly: 1999, tag: 'Für Profis' }
     }
     return { label: 'Pro All-in-One', plan: 'pro_all', isFormation: true, yearly: 2499, tag: 'Für Aufsteiger' }
   }
 
-  if (level === 'pro') {
+  if (answers.experience === 'longtime') {
     return { label: 'Lernvideodatenbank', plan: 'lernvideo', isFormation: false, monthly: 99, yearly: 999, tag: 'Für Könner' }
   }
 
-  if (!scope) return null
-  const planId: IndividualPlan = level === 'beginner' ? 'starter' : 'pro'
-  const pricing = individualPricing[planId][scope]
-  return {
-    label: `${individualPlanMeta[planId].label} — ${scopeLabels[scope]}`,
-    plan: planId,
-    scope,
-    isFormation: false,
-    monthly: pricing.monthly,
-    yearly: pricing.yearly,
-    tag: level === 'beginner' ? 'Für Einsteiger' : 'Für Fortgeschrittene',
+  const scope: Scope = answers.instrument === 'handorgel' || answers.instrument === 'schwyzer'
+    ? '1'
+    : answers.instrument === 'unsure'
+    ? 'all'
+    : '1'
+
+  if (answers.experience === 'none' || answers.experience === 'childhood') {
+    const pricing = individualPricing.starter[scope]
+    return {
+      label: `Starter — ${scopeLabels[scope]}`,
+      plan: 'starter',
+      scope,
+      isFormation: false,
+      monthly: pricing.monthly,
+      yearly: pricing.yearly,
+      tag: 'Für Einsteiger',
+    }
   }
+
+  if (answers.experience === 'adult') {
+    const pricing = individualPricing.pro[scope]
+    return {
+      label: `Pro — ${scopeLabels[scope]}`,
+      plan: 'pro',
+      scope,
+      isFormation: false,
+      monthly: pricing.monthly,
+      yearly: pricing.yearly,
+      tag: 'Für Fortgeschrittene',
+    }
+  }
+
+  return null
 }
 
 type OnboardingQuizProps = {
   onStartSubscription: (config: { purchaserType: 'individual' | 'formation'; plan?: IndividualPlan | FormationPlan; scope?: Scope }) => void
+  onScrollToPricing: () => void
 }
 
-function OnboardingQuiz({ onStartSubscription }: OnboardingQuizProps) {
-  const [formation, setFormation] = useState<boolean | null>(null)
-  const [level, setLevel] = useState<'beginner' | 'intermediate' | 'pro' | ''>('')
-  const [scope, setScope] = useState<Scope | ''>('')
+// Total quiz steps (0 = intro, 1..7 = questions, 8 = result)
+// Step logic: some steps are conditional
 
-  const showLevel = formation !== null
-  const showScope = showLevel && level !== '' && level !== 'pro' && formation === false
-  const result = formation !== null ? deriveRecommendation(formation, level, scope) : null
-  const showResult = result !== null && (formation === true || (level === 'pro' || scope !== ''))
+function getVisibleStep(step: number, answers: QuizAnswers): number {
+  // This maps logical step index accounting for conditionals
+  return step
+}
 
-  function reset() {
-    setFormation(null)
-    setLevel('')
-    setScope('')
+function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQuizProps) {
+  const [step, setStep] = useState(0)
+  const [answers, setAnswers] = useState<QuizAnswers>({
+    experience: null,
+    experienceType: null,
+    musicStyle: null,
+    learnerType: null,
+    isFormation: null,
+    instrument: null,
+    probeLektion: null,
+  })
+
+  // Compute which step numbers are active given current answers
+  function getStepSequence(): number[] {
+    const seq = [0, 1]
+    if (answers.experience !== 'none') seq.push(2)
+    seq.push(3, 4, 5)
+    if (answers.isFormation === false) {
+      seq.push(6)
+      if (answers.instrument !== null && answers.instrument !== 'unsure') {
+        seq.push(7)
+      }
+    }
+    seq.push(8) // result
+    return seq
   }
 
-  return (
-    <div className="bg-surface border border-border p-8 max-w-2xl mx-auto">
-      <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-2">Angebots-Finder</p>
-      <h3 className="font-heading text-2xl font-bold mb-6">Finde dein passendes Angebot</h3>
+  const sequence = getStepSequence()
+  const currentIndex = sequence.indexOf(step)
+  // Total steps for progress (excluding intro 0 and result 8)
+  const progressSteps = sequence.filter(s => s > 0 && s < 8)
+  const currentProgressIndex = progressSteps.indexOf(step)
 
-      {/* Q1 */}
-      <div className="mb-6">
-        <p className="font-sans text-sm font-medium mb-3">Spielst du in einer Formation?</p>
-        <div className="flex gap-3">
-          {[{ val: false, label: '👤 Nein, ich spiele solo' }, { val: true, label: '👥 Ja, wir sind eine Formation' }].map(opt => (
-            <button
-              key={String(opt.val)}
-              onClick={() => { setFormation(opt.val); setLevel(''); setScope('') }}
-              className={`flex-1 py-3 px-4 border font-sans text-sm text-left transition-all ${formation === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border hover:border-dark'}`}
+  function goNext(newAnswers?: Partial<QuizAnswers>) {
+    const updated = newAnswers ? { ...answers, ...newAnswers } : answers
+    setAnswers(updated)
+
+    // Recompute sequence with updated answers
+    const seq: number[] = [0, 1]
+    if (updated.experience !== 'none') seq.push(2)
+    seq.push(3, 4, 5)
+    if (updated.isFormation === false) {
+      seq.push(6)
+      if (updated.instrument !== null && updated.instrument !== 'unsure') {
+        seq.push(7)
+      }
+    }
+    seq.push(8)
+
+    const idx = seq.indexOf(step)
+    if (idx !== -1 && idx < seq.length - 1) {
+      setStep(seq[idx + 1])
+    }
+  }
+
+  function goBack() {
+    const idx = sequence.indexOf(step)
+    if (idx > 0) setStep(sequence[idx - 1])
+  }
+
+  function reset() {
+    setStep(0)
+    setAnswers({
+      experience: null,
+      experienceType: null,
+      musicStyle: null,
+      learnerType: null,
+      isFormation: null,
+      instrument: null,
+      probeLektion: null,
+    })
+  }
+
+  const result = step === 8 ? deriveQuizRecommendation(answers) : null
+
+  return (
+    <div className="bg-surface border border-border max-w-2xl mx-auto">
+      {/* Progress bar — only show on question steps */}
+      {step > 0 && step < 8 && (
+        <div className="px-8 pt-6">
+          <div className="flex items-center gap-1.5">
+            {progressSteps.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1 flex-1 transition-all duration-300 ${
+                  i <= currentProgressIndex ? 'bg-accent-gold' : 'bg-border'
+                }`}
+              />
+            ))}
+          </div>
+          <p className="font-sans text-[10px] text-text-secondary mt-1.5">
+            Frage {currentProgressIndex + 1} von {progressSteps.length}
+          </p>
+        </div>
+      )}
+
+      <div className="p-8">
+        <AnimatePresence mode="wait">
+
+          {/* ── Step 0: Intro ── */}
+          {step === 0 && (
+            <motion.div
+              key="intro"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.25 }}
             >
-              {opt.label}
-            </button>
-          ))}
+              <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-3">Angebots-Finder</p>
+              <h3 className="font-heading text-2xl font-bold mb-3">Du weisst nicht, was zu dir passt?</h3>
+              <p className="font-sans text-text-secondary text-sm leading-relaxed mb-8">
+                Finde deinen perfekten Einstieg in die Ländlermusik. Beantworte ein paar kurze Fragen — wir empfehlen dir das passende Angebot.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={onScrollToPricing}
+                  className="flex-1 py-3 px-4 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
+                >
+                  Angebote direkt anschauen
+                </button>
+                <button
+                  onClick={() => setStep(1)}
+                  className="flex-1 py-3 px-4 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors"
+                >
+                  Meinen Einstieg finden →
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── Step 1: Vorkenntnisse ── */}
+          {step === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Dein Hintergrund</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Hast du bereits Vorkenntnisse in der Ländlermusik oder einem verwandten Instrument?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Sei ehrlich — es gibt keine falsche Antwort.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { val: 'none' as const, emoji: '🌱', label: 'Nein, ich bin ein blutiger Anfänger' },
+                  { val: 'childhood' as const, emoji: '🎵', label: 'Ja, früher in der Kindheit mal gespielt' },
+                  { val: 'adult' as const, emoji: '🎶', label: 'Ja, etwas Erfahrung als Erwachsener' },
+                  { val: 'longtime' as const, emoji: '🏆', label: 'Ja, ich spiele schon länger' },
+                ].map(opt => (
+                  <button
+                    key={opt.val}
+                    onClick={() => goNext({ experience: opt.val, experienceType: null })}
+                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.experience === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="mr-2">{opt.emoji}</span>{opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 2: Art der Vorkenntnisse (only if experience !== 'none') ── */}
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Deine Erfahrung</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Welche Art von Vorkenntnissen hast du?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Das hilft uns, den richtigen Lernweg für dich zu finden.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { val: 'einzelunterricht', emoji: '🎹', label: '1-zu-1 Unterricht (Klavier, Gitarre, etc.)' },
+                  { val: 'app', emoji: '📱', label: 'Lern-App (z. B. Klavier-App)' },
+                  { val: 'selbst', emoji: '🎸', label: 'Selbst beigebracht' },
+                  { val: 'musikschule', emoji: '🏫', label: 'Musikschule oder Gruppenunterricht' },
+                ].map(opt => (
+                  <button
+                    key={opt.val}
+                    onClick={() => goNext({ experienceType: opt.val })}
+                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.experienceType === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="mr-2">{opt.emoji}</span>{opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 3: Musikstil ── */}
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Dein Geschmack</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Welche Art von Musik gefällt dir?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Alle Stile sind Teil unseres Angebots — wir sind nur neugierig.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { val: 'traditional', emoji: '🎵', label: 'Traditionelle Volksmusik (Polkas, Mazurkas)' },
+                  { val: 'modern', emoji: '🎶', label: 'Moderne Ländlermusik' },
+                  { val: 'alpin', emoji: '🌄', label: 'Alpinmusik & Jodeln' },
+                  { val: 'neue', emoji: '🎸', label: 'Neue Volksmusik (mit Jazz-Einflüssen)' },
+                ].map(opt => (
+                  <button
+                    key={opt.val}
+                    onClick={() => goNext({ musicStyle: opt.val })}
+                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.musicStyle === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="mr-2">{opt.emoji}</span>{opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 4: Lerntyp ── */}
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Dein Lernstil</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Wie würdest du dich als Lernende*r beschreiben?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Kein Richtig oder Falsch — jeder Lerntyp hat seinen Platz.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { val: 'calm', emoji: '🐢', label: 'Immer mit der Ruhe — ich lerne in meinem Tempo' },
+                  { val: 'driven', emoji: '💪', label: 'Ohne Fleiss kein Preis — ich will Fortschritte sehen' },
+                  { val: 'creative', emoji: '🎨', label: 'Kreativer Künstler — ich folge meiner Intuition' },
+                  { val: 'curious', emoji: '📚', label: 'Lebenslanger Lerner — ich liebe es, Neues zu entdecken' },
+                ].map(opt => (
+                  <button
+                    key={opt.val}
+                    onClick={() => goNext({ learnerType: opt.val })}
+                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.learnerType === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="mr-2">{opt.emoji}</span>{opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 5: Formation? ── */}
+          {step === 5 && (
+            <motion.div
+              key="step5"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Solo oder Formation</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Spielst du in einer Formation?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Für Formationen haben wir spezielle Kombiangebote.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { val: false, emoji: '👤', label: 'Nein, ich lerne solo' },
+                  { val: true, emoji: '👥', label: 'Ja, ich bin Teil einer Formation' },
+                ].map(opt => (
+                  <button
+                    key={String(opt.val)}
+                    onClick={() => goNext({ isFormation: opt.val, instrument: null, probeLektion: null })}
+                    className={`p-5 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.isFormation === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="text-2xl block mb-2">{opt.emoji}</span>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 6: Instrument (only if solo) ── */}
+          {step === 6 && (
+            <motion.div
+              key="step6"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Dein Instrument</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Welches Instrument interessiert dich?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Du kannst später jederzeit wechseln oder weitere hinzufügen.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { val: 'handorgel', emoji: '🪗', label: 'Handorgel' },
+                  { val: 'schwyzer', emoji: '🎶', label: 'Schwyzerörgeli' },
+                  { val: 'begleit', emoji: '🎸', label: 'Begleitinstrument (Bass, Klarinette, Klavier)' },
+                  { val: 'buehne', emoji: '🎤', label: 'Bühnenpräsenz' },
+                  { val: 'unsure', emoji: '🤔', label: 'Noch nicht sicher' },
+                ].map(opt => (
+                  <button
+                    key={opt.val}
+                    onClick={() => goNext({ instrument: opt.val, probeLektion: null })}
+                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.instrument === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="mr-2">{opt.emoji}</span>{opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 7: Probelektion (only if solo & instrument !== unsure) ── */}
+          {step === 7 && (
+            <motion.div
+              key="step7"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Fast geschafft!</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Dürfen wir dir eine kostenlose Probelektion zusenden?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Kein Abo, kein Risiko — nur ein kleiner Vorgeschmack.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { val: 'yes' as const, emoji: '✉️', label: 'Ja, sende mir eine Probelektion!' },
+                  { val: 'consultation' as const, emoji: '💬', label: 'Nein, ich hätte lieber ein persönliches Beratungsgespräch' },
+                ].map(opt => (
+                  <button
+                    key={opt.val}
+                    onClick={() => goNext({ probeLektion: opt.val })}
+                    className={`p-5 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
+                      answers.probeLektion === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
+                    }`}
+                  >
+                    <span className="text-2xl block mb-2">{opt.emoji}</span>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Step 8: Result ── */}
+          {step === 8 && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-3">Deine Empfehlung</p>
+
+              {answers.isFormation === true ? (
+                <>
+                  <h3 className="font-heading text-xl font-bold mb-2">Du spielst in einer Formation — top!</h3>
+                  <p className="font-sans text-sm text-text-secondary mb-6 leading-relaxed">
+                    Für Formationen haben wir spezielle Kombiangebote, bei denen alle Mitglieder gemeinsam profitieren.
+                  </p>
+                  <Link
+                    href="/musikschule/formation"
+                    className="inline-block w-full text-center py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors mb-3"
+                  >
+                    Formation-Vorteile entdecken →
+                  </Link>
+                </>
+              ) : result ? (
+                <>
+                  <h3 className="font-heading text-xl font-bold mb-1">{result.label}</h3>
+                  <p className="font-sans text-xs text-text-secondary mb-5">{result.tag}</p>
+                  <div className="border border-accent-gold bg-accent-gold/5 p-5 mb-5">
+                    <div className="flex items-end justify-between mb-4">
+                      <div>
+                        {result.monthly && (
+                          <p className="font-sans text-sm text-text-secondary">
+                            {chf(result.monthly)}<span className="text-xs">/Mt.</span>
+                          </p>
+                        )}
+                        <p className="font-heading font-bold text-2xl">
+                          {chf(result.yearly)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span>
+                        </p>
+                      </div>
+                      <span className="font-sans text-xs text-accent-gold border border-accent-gold/30 px-2 py-1">{result.tag}</span>
+                    </div>
+                    <button
+                      onClick={() =>
+                        onStartSubscription({
+                          purchaserType: 'individual',
+                          plan: result.plan as IndividualPlan,
+                          scope: result.scope,
+                        })
+                      }
+                      className="w-full py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors"
+                    >
+                      Jetzt abonnieren →
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="font-sans text-text-secondary text-sm mb-6">Wir konnten keine passende Empfehlung ermitteln. Schau dir unsere Angebote direkt an.</p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={goBack}
+                  className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
+                >
+                  ← Zurück
+                </button>
+                <button
+                  onClick={reset}
+                  className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
+                >
+                  Quiz neu starten
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
+// ─── Formation CTA ────────────────────────────────────────────────────────────
+
+function FormationCTA() {
+  return (
+    <section className="py-20 bg-dark">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+          <div>
+            <span className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-3 block">Für Formationen</span>
+            <h2 className="font-heading text-2xl lg:text-3xl font-bold text-white mb-3">
+              Spielst du in einer Formation?
+            </h2>
+            <p className="font-sans text-white/60 text-sm leading-relaxed max-w-lg">
+              Erfahre mehr über die Kombiangebote und Vorteile für Formationen, die bei LAEMU registriert sind.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 flex-shrink-0">
+            <Link
+              href="/musikschule/formation"
+              className="inline-block px-8 py-3.5 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors text-center whitespace-nowrap"
+            >
+              Formation-Vorteile entdecken →
+            </Link>
+            <p className="font-sans text-[11px] text-white/40 text-center">
+              Egal ob zu dritt oder viert — alle Formationsmitglieder profitieren gemeinsam.
+            </p>
+          </div>
         </div>
       </div>
-
-      {/* Q2 */}
-      <AnimatePresence>
-        {showLevel && (
-          <motion.div
-            key="q2"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden mb-6"
-          >
-            <p className="font-sans text-sm font-medium mb-3">
-              {formation ? 'Wie erfahren ist eure Formation?' : 'Wie erfahren bist du?'}
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { val: 'beginner' as const, label: '🌱 Einsteiger', desc: 'Wenig oder keine Erfahrung' },
-                { val: 'intermediate' as const, label: '🎵 Gut', desc: 'Spielst schon eine Weile' },
-                { val: 'pro' as const, label: '🏆 Profi', desc: 'Erfahrener Musiker' },
-              ].map(opt => (
-                <button
-                  key={opt.val}
-                  onClick={() => { setLevel(opt.val); setScope('') }}
-                  className={`py-3 px-3 border font-sans text-xs text-left transition-all ${level === opt.val ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                >
-                  <span className="block font-medium mb-0.5">{opt.label}</span>
-                  <span className="text-text-secondary">{opt.desc}</span>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Q3 */}
-      <AnimatePresence>
-        {showScope && (
-          <motion.div
-            key="q3"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden mb-6"
-          >
-            <p className="font-sans text-sm font-medium mb-3">Für wie viele Instrumente interessierst du dich?</p>
-            <div className="grid grid-cols-3 gap-3">
-              {([
-                { val: '1' as Scope, label: '1 Instrument', desc: 'Fokus auf ein Instrument' },
-                { val: '2' as Scope, label: '2 Instrumente', desc: 'Zwei Instrumente lernen' },
-                { val: 'all' as Scope, label: 'Alle Instrumente', desc: 'Das komplette Angebot' },
-              ]).map(opt => (
-                <button
-                  key={opt.val}
-                  onClick={() => setScope(opt.val)}
-                  className={`py-3 px-3 border font-sans text-xs text-left transition-all ${scope === opt.val ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                >
-                  <span className="block font-medium mb-0.5">{opt.label}</span>
-                  <span className="text-text-secondary">{opt.desc}</span>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Result */}
-      <AnimatePresence>
-        {showResult && result && (
-          <motion.div
-            key="result"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="border border-accent-gold bg-accent-gold/5 p-5"
-          >
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div>
-                <span className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-1 block">Empfehlung für dich</span>
-                <p className="font-heading text-xl font-bold">{result.label}</p>
-                <p className="font-sans text-xs text-text-secondary mt-0.5">{result.tag}</p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                {result.monthly && (
-                  <p className="font-sans text-sm text-text-secondary">
-                    {chf(result.monthly)}<span className="text-xs">/Mt.</span>
-                  </p>
-                )}
-                <p className="font-heading font-bold text-xl">
-                  {chf(result.yearly)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span>
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() =>
-                  onStartSubscription({
-                    purchaserType: result.isFormation ? 'formation' : 'individual',
-                    plan: result.plan as IndividualPlan | FormationPlan,
-                    scope: result.scope,
-                  })
-                }
-                className="flex-1 py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors"
-              >
-                Jetzt abonnieren →
-              </button>
-              <button
-                onClick={reset}
-                className="px-4 py-3 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
-              >
-                Zurücksetzen
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    </section>
   )
 }
 
@@ -405,6 +781,10 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) onClose()
   }
+
+  // Suppress unused variable warning
+  void meta
+  void needsScope
 
   const { title, subtitle } = stepTitles[step - 1]
 
@@ -965,249 +1345,148 @@ type OfferingOverviewProps = {
 }
 
 function OfferingOverview({ onSelectPlan }: OfferingOverviewProps) {
-  const [tab, setTab] = useState<'individual' | 'formation'>('individual')
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly')
   const [starterScope, setStarterScope] = useState<Scope>('1')
   const [proScope, setProScope] = useState<Scope>('1')
 
   return (
-    <section className="py-32 bg-surface">
+    <section className="py-32 bg-surface" id="preise">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-12">
           <span className="label text-accent-gold">Angebote</span>
           <h2 className="heading-lg mt-3 mb-4">Das richtige Angebot für dich.</h2>
           <p className="body-lg text-text-secondary max-w-xl mx-auto mb-8">
-            Egal ob du alleine lernst oder in einer Formation spielst — wir haben das passende Abo.
+            Lerne in deinem Tempo — von echten Profis der Schweizer Ländlermusik.
           </p>
+        </div>
 
-          {/* Tab: Individual / Formation */}
-          <div className="inline-flex border border-border mb-8">
+        {/* Billing toggle */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex border border-border">
             <button
-              onClick={() => setTab('individual')}
-              className={`font-sans text-sm px-6 py-3 transition-colors ${tab === 'individual' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+              onClick={() => setBilling('monthly')}
+              className={`font-sans text-sm px-5 py-2.5 transition-colors ${billing === 'monthly' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
             >
-              👤 Einzelpersonen
+              Monatlich
             </button>
             <button
-              onClick={() => setTab('formation')}
-              className={`font-sans text-sm px-6 py-3 transition-colors ${tab === 'formation' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+              onClick={() => setBilling('yearly')}
+              className={`font-sans text-sm px-5 py-2.5 transition-colors ${billing === 'yearly' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
             >
-              👥 Formationen
+              Jährlich <span className="text-accent-gold text-xs ml-1">–14%</span>
+            </button>
+          </div>
+          {billing === 'yearly' && (
+            <span className="ml-3 flex items-center font-sans text-xs text-text-secondary">Rabattcodes nur für Jahresabos</span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Lernvideodatenbank */}
+          <div className="relative border border-border p-6 flex flex-col hover:border-accent-gold transition-colors group">
+            <p className="font-sans text-2xl mb-2">📹</p>
+            <h3 className="font-heading text-xl font-bold mb-1 group-hover:text-accent-gold transition-colors">Lernvideodatenbank</h3>
+            <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
+              Voller Zugang zur Lernvideo-Datenbank für alle Instrumente — ideal für Könner, die Referenz-Videos und neue Stücke suchen.
+            </p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {['Lernvideo-Datenbank (alle Instrumente)', 'Alle Stücke & Genres inklusive', 'Ständig wachsendes Angebot', 'LAEMU Membership inklusive'].map(f => (
+                <li key={f} className="flex items-start gap-2 font-sans text-xs">
+                  <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>{f}
+                </li>
+              ))}
+            </ul>
+            <div className="mb-5">
+              <span className="font-heading text-3xl font-bold">{chf(billing === 'monthly' ? 99 : 999)}</span>
+              <span className="font-sans text-xs text-text-secondary ml-1">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span>
+            </div>
+            <button
+              onClick={() => onSelectPlan({ purchaserType: 'individual', plan: 'lernvideo' })}
+              className="w-full py-2.5 border border-dark text-dark font-sans text-sm font-medium hover:bg-dark hover:text-white transition-colors"
+            >
+              Jetzt starten
+            </button>
+          </div>
+
+          {/* Starter */}
+          <div className="relative border border-border p-6 flex flex-col hover:border-accent-gold transition-colors group">
+            <p className="font-sans text-2xl mb-2">🎓</p>
+            <h3 className="font-heading text-xl font-bold mb-1 group-hover:text-accent-gold transition-colors">Starter</h3>
+            <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
+              Strukturierter Lehrgang für Einsteiger — mit Starter-Videos in der Datenbank. Wähle 1, 2 oder alle Instrumente.
+            </p>
+            <ul className="space-y-2 mb-4 flex-1">
+              {['Strukturierter Online-Lehrgang', 'Starter-Videos in der Lernvideodatenbank', 'Kurs-Chat & Community', 'Lernfortschritt & Badges', 'LAEMU Membership inklusive'].map(f => (
+                <li key={f} className="flex items-start gap-2 font-sans text-xs">
+                  <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>{f}
+                </li>
+              ))}
+            </ul>
+            {/* Scope selector */}
+            <div className="grid grid-cols-3 gap-1.5 mb-4">
+              {(['1', '2', 'all'] as Scope[]).map(s => (
+                <button
+                  key={s}
+                  onClick={() => setStarterScope(s)}
+                  className={`py-1.5 text-center border font-sans text-[10px] transition-all ${starterScope === s ? 'border-accent-gold bg-accent-gold/5 text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                >
+                  {scopeLabels[s]}
+                </button>
+              ))}
+            </div>
+            <div className="mb-5">
+              <span className="font-heading text-3xl font-bold">{chf(individualPricing.starter[starterScope][billing])}</span>
+              <span className="font-sans text-xs text-text-secondary ml-1">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span>
+            </div>
+            <button
+              onClick={() => onSelectPlan({ purchaserType: 'individual', plan: 'starter', scope: starterScope })}
+              className="w-full py-2.5 border border-dark text-dark font-sans text-sm font-medium hover:bg-dark hover:text-white transition-colors"
+            >
+              Jetzt starten
+            </button>
+          </div>
+
+          {/* Pro */}
+          <div className="relative border-2 border-accent-gold p-6 flex flex-col bg-dark text-white">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent-gold text-white text-xs px-4 py-1 font-sans font-medium whitespace-nowrap">
+              ⭐ Empfohlen
+            </div>
+            <p className="font-sans text-2xl mb-2">⭐</p>
+            <h3 className="font-heading text-xl font-bold mb-1 text-white">Pro</h3>
+            <p className="font-sans text-xs text-white/60 mb-4 leading-relaxed">
+              Alles aus Starter plus vollständige Lernvideodatenbank. Für 1, 2 oder alle Instrumente.
+            </p>
+            <ul className="space-y-2 mb-4 flex-1">
+              {['Alles aus Starter', 'Vollständige Lernvideo-Datenbank', 'Persönliches Video-Feedback', 'Monatliche Live-Calls', 'LAEMU Membership inklusive'].map(f => (
+                <li key={f} className="flex items-start gap-2 font-sans text-xs text-white/80">
+                  <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>{f}
+                </li>
+              ))}
+            </ul>
+            {/* Scope selector */}
+            <div className="grid grid-cols-3 gap-1.5 mb-4">
+              {(['1', '2', 'all'] as Scope[]).map(s => (
+                <button
+                  key={s}
+                  onClick={() => setProScope(s)}
+                  className={`py-1.5 text-center border font-sans text-[10px] transition-all ${proScope === s ? 'border-accent-gold bg-accent-gold text-white' : 'border-white/20 text-white/60 hover:border-white/50'}`}
+                >
+                  {scopeLabels[s]}
+                </button>
+              ))}
+            </div>
+            <div className="mb-5">
+              <span className="font-heading text-3xl font-bold text-accent-gold">{chf(individualPricing.pro[proScope][billing])}</span>
+              <span className="font-sans text-xs text-white/50 ml-1">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span>
+            </div>
+            <button
+              onClick={() => onSelectPlan({ purchaserType: 'individual', plan: 'pro', scope: proScope })}
+              className="w-full py-2.5 bg-accent-gold text-white font-sans text-sm font-medium hover:bg-accent-gold/90 transition-colors"
+            >
+              Jetzt starten
             </button>
           </div>
         </div>
-
-        {/* Individual offering */}
-        <AnimatePresence mode="wait">
-          {tab === 'individual' && (
-            <motion.div
-              key="individual"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-            >
-              {/* Billing toggle */}
-              <div className="flex justify-center mb-10">
-                <div className="inline-flex border border-border">
-                  <button
-                    onClick={() => setBilling('monthly')}
-                    className={`font-sans text-sm px-5 py-2.5 transition-colors ${billing === 'monthly' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
-                  >
-                    Monatlich
-                  </button>
-                  <button
-                    onClick={() => setBilling('yearly')}
-                    className={`font-sans text-sm px-5 py-2.5 transition-colors ${billing === 'yearly' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
-                  >
-                    Jährlich <span className="text-accent-gold text-xs ml-1">–14%</span>
-                  </button>
-                </div>
-                {billing === 'yearly' && (
-                  <span className="ml-3 flex items-center font-sans text-xs text-text-secondary">Rabattcodes nur für Jahresabos</span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Lernvideodatenbank */}
-                <div className="relative border border-border p-6 flex flex-col hover:border-accent-gold transition-colors group">
-                  <p className="font-sans text-2xl mb-2">📹</p>
-                  <h3 className="font-heading text-xl font-bold mb-1 group-hover:text-accent-gold transition-colors">Lernvideodatenbank</h3>
-                  <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
-                    Voller Zugang zur Lernvideo-Datenbank für alle Instrumente — ideal für Könner, die Referenz-Videos und neue Stücke suchen.
-                  </p>
-                  <ul className="space-y-2 mb-6 flex-1">
-                    {['Lernvideo-Datenbank (alle Instrumente)', 'Alle Stücke & Genres inklusive', 'Ständig wachsendes Angebot', 'LAEMU Membership inklusive'].map(f => (
-                      <li key={f} className="flex items-start gap-2 font-sans text-xs">
-                        <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mb-5">
-                    <span className="font-heading text-3xl font-bold">{chf(billing === 'monthly' ? 99 : 999)}</span>
-                    <span className="font-sans text-xs text-text-secondary ml-1">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span>
-                  </div>
-                  <button
-                    onClick={() => onSelectPlan({ purchaserType: 'individual', plan: 'lernvideo' })}
-                    className="w-full py-2.5 border border-dark text-dark font-sans text-sm font-medium hover:bg-dark hover:text-white transition-colors"
-                  >
-                    Jetzt starten
-                  </button>
-                </div>
-
-                {/* Starter */}
-                <div className="relative border border-border p-6 flex flex-col hover:border-accent-gold transition-colors group">
-                  <p className="font-sans text-2xl mb-2">🎓</p>
-                  <h3 className="font-heading text-xl font-bold mb-1 group-hover:text-accent-gold transition-colors">Starter</h3>
-                  <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
-                    Strukturierter Lehrgang für Einsteiger — mit Starter-Videos in der Datenbank. Wähle 1, 2 oder alle Instrumente.
-                  </p>
-                  <ul className="space-y-2 mb-4 flex-1">
-                    {['Strukturierter Online-Lehrgang', 'Starter-Videos in der Lernvideodatenbank', 'Kurs-Chat & Community', 'Lernfortschritt & Badges', 'LAEMU Membership inklusive'].map(f => (
-                      <li key={f} className="flex items-start gap-2 font-sans text-xs">
-                        <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  {/* Scope selector */}
-                  <div className="grid grid-cols-3 gap-1.5 mb-4">
-                    {(['1', '2', 'all'] as Scope[]).map(s => (
-                      <button
-                        key={s}
-                        onClick={() => setStarterScope(s)}
-                        className={`py-1.5 text-center border font-sans text-[10px] transition-all ${starterScope === s ? 'border-accent-gold bg-accent-gold/5 text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                      >
-                        {scopeLabels[s]}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mb-5">
-                    <span className="font-heading text-3xl font-bold">{chf(individualPricing.starter[starterScope][billing])}</span>
-                    <span className="font-sans text-xs text-text-secondary ml-1">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span>
-                  </div>
-                  <button
-                    onClick={() => onSelectPlan({ purchaserType: 'individual', plan: 'starter', scope: starterScope })}
-                    className="w-full py-2.5 border border-dark text-dark font-sans text-sm font-medium hover:bg-dark hover:text-white transition-colors"
-                  >
-                    Jetzt starten
-                  </button>
-                </div>
-
-                {/* Pro */}
-                <div className="relative border-2 border-accent-gold p-6 flex flex-col bg-dark text-white">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent-gold text-white text-xs px-4 py-1 font-sans font-medium whitespace-nowrap">
-                    ⭐ Empfohlen
-                  </div>
-                  <p className="font-sans text-2xl mb-2">⭐</p>
-                  <h3 className="font-heading text-xl font-bold mb-1 text-white">Pro</h3>
-                  <p className="font-sans text-xs text-white/60 mb-4 leading-relaxed">
-                    Alles aus Starter plus vollständige Lernvideodatenbank. Für 1, 2 oder alle Instrumente.
-                  </p>
-                  <ul className="space-y-2 mb-4 flex-1">
-                    {['Alles aus Starter', 'Vollständige Lernvideo-Datenbank', 'Persönliches Video-Feedback', 'Monatliche Live-Calls', 'LAEMU Membership inklusive'].map(f => (
-                      <li key={f} className="flex items-start gap-2 font-sans text-xs text-white/80">
-                        <span className="text-accent-gold mt-0.5 flex-shrink-0">✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  {/* Scope selector */}
-                  <div className="grid grid-cols-3 gap-1.5 mb-4">
-                    {(['1', '2', 'all'] as Scope[]).map(s => (
-                      <button
-                        key={s}
-                        onClick={() => setProScope(s)}
-                        className={`py-1.5 text-center border font-sans text-[10px] transition-all ${proScope === s ? 'border-accent-gold bg-accent-gold text-white' : 'border-white/20 text-white/60 hover:border-white/50'}`}
-                      >
-                        {scopeLabels[s]}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mb-5">
-                    <span className="font-heading text-3xl font-bold text-accent-gold">{chf(individualPricing.pro[proScope][billing])}</span>
-                    <span className="font-sans text-xs text-white/50 ml-1">{billing === 'monthly' ? '/Mt.' : '/Jahr'}</span>
-                  </div>
-                  <button
-                    onClick={() => onSelectPlan({ purchaserType: 'individual', plan: 'pro', scope: proScope })}
-                    className="w-full py-2.5 bg-accent-gold text-white font-sans text-sm font-medium hover:bg-accent-gold/90 transition-colors"
-                  >
-                    Jetzt starten
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Formation offering */}
-          {tab === 'formation' && (
-            <motion.div
-              key="formation"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-                {[
-                  {
-                    id: 'pro_all' as FormationPlan,
-                    emoji: '🏆',
-                    label: 'Pro All-in-One',
-                    price: 2499,
-                    tag: 'Für Aufsteiger',
-                    popular: true,
-                    desc: 'Das Rundum-Paket für eure Formation. Alle Mitglieder erhalten vollen Pro-Zugang für alle Instrumente.',
-                    features: ['Pro-Lehrgang für alle Mitglieder', 'Alle 4 Instrumente inklusive', 'Vollständige Lernvideo-Datenbank', 'Live-Calls & Video-Feedback', 'LAEMU Membership für alle Mitglieder'],
-                  },
-                  {
-                    id: 'formation_lernvideo' as FormationPlan,
-                    emoji: '📹',
-                    label: 'Lernvideodatenbank',
-                    price: 1999,
-                    tag: 'Für Profis',
-                    popular: false,
-                    desc: 'Für erfahrene Formationen. Alle Mitglieder erhalten Zugang zur gesamten Lernvideo-Datenbank.',
-                    features: ['Lernvideo-Datenbank für alle Mitglieder', 'Alle Instrumente inklusive', 'Ständig wachsendes Angebot', 'LAEMU Membership für alle Mitglieder'],
-                  },
-                ].map(plan => (
-                  <div
-                    key={plan.id}
-                    className={`relative p-8 flex flex-col ${plan.popular ? 'bg-dark border-2 border-accent-gold' : 'bg-surface border border-border'}`}
-                  >
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent-gold text-white text-xs px-4 py-1 font-sans font-medium whitespace-nowrap">
-                        Für Aufsteiger
-                      </div>
-                    )}
-                    <p className="text-3xl mb-2">{plan.emoji}</p>
-                    <h3 className={`font-heading text-xl font-bold mb-1 ${plan.popular ? 'text-white' : ''}`}>{plan.label}</h3>
-                    <p className={`font-sans text-xs mb-5 leading-relaxed ${plan.popular ? 'text-white/60' : 'text-text-secondary'}`}>{plan.desc}</p>
-                    <ul className="space-y-2.5 mb-8 flex-1">
-                      {plan.features.map(f => (
-                        <li key={f} className={`flex items-center gap-2 font-sans text-xs ${plan.popular ? 'text-white/80' : ''}`}>
-                          <span className="text-accent-gold">✓</span>{f}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mb-6">
-                      <span className={`font-heading text-4xl font-bold ${plan.popular ? 'text-accent-gold' : ''}`}>{chf(plan.price)}</span>
-                      <span className={`font-sans text-sm ml-1 ${plan.popular ? 'text-white/50' : 'text-text-secondary'}`}>/Jahr</span>
-                    </div>
-                    <button
-                      onClick={() => onSelectPlan({ purchaserType: 'formation', plan: plan.id })}
-                      className={`w-full py-3 font-sans text-sm font-medium transition-colors ${plan.popular ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'border border-dark text-dark hover:bg-dark hover:text-white'}`}
-                    >
-                      Formation anmelden
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <p className="text-center font-sans text-xs text-text-secondary mt-6">
-                Egal ob zu dritt oder viert — alle Formationsmitglieder erhalten mit einem Abo Zugang.
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </section>
   )
@@ -1275,10 +1554,15 @@ export default function MusiksschulePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalInitial, setModalInitial] = useState<ModalConfig | undefined>(undefined)
+  const pricingSectionRef = useRef<HTMLElement>(null)
 
   function openModal(config?: ModalConfig) {
     setModalInitial(config)
     setModalOpen(true)
+  }
+
+  function scrollToPricing() {
+    pricingSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -1334,7 +1618,7 @@ export default function MusiksschulePage() {
             <motion.span variants={fadeUp} className="label text-accent-gold">Angebots-Finder</motion.span>
             <motion.h2 variants={fadeUp} className="heading-lg mt-3 mb-4">Welches Angebot passt zu dir?</motion.h2>
             <motion.p variants={fadeUp} className="body-lg text-text-secondary max-w-xl mx-auto mb-12">
-              Beantworte drei kurze Fragen — wir empfehlen dir das passende Abo. Oder wähle direkt aus der Übersicht unten.
+              Beantworte ein paar kurze Fragen — wir empfehlen dir den perfekten Einstieg. Oder wähle direkt aus der Übersicht unten.
             </motion.p>
           </Section>
           <motion.div variants={fadeUp}>
@@ -1342,13 +1626,18 @@ export default function MusiksschulePage() {
               onStartSubscription={(config) =>
                 openModal({ purchaserType: config.purchaserType, plan: config.plan, scope: config.scope })
               }
+              onScrollToPricing={scrollToPricing}
             />
           </motion.div>
         </div>
       </section>
 
       {/* OFFERING OVERVIEW */}
+      <span ref={pricingSectionRef as React.RefObject<HTMLSpanElement>} />
       <OfferingOverview onSelectPlan={(config) => openModal(config)} />
+
+      {/* FORMATION CTA */}
+      <FormationCTA />
 
       {/* INSTRUMENTS */}
       <section className="py-32 bg-background">
