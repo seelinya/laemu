@@ -100,96 +100,102 @@ const individualPlanMeta: Record<IndividualPlan, { label: string; emoji: string;
 
 // ─── Onboarding Quiz ─────────────────────────────────────────────────────────
 
-type QuizAnswers = {
-  experience: 'none' | 'childhood' | 'adult' | 'longtime' | null
-  experienceType: string | null
-  musicStyle: string | null
-  learnerType: string | null
-  isFormation: boolean | null
-  instrument: string | null
-  probeLektion: 'yes' | 'consultation' | null
+type QuizState = {
+  path: 'anfaenger' | 'erfahren' | null
+  instruments: string[]
+  depth: 'grundlagen' | 'vertieft' | 'schnuppern' | null
+  hasInstrument: 'yes' | 'no' | null
+  isFormation: 'yes' | 'no' | null
+  soloInterest: 'vertiefen' | 'neue_stuecke' | null
+  formationInterest: 'solo_vertiefen' | 'formation_vertiefen' | 'neue_stuecke' | null
 }
 
-type QuizResult = {
-  label: string
-  plan: IndividualPlan | FormationPlan
-  scope?: Scope
-  isFormation: boolean
-  monthly?: number
-  yearly: number
-  tag: string
-}
+type StepId = 'intro' | 'experience' | 'instruments' | 'depth' | 'has_instrument' | 'is_formation' | 'solo_interest' | 'formation_interest' | 'result'
 
-function deriveQuizRecommendation(answers: QuizAnswers): QuizResult | null {
-  if (answers.isFormation === true) {
-    if (answers.experience === 'longtime') {
-      return { label: 'Lernvideodatenbank', plan: 'formation_lernvideo', isFormation: true, yearly: 1999, tag: 'Für Profis' }
+type QuizResultType =
+  | 'starter'
+  | 'pro'
+  | 'schnuppern_mit_instrument'
+  | 'schnuppern_ohne_instrument'
+  | 'lernvideo'
+  | 'formation_pro'
+  | 'formation_lernvideo'
+
+function getQuizSequence(state: QuizState): StepId[] {
+  const seq: StepId[] = ['intro', 'experience']
+  if (state.path === 'anfaenger') {
+    seq.push('instruments', 'depth')
+    if (state.depth === 'schnuppern') seq.push('has_instrument')
+  } else if (state.path === 'erfahren') {
+    seq.push('is_formation')
+    if (state.isFormation === 'no') {
+      seq.push('solo_interest')
+      if (state.soloInterest === 'vertiefen') seq.push('instruments')
+    } else if (state.isFormation === 'yes') {
+      seq.push('formation_interest')
+      if (state.formationInterest === 'solo_vertiefen') seq.push('instruments')
     }
-    return { label: 'Pro All-in-One', plan: 'pro_all', isFormation: true, yearly: 2499, tag: 'Für Aufsteiger' }
   }
+  seq.push('result')
+  return seq
+}
 
-  if (answers.experience === 'longtime') {
-    return { label: 'Lernvideodatenbank', plan: 'lernvideo', isFormation: false, monthly: 99, yearly: 999, tag: 'Für Könner' }
-  }
-
-  const scope: Scope = answers.instrument === 'handorgel' || answers.instrument === 'schwyzer'
+function deriveQuizResult(state: QuizState): QuizResultType | null {
+  const scope: Scope = state.instruments.length === 0 || state.instruments.length === 1
     ? '1'
-    : answers.instrument === 'unsure'
-    ? 'all'
-    : '1'
+    : state.instruments.length === 2
+    ? '2'
+    : 'all'
 
-  if (answers.experience === 'none' || answers.experience === 'childhood') {
-    const pricing = individualPricing.starter[scope]
-    return {
-      label: `Starter — ${scopeLabels[scope]}`,
-      plan: 'starter',
-      scope,
-      isFormation: false,
-      monthly: pricing.monthly,
-      yearly: pricing.yearly,
-      tag: 'Für Einsteiger',
+  if (state.path === 'anfaenger') {
+    if (state.depth === 'grundlagen') return 'starter'
+    if (state.depth === 'vertieft') return 'pro'
+    if (state.depth === 'schnuppern') {
+      if (state.hasInstrument === 'yes') return 'schnuppern_mit_instrument'
+      if (state.hasInstrument === 'no') return 'schnuppern_ohne_instrument'
+    }
+    return null
+  }
+
+  if (state.path === 'erfahren') {
+    if (state.isFormation === 'no') {
+      if (state.soloInterest === 'vertiefen') return 'pro'
+      if (state.soloInterest === 'neue_stuecke') return 'lernvideo'
+    }
+    if (state.isFormation === 'yes') {
+      if (state.formationInterest === 'solo_vertiefen') return 'pro'
+      if (state.formationInterest === 'formation_vertiefen') return 'formation_pro'
+      if (state.formationInterest === 'neue_stuecke') return 'formation_lernvideo'
     }
   }
 
-  if (answers.experience === 'adult') {
-    const pricing = individualPricing.pro[scope]
-    return {
-      label: `Pro — ${scopeLabels[scope]}`,
-      plan: 'pro',
-      scope,
-      isFormation: false,
-      monthly: pricing.monthly,
-      yearly: pricing.yearly,
-      tag: 'Für Fortgeschrittene',
-    }
-  }
-
+  void scope
   return null
 }
+
+const quizInstruments = [
+  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
+  { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', subtitle: 'Diatonisch und voller Seele' },
+  { id: 'klavier', label: 'Klavier', emoji: '🎹', subtitle: 'Harmonischer Anker der Kapelle' },
+  { id: 'bass', label: 'Bass', emoji: '🎸', subtitle: 'Das Fundament des Klangs' },
+  { id: 'klarinette', label: 'Klarinette', emoji: '🎵', subtitle: 'Melodisch und ausdrucksstark' },
+]
 
 type OnboardingQuizProps = {
   onStartSubscription: (config: { purchaserType: 'individual' | 'formation'; plan?: IndividualPlan | FormationPlan; scope?: Scope }) => void
   onScrollToPricing: () => void
 }
 
-// Total quiz steps (0 = intro, 1..7 = questions, 8 = result)
-// Step logic: some steps are conditional
-
-function getVisibleStep(step: number, answers: QuizAnswers): number {
-  // This maps logical step index accounting for conditionals
-  return step
-}
-
 function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQuizProps) {
-  const [step, setStep] = useState(0)
-  const [answers, setAnswers] = useState<QuizAnswers>({
-    experience: null,
-    experienceType: null,
-    musicStyle: null,
-    learnerType: null,
+  const [currentStep, setCurrentStep] = useState<StepId>('intro')
+  const [state, setState] = useState<QuizState>({
+    path: null,
+    instruments: [],
+    depth: null,
+    hasInstrument: null,
     isFormation: null,
-    instrument: null,
-    probeLektion: null,
+    soloInterest: null,
+    formationInterest: null,
   })
 
   // Booking sub-flow state
@@ -211,86 +217,68 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
     'Fr, 30. Mai · 15:00 Uhr',
   ]
 
-  // Compute which step numbers are active given current answers
-  function getStepSequence(): number[] {
-    const seq = [0, 1]
-    if (answers.experience !== 'none') seq.push(2)
-    seq.push(3, 4, 5)
-    if (answers.isFormation === false) {
-      seq.push(6)
-      if (answers.instrument !== null && answers.instrument !== 'unsure') {
-        seq.push(7)
+  function navigate(newState: QuizState, targetStep?: StepId) {
+    setState(newState)
+    if (targetStep) {
+      setCurrentStep(targetStep)
+    } else {
+      const seq = getQuizSequence(newState)
+      const idx = seq.indexOf(currentStep)
+      if (idx !== -1 && idx < seq.length - 1) {
+        setCurrentStep(seq[idx + 1])
       }
-    }
-    seq.push(8) // result
-    return seq
-  }
-
-  const sequence = getStepSequence()
-  const currentIndex = sequence.indexOf(step)
-  // Total steps for progress (excluding intro 0 and result 8)
-  const progressSteps = sequence.filter(s => s > 0 && s < 8)
-  const currentProgressIndex = progressSteps.indexOf(step)
-
-  function goNext(newAnswers?: Partial<QuizAnswers>) {
-    const updated = newAnswers ? { ...answers, ...newAnswers } : answers
-    setAnswers(updated)
-
-    // Recompute sequence with updated answers
-    const seq: number[] = [0, 1]
-    if (updated.experience !== 'none') seq.push(2)
-    seq.push(3, 4, 5)
-    if (updated.isFormation === false) {
-      seq.push(6)
-      if (updated.instrument !== null && updated.instrument !== 'unsure') {
-        seq.push(7)
-      }
-    }
-    seq.push(8)
-
-    const idx = seq.indexOf(step)
-    if (idx !== -1 && idx < seq.length - 1) {
-      setStep(seq[idx + 1])
     }
   }
 
   function goBack() {
-    const idx = sequence.indexOf(step)
-    if (idx > 0) setStep(sequence[idx - 1])
+    const seq = getQuizSequence(state)
+    const idx = seq.indexOf(currentStep)
+    if (idx > 0) setCurrentStep(seq[idx - 1])
   }
 
   function reset() {
-    setStep(0)
-    setAnswers({
-      experience: null,
-      experienceType: null,
-      musicStyle: null,
-      learnerType: null,
-      isFormation: null,
-      instrument: null,
-      probeLektion: null,
-    })
+    setCurrentStep('intro')
+    setState({ path: null, instruments: [], depth: null, hasInstrument: null, isFormation: null, soloInterest: null, formationInterest: null })
+    setResultAction(null)
   }
 
-  const result = step === 8 ? deriveQuizRecommendation(answers) : null
+  const sequence = getQuizSequence(state)
+  const questionSteps = sequence.filter((s): s is Exclude<StepId, 'intro' | 'result'> => s !== 'intro' && s !== 'result')
+  const currentQIndex = (questionSteps as StepId[]).indexOf(currentStep)
+  const isQuestionStep = currentQIndex >= 0
+
+  const quizResult = currentStep === 'result' ? deriveQuizResult(state) : null
+  const resultScope: Scope = state.instruments.length === 0 || state.instruments.length === 1
+    ? '1'
+    : state.instruments.length === 2
+    ? '2'
+    : 'all'
+
+  function toggleInstrument(id: string) {
+    setState(prev => {
+      const already = prev.instruments.includes(id)
+      const updated = already ? prev.instruments.filter(x => x !== id) : [...prev.instruments, id]
+      return { ...prev, instruments: updated }
+    })
+  }
 
   return (
     <div className="bg-surface border border-border max-w-2xl mx-auto">
       {/* Progress bar — only show on question steps */}
-      {step > 0 && step < 8 && (
+      {isQuestionStep && (
         <div className="px-8 pt-6">
           <div className="flex items-center gap-1.5">
-            {progressSteps.map((_, i) => (
+            {questionSteps.map((_, i) => (
               <div
                 key={i}
                 className={`h-1 flex-1 transition-all duration-300 ${
-                  i <= currentProgressIndex ? 'bg-accent-gold' : 'bg-border'
+                  i <= currentQIndex ? 'bg-accent-gold' : 'bg-border'
                 }`}
               />
             ))}
           </div>
           <p className="font-sans text-[10px] text-text-secondary mt-1.5">
-            Frage {currentProgressIndex + 1} von {progressSteps.length}
+            Frage {currentQIndex + 1} von {questionSteps.length}
           </p>
         </div>
       )}
@@ -298,8 +286,8 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
       <div className="p-8">
         <AnimatePresence mode="wait">
 
-          {/* ── Step 0: Intro ── */}
-          {step === 0 && (
+          {/* ── Intro ── */}
+          {currentStep === 'intro' && (
             <motion.div
               key="intro"
               initial={{ opacity: 0, y: 16 }}
@@ -320,7 +308,7 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
                   Angebote direkt anschauen
                 </button>
                 <button
-                  onClick={() => setStep(1)}
+                  onClick={() => setCurrentStep('experience')}
                   className="flex-1 py-3 px-4 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors"
                 >
                   Meinen Einstieg finden →
@@ -329,176 +317,124 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
             </motion.div>
           )}
 
-          {/* ── Step 1: Vorkenntnisse ── */}
-          {step === 1 && (
+          {/* ── experience ── */}
+          {currentStep === 'experience' && (
             <motion.div
-              key="step1"
+              key="experience"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.25 }}
             >
               <p className="font-sans text-xs text-text-secondary mb-1">Dein Hintergrund</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Hast du bereits Vorkenntnisse in der Ländlermusik oder einem verwandten Instrument?</h3>
+              <h3 className="font-heading text-xl font-bold mb-2">Hast du bereits Erfahrung mit Instrumenten der Ländlermusik?</h3>
               <p className="font-sans text-xs text-text-secondary mb-6">Sei ehrlich — es gibt keine falsche Antwort.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { val: 'none' as const, emoji: '🌱', label: 'Nein, ich bin ein blutiger Anfänger' },
-                  { val: 'childhood' as const, emoji: '🎵', label: 'Ja, früher in der Kindheit mal gespielt' },
-                  { val: 'adult' as const, emoji: '🎶', label: 'Ja, etwas Erfahrung als Erwachsener' },
-                  { val: 'longtime' as const, emoji: '🏆', label: 'Ja, ich spiele schon länger' },
-                ].map(opt => (
-                  <button
-                    key={opt.val}
-                    onClick={() => goNext({ experience: opt.val, experienceType: null })}
-                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.experience === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
-                  >
-                    <span className="mr-2">{opt.emoji}</span>{opt.label}
-                  </button>
-                ))}
-              </div>
-              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
-                ← Zurück
-              </button>
-            </motion.div>
-          )}
-
-          {/* ── Step 2: Art der Vorkenntnisse (only if experience !== 'none') ── */}
-          {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.25 }}
-            >
-              <p className="font-sans text-xs text-text-secondary mb-1">Deine Erfahrung</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Welche Art von Vorkenntnissen hast du?</h3>
-              <p className="font-sans text-xs text-text-secondary mb-6">Das hilft uns, den richtigen Lernweg für dich zu finden.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { val: 'einzelunterricht', emoji: '🎹', label: '1-zu-1 Unterricht (Klavier, Gitarre, etc.)' },
-                  { val: 'app', emoji: '📱', label: 'Lern-App (z. B. Klavier-App)' },
-                  { val: 'selbst', emoji: '🎸', label: 'Selbst beigebracht' },
-                  { val: 'musikschule', emoji: '🏫', label: 'Musikschule oder Gruppenunterricht' },
-                ].map(opt => (
-                  <button
-                    key={opt.val}
-                    onClick={() => goNext({ experienceType: opt.val })}
-                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.experienceType === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
-                  >
-                    <span className="mr-2">{opt.emoji}</span>{opt.label}
-                  </button>
-                ))}
-              </div>
-              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
-                ← Zurück
-              </button>
-            </motion.div>
-          )}
-
-          {/* ── Step 3: Musikstil ── */}
-          {step === 3 && (
-            <motion.div
-              key="step3"
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.25 }}
-            >
-              <p className="font-sans text-xs text-text-secondary mb-1">Dein Geschmack</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Welche Art von Musik gefällt dir?</h3>
-              <p className="font-sans text-xs text-text-secondary mb-6">Alle Stile sind Teil unseres Angebots — wir sind nur neugierig.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { val: 'traditional', emoji: '🎵', label: 'Traditionelle Volksmusik (Polkas, Mazurkas)' },
-                  { val: 'modern', emoji: '🎶', label: 'Moderne Ländlermusik' },
-                  { val: 'alpin', emoji: '🌄', label: 'Alpinmusik & Jodeln' },
-                  { val: 'neue', emoji: '🎸', label: 'Neue Volksmusik (mit Jazz-Einflüssen)' },
-                ].map(opt => (
-                  <button
-                    key={opt.val}
-                    onClick={() => goNext({ musicStyle: opt.val })}
-                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.musicStyle === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
-                  >
-                    <span className="mr-2">{opt.emoji}</span>{opt.label}
-                  </button>
-                ))}
-              </div>
-              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
-                ← Zurück
-              </button>
-            </motion.div>
-          )}
-
-          {/* ── Step 4: Lerntyp ── */}
-          {step === 4 && (
-            <motion.div
-              key="step4"
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.25 }}
-            >
-              <p className="font-sans text-xs text-text-secondary mb-1">Dein Lernstil</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Wie würdest du dich als Lernende*r beschreiben?</h3>
-              <p className="font-sans text-xs text-text-secondary mb-6">Kein Richtig oder Falsch — jeder Lerntyp hat seinen Platz.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { val: 'calm', emoji: '🐢', label: 'Immer mit der Ruhe — ich lerne in meinem Tempo' },
-                  { val: 'driven', emoji: '💪', label: 'Ohne Fleiss kein Preis — ich will Fortschritte sehen' },
-                  { val: 'creative', emoji: '🎨', label: 'Kreativer Künstler — ich folge meiner Intuition' },
-                  { val: 'curious', emoji: '📚', label: 'Lebenslanger Lerner — ich liebe es, Neues zu entdecken' },
-                ].map(opt => (
-                  <button
-                    key={opt.val}
-                    onClick={() => goNext({ learnerType: opt.val })}
-                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.learnerType === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
-                  >
-                    <span className="mr-2">{opt.emoji}</span>{opt.label}
-                  </button>
-                ))}
-              </div>
-              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
-                ← Zurück
-              </button>
-            </motion.div>
-          )}
-
-          {/* ── Step 5: Formation? ── */}
-          {step === 5 && (
-            <motion.div
-              key="step5"
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.25 }}
-            >
-              <p className="font-sans text-xs text-text-secondary mb-1">Solo oder Formation</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Spielst du in einer Formation?</h3>
-              <p className="font-sans text-xs text-text-secondary mb-6">Für Formationen haben wir spezielle Kombiangebote.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  onClick={() => navigate({ ...state, path: 'anfaenger' })}
+                  className="p-5 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <span className="text-2xl block mb-2">🌱</span>
+                  <p className="font-heading font-bold text-sm mb-1">Nein, ich bin Anfänger</p>
+                  <p className="font-sans text-xs text-text-secondary">Ich habe noch kaum Erfahrung mit Instrumenten der Ländlermusik.</p>
+                </button>
+                <button
+                  onClick={() => navigate({ ...state, path: 'erfahren' })}
+                  className="p-5 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <span className="text-2xl block mb-2">🎵</span>
+                  <p className="font-heading font-bold text-sm mb-1">Ja, ich habe Erfahrung</p>
+                  <p className="font-sans text-xs text-text-secondary">Ich spiele bereits und möchte mich weiterentwickeln.</p>
+                </button>
+              </div>
+              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── instruments (multi-select) ── */}
+          {currentStep === 'instruments' && (
+            <motion.div
+              key="instruments"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Deine Instrumente</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Welche Instrumente interessieren dich?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Du kannst mehrere wählen.</p>
+              <div className="space-y-2 mb-5">
+                {quizInstruments.map(inst => {
+                  const sel = state.instruments.includes(inst.id)
+                  return (
+                    <button
+                      key={inst.id}
+                      onClick={() => toggleInstrument(inst.id)}
+                      className={`w-full flex items-center justify-between px-4 py-3 border text-left transition-all ${sel ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{inst.emoji}</span>
+                        <div>
+                          <p className="font-sans text-sm font-medium">{inst.label}</p>
+                          <p className="font-sans text-xs text-text-secondary">{inst.subtitle}</p>
+                        </div>
+                      </div>
+                      <div className={`w-4 h-4 border-2 flex-shrink-0 flex items-center justify-center transition-colors ${sel ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
+                        {sel && <span className="text-white text-[10px] font-bold">✓</span>}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+              <button
+                disabled={state.instruments.length === 0}
+                onClick={() => navigate(state)}
+                className={`w-full py-3 font-sans font-medium text-sm transition-colors mb-3 ${state.instruments.length > 0 ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+              >
+                {state.instruments.length === 0
+                  ? 'Bitte mindestens ein Instrument wählen'
+                  : state.instruments.length === 1
+                  ? 'Weiter (1 Instrument)'
+                  : `Weiter (${state.instruments.length} Instrumente)`}
+              </button>
+              <button onClick={goBack} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── depth (Anfänger only) ── */}
+          {currentStep === 'depth' && (
+            <motion.div
+              key="depth"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Dein Ziel</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Wie tief willst du einsteigen?</h3>
+              <p className="font-sans text-xs text-text-secondary mb-6">Das hilft uns, das passende Angebot zu finden.</p>
+              <div className="space-y-3">
                 {[
-                  { val: false, emoji: '👤', label: 'Nein, ich lerne solo' },
-                  { val: true, emoji: '👥', label: 'Ja, ich bin Teil einer Formation' },
+                  { val: 'grundlagen' as const, emoji: '📖', label: 'Grundlagen & ein paar einfache Stücke', desc: 'Ich möchte das Fundament legen und erste Lieder spielen.' },
+                  { val: 'vertieft' as const, emoji: '🚀', label: 'Ich will mich wirklich vertieft auseinandersetzen', desc: 'Ich nehme es ernst und möchte möglichst viel lernen.' },
+                  { val: 'schnuppern' as const, emoji: '👀', label: 'Ich will einfach mal reinschnuppern', desc: 'Erst schauen, ob es mir gefällt — unverbindlich.' },
                 ].map(opt => (
                   <button
-                    key={String(opt.val)}
-                    onClick={() => goNext({ isFormation: opt.val, instrument: null, probeLektion: null })}
-                    className={`p-5 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.isFormation === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
+                    key={opt.val}
+                    onClick={() => navigate({ ...state, depth: opt.val })}
+                    className={`w-full p-4 border text-left transition-all hover:border-accent-gold ${state.depth === opt.val ? 'border-accent-gold bg-accent-gold/5' : 'border-border'}`}
                   >
-                    <span className="text-2xl block mb-2">{opt.emoji}</span>
-                    {opt.label}
+                    <div className="flex items-start gap-3">
+                      <span className="text-xl flex-shrink-0">{opt.emoji}</span>
+                      <div>
+                        <p className="font-sans text-sm font-medium mb-0.5">{opt.label}</p>
+                        <p className="font-sans text-xs text-text-secondary">{opt.desc}</p>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -508,80 +444,176 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
             </motion.div>
           )}
 
-          {/* ── Step 6: Instrument (only if solo) ── */}
-          {step === 6 && (
+          {/* ── has_instrument ── */}
+          {currentStep === 'has_instrument' && (
             <motion.div
-              key="step6"
+              key="has_instrument"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.25 }}
             >
               <p className="font-sans text-xs text-text-secondary mb-1">Dein Instrument</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Welches Instrument interessiert dich?</h3>
-              <p className="font-sans text-xs text-text-secondary mb-6">Du kannst später jederzeit wechseln oder weitere hinzufügen.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                  { val: 'handorgel', emoji: '🪗', label: 'Handorgel' },
-                  { val: 'schwyzer', emoji: '🎶', label: 'Schwyzerörgeli' },
-                  { val: 'begleit', emoji: '🎸', label: 'Begleitinstrument (Bass, Klarinette, Klavier)' },
-                  { val: 'buehne', emoji: '🎤', label: 'Bühnenpräsenz' },
-                  { val: 'unsure', emoji: '🤔', label: 'Noch nicht sicher' },
-                ].map(opt => (
-                  <button
-                    key={opt.val}
-                    onClick={() => goNext({ instrument: opt.val, probeLektion: null })}
-                    className={`p-4 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.instrument === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
-                  >
-                    <span className="mr-2">{opt.emoji}</span>{opt.label}
-                  </button>
-                ))}
+              <h3 className="font-heading text-xl font-bold mb-2">Hast du bereits ein Instrument?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <button
+                  onClick={() => navigate({ ...state, hasInstrument: 'yes' })}
+                  className="p-5 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <span className="text-2xl block mb-2">✅</span>
+                  <p className="font-heading font-bold text-sm mb-1">Ja, ich habe bereits ein Instrument</p>
+                  <p className="font-sans text-xs text-text-secondary">Ich kann sofort loslegen.</p>
+                </button>
+                <button
+                  onClick={() => navigate({ ...state, hasInstrument: 'no' })}
+                  className="p-5 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <span className="text-2xl block mb-2">🔍</span>
+                  <p className="font-heading font-bold text-sm mb-1">Nein, ich habe noch keins</p>
+                  <p className="font-sans text-xs text-text-secondary">Ich bin noch auf der Suche.</p>
+                </button>
               </div>
-              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+              <button onClick={goBack} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">
                 ← Zurück
               </button>
             </motion.div>
           )}
 
-          {/* ── Step 7: Probelektion (only if solo & instrument !== unsure) ── */}
-          {step === 7 && (
+          {/* ── is_formation ── */}
+          {currentStep === 'is_formation' && (
             <motion.div
-              key="step7"
+              key="is_formation"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.25 }}
             >
-              <p className="font-sans text-xs text-text-secondary mb-1">Fast geschafft!</p>
-              <h3 className="font-heading text-xl font-bold mb-2">Dürfen wir dir eine kostenlose Probelektion zusenden?</h3>
-              <p className="font-sans text-xs text-text-secondary mb-6">Kein Abo, kein Risiko — nur ein kleiner Vorgeschmack.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { val: 'yes' as const, emoji: '✉️', label: 'Ja, sende mir eine Probelektion!' },
-                  { val: 'consultation' as const, emoji: '💬', label: 'Nein, ich hätte lieber ein persönliches Beratungsgespräch' },
-                ].map(opt => (
-                  <button
-                    key={opt.val}
-                    onClick={() => goNext({ probeLektion: opt.val })}
-                    className={`p-5 border text-left font-sans text-sm transition-all hover:border-accent-gold ${
-                      answers.probeLektion === opt.val ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border'
-                    }`}
-                  >
-                    <span className="text-2xl block mb-2">{opt.emoji}</span>
-                    {opt.label}
-                  </button>
-                ))}
+              <p className="font-sans text-xs text-text-secondary mb-1">Solo oder Formation</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Lernst du solo oder in einer Formation?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <button
+                  onClick={() => navigate({ ...state, isFormation: 'no', formationInterest: null })}
+                  className="p-5 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <span className="text-2xl block mb-2">👤</span>
+                  <p className="font-heading font-bold text-sm mb-1">Nein, ich lerne solo</p>
+                  <p className="font-sans text-xs text-text-secondary">Ich möchte mich als Einzelperson weiterentwickeln.</p>
+                </button>
+                <button
+                  onClick={() => navigate({ ...state, isFormation: 'yes', soloInterest: null })}
+                  className="p-5 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <span className="text-2xl block mb-2">👥</span>
+                  <p className="font-heading font-bold text-sm mb-1">Ja, ich bin Teil einer Formation</p>
+                  <p className="font-sans text-xs text-text-secondary">Wir sind 2–5 Musikerinnen und Musiker.</p>
+                </button>
               </div>
-              <button onClick={goBack} className="mt-5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+              <button onClick={goBack} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">
                 ← Zurück
               </button>
             </motion.div>
           )}
 
-          {/* ── Step 8: Result ── */}
-          {step === 8 && (
+          {/* ── solo_interest ── */}
+          {currentStep === 'solo_interest' && (
+            <motion.div
+              key="solo_interest"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Dein Ziel</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Was interessiert dich am meisten?</h3>
+              <div className="space-y-3 mb-5">
+                <button
+                  onClick={() => navigate({ ...state, soloInterest: 'vertiefen' })}
+                  className="w-full p-4 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">🎓</span>
+                    <div>
+                      <p className="font-sans text-sm font-medium mb-0.5">Ein oder mehrere Instrumente weiter vertiefen</p>
+                      <p className="font-sans text-xs text-text-secondary">Strukturiert besser werden — mit Lehrgang und Feedback.</p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate({ ...state, soloInterest: 'neue_stuecke' })}
+                  className="w-full p-4 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">🎵</span>
+                    <div>
+                      <p className="font-sans text-sm font-medium mb-0.5">Neue Stücke und Lieder lernen</p>
+                      <p className="font-sans text-xs text-text-secondary">Meinen Fundus erweitern — die Lernvideodatenbank reicht mir.</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+              <button onClick={goBack} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── formation_interest ── */}
+          {currentStep === 'formation_interest' && (
+            <motion.div
+              key="formation_interest"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="font-sans text-xs text-text-secondary mb-1">Euer Ziel</p>
+              <h3 className="font-heading text-xl font-bold mb-2">Was wollt ihr als Formation erreichen?</h3>
+              <div className="space-y-3 mb-5">
+                <button
+                  onClick={() => navigate({ ...state, formationInterest: 'solo_vertiefen' })}
+                  className="w-full p-4 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">🎓</span>
+                    <div>
+                      <p className="font-sans text-sm font-medium mb-0.5">Ich persönlich möchte mich in Instrument(en) vertiefen</p>
+                      <p className="font-sans text-xs text-text-secondary">Individuell besser werden, als Mitglied einer Formation.</p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate({ ...state, formationInterest: 'formation_vertiefen' })}
+                  className="w-full p-4 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">👥</span>
+                    <div>
+                      <p className="font-sans text-sm font-medium mb-0.5">Wir möchten uns als Formation gemeinsam vertiefen</p>
+                      <p className="font-sans text-xs text-text-secondary">Alle Mitglieder sollen vom gleichen Abo profitieren.</p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate({ ...state, formationInterest: 'neue_stuecke' })}
+                  className="w-full p-4 border border-border text-left hover:border-accent-gold transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl flex-shrink-0">🎵</span>
+                    <div>
+                      <p className="font-sans text-sm font-medium mb-0.5">Wir möchten neue Lieder und Stücke lernen</p>
+                      <p className="font-sans text-xs text-text-secondary">Zugang zur Lernvideodatenbank — Spezialpreis für Formationen.</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+              <button onClick={goBack} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                ← Zurück
+              </button>
+            </motion.div>
+          )}
+
+          {/* ── Result ── */}
+          {currentStep === 'result' && (
             <motion.div
               key="result"
               initial={{ opacity: 0, y: 16 }}
@@ -696,68 +728,174 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
                 <>
                   <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-3">Deine Empfehlung</p>
 
-                  {answers.isFormation === true ? (
+                  {/* formation_pro */}
+                  {quizResult === 'formation_pro' && (
                     <>
-                      <h3 className="font-heading text-xl font-bold mb-2">Du spielst in einer Formation — top!</h3>
-                      <p className="font-sans text-sm text-text-secondary mb-6 leading-relaxed">
-                        Für Formationen haben wir spezielle Kombiangebote, bei denen alle Mitglieder gemeinsam profitieren.
-                      </p>
-                      <Link
-                        href="/musikschule/formation"
-                        className="inline-block w-full text-center py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors mb-3"
-                      >
+                      <h3 className="font-heading text-xl font-bold mb-1">Formation Pro All-in-One</h3>
+                      <div className="border border-border p-4 mb-4">
+                        <p className="font-heading font-bold text-2xl mb-0.5">{chf(2499)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span></p>
+                        <p className="font-sans text-xs text-text-secondary">Pro-Zugang für alle Mitglieder — alle Instrumente, volle Lernvideodatenbank.</p>
+                      </div>
+                      <Link href="/musikschule/formation" className="inline-block w-full text-center py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors mb-3">
                         Formation-Vorteile entdecken →
                       </Link>
                     </>
-                  ) : result ? (
+                  )}
+
+                  {/* formation_lernvideo */}
+                  {quizResult === 'formation_lernvideo' && (
                     <>
-                      <h3 className="font-heading text-xl font-bold mb-1">{result.label}</h3>
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="font-sans text-xs text-accent-gold border border-accent-gold/30 px-2 py-1">{result.tag}</span>
-                        {result.monthly && (
-                          <span className="font-sans text-sm text-text-secondary">{chf(result.monthly)}<span className="text-xs">/Mt.</span></span>
-                        )}
-                        <span className="font-heading font-bold">{chf(result.yearly)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span></span>
+                      <h3 className="font-heading text-xl font-bold mb-1">Formation Lernvideodatenbank</h3>
+                      <div className="border border-border p-4 mb-4">
+                        <p className="font-heading font-bold text-2xl mb-0.5">{chf(1999)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span></p>
+                        <p className="font-sans text-xs text-text-secondary">Lernvideodatenbank für alle Mitglieder — alle Instrumente inklusive.</p>
                       </div>
-                      <p className="font-sans text-xs text-text-secondary mb-6 leading-relaxed">
-                        Noch unsicher? Kein Problem — buch einen kostenlosen Termin oder schick dir eine Probelektion zu.
+                      <Link href="/musikschule/formation" className="inline-block w-full text-center py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors mb-3">
+                        Formation-Vorteile entdecken →
+                      </Link>
+                    </>
+                  )}
+
+                  {/* schnuppern_ohne_instrument */}
+                  {quizResult === 'schnuppern_ohne_instrument' && (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-1">3-Monate Schnupperabo + Instrument mieten</h3>
+                      <div className="border border-border p-4 mb-4">
+                        <ul className="space-y-1.5">
+                          {[
+                            '3 Monate Starter-Abo (monatlich kündbar)',
+                            'LAEMU Instrument-Jahresmiete (20% Rabatt)',
+                            'Kein Risiko — einfach reinschnuppern',
+                            'LAEMU Membership inklusive',
+                          ].map(f => (
+                            <li key={f} className="font-sans text-xs flex items-start gap-2">
+                              <span className="text-accent-gold mt-0.5">✓</span>{f}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary mb-4">
+                        Schreib uns: <a href="mailto:info@laemu.ch" className="text-dark hover:underline font-medium">info@laemu.ch</a>
                       </p>
                     </>
-                  ) : (
+                  )}
+
+                  {/* schnuppern_mit_instrument */}
+                  {quizResult === 'schnuppern_mit_instrument' && (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-1">Monatliches Starter-Abo</h3>
+                      <div className="border border-border p-4 mb-4">
+                        <p className="font-heading font-bold text-2xl mb-0.5">
+                          {chf(individualPricing.starter[resultScope].monthly)}<span className="font-sans text-sm text-text-secondary font-normal">/Mt.</span>
+                        </p>
+                        <p className="font-sans text-xs text-text-secondary mt-1">Strukturierter Lehrgang — monatlich kündbar, jederzeit auf Jahresabo wechseln.</p>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary bg-accent-gold/5 border border-accent-gold/20 px-3 py-2 mb-4">
+                        🎸 Jahresabo? 20% Rabatt auf die LAEMU Instrument-Jahresmiete inklusive.
+                      </p>
+                    </>
+                  )}
+
+                  {/* starter */}
+                  {quizResult === 'starter' && (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-1">Starter — {scopeLabels[resultScope]}</h3>
+                      <div className="flex items-center gap-4 border border-border p-4 mb-4">
+                        <div>
+                          <p className="font-sans text-xs text-text-secondary mb-0.5">Monatlich</p>
+                          <p className="font-heading font-bold">{chf(individualPricing.starter[resultScope].monthly)}<span className="font-sans text-xs text-text-secondary font-normal">/Mt.</span></p>
+                        </div>
+                        <div className="w-px h-8 bg-border" />
+                        <div>
+                          <p className="font-sans text-xs text-text-secondary mb-0.5">Jährlich <span className="text-accent-gold">(empfohlen)</span></p>
+                          <p className="font-heading font-bold text-accent-gold">{chf(individualPricing.starter[resultScope].yearly)}<span className="font-sans text-xs text-text-secondary font-normal">/Jahr</span></p>
+                        </div>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary bg-accent-gold/5 border border-accent-gold/20 px-3 py-2 mb-4">
+                        🎸 Jahresabo? 20% Rabatt auf die LAEMU Instrument-Jahresmiete inklusive.
+                      </p>
+                    </>
+                  )}
+
+                  {/* pro */}
+                  {quizResult === 'pro' && (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-1">Pro — {scopeLabels[resultScope]}</h3>
+                      <div className="flex items-center gap-4 border border-border p-4 mb-4">
+                        <div>
+                          <p className="font-sans text-xs text-text-secondary mb-0.5">Monatlich</p>
+                          <p className="font-heading font-bold">{chf(individualPricing.pro[resultScope].monthly)}<span className="font-sans text-xs text-text-secondary font-normal">/Mt.</span></p>
+                        </div>
+                        <div className="w-px h-8 bg-border" />
+                        <div>
+                          <p className="font-sans text-xs text-text-secondary mb-0.5">Jährlich <span className="text-accent-gold">(empfohlen)</span></p>
+                          <p className="font-heading font-bold text-accent-gold">{chf(individualPricing.pro[resultScope].yearly)}<span className="font-sans text-xs text-text-secondary font-normal">/Jahr</span></p>
+                        </div>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary bg-accent-gold/5 border border-accent-gold/20 px-3 py-2 mb-4">
+                        🎸 Jahresabo? 20% Rabatt auf die LAEMU Instrument-Jahresmiete inklusive.
+                      </p>
+                    </>
+                  )}
+
+                  {/* lernvideo */}
+                  {quizResult === 'lernvideo' && (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-1">Lernvideodatenbank</h3>
+                      <div className="flex items-center gap-4 border border-border p-4 mb-4">
+                        <div>
+                          <p className="font-sans text-xs text-text-secondary mb-0.5">Monatlich</p>
+                          <p className="font-heading font-bold">{chf(99)}<span className="font-sans text-xs text-text-secondary font-normal">/Mt.</span></p>
+                        </div>
+                        <div className="w-px h-8 bg-border" />
+                        <div>
+                          <p className="font-sans text-xs text-text-secondary mb-0.5">Jährlich <span className="text-accent-gold">(empfohlen)</span></p>
+                          <p className="font-heading font-bold text-accent-gold">{chf(999)}<span className="font-sans text-xs text-text-secondary font-normal">/Jahr</span></p>
+                        </div>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary bg-accent-gold/5 border border-accent-gold/20 px-3 py-2 mb-4">
+                        🎸 Jahresabo? 20% Rabatt auf die LAEMU Instrument-Jahresmiete inklusive.
+                      </p>
+                    </>
+                  )}
+
+                  {quizResult === null && (
                     <p className="font-sans text-text-secondary text-sm mb-6">Wir konnten keine passende Empfehlung ermitteln. Schau dir unsere Angebote direkt an.</p>
                   )}
 
-                  {/* CTA options */}
-                  <div className="space-y-3 mb-5">
-                    <button
-                      onClick={() => { setResultAction('booking'); setBookingConfirmed(false); setBookingSlot(null); setBookingName(''); setBookingEmail('') }}
-                      className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
-                    >
-                      <span className="text-2xl flex-shrink-0">📅</span>
-                      <div>
-                        <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlosen Termin buchen</p>
-                        <p className="font-sans text-xs text-text-secondary">Gratis Beratungsgespräch — wähle einen freien Slot im Kalender.</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => { setResultAction('video'); setVideoSent(false); setVideoEmail('') }}
-                      className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
-                    >
-                      <span className="text-2xl flex-shrink-0">📹</span>
-                      <div>
-                        <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlose Probelektion erhalten</p>
-                        <p className="font-sans text-xs text-text-secondary">Wir schicken dir ein Video direkt per E-Mail — kein Abo nötig.</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={onScrollToPricing}
-                      className="w-full py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
-                    >
-                      Angebote direkt ansehen →
-                    </button>
-                  </div>
+                  {/* CTA options — not for formation results */}
+                  {quizResult !== 'formation_pro' && quizResult !== 'formation_lernvideo' && quizResult !== null && (
+                    <div className="space-y-3 mb-5">
+                      <button
+                        onClick={() => { setResultAction('booking'); setBookingConfirmed(false); setBookingSlot(null); setBookingName(''); setBookingEmail('') }}
+                        className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
+                      >
+                        <span className="text-2xl flex-shrink-0">📅</span>
+                        <div>
+                          <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlosen Termin buchen</p>
+                          <p className="font-sans text-xs text-text-secondary">Gratis Beratungsgespräch — wähle einen freien Slot im Kalender.</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => { setResultAction('video'); setVideoSent(false); setVideoEmail('') }}
+                        className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
+                      >
+                        <span className="text-2xl flex-shrink-0">📹</span>
+                        <div>
+                          <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlose Probelektion erhalten</p>
+                          <p className="font-sans text-xs text-text-secondary">Wir schicken dir ein Video direkt per E-Mail — kein Abo nötig.</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={onScrollToPricing}
+                        className="w-full py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
+                      >
+                        Angebote direkt ansehen →
+                      </button>
+                    </div>
+                  )}
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 mt-2">
                     <button
                       onClick={goBack}
                       className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
@@ -828,22 +966,41 @@ type ModalProps = {
   initial?: ModalConfig
 }
 
+type ModalStepId = 'who' | 'ind_plan' | 'ind_scope' | 'ind_instruments' | 'ind_billing' | 'form_plan' | 'form_details' | 'account' | 'confirm'
+
+function getModalSequence(
+  purchaserType: 'individual' | 'formation' | '',
+  indPlan: IndividualPlan | '',
+  scope: Scope | '',
+): ModalStepId[] {
+  if (purchaserType === 'formation') {
+    return ['who', 'form_plan', 'form_details', 'account', 'confirm']
+  }
+  if (purchaserType === 'individual') {
+    const seq: ModalStepId[] = ['who', 'ind_plan']
+    if (indPlan === 'starter' || indPlan === 'pro') {
+      seq.push('ind_scope')
+      if (scope === '1' || scope === '2') seq.push('ind_instruments')
+    }
+    seq.push('ind_billing', 'account', 'confirm')
+    return seq
+  }
+  return ['who']
+}
+
 function MusiksSchuleModal({ onClose, initial }: ModalProps) {
-  const [step, setStep] = useState(initial?.purchaserType ? 2 : 1)
   const [purchaserType, setPurchaserType] = useState<'individual' | 'formation' | ''>(initial?.purchaserType ?? '')
-  // Individual state
   const [indPlan, setIndPlan] = useState<IndividualPlan | ''>(
-    (initial?.plan && ['lernvideo', 'starter', 'pro'].includes(initial.plan)) ? (initial.plan as IndividualPlan) : ''
+    (initial?.plan && ['lernvideo', 'starter', 'pro'].includes(initial.plan as string)) ? (initial.plan as IndividualPlan) : ''
   )
   const [scope, setScope] = useState<Scope | ''>(initial?.scope ?? '')
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly')
-  // Formation state
   const [formPlan, setFormPlan] = useState<FormationPlan | ''>(
-    (initial?.plan && ['pro_all', 'formation_lernvideo'].includes(initial.plan)) ? (initial.plan as FormationPlan) : ''
+    (initial?.plan && ['pro_all', 'formation_lernvideo'].includes(initial.plan as string)) ? (initial.plan as FormationPlan) : ''
   )
   const [formationName, setFormationName] = useState('')
-  // Account state
+  const [memberCount, setMemberCount] = useState(3)
   const [accountMode, setAccountMode] = useState<'existing' | 'new' | ''>('')
   const [email, setEmail] = useState('niklaus@laemu.ch')
   const [password, setPassword] = useState('')
@@ -852,17 +1009,44 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
   const [newPassword, setNewPassword] = useState('')
   const [success, setSuccess] = useState(false)
 
+  const sequence = getModalSequence(purchaserType, indPlan, scope)
+
+  // Determine starting step
+  function getInitialStep(): ModalStepId {
+    if (initial?.purchaserType === 'formation') return 'form_plan'
+    if (initial?.purchaserType === 'individual') {
+      if (initial.plan && ['lernvideo', 'starter', 'pro'].includes(initial.plan as string)) {
+        const p = initial.plan as IndividualPlan
+        if ((p === 'starter' || p === 'pro') && initial.scope) return 'ind_billing'
+        if (p === 'lernvideo') return 'ind_billing'
+        return 'ind_plan'
+      }
+      return 'ind_plan'
+    }
+    return 'who'
+  }
+
+  const [currentStep, setCurrentStep] = useState<ModalStepId>(getInitialStep)
+
+  function goNext() {
+    const seq = getModalSequence(purchaserType, indPlan, scope)
+    const idx = seq.indexOf(currentStep)
+    if (idx !== -1 && idx < seq.length - 1) setCurrentStep(seq[idx + 1])
+  }
+
+  function goBack() {
+    const seq = getModalSequence(purchaserType, indPlan, scope)
+    const idx = seq.indexOf(currentStep)
+    if (idx > 0) setCurrentStep(seq[idx - 1])
+  }
+
   const isFormation = purchaserType === 'formation'
-  const meta = indPlan ? individualPlanMeta[indPlan] : null
-  const needsScope = !isFormation && (indPlan === 'starter' || indPlan === 'pro')
-  const numInstruments = scope === 'all' ? null : scope === '2' ? 2 : 1
+  const numInstruments = scope === '2' ? 2 : 1
 
   function getPrice(): number {
     if (isFormation && formPlan) return formationPricingData[formPlan]
     if (!indPlan) return 0
-    if (indPlan === 'lernvideo') {
-      return billing === 'monthly' ? 99 : 999
-    }
+    if (indPlan === 'lernvideo') return billing === 'monthly' ? 99 : 999
     if (scope) {
       const p = individualPricing[indPlan][scope]
       return billing === 'monthly' ? p.monthly : p.yearly
@@ -873,58 +1057,47 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
   const price = getPrice()
   const billingLabel = isFormation ? '/Jahr' : billing === 'monthly' ? '/Mt.' : '/Jahr'
 
-  const canProceedStep2 = isFormation
-    ? (formPlan !== '' && formationName.trim().length > 0)
-    : indPlan !== '' && (
-        indPlan === 'lernvideo' ||
-        (scope !== '' && (scope === 'all' || selectedInstruments.length === parseInt(scope)))
-      )
-
-  const canProceedStep3 = accountMode !== '' && (
-    accountMode === 'existing' ? (email.trim() !== '' && password !== '') :
-    (newName.trim() !== '' && newEmail.trim() !== '' && newPassword.length >= 8)
-  )
-
-  const stepTitles = [
-    { title: 'Wer bist du?', subtitle: 'Einzelperson oder Formation?' },
-    { title: 'Paket wählen', subtitle: isFormation ? 'Das passende Angebot für deine Formation.' : 'Wähle dein Abonnement.' },
-    { title: 'Konto', subtitle: 'Melde dich an oder erstelle ein neues Konto.' },
-    { title: 'Bestätigung', subtitle: 'Überprüfe dein Abonnement und schliesse ab.' },
-  ]
-
   function toggleInstrument(id: string) {
-    const max = numInstruments ?? 0
     setSelectedInstruments(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id)
-      if (prev.length >= max) return [...prev.slice(-(max - 1)), id]
+      if (prev.length >= numInstruments) return [...prev.slice(-(numInstruments - 1)), id]
       return [...prev, id]
     })
-  }
-
-  function handlePurchaserType(type: 'individual' | 'formation') {
-    setPurchaserType(type)
-    setIndPlan('')
-    setFormPlan('')
-    setScope('')
-    setSelectedInstruments([])
-    setStep(2)
-  }
-
-  function handleIndPlanSelect(plan: IndividualPlan) {
-    setIndPlan(plan)
-    setScope('')
-    setSelectedInstruments([])
   }
 
   function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) onClose()
   }
 
-  // Suppress unused variable warning
-  void meta
-  void needsScope
+  // Progress display
+  const totalSteps = sequence.length
+  const currentStepIndex = sequence.indexOf(currentStep)
+  const progressPct = totalSteps > 1 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0
 
-  const { title, subtitle } = stepTitles[step - 1]
+  // Step titles
+  const stepTitleMap: Record<ModalStepId, { title: string; subtitle: string }> = {
+    who: { title: 'Wer bist du?', subtitle: 'Einzelperson oder Formation?' },
+    ind_plan: { title: 'Welches Paket?', subtitle: 'Wähle dein Abonnement.' },
+    ind_scope: { title: 'Wie viele Instrumente?', subtitle: 'Wähle den Umfang deines Abos.' },
+    ind_instruments: { title: 'Welche Instrumente?', subtitle: 'Wähle deine Instrumente.' },
+    ind_billing: { title: 'Monatlich oder jährlich?', subtitle: 'Wähle deinen Abrechnungszyklus.' },
+    form_plan: { title: 'Welches Paket?', subtitle: 'Das passende Angebot für eure Formation.' },
+    form_details: { title: 'Eure Formation', subtitle: 'Name und Mitgliederzahl eurer Formation.' },
+    account: { title: 'Konto', subtitle: 'Melde dich an oder erstelle ein neues Konto.' },
+    confirm: { title: 'Bestätigung', subtitle: 'Überprüfe dein Abonnement und schliesse ab.' },
+  }
+
+  const { title, subtitle } = stepTitleMap[currentStep]
+
+  const canProceedIndPlan = indPlan !== ''
+  const canProceedIndScope = scope !== ''
+  const canProceedIndInstruments = selectedInstruments.length === numInstruments
+  const canProceedAccount = accountMode !== '' && (
+    accountMode === 'existing' ? (email.trim() !== '' && password !== '') :
+    (newName.trim() !== '' && newEmail.trim() !== '' && newPassword.length >= 8)
+  )
+  const canProceedFormPlan = formPlan !== ''
+  const canProceedFormDetails = formationName.trim().length > 0
 
   return (
     <motion.div
@@ -947,7 +1120,7 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
         <div className="h-1 bg-border">
           <motion.div
             className="h-full bg-accent-gold"
-            animate={{ width: `${(step / 4) * 100}%` }}
+            animate={{ width: `${progressPct}%` }}
             transition={{ duration: 0.4 }}
           />
         </div>
@@ -955,14 +1128,14 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-border">
           <div>
-            <p className="font-sans text-xs text-text-secondary mb-0.5">Schritt {step} von 4</p>
+            <p className="font-sans text-xs text-text-secondary mb-0.5">Schritt {currentStepIndex + 1} von {totalSteps}</p>
             <h2 className="font-heading text-xl font-bold">{title}</h2>
             <p className="font-sans text-sm text-text-secondary">{subtitle}</p>
           </div>
           <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-            {step > 1 && (
+            {currentStepIndex > 0 && (
               <button
-                onClick={() => setStep(s => s - 1)}
+                onClick={goBack}
                 className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-3 py-1.5 border border-border"
               >
                 ← Zurück
@@ -990,18 +1163,12 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
         <div className="px-6 py-6">
           <AnimatePresence mode="wait">
 
-            {/* ── STEP 1: Wer bist du? ── */}
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25 }}
-              >
+            {/* ── who ── */}
+            {currentStep === 'who' && (
+              <motion.div key="who" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
                 <div className="grid grid-cols-2 gap-4">
                   <button
-                    onClick={() => handlePurchaserType('individual')}
+                    onClick={() => { setPurchaserType('individual'); setFormPlan(''); setCurrentStep('ind_plan') }}
                     className="group p-6 border border-border hover:border-accent-gold text-center transition-all hover:bg-accent-gold/5"
                   >
                     <span className="text-4xl block mb-3">👤</span>
@@ -1009,7 +1176,7 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                     <p className="font-sans text-xs text-text-secondary">Ich lerne für mich</p>
                   </button>
                   <button
-                    onClick={() => handlePurchaserType('formation')}
+                    onClick={() => { setPurchaserType('formation'); setIndPlan(''); setScope(''); setCurrentStep('form_plan') }}
                     className="group p-6 border border-border hover:border-accent-gold text-center transition-all hover:bg-accent-gold/5"
                   >
                     <span className="text-4xl block mb-3">👥</span>
@@ -1020,231 +1187,243 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
               </motion.div>
             )}
 
-            {/* ── STEP 2: Paket wählen ── */}
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25 }}
-              >
-                {/* Individual plans */}
-                {!isFormation && (
-                  <>
-                    {/* Billing toggle */}
-                    <div className="flex items-center gap-2 mb-5">
-                      <button
-                        onClick={() => setBilling('monthly')}
-                        className={`font-sans text-xs px-4 py-2 border transition-colors ${billing === 'monthly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                      >
-                        Monatlich
-                      </button>
-                      <button
-                        onClick={() => setBilling('yearly')}
-                        className={`font-sans text-xs px-4 py-2 border transition-colors relative ${billing === 'yearly' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                      >
-                        Jährlich
-                        <span className="ml-1.5 text-accent-gold font-medium">–14%</span>
-                      </button>
-                      {billing === 'yearly' && (
-                        <span className="font-sans text-[10px] text-text-secondary ml-1">Rabattcodes nur für Jahresabos</span>
-                      )}
-                    </div>
-
-                    {/* Plan cards */}
-                    <div className="space-y-3 mb-4">
-                      {(['lernvideo', 'starter', 'pro'] as IndividualPlan[]).map((planId) => {
-                        const m = individualPlanMeta[planId]
-                        const isActive = indPlan === planId
-                        const priceVal = planId === 'lernvideo'
-                          ? (billing === 'monthly' ? 99 : 999)
-                          : scope ? individualPricing[planId][scope][billing] : null
-                        const period = billing === 'monthly' ? '/Mt.' : '/Jahr'
-
-                        return (
-                          <div
-                            key={planId}
-                            className={`border transition-all ${isActive ? 'border-accent-gold' : 'border-border'}`}
-                          >
-                            <button
-                              className="w-full text-left p-4"
-                              onClick={() => handleIndPlanSelect(planId)}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 transition-colors ${isActive ? 'border-accent-gold bg-accent-gold' : 'border-border'}`} />
-                                  <div>
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                      <span className="font-heading font-bold text-sm">{m.emoji} {m.label}</span>
-                                      {m.badge && (
-                                        <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5">{m.badge}</span>
-                                      )}
-                                    </div>
-                                    <p className="font-sans text-xs text-text-secondary leading-relaxed">{m.desc}</p>
-                                  </div>
-                                </div>
-                                <div className="text-right flex-shrink-0 ml-3">
-                                  {priceVal ? (
-                                    <span className="font-heading font-bold text-sm">{chf(priceVal)}<span className="font-sans text-xs text-text-secondary font-normal">{period}</span></span>
-                                  ) : (
-                                    <span className="font-sans text-xs text-text-secondary">ab {chf(individualPricing[planId]['1'][billing])}<span>{period}</span></span>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-
-                            {/* Scope + instrument selection (Starter/Pro) */}
-                            <AnimatePresence>
-                              {isActive && m.hasScope && (
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: 'auto' }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="overflow-hidden border-t border-border bg-background"
-                                >
-                                  <div className="p-4">
-                                    <p className="font-sans text-[10px] text-text-secondary uppercase tracking-widest mb-2">Umfang wählen</p>
-                                    <div className="grid grid-cols-3 gap-2 mb-4">
-                                      {(['1', '2', 'all'] as Scope[]).map(s => {
-                                        const p = individualPricing[planId][s][billing]
-                                        return (
-                                          <button
-                                            key={s}
-                                            onClick={() => { setScope(s); setSelectedInstruments([]) }}
-                                            className={`py-2 px-2 border text-xs text-center transition-all ${scope === s ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                                          >
-                                            <span className="block font-medium">{scopeLabels[s]}</span>
-                                            <span className="text-text-secondary">{chf(p)}<span className="text-[10px]">{billing === 'monthly' ? '/Mt.' : '/J.'}</span></span>
-                                          </button>
-                                        )
-                                      })}
-                                    </div>
-
-                                    {/* Instrument picker (only for 1 or 2 instruments) */}
-                                    <AnimatePresence>
-                                      {(scope === '1' || scope === '2') && (
-                                        <motion.div
-                                          initial={{ opacity: 0, height: 0 }}
-                                          animate={{ opacity: 1, height: 'auto' }}
-                                          exit={{ opacity: 0, height: 0 }}
-                                          transition={{ duration: 0.2 }}
-                                          className="overflow-hidden"
-                                        >
-                                          <p className="font-sans text-[10px] text-text-secondary uppercase tracking-widest mb-2">
-                                            {scope === '1' ? 'Wähle dein Instrument' : 'Wähle deine 2 Instrumente'}
-                                          </p>
-                                          <div className="grid grid-cols-2 gap-2">
-                                            {instruments.map(inst => {
-                                              const sel = selectedInstruments.includes(inst.id)
-                                              return (
-                                                <button
-                                                  key={inst.id}
-                                                  onClick={() => toggleInstrument(inst.id)}
-                                                  className={`text-left px-3 py-2.5 border text-xs transition-all ${sel ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                                                >
-                                                  <span className="mr-1.5">{inst.emoji}</span>
-                                                  <span className="font-medium">{inst.label}</span>
-                                                  <span className="block text-text-secondary text-[10px] mt-0.5 ml-5">{inst.subtitle}</span>
-                                                </button>
-                                              )
-                                            })}
-                                          </div>
-                                        </motion.div>
-                                      )}
-                                    </AnimatePresence>
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </>
-                )}
-
-                {/* Formation plans */}
-                {isFormation && (
-                  <div className="space-y-4 mb-5">
-                    {([
-                      { id: 'pro_all' as FormationPlan, emoji: '🏆', label: 'Pro All-in-One', price: 2499, tag: 'Für Aufsteiger', desc: 'Pro-Zugang für alle Mitglieder — alle Instrumente, volle Lernvideodatenbank.', features: ['Pro-Lehrgang für alle Mitglieder', 'Alle 4 Instrumente inklusive', 'Vollständige Lernvideo-Datenbank', 'Live-Calls & Video-Feedback', 'LAEMU Membership für alle'] },
-                      { id: 'formation_lernvideo' as FormationPlan, emoji: '📹', label: 'Lernvideodatenbank', price: 1999, tag: 'Für Profis', desc: 'Zugang zur gesamten Lernvideo-Datenbank für alle Mitglieder.', features: ['Lernvideo-Datenbank für alle', 'Alle Instrumente inklusive', 'LAEMU Membership für alle'] },
-                    ]).map(plan => (
-                      <button
-                        key={plan.id}
-                        onClick={() => setFormPlan(plan.id)}
-                        className={`w-full text-left p-5 border transition-all ${formPlan === plan.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                      >
-                        <div className="flex items-start justify-between mb-3">
+            {/* ── ind_plan ── */}
+            {currentStep === 'ind_plan' && (
+              <motion.div key="ind_plan" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <div className="space-y-3 mb-5">
+                  {([
+                    { id: 'lernvideo' as IndividualPlan, emoji: '📹', name: 'Lernvideodatenbank', desc: 'Voller Zugang zur Lernvideo-Datenbank für alle Instrumente.', price: 999 },
+                    { id: 'starter' as IndividualPlan, emoji: '🎓', name: 'Starter', desc: 'Strukturierter Lehrgang mit Starter-Videos — für 1, 2 oder alle Instrumente.', price: 699 },
+                    { id: 'pro' as IndividualPlan, emoji: '⭐', name: 'Pro', desc: 'Alles aus Starter + vollständige Lernvideodatenbank — empfohlen.', price: 1199 },
+                  ]).map(plan => (
+                    <button
+                      key={plan.id}
+                      onClick={() => {
+                        setIndPlan(plan.id)
+                        setScope('')
+                        setSelectedInstruments([])
+                      }}
+                      className={`w-full text-left p-5 border transition-all ${indPlan === plan.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl flex-shrink-0">{plan.emoji}</span>
                           <div>
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="font-heading font-bold">{plan.emoji} {plan.label}</span>
-                              <span className="font-sans text-[10px] border border-accent-gold/40 text-accent-gold px-1.5 py-0.5">{plan.tag}</span>
-                            </div>
+                            <p className="font-heading font-bold text-sm mb-0.5">{plan.name}</p>
                             <p className="font-sans text-xs text-text-secondary">{plan.desc}</p>
                           </div>
-                          <div className="text-right flex-shrink-0 ml-4">
-                            <span className="font-heading font-bold">{chf(plan.price)}</span>
-                            <span className="font-sans text-xs text-text-secondary">/Jahr</span>
-                          </div>
                         </div>
-                        <ul className="space-y-1">
-                          {plan.features.map(f => (
-                            <li key={f} className="font-sans text-xs text-text-secondary flex items-center gap-1.5">
-                              <span className="text-accent-gold">✓</span>{f}
-                            </li>
-                          ))}
-                        </ul>
-                      </button>
-                    ))}
-
-                    {/* Formation name */}
-                    <div>
-                      <label className="font-sans text-xs text-text-secondary block mb-1.5">Name deiner Formation</label>
-                      <input
-                        type="text"
-                        value={formationName}
-                        onChange={e => setFormationName(e.target.value)}
-                        placeholder="z. B. Trio Alpstein"
-                        className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                      />
-                      <p className="font-sans text-[10px] text-text-secondary mt-1">Alle Formationsmitglieder erhalten mit diesem Abo Zugang.</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Price summary */}
-                {price > 0 && canProceedStep2 && (
-                  <div className="bg-background border border-border p-3 mb-4 flex justify-between items-center">
-                    <span className="font-sans text-sm text-text-secondary">Total</span>
-                    <span className="font-heading font-bold text-lg">
-                      {chf(price)}
-                      <span className="font-sans text-sm text-text-secondary font-normal ml-0.5">{billingLabel}</span>
-                    </span>
-                  </div>
-                )}
-
+                        <p className="font-sans text-xs text-text-secondary flex-shrink-0 ml-3">ab {chf(plan.price)}/J.</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
                 <button
-                  disabled={!canProceedStep2}
-                  onClick={() => setStep(3)}
-                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedStep2 ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                  disabled={!canProceedIndPlan}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedIndPlan ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Weiter →
                 </button>
               </motion.div>
             )}
 
-            {/* ── STEP 3: Konto ── */}
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25 }}
-              >
+            {/* ── ind_scope ── */}
+            {currentStep === 'ind_scope' && (
+              <motion.div key="ind_scope" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <div className="space-y-3 mb-5">
+                  {(['1', '2', 'all'] as Scope[]).map(s => {
+                    const p = indPlan ? individualPricing[indPlan][s] : null
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => { setScope(s); setSelectedInstruments([]) }}
+                        className={`w-full p-5 border text-left transition-all ${scope === s ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="font-heading font-bold text-sm">{scopeLabels[s]}</p>
+                          {p && (
+                            <div className="text-right">
+                              <p className="font-sans text-xs text-text-secondary">{chf(p.monthly)}/Mt.</p>
+                              <p className="font-heading font-bold text-sm text-accent-gold">{chf(p.yearly)}/J.</p>
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <button
+                  disabled={!canProceedIndScope}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedIndScope ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                >
+                  Weiter →
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── ind_instruments ── */}
+            {currentStep === 'ind_instruments' && (
+              <motion.div key="ind_instruments" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <p className="font-sans text-xs text-text-secondary mb-4">
+                  {scope === '1' ? 'Wähle dein Instrument' : 'Wähle deine 2 Instrumente'}
+                </p>
+                <div className="space-y-2 mb-5">
+                  {instruments.map(inst => {
+                    const sel = selectedInstruments.includes(inst.id)
+                    return (
+                      <button
+                        key={inst.id}
+                        onClick={() => toggleInstrument(inst.id)}
+                        className={`w-full flex items-center justify-between px-4 py-3 border text-left transition-all ${sel ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{inst.emoji}</span>
+                          <div>
+                            <p className="font-sans text-sm font-medium">{inst.label}</p>
+                            <p className="font-sans text-xs text-text-secondary">{inst.subtitle}</p>
+                          </div>
+                        </div>
+                        <div className={`w-4 h-4 border-2 flex-shrink-0 flex items-center justify-center transition-colors ${sel ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
+                          {sel && <span className="text-white text-[10px] font-bold">✓</span>}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <button
+                  disabled={!canProceedIndInstruments}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedIndInstruments ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                >
+                  Weiter →
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── ind_billing ── */}
+            {currentStep === 'ind_billing' && (
+              <motion.div key="ind_billing" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <div className="space-y-3 mb-5">
+                  {([
+                    { val: 'monthly' as const, label: 'Monatlich', badge: null },
+                    { val: 'yearly' as const, label: 'Jährlich', badge: '–14%' },
+                  ]).map(opt => {
+                    const priceVal = indPlan === 'lernvideo'
+                      ? (opt.val === 'monthly' ? 99 : 999)
+                      : (indPlan && scope) ? individualPricing[indPlan][scope][opt.val] : null
+                    return (
+                      <button
+                        key={opt.val}
+                        onClick={() => setBilling(opt.val)}
+                        className={`w-full p-5 border text-left transition-all ${billing === opt.val ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-heading font-bold text-sm">{opt.label}</p>
+                              {opt.badge && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5">{opt.badge}</span>}
+                            </div>
+                            {opt.val === 'yearly' && (
+                              <p className="font-sans text-xs text-accent-gold">🎸 20% auf LAEMU Instrument-Jahresmiete inklusive</p>
+                            )}
+                          </div>
+                          {priceVal && (
+                            <p className="font-heading font-bold text-sm flex-shrink-0 ml-3">
+                              {chf(priceVal)}<span className="font-sans text-xs text-text-secondary font-normal">{opt.val === 'monthly' ? '/Mt.' : '/Jahr'}</span>
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <button onClick={goNext} className="w-full py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors">
+                  Weiter →
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── form_plan ── */}
+            {currentStep === 'form_plan' && (
+              <motion.div key="form_plan" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <div className="space-y-3 mb-5">
+                  {([
+                    { id: 'pro_all' as FormationPlan, emoji: '🏆', label: 'Pro All-in-One', price: 2499, desc: 'Pro-Zugang für alle Mitglieder — alle Instrumente, volle Lernvideodatenbank.' },
+                    { id: 'formation_lernvideo' as FormationPlan, emoji: '📹', label: 'Lernvideodatenbank', price: 1999, desc: 'Zugang zur gesamten Lernvideo-Datenbank für alle Mitglieder.' },
+                  ]).map(plan => (
+                    <button
+                      key={plan.id}
+                      onClick={() => setFormPlan(plan.id)}
+                      className={`w-full text-left p-5 border transition-all ${formPlan === plan.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl flex-shrink-0">{plan.emoji}</span>
+                          <div>
+                            <p className="font-heading font-bold text-sm mb-0.5">{plan.label}</p>
+                            <p className="font-sans text-xs text-text-secondary">{plan.desc}</p>
+                          </div>
+                        </div>
+                        <p className="font-heading font-bold text-sm flex-shrink-0 ml-3">{chf(plan.price)}<span className="font-sans text-xs text-text-secondary font-normal">/Jahr</span></p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  disabled={!canProceedFormPlan}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedFormPlan ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                >
+                  Weiter →
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── form_details ── */}
+            {currentStep === 'form_details' && (
+              <motion.div key="form_details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <div className="space-y-4 mb-5">
+                  <div>
+                    <label className="font-sans text-xs text-text-secondary block mb-1.5">Name eurer Formation</label>
+                    <input
+                      type="text"
+                      value={formationName}
+                      onChange={e => setFormationName(e.target.value)}
+                      placeholder="z. B. Trio Alpstein"
+                      className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-sans text-xs text-text-secondary block mb-1.5">Anzahl Mitglieder</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[2, 3, 4, 5].map(n => (
+                        <button
+                          key={n}
+                          onClick={() => setMemberCount(n)}
+                          className={`py-2.5 border text-center font-sans text-sm transition-all ${memberCount === n ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border hover:border-dark'}`}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="font-sans text-[10px] text-text-secondary mt-1">Alle Mitglieder erhalten mit diesem Abo Zugang.</p>
+                  </div>
+                </div>
+                <button
+                  disabled={!canProceedFormDetails}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedFormDetails ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                >
+                  Weiter →
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── account ── */}
+            {currentStep === 'account' && (
+              <motion.div key="account" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {(['existing', 'new'] as const).map(mode => (
                     <button
@@ -1259,28 +1438,16 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                     </button>
                   ))}
                 </div>
-
                 <AnimatePresence mode="wait">
                   {accountMode === 'existing' && (
                     <motion.div key="existing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3 mb-5">
                       <div>
                         <label className="font-sans text-xs text-text-secondary block mb-1">E-Mail</label>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                        />
+                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                       <div>
                         <label className="font-sans text-xs text-text-secondary block mb-1">Passwort</label>
-                        <input
-                          type="password"
-                          value={password}
-                          onChange={e => setPassword(e.target.value)}
-                          placeholder="Dein Passwort"
-                          className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                        />
+                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Dein Passwort" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                     </motion.div>
                   )}
@@ -1288,68 +1455,39 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                     <motion.div key="new" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3 mb-5">
                       <div>
                         <label className="font-sans text-xs text-text-secondary block mb-1">Name</label>
-                        <input
-                          type="text"
-                          value={newName}
-                          onChange={e => setNewName(e.target.value)}
-                          placeholder="Dein vollständiger Name"
-                          className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                        />
+                        <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Dein vollständiger Name" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                       <div>
                         <label className="font-sans text-xs text-text-secondary block mb-1">E-Mail</label>
-                        <input
-                          type="email"
-                          value={newEmail}
-                          onChange={e => setNewEmail(e.target.value)}
-                          placeholder="deine@email.ch"
-                          className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                        />
+                        <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="deine@email.ch" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                       <div>
                         <label className="font-sans text-xs text-text-secondary block mb-1">Passwort</label>
-                        <input
-                          type="password"
-                          value={newPassword}
-                          onChange={e => setNewPassword(e.target.value)}
-                          placeholder="Mindestens 8 Zeichen"
-                          className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                        />
+                        <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Mindestens 8 Zeichen" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-
                 {!accountMode && (
-                  <p className="font-sans text-sm text-text-secondary text-center py-4 mb-5">
-                    Wähle eine Option oben, um fortzufahren.
-                  </p>
+                  <p className="font-sans text-sm text-text-secondary text-center py-4 mb-5">Wähle eine Option oben, um fortzufahren.</p>
                 )}
-
                 <button
-                  disabled={!canProceedStep3}
-                  onClick={() => setStep(4)}
-                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedStep3 ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                  disabled={!canProceedAccount}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedAccount ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Weiter →
                 </button>
               </motion.div>
             )}
 
-            {/* ── STEP 4: Bestätigung ── */}
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25 }}
-              >
+            {/* ── confirm ── */}
+            {currentStep === 'confirm' && (
+              <motion.div key="confirm" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
                 <AnimatePresence mode="wait">
                   {!success ? (
-                    <motion.div key="confirm" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <motion.div key="confirm-form" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
                       <div className="border border-border p-5 mb-6 space-y-3">
-                        {/* Plan */}
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Paket</p>
@@ -1365,8 +1503,6 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                             )}
                           </div>
                         </div>
-
-                        {/* Instrument selection */}
                         {selectedInstruments.length > 0 && (
                           <div>
                             <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Instrument(e)</p>
@@ -1378,30 +1514,22 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                             </p>
                           </div>
                         )}
-
-                        {/* Formation name */}
                         {isFormation && formationName && (
                           <div>
                             <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Formation</p>
-                            <p className="font-sans text-sm">{formationName}</p>
+                            <p className="font-sans text-sm">{formationName} ({memberCount} Mitglieder)</p>
                           </div>
                         )}
-
-                        {/* Billing */}
                         {!isFormation && (
                           <div>
                             <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Abrechnung</p>
                             <p className="font-sans text-sm">{billing === 'monthly' ? 'Monatlich' : 'Jährlich'}</p>
                           </div>
                         )}
-
-                        {/* Membership */}
                         <div className="flex items-center gap-1.5 py-1">
                           <span className="text-accent-gold text-xs">✓</span>
                           <span className="font-sans text-xs text-text-secondary">LAEMU Membership inklusive</span>
                         </div>
-
-                        {/* Total */}
                         <div className="border-t border-border pt-3 flex justify-between items-center">
                           <span className="font-sans text-sm text-text-secondary uppercase tracking-wide">Total</span>
                           <span className="font-heading font-bold text-xl">
@@ -1410,24 +1538,15 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                           </span>
                         </div>
                       </div>
-
-                      {/* Discount code field */}
                       {!isFormation && billing === 'yearly' && (
                         <div className="mb-4">
                           <label className="font-sans text-xs text-text-secondary block mb-1.5">Rabattcode (optional)</label>
                           <div className="flex gap-2">
-                            <input
-                              type="text"
-                              placeholder="z. B. LAEMU2026"
-                              className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
-                            />
-                            <button className="px-4 py-2 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors">
-                              Anwenden
-                            </button>
+                            <input type="text" placeholder="z. B. LAEMU2026" className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
+                            <button className="px-4 py-2 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors">Anwenden</button>
                           </div>
                         </div>
                       )}
-
                       <button
                         onClick={() => setSuccess(true)}
                         className="w-full py-4 bg-accent-gold text-white font-sans font-semibold text-base hover:bg-accent-gold/90 transition-colors"
@@ -1452,16 +1571,9 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                         <span className="text-4xl">✓</span>
                       </motion.div>
                       <h3 className="font-heading text-2xl font-bold mb-2">Willkommen in der Musikschule!</h3>
-                      <p className="font-sans text-text-secondary text-sm mb-2">
-                        Dein Abonnement ist aktiv — viel Freude beim Lernen!
-                      </p>
-                      <p className="font-sans text-xs text-text-secondary mb-8">
-                        Deine LAEMU Membership ist ab sofort ebenfalls aktiv.
-                      </p>
-                      <Link
-                        href="/member/academy"
-                        className="inline-block px-8 py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors"
-                      >
+                      <p className="font-sans text-text-secondary text-sm mb-2">Dein Abonnement ist aktiv — viel Freude beim Lernen!</p>
+                      <p className="font-sans text-xs text-text-secondary mb-8">Deine LAEMU Membership ist ab sofort ebenfalls aktiv.</p>
+                      <Link href="/member/academy" className="inline-block px-8 py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors">
                         Zur Musikschule →
                       </Link>
                     </motion.div>
@@ -1469,6 +1581,7 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                 </AnimatePresence>
               </motion.div>
             )}
+
           </AnimatePresence>
         </div>
       </motion.div>
