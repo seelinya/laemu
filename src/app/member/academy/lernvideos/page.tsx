@@ -130,6 +130,8 @@ export default function LernvideosPage() {
   const [filterSaved, setFilterSaved] = useState(false)
   const [tab, setTab] = useState<'datenbank' | 'wuensche'>('datenbank')
   const [showPlaylist, setShowPlaylist] = useState(false)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [showAdvancedDesktop, setShowAdvancedDesktop] = useState(true)
   const [showWishForm, setShowWishForm] = useState(false)
   const [wishVotes, setWishVotes] = useState<Record<number, boolean>>(
     Object.fromEntries(wishes.map(w => [w.id, w.voted]))
@@ -256,10 +258,143 @@ export default function LernvideosPage() {
         </div>
 
         {tab === 'datenbank' && (
+          <>
+            {/* ── Mobile: Search + collapsible advanced filters ── */}
+            <div className="lg:hidden mb-6 space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  type="text"
+                  placeholder="Titel, Interpret, Komponist, Tags…"
+                  className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                />
+                <button
+                  onClick={() => setShowMobileFilters(p => !p)}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 font-sans text-xs border transition-colors ${showMobileFilters ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+                  Erweiterte Suche
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                {activeFilterCount > 0 && (
+                  <button onClick={resetAll} className="font-sans text-xs text-accent-gold hover:underline flex-shrink-0">
+                    ✕ {activeFilterCount}
+                  </button>
+                )}
+              </div>
+              <AnimatePresence>
+                {showMobileFilters && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border border-border bg-surface p-4 space-y-5">
+                      {/* Instrument */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Instrument</label>
+                        <select value={filterInst} onChange={e => setFilterInst(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface">
+                          {INSTRUMENTS.map(o => <option key={o}>{o}</option>)}
+                        </select>
+                      </div>
+                      {/* Art des Stückes */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Art des Stückes</label>
+                        <div className="space-y-2">
+                          {([
+                            ['volkstuemlich', 'Volkstümlich', 'Ländler, Schottisch, Walzer …'],
+                            ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder …'],
+                          ] as const).map(([val, label, desc]) => {
+                            const active = filterArt.includes(val)
+                            return (
+                              <div key={val}>
+                                <button onClick={() => toggleArt(val)} className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                                  <div>
+                                    <p className={`font-sans text-sm font-medium ${active ? 'text-accent-gold' : ''}`}>{label}</p>
+                                    <p className="font-sans text-xs text-text-secondary leading-snug">{desc}</p>
+                                  </div>
+                                  <div className={`w-4 h-4 border flex-shrink-0 mt-0.5 flex items-center justify-center ${active ? 'bg-accent-gold border-accent-gold' : 'border-border'}`}>
+                                    {active && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                                  </div>
+                                </button>
+                                <AnimatePresence>
+                                  {active && val === 'volkstuemlich' && (
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                                      <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
+                                        <div>
+                                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stil</p>
+                                          <div className="flex flex-wrap gap-1">
+                                            {VOLKSTUEMLICH_TAGS.map(t => (
+                                              <button key={t} onClick={() => setFilterStyleTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
+                                          <div className="flex flex-wrap gap-1">
+                                            {TAKTARTEN_FILTER.map(t => (
+                                              <button key={t} onClick={() => setFilterTakt(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                                <AnimatePresence>
+                                  {active && val === 'bekannte_melodie' && (
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                                      <div className="border border-t-0 border-border bg-background px-3 py-3">
+                                        <p className="font-sans text-[10px] uppercase tracking-widest text-text-secondary mb-2">Genre</p>
+                                        <div className="flex flex-wrap gap-1">
+                                          {BEKANNTE_TAGS.map(t => (
+                                            <button key={t} onClick={() => setFilterGenreTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                      {/* Abonnementstufe */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Abonnementstufe</label>
+                        <div className="flex gap-1">
+                          {PLANS.map(p => (
+                            <button key={p} onClick={() => setFilterPlan(p)} className={`flex-1 py-2 font-sans text-xs border transition-colors ${filterPlan === p ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{p}</button>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Noten */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Noten</label>
+                        <div className="space-y-1.5">
+                          <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                            <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#C4973A]" />
+                            <span className={`font-sans text-sm ${filterNotenV ? 'text-accent-gold' : 'text-text-secondary'}`}>Violinschlüssel</span>
+                          </label>
+                          <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                            <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#C4973A]" />
+                            <span className={`font-sans text-sm ${filterNotenG ? 'text-accent-gold' : 'text-text-secondary'}`}>Griffschrift</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-            {/* ── Left sidebar: Suche + Filter ── */}
-            <div className="space-y-6">
+            {/* ── Left sidebar: Suche + Filter (desktop only) ── */}
+            <div className="hidden lg:block space-y-6">
               <div className="flex items-center justify-between">
                 <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Filter & Suche</p>
                 {activeFilterCount > 0 && (
@@ -290,6 +425,19 @@ export default function LernvideosPage() {
                 </select>
               </div>
 
+              {/* Advanced filter toggle */}
+              <button
+                onClick={() => setShowAdvancedDesktop(p => !p)}
+                className="w-full flex items-center justify-between font-sans text-xs text-text-secondary hover:text-dark transition-colors border-b border-border pb-2"
+              >
+                <span className="uppercase tracking-widest">Erweiterte Filter</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showAdvancedDesktop ? '' : '-rotate-90'}`}><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+
+              <AnimatePresence initial={false}>
+                {showAdvancedDesktop && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="space-y-6">
               {/* Art des Stückes — multi-select like upload form */}
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Art des Stückes</label>
@@ -409,6 +557,10 @@ export default function LernvideosPage() {
                   </label>
                 </div>
               </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* ── Results ── */}
@@ -541,6 +693,7 @@ export default function LernvideosPage() {
               )}
             </div>
           </div>
+          </>
         )}
 
         {tab === 'wuensche' && (
