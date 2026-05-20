@@ -16,11 +16,11 @@ const footerLinks = {
     { label: 'Gruppen', href: '/community' },
     { label: 'Events', href: '/events' },
   ],
-  Academy: [
-    { label: 'Kurse entdecken', href: '/academy' },
-    { label: 'Lehrpersonen', href: '/academy' },
-    { label: 'Preise', href: '/academy' },
-    { label: 'Mein Fortschritt', href: '/member/academy' },
+  Musikschule: [
+    { label: 'Angebote entdecken', href: '/musikschule' },
+    { label: 'Lehrpersonen', href: '/musikschule' },
+    { label: 'Preise & Pakete', href: '/musikschule' },
+    { label: 'Mein Bereich', href: '/member/academy' },
   ],
   Unternehmen: [
     { label: 'Mission', href: '/mission' },

@@ -212,7 +212,7 @@ export default function MemberAcademyPage() {
       {/* TOP BAR */}
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between mt-20">
         <div className="flex items-center gap-6">
-          <h1 className="font-heading font-bold text-lg">LAEMU Academy</h1>
+          <h1 className="font-heading font-bold text-lg">LAEMU Musikschule</h1>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
@@ -245,7 +245,7 @@ export default function MemberAcademyPage() {
                   </div>
                   <div>
                     <p className="font-heading font-bold text-sm">Niklaus Hess</p>
-                    <p className="font-sans text-xs text-accent-gold">Academy Mitglied</p>
+                    <p className="font-sans text-xs text-accent-gold">Musikschule Mitglied</p>
                   </div>
                 </div>
                 <div className="space-y-2">

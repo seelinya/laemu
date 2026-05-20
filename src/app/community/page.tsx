@@ -59,7 +59,7 @@ const features = [
   { icon: <IconFeed />, title: 'Feed verwalten', desc: 'Zwei Tabs: alle Beiträge nach Datum, oder nur der Inhalt der Profile, denen du folgst.' },
   { icon: <IconHeart />, title: 'Interagieren', desc: 'Like, kommentiere, teile Beiträge und speichere sie als Inspiration auf deinem Profil.' },
   { icon: <IconMessage />, title: 'Direktnachrichten', desc: 'Chatte direkt mit anderen Mitglieder:innen und tritt LAEMU-Gruppen für Kurse und Events bei.' },
-  { icon: <IconGraduate />, title: 'Academy-Zugang', desc: 'Jedes Academy-Mitglied erhält automatisch Zugang zur LAEMU Community inklusive Kurs-Chats.' },
+  { icon: <IconGraduate />, title: 'Musikschule-Zugang', desc: 'Jedes Academy-Mitglied erhält automatisch Zugang zur LAEMU Community inklusive Kurs-Chats.' },
   { icon: <IconCalendar />, title: 'Event-Chats', desc: 'Bei Event-Anmeldung erhältst du Zugang zum LAEMU-Chat für den jeweiligen Anlass.' },
   { icon: <IconShield />, title: 'Profil & Privatsphäre', desc: 'Verwalte Geräte (max. 2), Blockliste, Zahlungsangaben, Rechnungsverlauf und Passwort.' },
 ]
@@ -204,7 +204,7 @@ export default function CommunityPage() {
                   <span className="font-sans text-text-secondary font-light">/Monat</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {['Eigenes Community-Profil', 'Beiträge, Videos & Links posten', 'Direktnachrichten (Chat)', 'Academy-Zugang inklusive', 'Event-Chats bei Anmeldung', 'Geräte-Verwaltung (max. 2)', 'Blockliste & Datenschutz'].map((item) => (
+                  {['Eigenes Community-Profil', 'Beiträge, Videos & Links posten', 'Direktnachrichten (Chat)', 'Musikschule-Zugang inklusive', 'Event-Chats bei Anmeldung', 'Geräte-Verwaltung (max. 2)', 'Blockliste & Datenschutz'].map((item) => (
                     <li key={item} className="flex items-center gap-3 font-sans text-sm font-light">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-dark"><polyline points="20 6 9 17 4 12"/></svg>
                       {item}
@@ -224,8 +224,8 @@ export default function CommunityPage() {
                   </div>
                 </div>
                 <div className="mb-6">
-                  <h3 className="font-heading text-2xl font-black mb-2">Mit Academy</h3>
-                  <p className="font-sans text-white/50 text-sm font-light">Academy-Mitglieder erhalten automatisch Zugang</p>
+                  <h3 className="font-heading text-2xl font-black mb-2">Mit Musikschule</h3>
+                  <p className="font-sans text-white/50 text-sm font-light">Musikschule-Mitglieder erhalten automatisch Zugang</p>
                 </div>
                 <div className="mb-8">
                   <span className="font-heading text-5xl font-black text-accent-yellow">Inklusive</span>
@@ -238,8 +238,8 @@ export default function CommunityPage() {
                     </li>
                   ))}
                 </ul>
-                <Button href="/academy" variant="primary" size="md" className="w-full">
-                  Academy entdecken
+                <Button href="/musikschule" variant="primary" size="md" className="w-full">
+                  Musikschule entdecken
                 </Button>
               </div>
             </motion.div>

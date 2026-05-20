@@ -27,7 +27,7 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 
 const subjects = [
   'Allgemeine Anfrage',
-  'Academy & Kurse',
+  'Musikschule & Kurse',
   'Community',
   'Formation eintragen',
   'Event eintragen',
@@ -158,7 +158,7 @@ export default function ContactPage() {
                     name: 'Niklaus Hess',
                     role: 'Co-Founder',
                     email: 'niklaus@laemu.ch',
-                    topics: ['Ländlermusik', 'Academy', 'Instrumente', 'Musikinhalte'],
+                    topics: ['Ländlermusik', 'Musikschule', 'Instrumente', 'Musikinhalte'],
                     img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80',
                   },
                   {
