@@ -1737,6 +1737,27 @@ export default function MemberCommunityPage() {
               {/* Suggested profiles: no follower counts */}
               <SuggestedProfilesSidebar />
 
+              {/* Playlist & Saved quick access */}
+              <div className="bg-surface border border-border p-5">
+                <h3 className="font-heading font-bold text-sm mb-3">Lernvideos</h3>
+                <div className="space-y-2">
+                  <Link href="/member/academy/lernvideos?playlist=open" className="flex items-center justify-between p-3 border border-border hover:border-accent-gold hover:bg-accent-gold/5 transition-colors group">
+                    <div className="flex items-center gap-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+                      <span className="font-sans text-xs">Meine Playlist</span>
+                    </div>
+                    <span className="font-sans text-xs font-semibold text-accent-gold">5</span>
+                  </Link>
+                  <Link href="/member/academy/lernvideos?saved=1" className="flex items-center justify-between p-3 border border-border hover:border-accent-gold hover:bg-accent-gold/5 transition-colors group">
+                    <div className="flex items-center gap-2.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                      <span className="font-sans text-xs">Gespeicherte Videos</span>
+                    </div>
+                    <span className="font-sans text-xs font-semibold text-accent-gold">3</span>
+                  </Link>
+                </div>
+              </div>
+
               <div className="bg-surface border border-border p-5">
                 <h3 className="font-heading font-bold text-sm mb-4">Kommende Events</h3>
                 <div className="space-y-3">

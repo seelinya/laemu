@@ -12,7 +12,7 @@ const videos = [
     id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', instrument: 'Handorgel', formation: 'Trio',
     composer: 'Valotti', year: 1978, difficultyNum: 3, level: 2, taktart: 'Walzer',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
-    styleTags: ['Urchig', 'Innerschwyzer Stil', 'Zweistimmig'],
+    styleTags: ['Urchig', 'Innerschwyzer Stil', 'Zweistimmig'], melodieTags: [] as string[],
     autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
     notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80',
@@ -22,7 +22,7 @@ const videos = [
     id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli',
     formation: 'Kapelle', composer: 'Hess', year: 1995, difficultyNum: 2, level: 1, taktart: 'Ländler',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
-    styleTags: ['Modern', 'Konzertant'],
+    styleTags: ['Modern', 'Konzertant'], melodieTags: [] as string[],
     autoTags: ['Schwyzerörgeli', 'Starter'],
     notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80',
@@ -32,7 +32,7 @@ const videos = [
     id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', formation: 'Quartett',
     composer: 'Unbekannt', year: 2003, difficultyNum: 4, level: 3, taktart: 'Polka',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
-    styleTags: ['Urchig', 'Berner Stil'],
+    styleTags: ['Urchig', 'Berner Stil'], melodieTags: [] as string[],
     autoTags: ['Handorgel', 'Pro'],
     notesAvailable: { violinschluessel: false, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80',
@@ -42,7 +42,7 @@ const videos = [
     id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', formation: 'Trio',
     composer: 'Müller', year: 1988, difficultyNum: 3, level: 2, taktart: 'Schottisch',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
-    styleTags: ['Innerschwyzer Stil'],
+    styleTags: ['Innerschwyzer Stil'], melodieTags: [] as string[],
     autoTags: ['Klarinette', 'Starter'],
     notesAvailable: { violinschluessel: false, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80',
@@ -52,7 +52,7 @@ const videos = [
     id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', formation: 'Solo',
     composer: 'Frei', year: 2015, difficultyNum: 2, level: 2, taktart: 'Walzer',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'free' as const,
-    styleTags: ['Modern'],
+    styleTags: ['Modern'], melodieTags: [] as string[],
     autoTags: ['Klavier', 'Free'],
     notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80',
@@ -62,7 +62,7 @@ const videos = [
     id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', formation: 'Kapelle',
     composer: 'Rusch', year: 1972, difficultyNum: 5, level: 4, taktart: 'Mazurka',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
-    styleTags: ['Konzertant', 'Büntner Stil'],
+    styleTags: ['Konzertant', 'Büntner Stil'], melodieTags: [] as string[],
     autoTags: ['Bass', 'Pro'],
     notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80',
@@ -80,19 +80,29 @@ const videos = [
   },
 ]
 
+const savedVideoIds = new Set([1, 5, 7])
+
+const mockPlaylist = [
+  { id: 'p1', title: '1. Stimme — Einführung & Takt 1–8', piece: 'Dr Alperose', duration: '12 Min.' },
+  { id: 'p2', title: '1. Stimme — Takt 9–16 mit Übergängen', piece: 'Dr Alperose', duration: '14 Min.' },
+  { id: 'p3', title: '1. Stimme SÖ — Einführung', piece: 'Ländler im Dreivierteltakt', duration: '13 Min.' },
+  { id: 'p4', title: 'Bassbegleitung — Grundrhythmus', piece: 'Walzer am See', duration: '9 Min.' },
+  { id: 'p5', title: 'Vorspielen — ganzes Stück', piece: 'Stille Nacht', duration: '3:42' },
+]
+
 const wishes = [
   { id: 1, title: 'S Röseli', artist: 'Kapelle Alpstein', instrument: 'Handorgel', votes: 23, voted: false, status: 'offen' },
   { id: 2, title: 'Märzenschnee-Ländler', artist: 'Unbekannt', instrument: 'Schwyzerörgeli', votes: 17, voted: true, status: 'offen' },
   { id: 3, title: 'Luzerner Polka', artist: 'Trio Rigi', instrument: 'Klarinette', votes: 41, voted: false, status: 'in Produktion' },
 ]
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
 const INSTRUMENTS = ['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette']
-const TAKTARTEN = ['Alle', 'Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
+const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
+const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
+const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']
 const PLANS = ['Alle', 'Free', 'Starter', 'Pro']
-const ART_OPTIONS = ['Alle', 'Volkstümlich', 'Bekannte Melodie']
-const STYLE_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
-const NOTEN_OPTIONS = ['Alle', 'Noten vorhanden', 'Violinschlüssel', 'Griffschrift'] as const
-type NotenFilter = typeof NOTEN_OPTIONS[number]
 
 const planColors: Record<string, string> = {
   free: 'bg-border/60 text-text-secondary',
@@ -101,17 +111,25 @@ const planColors: Record<string, string> = {
 }
 const planLabels: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type ArtFilter = 'volkstuemlich' | 'bekannte_melodie'
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function LernvideosPage() {
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
-  const [filterTakt, setFilterTakt] = useState('Alle')
-  const [filterPlan, setFilterPlan] = useState('Alle')
-  const [filterArt, setFilterArt] = useState('Alle')
+  const [filterArt, setFilterArt] = useState<ArtFilter[]>([])
+  const [filterTakt, setFilterTakt] = useState<string | null>(null)
   const [filterStyleTag, setFilterStyleTag] = useState<string | null>(null)
-  const [filterNoten, setFilterNoten] = useState<NotenFilter>('Alle')
+  const [filterGenreTag, setFilterGenreTag] = useState<string | null>(null)
+  const [filterPlan, setFilterPlan] = useState('Alle')
+  const [filterNotenV, setFilterNotenV] = useState(false)
+  const [filterNotenG, setFilterNotenG] = useState(false)
+  const [filterSaved, setFilterSaved] = useState(false)
   const [tab, setTab] = useState<'datenbank' | 'wuensche'>('datenbank')
+  const [showPlaylist, setShowPlaylist] = useState(false)
   const [showWishForm, setShowWishForm] = useState(false)
   const [wishVotes, setWishVotes] = useState<Record<number, boolean>>(
     Object.fromEntries(wishes.map(w => [w.id, w.voted]))
@@ -120,43 +138,111 @@ export default function LernvideosPage() {
   const [wishArtist, setWishArtist] = useState('')
   const [wishInst, setWishInst] = useState('Handorgel')
 
+  const toggleArt = (val: ArtFilter) => {
+    setFilterArt(prev => {
+      const next = prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]
+      if (!next.includes('volkstuemlich')) { setFilterStyleTag(null); setFilterTakt(null) }
+      if (!next.includes('bekannte_melodie')) { setFilterGenreTag(null) }
+      return next
+    })
+  }
+
+  const resetAll = () => {
+    setSearch(''); setFilterInst('Alle'); setFilterArt([]); setFilterTakt(null)
+    setFilterStyleTag(null); setFilterGenreTag(null); setFilterPlan('Alle')
+    setFilterNotenV(false); setFilterNotenG(false); setFilterSaved(false)
+  }
+
   const filtered = videos.filter(v => {
+    if (filterSaved && !savedVideoIds.has(v.id)) return false
     const q = search.toLowerCase()
     if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q) && !v.autoTags.some(t => t.toLowerCase().includes(q))) return false
     if (filterInst !== 'Alle' && v.instrument !== filterInst) return false
-    if (filterTakt !== 'Alle' && v.taktart !== filterTakt) return false
+    if (filterArt.length === 1 && v.artDesStückes !== filterArt[0]) return false
+    if (filterTakt && v.taktart !== filterTakt) return false
+    if (filterStyleTag && !(v.styleTags as string[]).includes(filterStyleTag)) return false
+    if (filterGenreTag && !v.melodieTags.includes(filterGenreTag)) return false
     if (filterPlan !== 'Alle' && v.difficultyPlan !== filterPlan.toLowerCase()) return false
-    if (filterArt !== 'Alle') {
-      if (filterArt === 'Volkstümlich' && v.artDesStückes !== 'volkstuemlich') return false
-      if (filterArt === 'Bekannte Melodie' && v.artDesStückes !== 'bekannte_melodie') return false
-    }
-    if (filterStyleTag) {
-      const mel = ('melodieTags' in v ? (v as { melodieTags?: string[] }).melodieTags : undefined) ?? []
-      if (!(v.styleTags as string[]).includes(filterStyleTag) && !mel.includes(filterStyleTag)) return false
-    }
-    if (filterNoten === 'Noten vorhanden' && !v.notesAvailable.violinschluessel && !v.notesAvailable.griffschrift) return false
-    if (filterNoten === 'Violinschlüssel' && !v.notesAvailable.violinschluessel) return false
-    if (filterNoten === 'Griffschrift' && !v.notesAvailable.griffschrift) return false
+    if (filterNotenV && !v.notesAvailable.violinschluessel) return false
+    if (filterNotenG && !v.notesAvailable.griffschrift) return false
     return true
   })
 
   const activeFilterCount = [
-    filterInst !== 'Alle', filterTakt !== 'Alle',
-    filterPlan !== 'Alle', filterArt !== 'Alle', filterStyleTag !== null, filterNoten !== 'Alle',
+    filterInst !== 'Alle', filterArt.length > 0, filterTakt !== null,
+    filterStyleTag !== null, filterGenreTag !== null,
+    filterPlan !== 'Alle', filterNotenV, filterNotenG, filterSaved,
   ].filter(Boolean).length
 
   return (
     <div className="min-h-screen bg-background">
+
+      {/* Header */}
       <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
         <div className="flex items-center gap-4">
           <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Musikschule</Link>
           <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
         </div>
-        <Link href="/member/academy/lernvideos/upload" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Stück hochladen
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setFilterSaved(!filterSaved)}
+            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${filterSaved ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill={filterSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            Gespeichert ({savedVideoIds.size})
+          </button>
+          <button
+            onClick={() => setShowPlaylist(!showPlaylist)}
+            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+            Meine Playlist ({mockPlaylist.length})
+          </button>
+          <Link href="/member/academy/lernvideos/upload" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Stück hochladen
+          </Link>
+        </div>
       </div>
+
+      {/* Playlist panel */}
+      <AnimatePresence>
+        {showPlaylist && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-b border-border bg-dark text-white"
+          >
+            <div className="max-w-7xl mx-auto px-6 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <p className="font-sans text-xs uppercase tracking-widest text-white/40">Meine Playlist</p>
+                  <button className="font-sans text-xs px-3 py-1 bg-accent-gold text-white hover:bg-accent-warm transition-colors flex items-center gap-1.5">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Alle abspielen
+                  </button>
+                </div>
+                <button onClick={() => setShowPlaylist(false)} className="text-white/30 hover:text-white transition-colors">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {mockPlaylist.map((item, i) => (
+                  <div key={item.id} className="flex-shrink-0 bg-white/5 border border-white/10 p-3 w-52 hover:border-accent-gold/40 transition-colors group cursor-pointer">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className="font-sans text-[10px] text-white/30 tabular-nums">{i + 1}</span>
+                      <span className="font-sans text-[10px] text-white/30">{item.duration}</span>
+                    </div>
+                    <p className="font-sans text-xs text-white leading-snug mb-0.5 group-hover:text-accent-gold transition-colors">{item.title}</p>
+                    <p className="font-sans text-[10px] text-white/40">{item.piece}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs */}
@@ -171,52 +257,132 @@ export default function LernvideosPage() {
 
         {tab === 'datenbank' && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Filters sidebar */}
-            <div className="space-y-5">
+
+            {/* ── Left sidebar: Suche + Filter ── */}
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Filter</p>
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Filter & Suche</p>
                 {activeFilterCount > 0 && (
-                  <button
-                    onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }}
-                    className="font-sans text-xs text-accent-gold hover:underline"
-                  >
+                  <button onClick={resetAll} className="font-sans text-xs text-accent-gold hover:underline">
                     Zurücksetzen ({activeFilterCount})
                   </button>
                 )}
               </div>
 
               {/* Search */}
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                type="text"
+                placeholder="Titel, Interpret, Komponist, Tags…"
+                className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+              />
+
+              {/* Instrument */}
               <div>
-                <input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  type="text"
-                  placeholder="Titel, Interpret, Komponist, Tags..."
-                  className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                />
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Instrument</label>
+                <select
+                  value={filterInst}
+                  onChange={e => setFilterInst(e.target.value)}
+                  className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                >
+                  {INSTRUMENTS.map(o => <option key={o}>{o}</option>)}
+                </select>
               </div>
 
-              {/* Dropdowns */}
-              {([
-                { label: 'Instrument', value: filterInst, set: setFilterInst, opts: INSTRUMENTS },
-                { label: 'Taktart', value: filterTakt, set: setFilterTakt, opts: TAKTARTEN },
-              ]).map(f => (
-                <div key={f.label}>
-                  <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">{f.label}</label>
-                  <select
-                    value={f.value}
-                    onChange={e => f.set(e.target.value)}
-                    className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                  >
-                    {f.opts.map(o => <option key={o}>{o}</option>)}
-                  </select>
-                </div>
-              ))}
+              {/* Art des Stückes — multi-select like upload form */}
+              <div>
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Art des Stückes</label>
+                <div className="space-y-2">
+                  {([
+                    ['volkstuemlich', 'Volkstümlich', 'Ländler, Schottisch, Walzer …'],
+                    ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder …'],
+                  ] as const).map(([val, label, desc]) => {
+                    const active = filterArt.includes(val)
+                    return (
+                      <div key={val}>
+                        <button
+                          onClick={() => toggleArt(val)}
+                          className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                        >
+                          <div>
+                            <p className={`font-sans text-sm font-medium ${active ? 'text-accent-gold' : ''}`}>{label}</p>
+                            <p className="font-sans text-xs text-text-secondary leading-snug">{desc}</p>
+                          </div>
+                          <div className={`w-4 h-4 border flex-shrink-0 mt-0.5 flex items-center justify-center ${active ? 'bg-accent-gold border-accent-gold' : 'border-border'}`}>
+                            {active && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                          </div>
+                        </button>
 
-              {/* Plan */}
+                        {/* Volkstümlich sub-filters */}
+                        <AnimatePresence>
+                          {active && val === 'volkstuemlich' && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                              <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
+                                <div>
+                                  <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stil</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {VOLKSTUEMLICH_TAGS.map(t => (
+                                      <button
+                                        key={t}
+                                        onClick={() => setFilterStyleTag(prev => prev === t ? null : t)}
+                                        className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
+                                      >
+                                        {t}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {TAKTARTEN_FILTER.map(t => (
+                                      <button
+                                        key={t}
+                                        onClick={() => setFilterTakt(prev => prev === t ? null : t)}
+                                        className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                                      >
+                                        {t}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Bekannte Melodie sub-filters */}
+                        <AnimatePresence>
+                          {active && val === 'bekannte_melodie' && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                              <div className="border border-t-0 border-border bg-background px-3 py-3">
+                                <p className="font-sans text-[10px] uppercase tracking-widest text-text-secondary mb-2">Genre</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {BEKANNTE_TAGS.map(t => (
+                                    <button
+                                      key={t}
+                                      onClick={() => setFilterGenreTag(prev => prev === t ? null : t)}
+                                      className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                                    >
+                                      {t}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Abonnementstufe */}
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Abonnementstufe</label>
-                <div className="flex gap-1.5">
+                <div className="flex gap-1">
                   {PLANS.map(p => (
                     <button
                       key={p}
@@ -229,163 +395,135 @@ export default function LernvideosPage() {
                 </div>
               </div>
 
-              {/* Art des Stückes */}
-              <div>
-                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Art des Stückes</label>
-                <div className="space-y-1">
-                  {ART_OPTIONS.map(a => (
-                    <button
-                      key={a}
-                      onClick={() => setFilterArt(a)}
-                      className={`w-full text-left px-3 py-2 font-sans text-sm border transition-colors ${filterArt === a ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                    >
-                      {a}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Style tags */}
-              <div>
-                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Stil</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {STYLE_TAGS.map(t => (
-                    <button
-                      key={t}
-                      onClick={() => setFilterStyleTag(prev => prev === t ? null : t)}
-                      className={`font-sans text-xs px-2.5 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Noten */}
               <div>
-                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Noten</label>
-                <div className="space-y-1">
-                  {NOTEN_OPTIONS.map(n => (
-                    <button
-                      key={n}
-                      onClick={() => setFilterNoten(n)}
-                      className={`w-full text-left px-3 py-2 font-sans text-sm border transition-colors flex items-center justify-between ${filterNoten === n ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                    >
-                      <span>{n}</span>
-                      {n === 'Violinschlüssel' && <span className={`font-sans text-[10px] px-1.5 py-0.5 border ${filterNoten === n ? 'border-white/30 text-white/60' : 'border-border text-text-secondary'}`}>♩</span>}
-                      {n === 'Griffschrift' && <span className={`font-sans text-[10px] px-1.5 py-0.5 border ${filterNoten === n ? 'border-white/30 text-white/60' : 'border-border text-text-secondary'}`}>𝄞</span>}
-                    </button>
-                  ))}
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Noten</label>
+                <div className="space-y-1.5">
+                  <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                    <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#C4973A]" />
+                    <span className={`font-sans text-sm ${filterNotenV ? 'text-accent-gold' : 'text-text-secondary'}`}>Violinschlüssel</span>
+                  </label>
+                  <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                    <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#C4973A]" />
+                    <span className={`font-sans text-sm ${filterNotenG ? 'text-accent-gold' : 'text-text-secondary'}`}>Griffschrift</span>
+                  </label>
                 </div>
               </div>
             </div>
 
-            {/* Results */}
+            {/* ── Results ── */}
             <div className="lg:col-span-3">
               <div className="flex items-center justify-between mb-4">
-                <p className="font-sans text-sm text-text-secondary">{filtered.length} Lernvideo{filtered.length !== 1 ? 's' : ''} gefunden</p>
+                <p className="font-sans text-sm text-text-secondary">
+                  {filtered.length} Lernvideo{filtered.length !== 1 ? 's' : ''}
+                  {filterSaved && <span className="ml-1.5 font-sans text-xs px-2 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">Gespeichert</span>}
+                </p>
                 {activeFilterCount > 0 && (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterInst}</span>}
-                    {filterTakt !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterTakt}</span>}
-
-                    {filterPlan !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterPlan}</span>}
-                    {filterArt !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterArt}</span>}
-                    {filterStyleTag && <span className="font-sans text-xs px-2 py-1 bg-accent-gold text-white">{filterStyleTag}</span>}
-                    {filterNoten !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterNoten}</span>}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterInst}</span>}
+                    {filterArt.map(a => (
+                      <span key={a} className="font-sans text-xs px-2 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
+                        {a === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
+                      </span>
+                    ))}
+                    {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{filterStyleTag}</span>}
+                    {filterTakt && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterTakt}</span>}
+                    {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterGenreTag}</span>}
+                    {filterPlan !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterPlan}</span>}
+                    {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Violinschlüssel</span>}
+                    {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Griffschrift</span>}
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {/* Horizontal list */}
+              <div className="flex flex-col gap-3">
                 {filtered.map((v, i) => (
                   <motion.div
                     key={v.id}
-                    initial={{ opacity: 0, y: 16 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                    className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col"
+                    transition={{ delay: i * 0.03 }}
+                    className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex"
                   >
-                    <div className="relative aspect-video overflow-hidden flex-shrink-0">
+                    {/* Thumbnail */}
+                    <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch">
                       <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-12 h-12 bg-accent-gold flex items-center justify-center">
-                          <span className="text-white ml-0.5">▶</span>
+                        <div className="w-9 h-9 bg-accent-gold flex items-center justify-center">
+                          <span className="text-white ml-0.5 text-sm">▶</span>
                         </div>
                       </div>
-                      {/* Overlay tags */}
-                      <div className="absolute top-2 left-2 flex gap-1">
+                      {/* Instrument tag */}
+                      <div className="absolute bottom-2 left-2">
                         <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
-                        {v.taktart && <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.taktart}</span>}
                       </div>
-                      {/* Plan badge */}
-                      <div className="absolute top-2 right-2">
-                        <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>
-                          {planLabels[v.difficultyPlan]}
-                        </span>
-                      </div>
-                      {v.purchased && (
-                        <div className="absolute bottom-2 right-2 bg-accent-gold text-white text-[10px] px-1.5 py-0.5">✓ Zugänglich</div>
+                      {savedVideoIds.has(v.id) && (
+                        <div className="absolute top-2 left-2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="#C4973A" stroke="#C4973A" strokeWidth="1"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        </div>
                       )}
                     </div>
 
-                    <div className="p-4 flex flex-col flex-1">
-                      <h4 className="font-heading font-bold text-sm mb-0.5 group-hover:text-accent-gold transition-colors">{v.title}</h4>
-                      <p className="font-sans text-xs text-text-secondary mb-3">{v.artist} · {v.year}</p>
-
-                      {/* Difficulty bar */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: 6 }).map((_, j) => (
-                            <div key={j} className={`w-2.5 h-1.5 ${j < v.difficultyNum ? 'bg-accent-gold' : 'bg-border'}`} />
-                          ))}
+                    {/* Content */}
+                    <div className="flex-1 p-4 flex gap-4 min-w-0">
+                      <div className="flex-1 min-w-0">
+                        {/* Title row */}
+                        <div className="flex items-start gap-2 mb-1">
+                          <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
+                          {v.taktart && (
+                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
+                          )}
                         </div>
-                        <span className="font-sans text-[10px] text-text-secondary">Stufe {v.level}</span>
-                      </div>
+                        <p className="font-sans text-xs text-text-secondary mb-2">{v.artist} · {v.year}</p>
 
-                      {/* Style tags */}
-                      {v.styleTags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
+                        {/* Difficulty */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex gap-0.5">
+                            {Array.from({ length: 6 }).map((_, j) => (
+                              <div key={j} className={`w-2 h-1.5 ${j < v.difficultyNum ? 'bg-accent-gold' : 'bg-border'}`} />
+                            ))}
+                          </div>
+                          <span className="font-sans text-[10px] text-text-secondary">Stufe {v.level}</span>
+                        </div>
+
+                        {/* Tags row */}
+                        <div className="flex flex-wrap gap-1">
                           {v.styleTags.slice(0, 3).map(t => (
                             <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/8 border border-accent-gold/20 text-accent-gold">{t}</span>
                           ))}
-                          {'melodieTags' in v && (v as { melodieTags?: string[] }).melodieTags?.slice(0, 2).map(t => (
+                          {v.melodieTags.slice(0, 2).map(t => (
                             <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
                           ))}
-                        </div>
-                      )}
-
-                      {/* Notes badges */}
-                      {(v.notesAvailable.violinschluessel || v.notesAvailable.griffschrift) && (
-                        <div className="flex flex-wrap gap-1 mb-3">
+                          {/* Notes badges */}
                           {v.notesAvailable.violinschluessel && (
-                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
-                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                              Violinschlüssel
-                            </span>
+                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Violin</span>
                           )}
                           {v.notesAvailable.griffschrift && (
-                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
-                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                              Griffschrift
-                            </span>
+                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Griff</span>
                           )}
                         </div>
-                      )}
+                      </div>
 
-                      <div className="mt-auto">
-                        {v.purchased ? (
-                          <Link href={`/member/academy/lernvideos/${v.id}`} className="block text-center font-sans text-xs bg-dark text-white py-2 hover:bg-accent-gold transition-colors">
-                            Lernvideo öffnen →
-                          </Link>
-                        ) : (
-                          <div className="flex items-center justify-between">
-                            <span className="font-sans text-sm font-semibold">{v.price > 0 ? `CHF ${v.price}.–` : 'Kostenlos'}</span>
-                            <button className="bg-accent-gold text-white font-sans text-xs px-3 py-1.5 hover:bg-accent-warm transition-colors">
-                              {v.price > 0 ? 'Kaufen' : 'Öffnen'}
-                            </button>
-                          </div>
-                        )}
+                      {/* Right: plan badge + action */}
+                      <div className="flex flex-col items-end justify-between flex-shrink-0">
+                        <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>
+                          {planLabels[v.difficultyPlan]}
+                        </span>
+                        <div className="mt-auto">
+                          {v.purchased ? (
+                            <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
+                              Öffnen →
+                            </Link>
+                          ) : (
+                            <div className="flex flex-col items-end gap-1">
+                              {v.price > 0 && <span className="font-sans text-sm font-semibold">CHF {v.price}.–</span>}
+                              <button className="bg-accent-gold text-white font-sans text-xs px-3 py-1.5 hover:bg-accent-warm transition-colors whitespace-nowrap">
+                                {v.price > 0 ? 'Kaufen' : 'Öffnen'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -396,7 +534,7 @@ export default function LernvideosPage() {
                 <div className="text-center py-16">
                   <p className="font-heading font-bold text-lg mb-2">Keine Lernvideos gefunden</p>
                   <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche die gesamte Datenbank.</p>
-                  <button onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
+                  <button onClick={resetAll} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
                     Alle Filter zurücksetzen
                   </button>
                 </div>
