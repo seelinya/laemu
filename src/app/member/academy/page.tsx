@@ -93,10 +93,10 @@ const recentLessons = [
 ]
 
 const teachers = [
-  { id: 'wenger', name: 'Hansruedi Wenger', specialty: 'Handorgel & Akkordeon', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80', bio: 'Hansruedi Wenger ist einer der renommiertesten Handorgel-Lehrer der Deutschschweiz. Mit über 20 Jahren Unterrichtserfahrung verbindet er Tradition und modernes Lehrverständnis.', courses: 3, students: 156, rating: 4.9, instruments: ['Handorgel', 'Akkordeon', 'Steirische Harmonika'], location: 'Luzern', profileHref: '/member/profile' },
-  { id: 'kaelin', name: 'Maria Kälin', specialty: 'Schwyzerörgeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80', bio: 'Maria Kälin ist die führende Schwyzerörgeli-Lehrerin auf LAEMU. Ihre klare Methodik und Leidenschaft für die Appenzeller Musiktradition machen ihre Kurse aussergewöhnlich.', courses: 2, students: 98, rating: 4.8, instruments: ['Schwyzerörgeli', 'Volksgesang'], location: 'Appenzell', profileHref: '/member/profile' },
-  { id: 'frei', name: 'Lisa Frei', specialty: 'Klavier & Musiktheorie', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80', bio: 'Ausgebildete Pianistin und Musiktheoretikerin. Lisa vermittelt das theoretische Fundament, das Ländlermusiker brauchen.', courses: 2, students: 74, rating: 4.9, instruments: ['Klavier', 'Flügel'], location: 'Zürich', profileHref: '/member/profile' },
-  { id: 'gasser', name: 'Peter Gasser', specialty: 'Klarinette & Ensemble', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80', bio: 'Peter Gasser unterrichtet Klarinette und Ensemblespiel. Als Mitglied mehrerer Kapellen weiss er genau, worauf es im Zusammenspiel ankommt.', courses: 1, students: 52, rating: 4.7, instruments: ['Klarinette', 'Bassklarinette'], location: 'Schwyz', profileHref: '/member/profile' },
+  { id: 'seebi', name: 'Seebi Diener', specialty: 'Bass / Schwyzerörgeli', img: '/images/seebi-diener.jpg', bio: 'Multitalent und Stilpräger der modernen Ländlermusik — unterrichtet Bass und Schwyzerörgeli.', courses: 3, students: 142, rating: 4.9, instruments: ['Bass', 'Schwyzerörgeli'], location: 'Bern', profileHref: '/member/profile' },
+  { id: 'cyrill', name: 'Cyrill Rusch', specialty: 'Schwyzerörgeli', img: '/images/cyrill-rusch.jpg', bio: 'Preisgekrönter Örgelist mit tiefer Verwurzelung in der Tradition — seine Kurse sind ausserordentlich.', courses: 2, students: 98, rating: 4.9, instruments: ['Schwyzerörgeli'], location: 'Schwyz', profileHref: '/member/profile' },
+  { id: 'cecile', name: 'Cécile Schmidig', specialty: 'Handorgel', img: '/images/cecile-schmidig.jpg', bio: 'Ausdrucksstarke Handorgelistin mit einer einzigartigen Kombination aus Technik und Musikalität.', courses: 2, students: 86, rating: 4.8, instruments: ['Handorgel'], location: 'Luzern', profileHref: '/member/profile' },
+  { id: 'franz', name: 'Franz Hess', specialty: 'Klavier', img: '/images/franz-hess.jpg', bio: 'Harmonischer Anker vieler Schweizer Kapellen — Franz vermittelt das klavieristische Fundament der Ländlermusik.', courses: 2, students: 74, rating: 4.9, instruments: ['Klavier'], location: 'Zürich', profileHref: '/member/profile' },
 ]
 
 const allAchievements = [
@@ -152,7 +152,55 @@ const navItems = [
   { label: 'Achievements', id: 'achievements' },
 ]
 
-// ─── Shared components ───────────────────────────────────────────────────────
+// ─── Mock user access ────────────────────────────────────────────────────────
+// Simulates which areas the logged-in user has access to.
+// In production this would come from session/auth context.
+const mockUserAccess = { community: true, academy: true }
+
+// ─── Community mock data ──────────────────────────────────────────────────────
+
+const communityPosts = [
+  {
+    id: 'p1',
+    author: 'Cyrill Rusch',
+    avatar: '/images/cyrill-rusch.jpg',
+    role: 'Lehrperson',
+    time: 'Heute, 09:14',
+    content: 'Wer kommt zum Lernwochenende im Juni? Wir haben noch ein paar Plätze frei — meldet euch rasch!',
+    likes: 14,
+    comments: 6,
+    tag: 'Events',
+  },
+  {
+    id: 'p2',
+    author: 'Sandra B.',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
+    role: 'Mitglied',
+    time: 'Gestern, 18:42',
+    content: 'Endlich habe ich die erste Polka fehlerfrei gespielt 🎶 Nach 3 Wochen Üben — danke an alle, die mich motiviert haben!',
+    likes: 32,
+    comments: 12,
+    tag: 'Fortschritte',
+  },
+  {
+    id: 'p3',
+    author: 'Seebi Diener',
+    avatar: '/images/seebi-diener.jpg',
+    role: 'Lehrperson',
+    time: 'Mo, 15:30',
+    content: 'Neue Lernvideos zur Bassbegleitung sind jetzt in der Datenbank — schaut mal rein, ich freue mich über eure Rückmeldungen!',
+    likes: 27,
+    comments: 8,
+    tag: 'Neu',
+  },
+]
+
+const communityGroups = [
+  { id: 'g1', name: 'Handorgel-Treff', emoji: '🪗', members: 128, desc: 'Alles rund um die Handorgel' },
+  { id: 'g2', name: 'Anfänger-Ecke', emoji: '🌱', members: 86, desc: 'Gegenseitig unterstützen und motivieren' },
+  { id: 'g3', name: 'Formation & Auftritt', emoji: '🎤', members: 54, desc: 'Tipps für Konzerte & Auftritte' },
+  { id: 'g4', name: 'Neue Volksmusik', emoji: '🎶', members: 41, desc: 'Moderne Ländlermusik & Jazz-Einflüsse' },
+]
 
 function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
   return (
@@ -190,6 +238,7 @@ const categoryColors: Record<string, string> = {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function MemberAcademyPage() {
+  const [activeArea, setActiveArea] = useState<'academy' | 'community'>('academy')
   const [activeNav, setActiveNav] = useState('kurse')
   const [activeChatId, setActiveChatId] = useState<string | null>('ho')
   const [chatMsg, setChatMsg] = useState('')
@@ -237,6 +286,171 @@ export default function MemberAcademyPage() {
         </div>
       </div>
 
+      {/* ── AREA TABS ── */}
+      <div className="bg-surface border-b border-border">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center gap-0">
+            {/* Community tab — always accessible */}
+            <button
+              onClick={() => setActiveArea('community')}
+              className={`flex items-center gap-2 px-6 py-4 font-sans text-sm font-medium border-b-2 transition-colors ${
+                activeArea === 'community'
+                  ? 'border-accent-gold text-dark'
+                  : 'border-transparent text-text-secondary hover:text-dark'
+              }`}
+            >
+              <span>💬</span> Community
+            </button>
+
+            {/* Akademie tab — grayed if no academy access */}
+            <button
+              onClick={() => mockUserAccess.academy && setActiveArea('academy')}
+              className={`flex items-center gap-2 px-6 py-4 font-sans text-sm font-medium border-b-2 transition-colors ${
+                !mockUserAccess.academy
+                  ? 'border-transparent text-text-secondary/40 cursor-not-allowed'
+                  : activeArea === 'academy'
+                  ? 'border-accent-gold text-dark'
+                  : 'border-transparent text-text-secondary hover:text-dark'
+              }`}
+            >
+              <span>🎓</span> Akademie
+              {!mockUserAccess.academy && (
+                <span className="ml-1 text-[10px] border border-border px-1.5 py-0.5 text-text-secondary/60 font-normal">
+                  🔒 Abo erforderlich
+                </span>
+              )}
+            </button>
+
+            {mockUserAccess.academy && activeArea === 'academy' && (
+              <span className="ml-auto mr-0 font-sans text-xs text-text-secondary py-4">
+                Starter Mitglied · 2 Instrumente
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── COMMUNITY AREA ── */}
+      {activeArea === 'community' && (
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Feed */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="font-heading font-bold text-xl">Community-Feed</h2>
+                <Link href="/community" className="font-sans text-xs text-accent-gold hover:underline">Zur Community →</Link>
+              </div>
+
+              {/* Post composer */}
+              <div className="bg-surface border border-border p-4 flex items-center gap-3">
+                <div className="w-9 h-9 relative overflow-hidden flex-shrink-0">
+                  <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="You" fill className="object-cover" unoptimized />
+                </div>
+                <button className="flex-1 text-left px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors">
+                  Schreib etwas in die Community...
+                </button>
+              </div>
+
+              {/* Posts */}
+              {communityPosts.map((post, i) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  className="bg-surface border border-border p-5"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 relative overflow-hidden flex-shrink-0">
+                      <Image src={post.avatar} alt={post.author} fill className="object-cover" unoptimized />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-heading font-bold text-sm">{post.author}</p>
+                        <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-1.5 py-0.5">{post.role}</span>
+                        <span className="font-sans text-[10px] bg-background border border-border px-1.5 py-0.5 text-text-secondary">{post.tag}</span>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary">{post.time}</p>
+                    </div>
+                  </div>
+                  <p className="font-sans text-sm leading-relaxed text-dark mb-4">{post.content}</p>
+                  <div className="flex items-center gap-5 border-t border-border pt-3">
+                    <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-accent-gold transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                      {post.likes}
+                    </button>
+                    <button className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                      {post.comments} Kommentare
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Right sidebar */}
+            <div className="space-y-6">
+              {/* Membership badge */}
+              <div className="bg-dark text-white p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Dein Zugang</p>
+                <p className="font-heading font-bold text-lg mb-1">LAEMU Membership</p>
+                <p className="font-sans text-sm text-white/60 mb-4">Aktiv seit Januar 2025 · Community inklusive in jedem Musikschul-Abo</p>
+                <div className="space-y-2">
+                  {['Community-Zugang', 'Events & Anlässe', 'Formations-Netzwerk', 'Akademie-Zugang (Starter)'].map(f => (
+                    <div key={f} className="flex items-center gap-2 font-sans text-xs text-white/70">
+                      <span className="text-accent-gold">✓</span>{f}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Groups */}
+              <div className="bg-surface border border-border p-5">
+                <h3 className="font-heading font-bold text-sm mb-4">Gruppen & Räume</h3>
+                <div className="space-y-3">
+                  {communityGroups.map(g => (
+                    <button key={g.id} className="w-full flex items-center gap-3 text-left hover:bg-background p-2 -mx-2 transition-colors">
+                      <span className="text-xl flex-shrink-0">{g.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-bold text-sm">{g.name}</p>
+                        <p className="font-sans text-xs text-text-secondary">{g.members} Mitglieder · {g.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <Link href="/community" className="block mt-4 font-sans text-xs text-accent-gold hover:underline">Alle Gruppen →</Link>
+              </div>
+
+              {/* Events */}
+              <div className="bg-surface border border-border p-5">
+                <h3 className="font-heading font-bold text-sm mb-4">Nächste Events</h3>
+                <div className="space-y-3">
+                  {[
+                    { date: '7. Jun.', name: 'Live-Call Handorgel', type: 'Online' },
+                    { date: '21. Jun.', name: 'Lernwochenende Glarus', type: 'Vor Ort' },
+                    { date: '5. Jul.', name: 'Sommerkonzert Zürich', type: 'Konzert' },
+                  ].map(ev => (
+                    <div key={ev.name} className="flex items-center gap-3">
+                      <div className="w-10 text-center">
+                        <p className="font-heading font-bold text-xs text-accent-gold leading-tight">{ev.date.split(' ')[0]}</p>
+                        <p className="font-sans text-[10px] text-text-secondary">{ev.date.split(' ')[1]}</p>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-heading font-bold text-xs">{ev.name}</p>
+                        <p className="font-sans text-[10px] text-text-secondary">{ev.type}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/events" className="block mt-4 font-sans text-xs text-accent-gold hover:underline">Alle Events →</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── ACADEMY AREA ── */}
+      {activeArea === 'academy' && (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -843,6 +1057,7 @@ export default function MemberAcademyPage() {
           </div>
         </div>
       </div>
+      )}
     </div>
   )
 }
