@@ -16,6 +16,7 @@ type StimmeSection = {
   audioSamples: { id: string; label: string; duration: string; type: 'audio' | 'youtube' }[]
   hasLaemuPlayer: boolean
 }
+type BegleitvorschlagVideo = { id: string; instrument: string; color: string; label: string; teacher: string; duration: string; done: boolean }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -28,8 +29,14 @@ const videoData = {
   instrument: 'Handorgel',
   formation: 'Trio',
   meter: '3/4',
-  difficulty: 3,
+  difficulty: 'starter' as const,
   level: 2,
+  stufen: 3,
+  artDesStückes: 'volkstuemlich' as const,
+  styleTags: ['Urchig', 'Innerschwyzer Stil', 'Zweistimmig'],
+  taktart: 'Walzer' as const,
+  autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
+  formations: ['Hess-Rusch-Hegner Trio', 'Kapelle Schwyz', 'Bodästänix'],
   img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
   intro: 'Dr Alperose ist ein klassischer Ländlerwalzer im 3/4-Takt, komponiert von Willi Valotti im Jahr 1978. Das Stück gehört zum Standardrepertoire jeder Schweizer Ländlerkapelle und zeichnet sich durch seine eingängige Melodielinie und charakteristischen Begleitfiguren aus. Besondere Aufmerksamkeit verdient der harmonische Übergang von Teil A nach Teil B — ein Merkmal, das viele Ländler der 1970er-Jahre kennzeichnet und den Stücken eine besondere Tiefe verleiht.',
   masterVideo: { type: 'laemu' as const },
@@ -135,6 +142,12 @@ const videoData = {
       hasLaemuPlayer: false,
     },
   ] as StimmeSection[],
+  begleitvorschlaege: [
+    { id: 'bv1', instrument: 'Klavier', color: '#7A6A9A', label: 'Klavierbegleitung — Walzer-Pattern', teacher: 'Franz Hess', duration: '11 Min.', done: false },
+    { id: 'bv2', instrument: 'Bass', color: '#8A5A4A', label: 'Bassbegleitung — 3-Schlag Basis', teacher: 'Seebi Diener', duration: '9 Min.', done: false },
+    { id: 'bv3', instrument: 'Handorgel', color: '#C4973A', label: 'Handorgel-Begleitung — Harmonie-Griffe', teacher: 'Cécile Schmidig', duration: '10 Min.', done: false },
+    { id: 'bv4', instrument: 'Schwyzerörgeli', color: '#5A8A6A', label: 'Schwyzerörgeli-Begleitung — 2. Stimme', teacher: 'Cyrill Rusch', duration: '9 Min.', done: false },
+  ] as BegleitvorschlagVideo[],
   notenheftUrl: '#',
   sheets: [
     { label: 'Violinschlüssel', key: 'violin', price: 5 },
@@ -201,6 +214,7 @@ function IconMixer() { return <svg width="14" height="14" viewBox="0 0 24 24" fi
 function IconDisc() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> }
 function IconChevron({ up }: { up: boolean }) { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${up ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg> }
 function IconBack() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg> }
+function IconHeadphones() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg> }
 
 // ─── Jam Faders (Vertical, for master video) ─────────────────────────────────
 
@@ -408,15 +422,26 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
 export default function LernvideoDetailPage() {
   const v = videoData
   const [mainTab, setMainTab] = useState<'ueberblick' | 'stimmen'>('ueberblick')
-  const [activeStimmeId, setActiveStimmeId] = useState(v.stimmenSections[0].id)
-  const [stimmeSubTab, setStimmeSubTab] = useState<'lernvideos' | 'noten' | 'audio'>('lernvideos')
   const [favorited, setFavorited] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
   const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
+  const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
+  const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
 
-  const activeStimme = v.stimmenSections.find(s => s.id === activeStimmeId)!
+  const toggleAudioFav = (id: string) => setAudioFavs(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const toggleAudioPlaylist = (id: string) => setAudioPlaylist(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+
+  // Group stimmenSections by instrument
+  const stimmenByInstrument = v.stimmenSections.reduce<Record<string, StimmeSection[]>>((acc, s) => {
+    if (!acc[s.instrument]) acc[s.instrument] = []
+    acc[s.instrument].push(s)
+    return acc
+  }, {})
+
+  const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
+  const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
 
   return (
     <div className="min-h-screen bg-background">
@@ -486,23 +511,53 @@ export default function LernvideoDetailPage() {
                   <p className="font-sans text-sm text-accent-gold mb-4">
                     {v.artist} · {v.year}{v.composer !== v.artist ? ` · Komp.: ${v.composer}` : ''}
                   </p>
-                  <div className="flex flex-wrap gap-2 mb-5">
-                    {[v.meter, v.instrument, v.formation, `Harmoniestufe ${v.level}`].map(tag => (
-                      <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{tag}</span>
-                    ))}
-                  </div>
-                  <div className="mb-5">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-sans text-xs text-text-secondary uppercase tracking-widest">Schwierigkeit</span>
-                      <span className="font-sans text-xs font-medium">{v.difficulty} / 6</span>
+
+                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-5">{v.intro}</p>
+
+                  {/* Formations */}
+                  {v.formations && v.formations.length > 0 && (
+                    <div className="mb-4">
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Formationen</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {v.formations.map(f => (
+                          <span key={f} className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{f}</span>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className={`flex-1 h-1.5 ${i < v.difficulty ? 'bg-accent-gold' : 'bg-border'}`} />
-                      ))}
-                    </div>
+                  )}
+
+                  {/* Plan / Art / Taktart row */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+                      {planLabel[v.difficulty] ?? v.difficulty}
+                    </span>
+                    <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
+                    <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{v.taktart}</span>
                   </div>
-                  <p className="font-sans text-sm text-text-secondary leading-relaxed">{v.intro}</p>
+
+                  {/* Style tags */}
+                  {v.styleTags && v.styleTags.length > 0 && (
+                    <div className="mb-4">
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Stil</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {v.styleTags.map(tag => (
+                          <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Auto-tags */}
+                  {v.autoTags && v.autoTags.length > 0 && (
+                    <div>
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Automatische Tags</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {v.autoTags.map(tag => (
+                          <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-background border border-border text-text-secondary">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
 
                 {/* 3 — NOTEN */}
@@ -719,132 +774,137 @@ export default function LernvideoDetailPage() {
 
             {/* ── STIMMEN TAB ── */}
             {mainTab === 'stimmen' && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                {/* Stimme selector */}
-                <div className="overflow-x-auto -mx-4 px-4">
-                  <div className="flex gap-0 min-w-max border-b border-border">
-                    {v.stimmenSections.map(s => (
-                      <button
-                        key={s.id}
-                        onClick={() => { setActiveStimmeId(s.id); setStimmeSubTab('lernvideos') }}
-                        className={`flex items-center gap-2 px-4 py-3 font-sans text-sm whitespace-nowrap border-b-2 -mb-px transition-colors ${activeStimmeId === s.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark'}`}
-                      >
-                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Active stimme card */}
-                <div className="bg-surface border border-border overflow-hidden">
-                  {/* Header */}
-                  <div className="px-5 py-4 border-b border-border flex items-center gap-3 bg-background">
-                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: activeStimme.color }} />
-                    <h3 className="font-heading font-bold text-base">{activeStimme.label}</h3>
-                    <span className="ml-auto font-sans text-xs text-text-secondary">{activeStimme.instrument}</span>
-                  </div>
-
-                  {/* Sub-tabs */}
-                  <div className="flex border-b border-border">
-                    {([
-                      { id: 'lernvideos', label: `Lernvideos (${activeStimme.lernvideos.length})` },
-                      { id: 'noten', label: `Noten (${activeStimme.noten.length})` },
-                      { id: 'audio', label: `Hörproben (${activeStimme.audioSamples.length})` },
-                    ] as const).map(t => (
-                      <button key={t.id} onClick={() => setStimmeSubTab(t.id)} className={`px-5 py-3 font-sans text-sm transition-colors border-b-2 -mb-px ${stimmeSubTab === t.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark'}`}>
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Sub-tab content */}
-                  <div className="p-5">
-                    {stimmeSubTab === 'lernvideos' && (
-                      <div className="space-y-2">
-                        {activeStimme.lernvideos.length === 0
-                          ? <p className="font-sans text-sm text-text-secondary text-center py-8">Keine Lernvideos verfügbar</p>
-                          : activeStimme.lernvideos.map(lv => (
-                            <div key={lv.id} className="flex items-center gap-4 p-4 border border-border hover:border-dark transition-colors group">
-                              <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 transition-colors ${lv.done ? 'bg-accent-gold text-white' : 'bg-border text-text-secondary group-hover:bg-dark group-hover:text-white'}`}>
-                                {lv.done ? <IconCheck /> : <IconPlay />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
-                                <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
-                              </div>
-                              {lv.done && <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Abgeschlossen</span>}
-                              <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5 flex-shrink-0">
-                                <IconPlay /> Starten
-                              </button>
-                            </div>
-                          ))
-                        }
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                {Object.entries(stimmenByInstrument).map(([instrument, sections]) => {
+                  const instrumentColor = sections[0].color
+                  const totalVideos = sections.reduce((sum, s) => sum + s.lernvideos.length, 0)
+                  return (
+                    <div key={instrument} className="space-y-3">
+                      {/* Dark header card for instrument group */}
+                      <div className="bg-dark text-white px-5 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: instrumentColor }} />
+                          <h3 className="font-heading font-bold text-base">{instrument}</h3>
+                        </div>
+                        <span className="font-sans text-xs text-white/50">{totalVideos} Videos</span>
                       </div>
-                    )}
 
-                    {stimmeSubTab === 'noten' && (
-                      <div className="space-y-3">
-                        {activeStimme.noten.length === 0
-                          ? <p className="font-sans text-sm text-text-secondary text-center py-8">Keine Noten verfügbar</p>
-                          : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {activeStimme.noten.map(n => (
-                                <div key={n.key} className="border border-border p-4 flex items-center justify-between hover:border-dark transition-colors">
-                                  <div>
-                                    <p className="font-heading font-bold text-sm">{n.label}</p>
-                                    <p className="font-sans text-xs text-text-secondary">{activeStimme.label}</p>
+                      {/* Each stimme within this instrument */}
+                      {sections.map(stimme => {
+                        // Derive the sub-label (e.g. "1. Stimme" from "1. Stimme Handorgel")
+                        const subLabel = stimme.label.replace(instrument, '').trim() || stimme.label
+                        return (
+                          <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
+                            {/* Sub-header */}
+                            <div className="px-5 py-3 border-b border-border bg-background flex items-center justify-between">
+                              <span className="font-heading font-bold text-sm">{subLabel}</span>
+                              <span className="font-sans text-xs text-text-secondary">({stimme.lernvideos.length} Teile)</span>
+                            </div>
+
+                            {/* Lernvideos */}
+                            {stimme.lernvideos.length > 0 && (
+                              <div className="divide-y divide-border">
+                                {stimme.lernvideos.map((lv, partIdx) => (
+                                  <div key={lv.id} className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
+                                    {/* Part label */}
+                                    <span className="font-sans text-xs text-text-secondary w-12 flex-shrink-0">Teil {partIdx + 1}</span>
+                                    {/* Done indicator */}
+                                    <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
+                                      {lv.done ? <IconCheck /> : <IconPlay />}
+                                    </div>
+                                    {/* Label + duration */}
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
+                                      <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
+                                    </div>
+                                    {/* Audio buttons */}
+                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                      <button
+                                        onClick={() => toggleAudioFav(lv.id)}
+                                        className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
+                                        title="Favorit"
+                                      >
+                                        ♡
+                                      </button>
+                                      <button
+                                        onClick={() => toggleAudioPlaylist(lv.id)}
+                                        className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                                        title="Zur Audio-Playlist"
+                                      >
+                                        <IconHeadphones /> Playlist
+                                      </button>
+                                      <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                                        <IconPlay /> Starten
+                                      </button>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-3">
-                                    {n.price && <span className="font-sans text-sm font-semibold text-accent-gold">CHF {n.price}</span>}
-                                    <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-                                      <IconDownload /> Kaufen
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )
-                        }
-                      </div>
-                    )}
-
-                    {stimmeSubTab === 'audio' && (
-                      <div className="space-y-2">
-                        {activeStimme.audioSamples.length === 0
-                          ? <p className="font-sans text-sm text-text-secondary text-center py-8">Keine Hörproben verfügbar</p>
-                          : activeStimme.audioSamples.map(a => (
-                            <div key={a.id} className="flex items-center gap-3 p-4 border border-border hover:border-dark group transition-colors">
-                              <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:text-white group-hover:border-dark transition-colors flex-shrink-0">
-                                {a.type === 'youtube' ? <IconPlay /> : <IconVolOn />}
+                                ))}
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-sans text-sm font-medium">{a.label}</p>
-                                <p className="font-sans text-xs text-text-secondary">{a.type === 'youtube' ? 'YouTube' : 'Audio'} · {a.duration}</p>
-                              </div>
-                              <button className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Abspielen</button>
-                            </div>
-                          ))
-                        }
-                      </div>
-                    )}
-                  </div>
+                            )}
 
-                  {/* LAEMU Player for this stimme */}
-                  {activeStimme.hasLaemuPlayer && (
-                    <div className="border-t border-border">
-                      <div className="px-5 py-3 bg-background flex items-center gap-2 border-b border-border">
-                        <span className="text-text-secondary"><IconMixer /></span>
-                        <p className="font-sans text-xs text-text-secondary">LAEMU-Player · {activeStimme.label}</p>
-                      </div>
-                      <VideoPlayer img={v.img} label={`LAEMU-Player · ${activeStimme.label}`} />
-                      <div className="border-t border-border px-5 py-4 bg-background">
-                        <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Stimmen-Mix</p>
-                        <VoiceMixer voices={v.voices} />
-                      </div>
+                            {/* Sheet music row */}
+                            {stimme.noten.length > 0 && (
+                              <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
+                                <span className="font-sans text-xs text-text-secondary">Noten:</span>
+                                {stimme.noten.map(n => (
+                                  <button key={n.key} className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors">
+                                    {n.label}{n.price ? ` CHF ${n.price}` : ''}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
-                  )}
-                </div>
+                  )
+                })}
+
+                {/* Begleitvorschläge section */}
+                {v.begleitvorschlaege && v.begleitvorschlaege.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="bg-dark text-white px-5 py-3 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-heading font-bold text-base">Begleitvorschläge</h3>
+                        <p className="font-sans text-xs text-white/50 mt-0.5">Verschiedene Begleitvarianten</p>
+                      </div>
+                      <span className="font-sans text-xs text-white/50">{v.begleitvorschlaege.length} Videos</span>
+                    </div>
+                    <div className="bg-surface border border-border overflow-hidden divide-y divide-border">
+                      {v.begleitvorschlaege.map(bv => (
+                        <div key={bv.id} className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
+                          {/* Color dot */}
+                          <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: bv.color }} />
+                          {/* Label */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-sans text-sm font-medium truncate">{bv.label}</p>
+                            <p className="font-sans text-xs text-text-secondary">{bv.instrument} · {bv.teacher} · {bv.duration}</p>
+                          </div>
+                          {/* Audio buttons */}
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button
+                              onClick={() => toggleAudioFav(bv.id)}
+                              className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(bv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
+                              title="Favorit"
+                            >
+                              ♡
+                            </button>
+                            <button
+                              onClick={() => toggleAudioPlaylist(bv.id)}
+                              className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(bv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
+                              title="Zur Audio-Playlist"
+                            >
+                              <IconHeadphones /> Playlist
+                            </button>
+                            <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                              <IconPlay /> Starten
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
@@ -871,12 +931,12 @@ export default function LernvideoDetailPage() {
                 </div>
                 <div className="mt-4 pt-4 border-t border-border">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-sans text-xs text-text-secondary">Schwierigkeit</span>
-                    <span className="font-sans text-xs font-medium">{v.difficulty} / 6</span>
+                    <span className="font-sans text-xs text-text-secondary">Stufen</span>
+                    <span className="font-sans text-xs font-medium">{v.stufen}</span>
                   </div>
                   <div className="flex gap-1">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className={`flex-1 h-1.5 ${i < v.difficulty ? 'bg-accent-gold' : 'bg-border'}`} />
+                      <div key={i} className={`flex-1 h-1.5 ${i < v.stufen ? 'bg-accent-gold' : 'bg-border'}`} />
                     ))}
                   </div>
                 </div>
@@ -891,7 +951,7 @@ export default function LernvideoDetailPage() {
                 {v.stimmenSections.map(s => (
                   <button
                     key={s.id}
-                    onClick={() => { setMainTab('stimmen'); setActiveStimmeId(s.id) }}
+                    onClick={() => setMainTab('stimmen')}
                     className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left hover:bg-background transition-colors"
                   >
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
@@ -941,6 +1001,17 @@ export default function LernvideoDetailPage() {
 
         </div>
       </div>
+
+      {/* FLOATING AUDIO PLAYLIST BAR */}
+      {audioPlaylist.size > 0 && (
+        <div className="fixed bottom-6 right-6 z-50 bg-dark text-white px-4 py-3 shadow-2xl flex items-center gap-3">
+          <IconHeadphones />
+          <span className="font-sans text-sm">{audioPlaylist.size} Videos in Audio-Playlist</span>
+          <button className="font-sans text-xs px-3 py-1.5 bg-accent-gold hover:bg-accent-warm transition-colors">
+            Abspielen →
+          </button>
+        </div>
+      )}
     </div>
   )
 }
