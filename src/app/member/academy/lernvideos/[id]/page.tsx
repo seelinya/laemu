@@ -191,11 +191,27 @@ const videoData = {
   },
 }
 
-const comments = [
-  { user: 'maria', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Wunderschönes Stück! Die Übergänge zwischen den Teilen sind super erklärt.', time: 'vor 3 Tagen', likes: 7 },
-  { user: 'peter', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Für die Bassbegleitung: Achtet auf den Schlag auf die 2. Zählzeit im 2. Teil!', time: 'vor 1 Woche', likes: 12 },
-  { user: 'lisa', name: 'Lisa Frei', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', text: 'Die LAEMU-Notation macht es so viel einfacher zum Einstieg. Danke Hansruedi!', time: 'vor 2 Wochen', likes: 5 },
-]
+type Comment = { user: string; name: string; avatar: string; text: string; time: string; likes: number }
+
+const commentsPerLesson: Record<string, Comment[]> = {
+  intro: [
+    { user: 'maria', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Super Einführung! Die Struktur des Stücks ist jetzt viel klarer für mich.', time: 'vor 2 Tagen', likes: 9 },
+    { user: 'hansruedi', name: 'Hansruedi Wenger', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', text: 'Schaut euch besonders die Aufbaustruktur bei 2:15 nochmals an — das hilft enorm beim Lernen!', time: 'vor 4 Tagen', likes: 21 },
+  ],
+  lv1: [
+    { user: 'peter', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Takt 5–6 war für mich knifflig. Hat jemand einen Tipp für die linke Hand?', time: 'vor 1 Woche', likes: 4 },
+    { user: 'lisa', name: 'Lisa Frei', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', text: 'Ich habe diesen Teil mit 40% Tempo geübt — nach einer Woche klappt es auf 80%!', time: 'vor 5 Tagen', likes: 11 },
+    { user: 'anna', name: 'Anna Steiner', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', text: 'Die LAEMU-Griffschrift hilft mir wirklich beim Einstieg. Danke für die Notation!', time: 'vor 3 Tagen', likes: 7 },
+  ],
+  lv2: [
+    { user: 'maria', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Der Übergang bei Takt 12 auf 13 — da hakt es bei mir noch. Irgendwelche Übungstipps?', time: 'vor 2 Tagen', likes: 6 },
+    { user: 'hansruedi', name: 'Hansruedi Wenger', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', text: 'Übt den Übergang isoliert: Takt 11–14, dreimal langsam, dann im Tempo. Gerne im nächsten Live-Call zeigen!', time: 'vor 1 Tag', likes: 18 },
+  ],
+  lv3: [
+    { user: 'peter', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Teil B ist mein Lieblingsteil — die Zusammenfassung macht sehr Sinn. Danke!', time: 'vor 3 Tagen', likes: 8 },
+    { user: 'lisa', name: 'Lisa Frei', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', text: 'Für die Bassbegleitung: Achtet auf den Schlag auf die 2. Zählzeit im 2. Teil!', time: 'vor 1 Woche', likes: 12 },
+  ],
+}
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -456,6 +472,8 @@ export default function LernvideoDetailPage() {
   const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
+  const [activeLesson, setActiveLesson] = useState<{ id: string; label: string } | null>(null)
+  const [localComments, setLocalComments] = useState<Record<string, Comment[]>>(commentsPerLesson)
   const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
   const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
   const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
@@ -820,38 +838,120 @@ export default function LernvideoDetailPage() {
                 )}
 
                 {/* 7 — KOMMENTARE */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
-                  <h3 className="font-heading font-bold text-lg mb-5">Kommentare ({comments.length})</h3>
-                  <div className="space-y-4 mb-6">
-                    {comments.map((c) => (
-                      <div key={c.user} className="flex gap-3">
-                        <div className="relative w-9 h-9 overflow-hidden flex-shrink-0">
-                          <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
+                {(() => {
+                  const lessonId = activeLesson?.id ?? 'intro'
+                  const lessonLabel = activeLesson?.label ?? (v.introVideo ? v.introVideo.label : v.title)
+                  const currentComments = localComments[lessonId] ?? []
+                  const likeKey = (user: string) => `${lessonId}:${user}`
+
+                  const handleSend = () => {
+                    if (!comment.trim()) return
+                    setLocalComments(prev => ({
+                      ...prev,
+                      [lessonId]: [
+                        { user: 'ich', name: 'Du', avatar: '', text: comment.trim(), time: 'Gerade eben', likes: 0 },
+                        ...(prev[lessonId] ?? []),
+                      ],
+                    }))
+                    setComment('')
+                  }
+
+                  return (
+                    <motion.div key={lessonId} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-4 mb-5">
+                        <div>
+                          <h3 className="font-heading font-bold text-lg">Kommentare ({currentComments.length})</h3>
+                          <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
+                            zu: <span className="text-dark font-medium">{lessonLabel}</span>
+                          </p>
                         </div>
-                        <div className="flex-1 bg-background p-4 border border-border">
-                          <div className="flex items-center gap-2 mb-2">
-                            <p className="font-sans font-semibold text-xs">{c.name}</p>
-                            <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
-                          </div>
-                          <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
-                          <button onClick={() => setCommentLikes(prev => ({ ...prev, [c.user]: !prev[c.user] }))} className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.user] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}>
-                            <IconHeart filled={!!commentLikes[c.user]} />
-                            {c.likes + (commentLikes[c.user] ? 1 : 0)}
+                        {activeLesson && (
+                          <button
+                            onClick={() => setActiveLesson(null)}
+                            className="font-sans text-xs text-text-secondary hover:text-dark transition-colors border border-border px-2.5 py-1 hover:border-dark flex-shrink-0"
+                          >
+                            ← Einführungsvideo
                           </button>
+                        )}
+                      </div>
+
+                      {/* Lesson switcher pills */}
+                      <div className="flex gap-1.5 flex-wrap mb-5">
+                        <button
+                          onClick={() => setActiveLesson(null)}
+                          className={`font-sans text-[10px] px-2.5 py-1 border transition-colors ${lessonId === 'intro' ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
+                        >
+                          Einführung
+                        </button>
+                        {v.stimmenSections.flatMap(s => s.lernvideos).map(lv => (
+                          <button
+                            key={lv.id}
+                            onClick={() => setActiveLesson({ id: lv.id, label: lv.label })}
+                            className={`font-sans text-[10px] px-2.5 py-1 border transition-colors ${lessonId === lv.id ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                          >
+                            {lv.label.split('—')[0].trim()}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Comment list */}
+                      <AnimatePresence mode="wait">
+                        <motion.div key={lessonId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4 mb-6">
+                          {currentComments.length === 0 ? (
+                            <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu dieser Lektion. Sei der Erste!</p>
+                          ) : (
+                            currentComments.map((c, idx) => (
+                              <div key={`${c.user}-${idx}`} className="flex gap-3">
+                                <div className="relative w-9 h-9 overflow-hidden flex-shrink-0 bg-background border border-border">
+                                  {c.avatar ? (
+                                    <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-text-secondary">
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 bg-background p-4 border border-border">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <p className="font-sans font-semibold text-xs">{c.name}</p>
+                                    <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
+                                  </div>
+                                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
+                                  <button
+                                    onClick={() => setCommentLikes(prev => ({ ...prev, [likeKey(c.user)]: !prev[likeKey(c.user)] }))}
+                                    className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[likeKey(c.user)] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                                  >
+                                    <IconHeart filled={!!commentLikes[likeKey(c.user)]} />
+                                    {c.likes + (commentLikes[likeKey(c.user)] ? 1 : 0)}
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+
+                      {/* Input */}
+                      <div className="flex gap-3">
+                        <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div className="flex-1 flex gap-2">
+                          <input
+                            value={comment}
+                            onChange={e => setComment(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleSend()}
+                            type="text"
+                            placeholder={`Kommentar zu "${lessonLabel.split('—')[0].trim()}"…`}
+                            className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                          />
+                          <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    </div>
-                    <div className="flex-1 flex gap-2">
-                      <input value={comment} onChange={e => setComment(e.target.value)} type="text" placeholder="Kommentar schreiben..." className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" onKeyDown={e => e.key === 'Enter' && setComment('')} />
-                      <button onClick={() => setComment('')} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
-                    </div>
-                  </div>
-                </motion.div>
+                    </motion.div>
+                  )
+                })()}
               </>
             )}
 
@@ -916,7 +1016,10 @@ export default function LernvideoDetailPage() {
                                       >
                                         <IconHeadphones /> Playlist
                                       </button>
-                                      <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                                      <button
+                                        onClick={() => { setActiveLesson({ id: lv.id, label: lv.label }); setMainTab('ueberblick') }}
+                                        className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
+                                      >
                                         <IconPlay /> Starten
                                       </button>
                                     </div>
@@ -979,7 +1082,10 @@ export default function LernvideoDetailPage() {
                             >
                               <IconHeadphones /> Playlist
                             </button>
-                            <button className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                            <button
+                              onClick={() => { setActiveLesson({ id: bv.id, label: bv.label }); setMainTab('ueberblick') }}
+                              className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
+                            >
                               <IconPlay /> Starten
                             </button>
                           </div>
