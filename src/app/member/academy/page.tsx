@@ -434,15 +434,23 @@ export default function MemberAcademyPage() {
                         </div>
                         <div className="flex flex-col items-start md:items-end gap-2 flex-shrink-0">
                           <p className="font-sans text-xs text-text-secondary">Zuletzt: {course.lastActivity}</p>
-                          <Link
-                            href={course.href}
-                            className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark border border-dark px-4 py-2 hover:bg-dark hover:text-white transition-colors"
-                          >
-                            Weiterfahren
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-                            </svg>
-                          </Link>
+                          <div className="flex items-center gap-3">
+                            <Link
+                              href={`/member/academy/instrument/${course.instrumentId}`}
+                              className="font-sans text-sm text-text-secondary hover:text-dark transition-colors hover:underline underline-offset-2"
+                            >
+                              Zur Übersicht
+                            </Link>
+                            <Link
+                              href={course.href}
+                              className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark border border-dark px-4 py-2 hover:bg-dark hover:text-white transition-colors"
+                            >
+                              Weiterfahren
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                              </svg>
+                            </Link>
+                          </div>
                         </div>
                       </motion.div>
                     ))}

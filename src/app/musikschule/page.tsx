@@ -192,6 +192,25 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
     probeLektion: null,
   })
 
+  // Booking sub-flow state
+  type ResultAction = null | 'booking' | 'video'
+  const [resultAction, setResultAction] = useState<ResultAction>(null)
+  const [bookingSlot, setBookingSlot] = useState<string | null>(null)
+  const [bookingName, setBookingName] = useState('')
+  const [bookingEmail, setBookingEmail] = useState('')
+  const [bookingConfirmed, setBookingConfirmed] = useState(false)
+  const [videoEmail, setVideoEmail] = useState('')
+  const [videoSent, setVideoSent] = useState(false)
+
+  const bookingSlots = [
+    'Di, 27. Mai · 10:00 Uhr',
+    'Di, 27. Mai · 14:00 Uhr',
+    'Mi, 28. Mai · 09:00 Uhr',
+    'Do, 29. Mai · 11:00 Uhr',
+    'Fr, 30. Mai · 10:00 Uhr',
+    'Fr, 30. Mai · 15:00 Uhr',
+  ]
+
   // Compute which step numbers are active given current answers
   function getStepSequence(): number[] {
     const seq = [0, 1]
@@ -570,71 +589,190 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-3">Deine Empfehlung</p>
-
-              {answers.isFormation === true ? (
-                <>
-                  <h3 className="font-heading text-xl font-bold mb-2">Du spielst in einer Formation — top!</h3>
-                  <p className="font-sans text-sm text-text-secondary mb-6 leading-relaxed">
-                    Für Formationen haben wir spezielle Kombiangebote, bei denen alle Mitglieder gemeinsam profitieren.
-                  </p>
-                  <Link
-                    href="/musikschule/formation"
-                    className="inline-block w-full text-center py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors mb-3"
-                  >
-                    Formation-Vorteile entdecken →
-                  </Link>
-                </>
-              ) : result ? (
-                <>
-                  <h3 className="font-heading text-xl font-bold mb-1">{result.label}</h3>
-                  <p className="font-sans text-xs text-text-secondary mb-5">{result.tag}</p>
-                  <div className="border border-accent-gold bg-accent-gold/5 p-5 mb-5">
-                    <div className="flex items-end justify-between mb-4">
-                      <div>
-                        {result.monthly && (
-                          <p className="font-sans text-sm text-text-secondary">
-                            {chf(result.monthly)}<span className="text-xs">/Mt.</span>
-                          </p>
-                        )}
-                        <p className="font-heading font-bold text-2xl">
-                          {chf(result.yearly)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span>
-                        </p>
+              {/* ── Booking sub-flow ── */}
+              {resultAction === 'booking' && (
+                <AnimatePresence mode="wait">
+                  {!bookingConfirmed ? (
+                    <motion.div key="booking-form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                      <button onClick={() => setResultAction(null)} className="font-sans text-xs text-text-secondary hover:text-dark mb-4 block">← Zurück</button>
+                      <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-2">Kostenloser Termin</p>
+                      <h3 className="font-heading text-xl font-bold mb-1">Wähle einen freien Termin</h3>
+                      <p className="font-sans text-xs text-text-secondary mb-5">Gratis, unverbindlich — lerne LAEMU kennen.</p>
+                      <div className="grid grid-cols-2 gap-2 mb-5">
+                        {bookingSlots.map(slot => (
+                          <button
+                            key={slot}
+                            onClick={() => setBookingSlot(slot)}
+                            className={`py-2.5 px-3 border text-left font-sans text-xs transition-all ${bookingSlot === slot ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border hover:border-dark'}`}
+                          >
+                            {slot}
+                          </button>
+                        ))}
                       </div>
-                      <span className="font-sans text-xs text-accent-gold border border-accent-gold/30 px-2 py-1">{result.tag}</span>
-                    </div>
+                      {bookingSlot && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3 mb-5 overflow-hidden">
+                          <div>
+                            <label className="font-sans text-xs text-text-secondary block mb-1">Dein Name</label>
+                            <input type="text" value={bookingName} onChange={e => setBookingName(e.target.value)} placeholder="Vorname Nachname" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
+                          </div>
+                          <div>
+                            <label className="font-sans text-xs text-text-secondary block mb-1">E-Mail</label>
+                            <input type="email" value={bookingEmail} onChange={e => setBookingEmail(e.target.value)} placeholder="deine@email.ch" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
+                          </div>
+                        </motion.div>
+                      )}
+                      <button
+                        disabled={!bookingSlot || !bookingName.trim() || !bookingEmail.trim()}
+                        onClick={() => setBookingConfirmed(true)}
+                        className={`w-full py-3 font-sans font-medium text-sm transition-colors ${bookingSlot && bookingName.trim() && bookingEmail.trim() ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                      >
+                        Termin bestätigen →
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="booking-confirmed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="text-center py-4">
+                      <div className="w-16 h-16 rounded-full bg-accent-gold/10 border-2 border-accent-gold flex items-center justify-center mx-auto mb-5">
+                        <span className="text-2xl">📅</span>
+                      </div>
+                      <h3 className="font-heading text-xl font-bold mb-2">Termin bestätigt!</h3>
+                      <p className="font-sans text-sm text-text-secondary mb-1">
+                        <span className="font-medium text-dark">{bookingSlot}</span>
+                      </p>
+                      <p className="font-sans text-xs text-text-secondary mb-6">Eine Bestätigung wurde an <span className="text-dark">{bookingEmail}</span> gesendet.</p>
+                      <button onClick={reset} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors underline underline-offset-2">
+                        Zum Anfang
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* ── Video request sub-flow ── */}
+              {resultAction === 'video' && (
+                <AnimatePresence mode="wait">
+                  {!videoSent ? (
+                    <motion.div key="video-form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                      <button onClick={() => setResultAction(null)} className="font-sans text-xs text-text-secondary hover:text-dark mb-4 block">← Zurück</button>
+                      <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-2">Kostenloses Video</p>
+                      <h3 className="font-heading text-xl font-bold mb-1">Schick mir eine Probelektion</h3>
+                      <p className="font-sans text-xs text-text-secondary mb-5">Trag deine E-Mail ein — wir schicken dir eine kostenlose Probelektion direkt ins Postfach.</p>
+                      <input
+                        type="email"
+                        value={videoEmail}
+                        onChange={e => setVideoEmail(e.target.value)}
+                        placeholder="deine@email.ch"
+                        className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark mb-3"
+                      />
+                      <button
+                        disabled={!videoEmail.trim()}
+                        onClick={() => setVideoSent(true)}
+                        className={`w-full py-3 font-sans font-medium text-sm transition-colors ${videoEmail.trim() ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                      >
+                        Video anfordern →
+                      </button>
+                      <p className="font-sans text-[10px] text-text-secondary mt-2 text-center">
+                        Oder schreib uns direkt: <a href="mailto:info@laemu.ch" className="text-dark hover:underline">info@laemu.ch</a>
+                      </p>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="video-sent" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="text-center py-4">
+                      <div className="w-16 h-16 rounded-full bg-accent-gold/10 border-2 border-accent-gold flex items-center justify-center mx-auto mb-5">
+                        <span className="text-2xl">📹</span>
+                      </div>
+                      <h3 className="font-heading text-xl font-bold mb-2">Video unterwegs!</h3>
+                      <p className="font-sans text-sm text-text-secondary mb-6">
+                        Wir haben die Probelektion an <span className="text-dark font-medium">{videoEmail}</span> geschickt.
+                      </p>
+                      <button onClick={reset} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors underline underline-offset-2">
+                        Zum Anfang
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* ── Main result (no sub-flow selected yet) ── */}
+              {resultAction === null && (
+                <>
+                  <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-3">Deine Empfehlung</p>
+
+                  {answers.isFormation === true ? (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-2">Du spielst in einer Formation — top!</h3>
+                      <p className="font-sans text-sm text-text-secondary mb-6 leading-relaxed">
+                        Für Formationen haben wir spezielle Kombiangebote, bei denen alle Mitglieder gemeinsam profitieren.
+                      </p>
+                      <Link
+                        href="/musikschule/formation"
+                        className="inline-block w-full text-center py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors mb-3"
+                      >
+                        Formation-Vorteile entdecken →
+                      </Link>
+                    </>
+                  ) : result ? (
+                    <>
+                      <h3 className="font-heading text-xl font-bold mb-1">{result.label}</h3>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="font-sans text-xs text-accent-gold border border-accent-gold/30 px-2 py-1">{result.tag}</span>
+                        {result.monthly && (
+                          <span className="font-sans text-sm text-text-secondary">{chf(result.monthly)}<span className="text-xs">/Mt.</span></span>
+                        )}
+                        <span className="font-heading font-bold">{chf(result.yearly)}<span className="font-sans text-sm text-text-secondary font-normal">/Jahr</span></span>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary mb-6 leading-relaxed">
+                        Noch unsicher? Kein Problem — buch einen kostenlosen Termin oder schick dir eine Probelektion zu.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-sans text-text-secondary text-sm mb-6">Wir konnten keine passende Empfehlung ermitteln. Schau dir unsere Angebote direkt an.</p>
+                  )}
+
+                  {/* CTA options */}
+                  <div className="space-y-3 mb-5">
                     <button
-                      onClick={() =>
-                        onStartSubscription({
-                          purchaserType: 'individual',
-                          plan: result.plan as IndividualPlan,
-                          scope: result.scope,
-                        })
-                      }
-                      className="w-full py-3 bg-accent-gold text-white font-sans font-medium text-sm hover:bg-accent-gold/90 transition-colors"
+                      onClick={() => { setResultAction('booking'); setBookingConfirmed(false); setBookingSlot(null); setBookingName(''); setBookingEmail('') }}
+                      className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
                     >
-                      Jetzt abonnieren →
+                      <span className="text-2xl flex-shrink-0">📅</span>
+                      <div>
+                        <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlosen Termin buchen</p>
+                        <p className="font-sans text-xs text-text-secondary">Gratis Beratungsgespräch — wähle einen freien Slot im Kalender.</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => { setResultAction('video'); setVideoSent(false); setVideoEmail('') }}
+                      className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
+                    >
+                      <span className="text-2xl flex-shrink-0">📹</span>
+                      <div>
+                        <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlose Probelektion erhalten</p>
+                        <p className="font-sans text-xs text-text-secondary">Wir schicken dir ein Video direkt per E-Mail — kein Abo nötig.</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={onScrollToPricing}
+                      className="w-full py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
+                    >
+                      Angebote direkt ansehen →
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={goBack}
+                      className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
+                    >
+                      ← Zurück
+                    </button>
+                    <button
+                      onClick={reset}
+                      className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
+                    >
+                      Quiz neu starten
                     </button>
                   </div>
                 </>
-              ) : (
-                <p className="font-sans text-text-secondary text-sm mb-6">Wir konnten keine passende Empfehlung ermitteln. Schau dir unsere Angebote direkt an.</p>
               )}
-
-              <div className="flex gap-3">
-                <button
-                  onClick={goBack}
-                  className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
-                >
-                  ← Zurück
-                </button>
-                <button
-                  onClick={reset}
-                  className="px-4 py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark transition-colors"
-                >
-                  Quiz neu starten
-                </button>
-              </div>
             </motion.div>
           )}
 
@@ -1525,10 +1663,12 @@ const instrumentShowcase = [
 ]
 
 const teachers = [
-  { name: 'Hansruedi Wenger', instrument: 'Handorgel', bio: 'Über 30 Jahre Bühnenerfahrung und Leidenschaft fürs Lehren.', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
-  { name: 'Maria Kälin', instrument: 'Schwyzerörgeli', bio: 'Preisgekrönte Musikerin und einfühlsame Lehrperson.', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' },
-  { name: 'Peter Gasser', instrument: 'Klarinette', bio: 'Konzertklarinettist mit Herz für die Volksmusik.', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80' },
-  { name: 'Lisa Frei', instrument: 'Piano', bio: 'Klassisch ausgebildet und tief in der Ländlermusik verwurzelt.', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80' },
+  { name: 'Seebi Diener', instrument: 'Bass / Schwyzerörgeli', bio: 'Multitalent und Stilpräger der modernen Ländlermusik.', img: '/images/seebi-diener.jpg' },
+  { name: 'Cyrill Rusch', instrument: 'Schwyzerörgeli', bio: 'Preisgekrönter Örgelist und einfühlsamer Lehrperson.', img: '/images/cyrill-rusch.jpg' },
+  { name: 'Cécile Schmidig', instrument: 'Handorgel', bio: 'Ausdrucksstarke Handorgelistin mit Liebe für das Volksmusik-Erbe.', img: '/images/cecile-schmidig.jpg' },
+  { name: 'Franz Hess', instrument: 'Klavier', bio: 'Harmonischer Anker vieler Schweizer Kapellen und Lehrperson.', img: '/images/franz-hess.jpg' },
+  { name: 'Simon Rusch', instrument: 'Handorgel', bio: 'Charismatischer Handorgelist und begnadeter Entertainer.', img: '/images/simon-rusch.jpg' },
+  { name: 'Simon Lüthi', instrument: 'Handorgel / Schwyzerörgeli', bio: 'Vielseitiger Profi mit tiefer Verwurzelung in der Szene.', img: '/images/simon-luethi.jpg' },
 ]
 
 const testimonials = [
@@ -1583,6 +1723,21 @@ export default function MusiksschulePage() {
         imageSrc="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=1920&q=80"
         size="large"
       />
+
+      {/* LOGIN BANNER */}
+      <div className="bg-surface border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          <p className="font-sans text-sm text-text-secondary">
+            Bereits Mitglied der LAEMU Musikschule?
+          </p>
+          <Link
+            href="/member/academy"
+            className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark border border-dark px-4 py-1.5 hover:bg-dark hover:text-white transition-colors flex-shrink-0"
+          >
+            Einloggen →
+          </Link>
+        </div>
+      </div>
 
       {/* HOW IT WORKS */}
       <section className="py-32 bg-background">
@@ -1678,12 +1833,12 @@ export default function MusiksschulePage() {
               Alle Lehrpersonen sind aktive Profis der Schweizer Ländlermusik.
             </motion.p>
           </Section>
-          <Section className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <Section className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {teachers.map((t) => (
               <motion.div key={t.name} variants={fadeUp} className="group">
-                <div className="relative aspect-[3/4] overflow-hidden mb-4">
+                <div className="relative aspect-[3/4] overflow-hidden mb-4 bg-surface">
                   <Image src={t.img} alt={t.name} fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500" unoptimized />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-0 p-4">
                     <span className="font-sans text-xs text-accent-gold">{t.instrument}</span>
                   </div>
