@@ -563,7 +563,39 @@ export default function LernvideoDetailPage() {
                 {/* 3 — NOTEN */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="bg-surface border border-border p-6">
                   <h3 className="font-heading font-bold text-lg mb-1 flex items-center gap-2"><IconMusic /> Noten</h3>
-                  <p className="font-sans text-sm text-text-secondary mb-5">Einzelne Notenblätter à CHF 5 — für alle Instrumente und Notationsarten.</p>
+                  <p className="font-sans text-sm text-text-secondary mb-4">Einzelne Notenblätter à CHF 5 — für alle Instrumente und Notationsarten.</p>
+
+                  {/* Available notation types summary */}
+                  {(() => {
+                    const hasViolin = v.sheets.some(s => s.key === 'violin' || s.key === 'violin-simple')
+                    const hasGriff = v.sheets.some(s => s.key === 'griff' || s.key === 'griff-soe')
+                    return (
+                      <div className="flex flex-wrap gap-2 mb-5 p-3 bg-background border border-border">
+                        <span className="font-sans text-xs text-text-secondary self-center">Verfügbare Notationsarten:</span>
+                        {hasViolin ? (
+                          <span className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Violinschlüssel
+                          </span>
+                        ) : (
+                          <span className="font-sans text-xs px-2.5 py-1 bg-border/40 border border-border text-text-secondary/50 flex items-center gap-1.5 line-through">
+                            Violinschlüssel
+                          </span>
+                        )}
+                        {hasGriff ? (
+                          <span className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Griffschrift
+                          </span>
+                        ) : (
+                          <span className="font-sans text-xs px-2.5 py-1 bg-border/40 border border-border text-text-secondary/50 flex items-center gap-1.5 line-through">
+                            Griffschrift
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })()}
+
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-5">
                     {v.sheets.map(s => (
                       <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">

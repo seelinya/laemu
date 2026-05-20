@@ -14,6 +14,7 @@ const videos = [
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
     styleTags: ['Urchig', 'Innerschwyzer Stil', 'Zweistimmig'],
     autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
+    notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80',
     price: 18, purchased: true,
   },
@@ -23,6 +24,7 @@ const videos = [
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
     styleTags: ['Modern', 'Konzertant'],
     autoTags: ['Schwyzerörgeli', 'Starter'],
+    notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80',
     price: 18, purchased: false,
   },
@@ -32,6 +34,7 @@ const videos = [
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
     styleTags: ['Urchig', 'Berner Stil'],
     autoTags: ['Handorgel', 'Pro'],
+    notesAvailable: { violinschluessel: false, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80',
     price: 18, purchased: false,
   },
@@ -41,6 +44,7 @@ const videos = [
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
     styleTags: ['Innerschwyzer Stil'],
     autoTags: ['Klarinette', 'Starter'],
+    notesAvailable: { violinschluessel: false, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80',
     price: 18, purchased: false,
   },
@@ -50,6 +54,7 @@ const videos = [
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'free' as const,
     styleTags: ['Modern'],
     autoTags: ['Klavier', 'Free'],
+    notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80',
     price: 0, purchased: true,
   },
@@ -59,6 +64,7 @@ const videos = [
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
     styleTags: ['Konzertant', 'Büntner Stil'],
     autoTags: ['Bass', 'Pro'],
+    notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80',
     price: 18, purchased: false,
   },
@@ -68,6 +74,7 @@ const videos = [
     artDesStückes: 'bekannte_melodie' as const, difficultyPlan: 'free' as const,
     styleTags: [], melodieTags: ['Weihnachtslied', 'Zweistimmig'],
     autoTags: ['Handorgel', 'Free', 'Bekannte Melodie'],
+    notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80',
     price: 0, purchased: true,
   },
@@ -85,6 +92,8 @@ const TAKTARTEN = ['Alle', 'Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka
 const PLANS = ['Alle', 'Free', 'Starter', 'Pro']
 const ART_OPTIONS = ['Alle', 'Volkstümlich', 'Bekannte Melodie']
 const STYLE_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
+const NOTEN_OPTIONS = ['Alle', 'Noten vorhanden', 'Violinschlüssel', 'Griffschrift'] as const
+type NotenFilter = typeof NOTEN_OPTIONS[number]
 
 const planColors: Record<string, string> = {
   free: 'bg-border/60 text-text-secondary',
@@ -103,6 +112,7 @@ export default function LernvideosPage() {
   const [filterPlan, setFilterPlan] = useState('Alle')
   const [filterArt, setFilterArt] = useState('Alle')
   const [filterStyleTag, setFilterStyleTag] = useState<string | null>(null)
+  const [filterNoten, setFilterNoten] = useState<NotenFilter>('Alle')
   const [tab, setTab] = useState<'datenbank' | 'wuensche'>('datenbank')
   const [showWishForm, setShowWishForm] = useState(false)
   const [wishVotes, setWishVotes] = useState<Record<number, boolean>>(
@@ -127,12 +137,15 @@ export default function LernvideosPage() {
       const mel = ('melodieTags' in v ? (v as { melodieTags?: string[] }).melodieTags : undefined) ?? []
       if (!(v.styleTags as string[]).includes(filterStyleTag) && !mel.includes(filterStyleTag)) return false
     }
+    if (filterNoten === 'Noten vorhanden' && !v.notesAvailable.violinschluessel && !v.notesAvailable.griffschrift) return false
+    if (filterNoten === 'Violinschlüssel' && !v.notesAvailable.violinschluessel) return false
+    if (filterNoten === 'Griffschrift' && !v.notesAvailable.griffschrift) return false
     return true
   })
 
   const activeFilterCount = [
     filterInst !== 'Alle', filterForm !== 'Alle', filterTakt !== 'Alle',
-    filterPlan !== 'Alle', filterArt !== 'Alle', filterStyleTag !== null,
+    filterPlan !== 'Alle', filterArt !== 'Alle', filterStyleTag !== null, filterNoten !== 'Alle',
   ].filter(Boolean).length
 
   return (
@@ -167,7 +180,7 @@ export default function LernvideosPage() {
                 <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Filter</p>
                 {activeFilterCount > 0 && (
                   <button
-                    onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterForm('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null) }}
+                    onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterForm('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }}
                     className="font-sans text-xs text-accent-gold hover:underline"
                   >
                     Zurücksetzen ({activeFilterCount})
@@ -251,6 +264,24 @@ export default function LernvideosPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Noten */}
+              <div>
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Noten</label>
+                <div className="space-y-1">
+                  {NOTEN_OPTIONS.map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setFilterNoten(n)}
+                      className={`w-full text-left px-3 py-2 font-sans text-sm border transition-colors flex items-center justify-between ${filterNoten === n ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                    >
+                      <span>{n}</span>
+                      {n === 'Violinschlüssel' && <span className={`font-sans text-[10px] px-1.5 py-0.5 border ${filterNoten === n ? 'border-white/30 text-white/60' : 'border-border text-text-secondary'}`}>♩</span>}
+                      {n === 'Griffschrift' && <span className={`font-sans text-[10px] px-1.5 py-0.5 border ${filterNoten === n ? 'border-white/30 text-white/60' : 'border-border text-text-secondary'}`}>𝄞</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Results */}
@@ -264,6 +295,7 @@ export default function LernvideosPage() {
                     {filterPlan !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterPlan}</span>}
                     {filterArt !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterArt}</span>}
                     {filterStyleTag && <span className="font-sans text-xs px-2 py-1 bg-accent-gold text-white">{filterStyleTag}</span>}
+                    {filterNoten !== 'Alle' && <span className="font-sans text-xs px-2 py-1 bg-dark text-white">{filterNoten}</span>}
                   </div>
                 )}
               </div>
@@ -326,6 +358,24 @@ export default function LernvideosPage() {
                         </div>
                       )}
 
+                      {/* Notes badges */}
+                      {(v.notesAvailable.violinschluessel || v.notesAvailable.griffschrift) && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {v.notesAvailable.violinschluessel && (
+                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
+                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                              Violinschlüssel
+                            </span>
+                          )}
+                          {v.notesAvailable.griffschrift && (
+                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
+                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                              Griffschrift
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       <div className="mt-auto">
                         {v.purchased ? (
                           <Link href={`/member/academy/lernvideos/${v.id}`} className="block text-center font-sans text-xs bg-dark text-white py-2 hover:bg-accent-gold transition-colors">
@@ -349,7 +399,7 @@ export default function LernvideosPage() {
                 <div className="text-center py-16">
                   <p className="font-heading font-bold text-lg mb-2">Keine Lernvideos gefunden</p>
                   <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche die gesamte Datenbank.</p>
-                  <button onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterForm('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null) }} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
+                  <button onClick={() => { setSearch(''); setFilterInst('Alle'); setFilterForm('Alle'); setFilterTakt('Alle'); setFilterPlan('Alle'); setFilterArt('Alle'); setFilterStyleTag(null); setFilterNoten('Alle') }} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
                     Alle Filter zurücksetzen
                   </button>
                 </div>

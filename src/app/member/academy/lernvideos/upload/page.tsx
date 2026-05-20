@@ -13,9 +13,17 @@ const FORMATION_OPTIONS = ['Solo', 'Duo', 'Trio', 'Quartett', 'Kapelle', 'Grossf
 const INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli', 'Bass', 'Klavier', 'Klarinette', 'Trompete', 'Posaune', 'Schlagzeug', 'Andere']
 const STUFEN = [2, 3, 4, 5, 6]
 
+const LEHRPERSONEN = [
+  { id: 'hansruedi', name: 'Hansruedi Wenger', title: 'Handorgel & Akkordeon', bio: 'Über 20 Jahre Unterrichtserfahrung. Mitglied der Ländlerkapelle Hess.', profileUrl: '/member/profile/hansruedi_wenger' },
+  { id: 'seebi', name: 'Seebi Diener', title: 'Schwyzerörgeli & Handorgel', bio: 'Konzertreifer Schwyzerörgelist, Gründungsmitglied der Bodästänix.', profileUrl: '/member/profile/seebi_diener' },
+  { id: 'cecile', name: 'Cécile Schmidig', title: 'Klavier & Musiktheorie', bio: 'Klassisch ausgebildet, spezialisiert auf Volksmusik-Arrangements.', profileUrl: '/member/profile/cecile_schmidig' },
+  { id: 'cyrill', name: 'Cyrill Rusch', title: 'Bass & Harmonielehre', bio: 'Langjähriger Bassbegleiter und Experte für Zusammenspiel-Techniken.', profileUrl: '/member/profile/cyrill_rusch' },
+  { id: 'franz', name: 'Franz Hess', title: 'Klavier & Begleitung', bio: 'Bekannt durch das Hess-Rusch-Hegner Trio. Langjähriger LAEMU-Dozent.', profileUrl: '/member/profile/franz_hess' },
+]
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type ArtDesStückes = 'volkstuemlich' | 'bekannte_melodie' | null
+type ArtDesStückes = 'volkstuemlich' | 'bekannte_melodie'
 type DifficultyPlan = 'free' | 'starter' | 'pro'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -52,8 +60,10 @@ function computeAutoTags(opts: {
   instruments: string[]
   difficultyPlan: DifficultyPlan
   taktart: string | null
-  artDesStückes: ArtDesStückes
+  artDesStückes: ArtDesStückes[]
   formations: string[]
+  notenViolinschluessel: boolean
+  notenGriffschrift: boolean
   courseContext?: string
 }): string[] {
   const tags: string[] = []
@@ -62,8 +72,11 @@ function computeAutoTags(opts: {
   if (opts.difficultyPlan === 'pro') tags.push('Pro')
   if (opts.difficultyPlan === 'free') tags.push('Free')
   if (opts.taktart) tags.push(opts.taktart)
-  if (opts.artDesStückes === 'volkstuemlich') tags.push('Volksmusik')
-  if (opts.artDesStückes === 'bekannte_melodie') tags.push('Bekannte Melodie')
+  if (opts.artDesStückes.includes('volkstuemlich')) tags.push('Volksmusik')
+  if (opts.artDesStückes.includes('bekannte_melodie')) tags.push('Bekannte Melodie')
+  if (opts.notenViolinschluessel || opts.notenGriffschrift) tags.push('Noten vorhanden')
+  if (opts.notenViolinschluessel) tags.push('Violinschlüssel')
+  if (opts.notenGriffschrift) tags.push('Griffschrift')
   if (opts.courseContext) tags.push(opts.courseContext)
   return tags.filter((t, i, a) => a.indexOf(t) === i)
 }
@@ -94,26 +107,41 @@ export default function LernvideoUploadPage() {
   const [year, setYear] = useState('')
   const [instruments, setInstruments] = useState<string[]>([])
   const [formations, setFormations] = useState<string[]>([])
+  const [lehrpersonen, setLehrpersonen] = useState<string[]>([])
   const [difficultyNum, setDifficultyNum] = useState(3)
   const [difficultyPlan, setDifficultyPlan] = useState<DifficultyPlan>('starter')
   const [stufen, setStufen] = useState(3)
-  const [artDesStückes, setArtDesStückes] = useState<ArtDesStückes>(null)
+  const [artDesStückes, setArtDesStückes] = useState<ArtDesStückes[]>([])
   const [taktart, setTaktart] = useState<string | null>(null)
   const [styleTags, setStyleTags] = useState<string[]>([])
   const [melodieTags, setMelodieTags] = useState<string[]>([])
+  const [notenViolinschluessel, setNotenViolinschluessel] = useState(false)
+  const [notenGriffschrift, setNotenGriffschrift] = useState(false)
   const [courseContext, setCourseContext] = useState('Grundlagenkurs')
   const [submitted, setSubmitted] = useState(false)
 
   const toggleSet = <T,>(arr: T[], val: T): T[] =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
 
-  const autoTags = computeAutoTags({ instruments, difficultyPlan, taktart, artDesStückes, formations, courseContext: courseContext || undefined })
+  const toggleArt = (val: ArtDesStückes) => {
+    setArtDesStückes(prev => {
+      const next = prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]
+      // Clear sub-tags if type is deselected
+      if (!next.includes('volkstuemlich')) { setStyleTags([]); setTaktart(null) }
+      if (!next.includes('bekannte_melodie')) { setMelodieTags([]) }
+      return next
+    })
+  }
+
+  const autoTags = computeAutoTags({ instruments, difficultyPlan, taktart, artDesStückes, formations, notenViolinschluessel, notenGriffschrift, courseContext: courseContext || undefined })
 
   const allTags = [
     ...autoTags,
     ...styleTags,
     ...melodieTags,
   ].filter((t, i, a) => a.indexOf(t) === i)
+
+  const isValid = !!title && !!composer && instruments.length > 0 && artDesStückes.length > 0
 
   if (submitted) {
     return (
@@ -165,7 +193,7 @@ export default function LernvideoUploadPage() {
         </div>
 
         {/* 1 — Grundinfos */}
-        <SectionCard num={1} title="Grundinformationen" subtitle="Name, Komponist und Entstehungsjahr">
+        <SectionCard num={1} title="Grundinformationen" subtitle="Name, Komponist, Entstehungsjahr und Lehrperson">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FieldGroup label="Titel des Stückes *">
               <input value={title} onChange={e => setTitle(e.target.value)} placeholder="z.B. Dr Alperose" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
@@ -180,6 +208,46 @@ export default function LernvideoUploadPage() {
               <input value={year} onChange={e => setYear(e.target.value)} placeholder="z.B. 1978" type="number" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
             </FieldGroup>
           </div>
+
+          {/* Lehrperson */}
+          <FieldGroup label="Lehrperson(en) *" hint="Welche Lehrperson(en) unterrichtet dieses Stück? Mehrfachauswahl möglich.">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {LEHRPERSONEN.map(lp => {
+                const active = lehrpersonen.includes(lp.id)
+                return (
+                  <div key={lp.id} className={`border transition-colors ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                    <button
+                      type="button"
+                      onClick={() => setLehrpersonen(prev => toggleSet(prev, lp.id))}
+                      className="w-full p-3 text-left"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className={`font-heading font-bold text-sm ${active ? 'text-accent-gold' : ''}`}>{lp.name}</p>
+                          <p className="font-sans text-xs text-text-secondary">{lp.title}</p>
+                        </div>
+                        <div className={`w-4 h-4 border flex-shrink-0 mt-0.5 flex items-center justify-center ${active ? 'bg-accent-gold border-accent-gold' : 'border-border'}`}>
+                          {active && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                      </div>
+                    </button>
+                    <AnimatePresence>
+                      {active && (
+                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                          <div className="px-3 pb-3 border-t border-accent-gold/20 pt-2.5 flex items-center justify-between gap-3">
+                            <p className="font-sans text-xs text-text-secondary leading-snug">{lp.bio}</p>
+                            <Link href={lp.profileUrl} className="font-sans text-xs text-accent-gold hover:underline whitespace-nowrap flex-shrink-0">
+                              Profil →
+                            </Link>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )
+              })}
+            </div>
+          </FieldGroup>
 
           <FieldGroup label="Instrument(e) *" hint="Mehrfachauswahl möglich">
             <div className="flex flex-wrap gap-2">
@@ -245,26 +313,42 @@ export default function LernvideoUploadPage() {
         </SectionCard>
 
         {/* 3 — Art des Stückes */}
-        <SectionCard num={3} title="Art des Stückes" subtitle="Bestimmt, welche weiteren Attribute verfügbar werden">
+        <SectionCard num={3} title="Art des Stückes" subtitle="Mehrfachauswahl möglich — beides kombiniert erlaubt">
+          <p className="font-sans text-xs text-text-secondary -mt-1">Ein Stück kann gleichzeitig volkstümlich und eine bekannte Melodie sein. Beide Typen können ausgewählt werden.</p>
           <div className="grid grid-cols-2 gap-3">
-            {([['volkstuemlich', 'Volkstümlich', 'Traditionelle Schweizer Volksmusik — Ländler, Schottisch, Walzer etc.'], ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder, Kinderlieder etc.']] as const).map(([val, label, desc]) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => { setArtDesStückes(val); setStyleTags([]); setMelodieTags([]); setTaktart(null) }}
-                className={`p-4 border text-left transition-colors ${artDesStückes === val ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-              >
-                <p className={`font-heading font-bold text-sm mb-1 ${artDesStückes === val ? 'text-accent-gold' : ''}`}>{label}</p>
-                <p className="font-sans text-xs text-text-secondary leading-snug">{desc}</p>
-              </button>
-            ))}
+            {([
+              ['volkstuemlich', 'Volkstümlich', 'Traditionelle Schweizer Volksmusik — Ländler, Schottisch, Walzer etc.'],
+              ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder, Kinderlieder etc.'],
+            ] as const).map(([val, label, desc]) => {
+              const active = artDesStückes.includes(val)
+              return (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => toggleArt(val)}
+                  className={`p-4 border text-left transition-colors ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className={`font-heading font-bold text-sm ${active ? 'text-accent-gold' : ''}`}>{label}</p>
+                    <div className={`w-4 h-4 border flex-shrink-0 flex items-center justify-center ${active ? 'bg-accent-gold border-accent-gold' : 'border-border'}`}>
+                      {active && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                    </div>
+                  </div>
+                  <p className="font-sans text-xs text-text-secondary leading-snug">{desc}</p>
+                </button>
+              )
+            })}
           </div>
 
           {/* Volkstümlich sub-section */}
           <AnimatePresence>
-            {artDesStückes === 'volkstuemlich' && (
+            {artDesStückes.includes('volkstuemlich') && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                 <div className="border border-border bg-background p-5 space-y-5 mt-2">
+                  <div className="flex items-center gap-2 mb-0">
+                    <div className="w-2 h-2 bg-accent-gold flex-shrink-0" />
+                    <p className="font-sans text-xs font-semibold text-accent-gold uppercase tracking-widest">Volkstümlich</p>
+                  </div>
                   <div>
                     <Label>Stil-Tags</Label>
                     <p className="font-sans text-xs text-text-secondary mb-3">Mehrere möglich — helfen beim Durchsuchen und Filtern</p>
@@ -297,9 +381,13 @@ export default function LernvideoUploadPage() {
 
           {/* Bekannte Melodie sub-section */}
           <AnimatePresence>
-            {artDesStückes === 'bekannte_melodie' && (
+            {artDesStückes.includes('bekannte_melodie') && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                 <div className="border border-border bg-background p-5 mt-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 bg-dark flex-shrink-0" />
+                    <p className="font-sans text-xs font-semibold text-dark uppercase tracking-widest">Bekannte Melodie</p>
+                  </div>
                   <Label>Genre-Tags</Label>
                   <p className="font-sans text-xs text-text-secondary mb-3">Mehrere möglich</p>
                   <div className="flex flex-wrap gap-2">
@@ -328,10 +416,55 @@ export default function LernvideoUploadPage() {
           </p>
         </SectionCard>
 
-        {/* 5 — Auto-Tag Vorschau */}
-        <SectionCard num={5} title="Tag-Vorschau" subtitle="So wird das Stück in der Suchmaschine gefunden">
+        {/* 5 — Noten */}
+        <SectionCard num={5} title="Noten" subtitle="Welche Notenblätter werden zu diesem Stück hochgeladen?">
+          <p className="font-sans text-xs text-text-secondary -mt-1">
+            Die Notentypen werden automatisch als Tags gesetzt und sind für Lernende beim Filtern sichtbar — z.B. können Lernende, die nur Violinschlüssel lesen, gezielt nach solchen Stücken filtern.
+          </p>
+          <div className="space-y-3">
+            <label className={`flex items-start gap-4 p-4 border cursor-pointer transition-colors ${notenViolinschluessel ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+              <input
+                type="checkbox"
+                checked={notenViolinschluessel}
+                onChange={e => setNotenViolinschluessel(e.target.checked)}
+                className="mt-0.5 accent-[#C4973A] w-4 h-4 flex-shrink-0"
+              />
+              <div>
+                <p className={`font-heading font-bold text-sm ${notenViolinschluessel ? 'text-accent-gold' : ''}`}>Violinschlüssel vorhanden</p>
+                <p className="font-sans text-xs text-text-secondary mt-0.5">
+                  Standardnotation. Für Lernende, die klassische Notation lesen können. Setzt automatisch die Tags <em>Noten vorhanden</em> und <em>Violinschlüssel</em>.
+                </p>
+              </div>
+            </label>
+            <label className={`flex items-start gap-4 p-4 border cursor-pointer transition-colors ${notenGriffschrift ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+              <input
+                type="checkbox"
+                checked={notenGriffschrift}
+                onChange={e => setNotenGriffschrift(e.target.checked)}
+                className="mt-0.5 accent-[#C4973A] w-4 h-4 flex-shrink-0"
+              />
+              <div>
+                <p className={`font-heading font-bold text-sm ${notenGriffschrift ? 'text-accent-gold' : ''}`}>Griffschrift vorhanden</p>
+                <p className="font-sans text-xs text-text-secondary mt-0.5">
+                  Griffschrift für Schwyzerörgeli/Handorgel. Für Lernende ohne klassische Notenkenntnisse. Setzt automatisch die Tags <em>Noten vorhanden</em> und <em>Griffschrift</em>.
+                </p>
+              </div>
+            </label>
+          </div>
+          {(notenViolinschluessel || notenGriffschrift) && (
+            <div className="flex flex-wrap gap-1.5">
+              <span className="font-sans text-[10px] px-2 py-1 bg-dark text-white">Noten vorhanden</span>
+              {notenViolinschluessel && <span className="font-sans text-[10px] px-2 py-1 bg-dark text-white">Violinschlüssel</span>}
+              {notenGriffschrift && <span className="font-sans text-[10px] px-2 py-1 bg-dark text-white">Griffschrift</span>}
+              <span className="font-sans text-[10px] px-2 py-1 bg-background border border-border text-text-secondary">werden automatisch getaggt</span>
+            </div>
+          )}
+        </SectionCard>
+
+        {/* 6 — Auto-Tag Vorschau */}
+        <SectionCard num={6} title="Tag-Vorschau" subtitle="So wird das Stück in der Suchmaschine gefunden">
           <div>
-            <p className="font-sans text-xs text-text-secondary mb-3">Automatisch generierte Tags (aus Kurs-Kontext, Instrument, Plan, Taktart):</p>
+            <p className="font-sans text-xs text-text-secondary mb-3">Automatisch generierte Tags (aus Kurs-Kontext, Instrument, Plan, Taktart, Noten):</p>
             {autoTags.length > 0 ? (
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {autoTags.map(t => (
@@ -372,15 +505,15 @@ export default function LernvideoUploadPage() {
             Abbrechen
           </Link>
           <button
-            onClick={() => { if (title && composer && instruments.length > 0 && artDesStückes) setSubmitted(true) }}
-            disabled={!title || !composer || instruments.length === 0 || !artDesStückes}
+            onClick={() => { if (isValid) setSubmitted(true) }}
+            disabled={!isValid}
             className="bg-accent-gold text-white font-sans font-semibold text-sm px-8 py-3 hover:bg-accent-warm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Stück erfassen & Lernvideos verknüpfen →
           </button>
         </div>
 
-        {(!title || !composer || instruments.length === 0 || !artDesStückes) && (
+        {!isValid && (
           <p className="font-sans text-xs text-text-secondary text-right">
             Pflichtfelder: Titel, Komponist, mind. 1 Instrument, Art des Stückes
           </p>
