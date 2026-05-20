@@ -143,9 +143,26 @@ const mockSearchResults: MockSearchResult[] = [
   { id: 'sr4', title: 'Erstes Repertoire', subtitle: 'Handorgel Starter · 6 Module', category: 'Kurse', href: '/member/academy/instrument/handorgel/kurs/repertoire' },
 ]
 
+const inlineLernvideos = [
+  { id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', instrument: 'Handorgel', taktart: 'Walzer', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80' },
+  { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', plan: 'starter', purchased: false, img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80' },
+  { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', plan: 'pro', purchased: false, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80' },
+  { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', plan: 'starter', purchased: false, img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
+  { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', plan: 'free', purchased: true, img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80' },
+  { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', plan: 'pro', purchased: false, img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80' },
+  { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, plan: 'free', purchased: true, img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80' },
+]
+
+const inlinePlanColors: Record<string, string> = {
+  free: 'bg-border/60 text-text-secondary',
+  starter: 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30',
+  pro: 'bg-dark/10 text-dark border border-dark/20',
+}
+const inlinePlanLabels: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
+
 const navItems = [
   { label: 'Meine Kurse', id: 'kurse' },
-  { label: 'Lernvideo-Datenbank', id: 'lernvideos', href: '/member/academy/lernvideos' },
+  { label: 'Lernvideo-Datenbank', id: 'lernvideos' },
   { label: 'Kurs-Chats', id: 'chats', badge: 4 },
   { label: 'Lehrpersonen', id: 'lehrer' },
   { label: 'Fortschritt', id: 'fortschritt' },
@@ -200,6 +217,8 @@ export default function MemberAcademyPage() {
   const [achievementFilter, setAchievementFilter] = useState('Alle')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
+  const [inlineVideoSearch, setInlineVideoSearch] = useState('')
+  const [inlineInstFilter, setInlineInstFilter] = useState('Alle')
 
   const earnedCount = allAchievements.filter((a) => a.earned).length
   const totalPoints = allAchievements.filter((a) => a.earned).reduce((s, a) => s + a.points, 0)
@@ -329,30 +348,20 @@ export default function MemberAcademyPage() {
 
               {/* Navigation */}
               <nav className="bg-surface border border-border overflow-hidden">
-                {navItems.map((item) =>
-                  item.href ? (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className="w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left text-text-secondary hover:bg-background hover:text-dark"
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveNav(item.id)}
-                      className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
-                        activeNav === item.id ? 'bg-dark text-white font-medium' : 'text-text-secondary hover:bg-background hover:text-dark'
-                      }`}
-                    >
-                      {item.label}
-                      {item.badge != null && (
-                        <span className="ml-auto bg-accent-gold text-white text-[10px] px-1.5 py-0.5">{item.badge}</span>
-                      )}
-                    </button>
-                  ),
-                )}
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveNav(item.id)}
+                    className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
+                      activeNav === item.id ? 'bg-dark text-white font-medium' : 'text-text-secondary hover:bg-background hover:text-dark'
+                    }`}
+                  >
+                    {item.label}
+                    {item.badge != null && (
+                      <span className="ml-auto bg-accent-gold text-white text-[10px] px-1.5 py-0.5">{item.badge}</span>
+                    )}
+                  </button>
+                ))}
               </nav>
 
               {/* Quick stats */}
@@ -393,6 +402,45 @@ export default function MemberAcademyPage() {
                       <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
                       <p className="font-sans text-xs text-white/50">Tage Streak</p>
                     </div>
+                  </div>
+                </motion.div>
+
+                {/* ── Quick Access ── */}
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Schnellzugriff</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <Link href="/member/academy/lernvideos?playlist=open" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+                        <span className="font-sans text-xs font-semibold text-accent-gold">5</span>
+                      </div>
+                      <p className="font-sans text-xs font-medium">Meine Playlist</p>
+                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Im Auto oder unterwegs abspielen</p>
+                    </Link>
+                    <Link href="/member/academy/lernvideos?saved=1" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        <span className="font-sans text-xs font-semibold text-accent-gold">3</span>
+                      </div>
+                      <p className="font-sans text-xs font-medium">Gespeicherte Videos</p>
+                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Gemerkte Lernvideos auf einen Blick</p>
+                    </Link>
+                    <Link href="/member/academy/lernvideos" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-dark transition-colors"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                        <span className="font-sans text-xs text-text-secondary">→</span>
+                      </div>
+                      <p className="font-sans text-xs font-medium">Lernvideo-Datenbank</p>
+                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Alle Stücke durchsuchen & filtern</p>
+                    </Link>
+                    <Link href="/member/academy/lernvideos/upload" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-dark transition-colors"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span className="font-sans text-xs text-text-secondary">→</span>
+                      </div>
+                      <p className="font-sans text-xs font-medium">Stück hochladen</p>
+                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Neues Lernvideo erfassen</p>
+                    </Link>
                   </div>
                 </motion.div>
 
@@ -678,6 +726,110 @@ export default function MemberAcademyPage() {
                 </section>
               </>
             )}
+
+            {/* ── LERNVIDEO-DATENBANK (inline) ── */}
+            {activeNav === 'lernvideos' && (() => {
+              const q = inlineVideoSearch.toLowerCase()
+              const filtered = inlineLernvideos.filter(v =>
+                (inlineInstFilter === 'Alle' || v.instrument === inlineInstFilter) &&
+                (!q || v.title.toLowerCase().includes(q) || v.artist.toLowerCase().includes(q) || v.instrument.toLowerCase().includes(q))
+              )
+              return (
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="font-heading text-2xl font-bold">Lernvideo-Datenbank</h2>
+                      <p className="font-sans text-sm text-text-secondary mt-0.5">Alle Stücke durchsuchen und filtern</p>
+                    </div>
+                    <Link
+                      href="/member/academy/lernvideos"
+                      title="Vollbild öffnen"
+                      className="flex items-center gap-2 font-sans text-xs text-text-secondary hover:text-dark border border-border px-3 py-2 hover:border-dark transition-colors"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                      Vollbild
+                    </Link>
+                  </div>
+
+                  {/* Search + instrument filter */}
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input
+                        value={inlineVideoSearch}
+                        onChange={e => setInlineVideoSearch(e.target.value)}
+                        type="text"
+                        placeholder="Titel, Interpret, Instrument…"
+                        className="w-full border border-border pl-9 pr-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                      />
+                    </div>
+                    <select
+                      value={inlineInstFilter}
+                      onChange={e => setInlineInstFilter(e.target.value)}
+                      className="border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                    >
+                      {['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette'].map(o => <option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Video list */}
+                  <div className="flex flex-col gap-2.5">
+                    {filtered.map((v, i) => (
+                      <motion.div
+                        key={v.id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                        className="bg-surface border border-border flex overflow-hidden group hover:border-dark transition-colors"
+                      >
+                        <div className="relative w-28 sm:w-36 flex-shrink-0">
+                          <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="w-7 h-7 bg-accent-gold flex items-center justify-center">
+                              <span className="text-white ml-0.5 text-xs">▶</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-1 p-3 flex items-center justify-between gap-3 min-w-0">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="font-heading font-bold text-sm truncate group-hover:text-accent-gold transition-colors">{v.title}</p>
+                              {v.taktart && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0">{v.taktart}</span>}
+                            </div>
+                            <p className="font-sans text-xs text-text-secondary">{v.artist} · <span className="italic">{v.instrument}</span></p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${inlinePlanColors[v.plan]}`}>{inlinePlanLabels[v.plan]}</span>
+                            {v.purchased ? (
+                              <Link href={`/member/academy/lernvideos/${v.id}`} className="font-sans text-xs bg-dark text-white px-2.5 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
+                                Öffnen →
+                              </Link>
+                            ) : (
+                              <button className="font-sans text-xs bg-accent-gold text-white px-2.5 py-1.5 hover:bg-accent-warm transition-colors whitespace-nowrap">
+                                Kaufen
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                    {filtered.length === 0 && (
+                      <p className="font-sans text-sm text-text-secondary text-center py-10">Keine Lernvideos gefunden.</p>
+                    )}
+                  </div>
+
+                  {/* Footer link */}
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                    <p className="font-sans text-xs text-text-secondary">{inlineLernvideos.length} Lernvideos · Zeige {filtered.length} Ergebnisse</p>
+                    <Link href="/member/academy/lernvideos" className="font-sans text-xs text-accent-gold hover:underline flex items-center gap-1">
+                      Alle Lernvideos mit erweiterten Filtern anzeigen
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </Link>
+                  </div>
+                </motion.div>
+              )
+            })()}
 
             {/* ── CHATS ── */}
             {activeNav === 'chats' && (
