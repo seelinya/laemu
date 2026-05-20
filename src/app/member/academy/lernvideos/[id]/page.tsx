@@ -41,6 +41,7 @@ const videoData = {
   intro: 'Dr Alperose ist ein klassischer Ländlerwalzer im 3/4-Takt, komponiert von Willi Valotti im Jahr 1978. Das Stück gehört zum Standardrepertoire jeder Schweizer Ländlerkapelle und zeichnet sich durch seine eingängige Melodielinie und charakteristischen Begleitfiguren aus. Besondere Aufmerksamkeit verdient der harmonische Übergang von Teil A nach Teil B — ein Merkmal, das viele Ländler der 1970er-Jahre kennzeichnet und den Stücken eine besondere Tiefe verleiht.',
   masterVideo: { type: 'laemu' as const },
   hasJamPlayer: true,
+  introVideo: { label: 'Einführungsvideo — Überblick & Aufbau des Stückes', duration: '4:32' },
   jamMusicians: [
     { id: 'j1', name: 'Seebi Diener', voice: '1. Stimme', instrument: 'Handorgel', volume: 85, muted: false, color: '#C4973A' },
     { id: 'j2', name: 'Cyrill Rusch', voice: '2. Stimme', instrument: 'Schwyzerörgeli', volume: 75, muted: false, color: '#5A8A6A' },
@@ -528,6 +529,27 @@ export default function LernvideoDetailPage() {
             {/* ── ÜBERBLICK TAB ── */}
             {mainTab === 'ueberblick' && (
               <>
+                {/* 0 — INTRO VIDEO */}
+                {'introVideo' in v && v.introVideo && (
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                    <div className="bg-surface border border-accent-gold/30 overflow-hidden">
+                      <div className="px-5 py-3 border-b border-accent-gold/20 bg-accent-gold/5 flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-5 h-5 bg-accent-gold flex items-center justify-center flex-shrink-0">
+                            <svg width="8" height="8" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                          </div>
+                          <div>
+                            <p className="font-heading font-bold text-sm">Einführungsvideo</p>
+                            <p className="font-sans text-xs text-text-secondary">{v.introVideo.duration} · Empfohlen zum Einstieg</p>
+                          </div>
+                        </div>
+                        <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 bg-accent-gold/10">Neu hier? Zuerst ansehen</span>
+                      </div>
+                      <VideoPlayer img={v.img} label={v.introVideo.label} />
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* 1 — MASTER VIDEO */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
                   <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
