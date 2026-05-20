@@ -1612,6 +1612,26 @@ export default function MemberCommunityPage() {
         </div>
       </div>
 
+      {/* ── AREA TABS ── */}
+      <div className="bg-surface border-b border-border">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center gap-0">
+            {/* Community tab — active */}
+            <button className="flex items-center gap-2 px-6 py-4 font-sans text-sm font-medium border-b-2 border-accent-gold text-dark transition-colors">
+              <span>💬</span> Community
+            </button>
+
+            {/* Akademie tab — links to full academy page */}
+            <Link
+              href="/member/academy"
+              className="flex items-center gap-2 px-6 py-4 font-sans text-sm font-medium border-b-2 border-transparent text-text-secondary hover:text-dark transition-colors"
+            >
+              <span>🎓</span> Akademie
+            </Link>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
