@@ -204,6 +204,7 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
   const [bookingSlot, setBookingSlot] = useState<string | null>(null)
   const [bookingName, setBookingName] = useState('')
   const [bookingEmail, setBookingEmail] = useState('')
+  const [bookingFormat, setBookingFormat] = useState<'online' | 'phone' | null>(null)
   const [bookingConfirmed, setBookingConfirmed] = useState(false)
   const [videoEmail, setVideoEmail] = useState('')
   const [videoSent, setVideoSent] = useState(false)
@@ -627,21 +628,44 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
                   {!bookingConfirmed ? (
                     <motion.div key="booking-form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
                       <button onClick={() => setResultAction(null)} className="font-sans text-xs text-text-secondary hover:text-dark mb-4 block">← Zurück</button>
-                      <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-2">Kostenloser Termin</p>
-                      <h3 className="font-heading text-xl font-bold mb-1">Wähle einen freien Termin</h3>
-                      <p className="font-sans text-xs text-text-secondary mb-5">Gratis, unverbindlich — lerne LAEMU kennen.</p>
+                      <p className="font-sans text-xs text-accent-gold uppercase tracking-widest mb-2">Beratungsgespräch buchen</p>
+                      <h3 className="font-heading text-xl font-bold mb-1">Kostenlose 30-Minuten Beratung</h3>
+                      <p className="font-sans text-xs text-text-secondary mb-5">Unverbindlich — das LAEMU-Team hilft dir, das richtige Angebot zu finden.</p>
+
+                      {/* Slots */}
+                      <p className="font-sans text-[10px] uppercase tracking-widest text-text-secondary mb-2">Freie Termine</p>
                       <div className="grid grid-cols-2 gap-2 mb-5">
                         {bookingSlots.map(slot => (
-                          <button
-                            key={slot}
-                            onClick={() => setBookingSlot(slot)}
-                            className={`py-2.5 px-3 border text-left font-sans text-xs transition-all ${bookingSlot === slot ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border hover:border-dark'}`}
-                          >
+                          <button key={slot} onClick={() => setBookingSlot(slot)}
+                            className={`py-2.5 px-3 border text-left font-sans text-xs transition-all ${bookingSlot === slot ? 'border-accent-gold bg-accent-gold/5 font-medium' : 'border-border hover:border-dark'}`}>
                             {slot}
                           </button>
                         ))}
                       </div>
+
+                      {/* Format selection */}
                       {bookingSlot && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
+                          <p className="font-sans text-[10px] uppercase tracking-widest text-text-secondary mb-2">Gesprächsformat</p>
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <button onClick={() => setBookingFormat('online')}
+                              className={`p-4 border text-left transition-all ${bookingFormat === 'online' ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                              <span className="block text-xl mb-1.5">💻</span>
+                              <p className="font-heading font-bold text-sm">Online</p>
+                              <p className="font-sans text-xs text-text-secondary mt-0.5">Video-Link per E-Mail</p>
+                            </button>
+                            <button onClick={() => setBookingFormat('phone')}
+                              className={`p-4 border text-left transition-all ${bookingFormat === 'phone' ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
+                              <span className="block text-xl mb-1.5">📞</span>
+                              <p className="font-heading font-bold text-sm">Telefon</p>
+                              <p className="font-sans text-xs text-text-secondary mt-0.5">Rückruf von LAEMU</p>
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Contact details */}
+                      {bookingSlot && bookingFormat && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3 mb-5 overflow-hidden">
                           <div>
                             <label className="font-sans text-xs text-text-secondary block mb-1">Dein Name</label>
@@ -653,10 +677,11 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
                           </div>
                         </motion.div>
                       )}
+
                       <button
-                        disabled={!bookingSlot || !bookingName.trim() || !bookingEmail.trim()}
+                        disabled={!bookingSlot || !bookingFormat || !bookingName.trim() || !bookingEmail.trim()}
                         onClick={() => setBookingConfirmed(true)}
-                        className={`w-full py-3 font-sans font-medium text-sm transition-colors ${bookingSlot && bookingName.trim() && bookingEmail.trim() ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                        className={`w-full py-3 font-sans font-medium text-sm transition-colors ${bookingSlot && bookingFormat && bookingName.trim() && bookingEmail.trim() ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                       >
                         Termin bestätigen →
                       </button>
@@ -664,16 +689,17 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
                   ) : (
                     <motion.div key="booking-confirmed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} className="text-center py-4">
                       <div className="w-16 h-16 rounded-full bg-accent-gold/10 border-2 border-accent-gold flex items-center justify-center mx-auto mb-5">
-                        <span className="text-2xl">📅</span>
+                        <span className="text-2xl">{bookingFormat === 'online' ? '💻' : '📞'}</span>
                       </div>
                       <h3 className="font-heading text-xl font-bold mb-2">Termin bestätigt!</h3>
-                      <p className="font-sans text-sm text-text-secondary mb-1">
-                        <span className="font-medium text-dark">{bookingSlot}</span>
+                      <p className="font-sans text-sm font-medium text-dark mb-1">{bookingSlot}</p>
+                      <p className="font-sans text-xs text-text-secondary mb-3">
+                        {bookingFormat === 'online'
+                          ? 'Du erhältst deinen Meeting-Link per E-Mail.'
+                          : 'Das LAEMU-Team ruft dich zum vereinbarten Termin an.'}
                       </p>
-                      <p className="font-sans text-xs text-text-secondary mb-6">Eine Bestätigung wurde an <span className="text-dark">{bookingEmail}</span> gesendet.</p>
-                      <button onClick={reset} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors underline underline-offset-2">
-                        Zum Anfang
-                      </button>
+                      <p className="font-sans text-xs text-text-secondary mb-6">Bestätigung an <span className="text-dark">{bookingEmail}</span> gesendet.</p>
+                      <button onClick={reset} className="font-sans text-xs text-text-secondary hover:text-dark underline">Zum Anfang</button>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -863,34 +889,50 @@ function OnboardingQuiz({ onStartSubscription, onScrollToPricing }: OnboardingQu
                     <p className="font-sans text-text-secondary text-sm mb-6">Wir konnten keine passende Empfehlung ermitteln. Schau dir unsere Angebote direkt an.</p>
                   )}
 
-                  {/* CTA options — not for formation results */}
+                  {/* Primary CTA: buy — not for formation, schnuppern_ohne_instrument, or null */}
+                  {quizResult !== 'formation_pro' && quizResult !== 'formation_lernvideo' && quizResult !== 'schnuppern_ohne_instrument' && quizResult !== null && (
+                    <button
+                      onClick={() => {
+                        const planMap: Record<string, { plan: IndividualPlan; scope?: Scope }> = {
+                          starter: { plan: 'starter', scope: resultScope },
+                          pro: { plan: 'pro', scope: resultScope },
+                          lernvideo: { plan: 'lernvideo' },
+                          schnuppern_mit_instrument: { plan: 'starter', scope: '1' },
+                        }
+                        const cfg = planMap[quizResult] ?? { plan: 'starter' as IndividualPlan }
+                        onStartSubscription({ purchaserType: 'individual', ...cfg })
+                      }}
+                      className="w-full py-3 bg-accent-gold text-white font-sans font-semibold text-sm hover:bg-accent-gold/90 transition-colors mb-3"
+                    >
+                      Jetzt abonnieren →
+                    </button>
+                  )}
+
+                  {/* Secondary CTAs — not for formation results */}
                   {quizResult !== 'formation_pro' && quizResult !== 'formation_lernvideo' && quizResult !== null && (
-                    <div className="space-y-3 mb-5">
+                    <div className="space-y-2 mb-5">
                       <button
-                        onClick={() => { setResultAction('booking'); setBookingConfirmed(false); setBookingSlot(null); setBookingName(''); setBookingEmail('') }}
-                        className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
+                        onClick={() => { setResultAction('booking'); setBookingConfirmed(false); setBookingSlot(null); setBookingName(''); setBookingEmail(''); setBookingFormat(null) }}
+                        className="w-full flex items-center gap-3 p-3.5 border border-border hover:border-accent-gold transition-all text-left group"
                       >
-                        <span className="text-2xl flex-shrink-0">📅</span>
+                        <span className="text-xl flex-shrink-0">📅</span>
                         <div>
-                          <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlosen Termin buchen</p>
-                          <p className="font-sans text-xs text-text-secondary">Gratis Beratungsgespräch — wähle einen freien Slot im Kalender.</p>
+                          <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlose Beratung buchen</p>
+                          <p className="font-sans text-xs text-text-secondary">30 Min. mit dem LAEMU-Team — online oder telefonisch.</p>
                         </div>
                       </button>
                       <button
                         onClick={() => { setResultAction('video'); setVideoSent(false); setVideoEmail('') }}
-                        className="w-full flex items-center gap-3 p-4 border border-border hover:border-accent-gold transition-all text-left group"
+                        className="w-full flex items-center gap-3 p-3.5 border border-border hover:border-accent-gold transition-all text-left group"
                       >
-                        <span className="text-2xl flex-shrink-0">📹</span>
+                        <span className="text-xl flex-shrink-0">📹</span>
                         <div>
                           <p className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors">Kostenlose Probelektion erhalten</p>
                           <p className="font-sans text-xs text-text-secondary">Wir schicken dir ein Video direkt per E-Mail — kein Abo nötig.</p>
                         </div>
                       </button>
-                      <button
-                        onClick={onScrollToPricing}
-                        className="w-full py-2.5 border border-border font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
-                      >
-                        Angebote direkt ansehen →
+                      <button onClick={onScrollToPricing} className="w-full py-2 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                        Alle Angebote ansehen →
                       </button>
                     </div>
                   )}
@@ -1017,8 +1059,11 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
     if (initial?.purchaserType === 'individual') {
       if (initial.plan && ['lernvideo', 'starter', 'pro'].includes(initial.plan as string)) {
         const p = initial.plan as IndividualPlan
-        if ((p === 'starter' || p === 'pro') && initial.scope) return 'ind_billing'
         if (p === 'lernvideo') return 'ind_billing'
+        if ((p === 'starter' || p === 'pro') && initial.scope) {
+          // Skip to instrument selection if scope is 1 or 2; otherwise straight to billing
+          return (initial.scope === '1' || initial.scope === '2') ? 'ind_instruments' : 'ind_billing'
+        }
         return 'ind_plan'
       }
       return 'ind_plan'
