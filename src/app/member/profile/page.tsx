@@ -11,7 +11,7 @@ const profile = {
   name: 'Hansruedi Wenger',
   handle: '@hansruedi_akkordeon',
   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
-  bio: 'Handorgelist und Akkordeonlehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Academy und spiele in mehreren Formationen der Innerschweiz.',
+  bio: 'Handorgelist und Akkordeonlehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Musikschule und spiele in mehreren Formationen der Innerschweiz.',
   location: 'Luzern LU',
   instruments: ['Handorgel', 'Akkordeon', 'Steirische Harmonika'],
   formations: ['Hess-Rusch-Hegner', 'Ländlertrio Freiamt'],
@@ -75,7 +75,7 @@ const posts: ProfilePost[] = [
   {
     id: 5,
     time: 'vor 3 Wochen',
-    text: 'Neue Video-Lektion auf LAEMU Academy: Der Zwiefache — Rhythmus und Interpretation.',
+    text: 'Neue Video-Lektion auf LAEMU Musikschule: Der Zwiefache — Rhythmus und Interpretation.',
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
     likes: 89,
     comments: 23,
@@ -182,7 +182,7 @@ export default function MemberProfilePage() {
       <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between mt-20">
         <Link href="/member/academy" className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          Zurück zur Academy
+          Zurück zur Musikschule
         </Link>
         <h1 className="font-heading font-bold text-base text-white">Profil</h1>
         <div className="w-24" />

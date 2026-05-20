@@ -21,8 +21,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'LAEMU — Am Puls der Ländlermusik',
   description:
-    'LAEMU ist die zentrale Plattform für die Schweizer Ländlermusik. Community, Academy, Events, Formationen und mehr.',
-  keywords: ['Ländlermusik', 'Schweizer Volksmusik', 'LAEMU', 'Community', 'Academy', 'Schwyzerörgeli', 'Handorgel'],
+    'LAEMU ist die zentrale Plattform für die Schweizer Ländlermusik. Community, Musikschule, Events, Formationen und mehr.',
+  keywords: ['Ländlermusik', 'Schweizer Volksmusik', 'LAEMU', 'Community', 'Musikschule', 'Schwyzerörgeli', 'Handorgel'],
   icons: {
     icon: '/favicon.svg',
   },

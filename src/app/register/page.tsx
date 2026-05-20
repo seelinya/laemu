@@ -30,7 +30,7 @@ const ABOS = [
   },
   {
     id: 'academy-monthly',
-    name: 'Academy + Community',
+    name: 'Musikschule + Community',
     price: 'CHF 19',
     period: '/ Monat',
     description: 'Vollzugang zu allen Video-Kursen, Live-Sessions, Kurs-Chats und Community.',
@@ -39,7 +39,7 @@ const ABOS = [
   },
   {
     id: 'academy-yearly',
-    name: 'Academy + Community Jahresabo',
+    name: 'Musikschule + Community Jahresabo',
     price: 'CHF 179',
     period: '/ Jahr',
     description: 'Bester Preis — über 2 Monate gespart. Alle Academy- und Community-Vorteile.',
@@ -96,7 +96,7 @@ export default function RegisterPage() {
               href="/member/academy"
               className="block w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
-              Academy entdecken
+              Musikschule entdecken
             </Link>
           </div>
         </motion.div>

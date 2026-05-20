@@ -10,7 +10,7 @@ import { clsx } from 'clsx'
 const navLinks = [
   { label: 'Entdecken', href: '/' },
   { label: 'Community', href: '/community' },
-  { label: 'Academy', href: '/academy' },
+  { label: 'Musikschule', href: '/musikschule' },
   { label: 'Events', href: '/events' },
   { label: 'Formationen', href: '/formations' },
   { label: 'Partner', href: '/partner' },
