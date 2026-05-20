@@ -353,12 +353,15 @@ function VoiceMixer({ voices }: { voices: Voice[] }) {
 function VideoPlayer({ img, label }: { img: string; label: string }) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(100)
+  const [pitch, setPitch] = useState(0)
   const [loopEnabled, setLoopEnabled] = useState(false)
   const [loopA, setLoopA] = useState(20)
   const [loopB, setLoopB] = useState(70)
   const [progress] = useState(35)
   const [dragging, setDragging] = useState<null | 'A' | 'B'>(null)
   const barRef = useRef<HTMLDivElement>(null)
+
+  const pitchLabel = pitch === 0 ? '±0' : pitch > 0 ? `+${pitch}` : `${pitch}`
 
   const handleBarClick = (e: React.MouseEvent) => {
     if (!barRef.current) return
@@ -397,25 +400,46 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
             </>
           )}
         </div>
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <span className="font-sans text-white/50 text-xs">3:42 / 12:15</span>
-          <div className="flex items-center gap-3 flex-1 min-w-0 max-w-xs">
-            <span className="font-sans text-xs text-white/40 flex-shrink-0">Tempo</span>
+        <div className="space-y-2">
+          {/* Time + Loop */}
+          <div className="flex items-center justify-between">
+            <span className="font-sans text-white/50 text-xs tabular-nums">3:42 / 12:15</span>
+            <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
+              <IconRepeat /> Loop {loopEnabled ? 'AN' : 'AUS'}
+            </button>
+          </div>
+          {/* Tempo slider */}
+          <div className="flex items-center gap-3">
+            <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tempo</span>
             <input
-              type="range"
-              min={25}
-              max={200}
-              step={1}
-              value={speed}
+              type="range" min={25} max={200} step={1} value={speed}
               onChange={e => setSpeed(Number(e.target.value))}
               className="flex-1 cursor-pointer"
               style={{ accentColor: '#C4973A' }}
             />
-            <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/50'}`}>{speed}%</span>
+            <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
+            {speed !== 100 && (
+              <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>
+            )}
           </div>
-          <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
-            <IconRepeat /> Loop {loopEnabled ? 'AN' : 'AUS'}
-          </button>
+          {/* Tonhöhe slider */}
+          <div className="flex items-center gap-3">
+            <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tonhöhe</span>
+            <div className="flex-1 relative">
+              <input
+                type="range" min={-4} max={4} step={0.5} value={pitch}
+                onChange={e => setPitch(Number(e.target.value))}
+                className="w-full cursor-pointer"
+                style={{ accentColor: pitch !== 0 ? '#7BA8D8' : '#555' }}
+              />
+              {/* Centre tick */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-px h-2 bg-white/20 pointer-events-none" style={{ marginTop: -4 }} />
+            </div>
+            <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${pitch !== 0 ? 'text-blue-300' : 'text-white/40'}`}>{pitchLabel}</span>
+            {pitch !== 0 && (
+              <button onClick={() => setPitch(0)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>
+            )}
+          </div>
         </div>
       </div>
     </div>
