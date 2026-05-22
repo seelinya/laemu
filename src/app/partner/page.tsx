@@ -312,7 +312,7 @@ export default function PartnerPage() {
             </motion.div>
             <motion.div variants={fadeUp}>
               <Link
-                href="/register"
+                href="/partner/anmelden?kategorie=Formation"
                 className="inline-block bg-accent-gold text-white font-sans font-semibold px-8 py-3 hover:bg-white hover:text-dark transition-colors"
               >
                 Formation registrieren
@@ -412,35 +412,52 @@ export default function PartnerPage() {
 
       {/* CTA — Eigenen Partner vorschlagen */}
       <section className="py-24 bg-dark">
-        <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <Section>
-            <motion.span variants={fadeUp} className="label text-accent-gold">Eintrag beantragen</motion.span>
+            <motion.span variants={fadeUp} className="label text-accent-gold">Partner werden</motion.span>
             <motion.h2 variants={fadeUp} className="heading-lg text-white mt-3 mb-5">
               Dein Betrieb fehlt noch?
             </motion.h2>
-            <motion.p variants={fadeUp} className="body-lg text-white/60 mb-8">
-              Bist du Instrumentenbauer, Musikschule, Lokal, Verein oder Formation und möchtest im LAEMU-Netzwerk sichtbar werden? Meld dich bei uns.
+            <motion.p variants={fadeUp} className="body-lg text-white/60 mb-10 max-w-2xl mx-auto">
+              Bist du Instrumentenbauer, Musikschule, Lokal, Verein, Stiftung oder Formation und möchtest im LAEMU-Netzwerk sichtbar werden?
+              Im Anmeldeformular fragen wir alles ab, was für deinen Eintrag wichtig ist.
             </motion.p>
-            <motion.div variants={fadeUp} className="max-w-md mx-auto space-y-3">
-              <input
-                type="text"
-                placeholder="Name / Betrieb / Formation"
-                className="w-full border border-white/20 bg-white/5 text-white placeholder:text-white/30 px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold"
-              />
-              <input
-                type="email"
-                placeholder="E-Mail Adresse"
-                className="w-full border border-white/20 bg-white/5 text-white placeholder:text-white/30 px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold"
-              />
-              <textarea
-                rows={3}
-                placeholder="Kurze Beschreibung deines Betriebs / Vereins / Formation"
-                className="w-full border border-white/20 bg-white/5 text-white placeholder:text-white/30 px-4 py-3 font-sans text-sm focus:outline-none focus:border-accent-gold resize-none"
-              />
-              <button className="w-full bg-accent-gold text-white font-sans font-semibold py-3 hover:bg-white hover:text-dark transition-colors">
-                Anfrage senden
-              </button>
+
+            <motion.div variants={fadeUp} className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10 max-w-3xl mx-auto">
+              {[
+                { icon: '📍', label: 'Region & Standort' },
+                { icon: '🎵', label: 'Musikstil & Profil' },
+                { icon: '📅', label: 'Verfügbarkeit' },
+                { icon: '✉️', label: 'Buchungs-Kontakt' },
+                { icon: '🌐', label: 'Web & Social Media' },
+                { icon: '🖼️', label: 'Bilder & Portraits' },
+                { icon: '🎬', label: 'Video-Eindrücke' },
+                { icon: '✨', label: 'Spezialitäten' },
+              ].map((item) => (
+                <div key={item.label} className="border border-white/10 bg-white/5 px-3 py-4">
+                  <div className="text-xl mb-1.5">{item.icon}</div>
+                  <p className="font-sans text-xs text-white/70">{item.label}</p>
+                </div>
+              ))}
             </motion.div>
+
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/partner/anmelden"
+                className="inline-block bg-accent-gold text-white font-sans font-semibold px-8 py-4 hover:bg-white hover:text-dark transition-colors"
+              >
+                Partner-Formular starten →
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-block border border-white/20 text-white font-sans font-semibold px-8 py-4 hover:bg-white hover:text-dark transition-colors"
+              >
+                Lieber persönlich Kontakt aufnehmen
+              </Link>
+            </motion.div>
+            <motion.p variants={fadeUp} className="font-sans text-xs text-white/40 mt-6">
+              Dauert etwa 5–8 Minuten. Du kannst Bilder und Videos später nachreichen.
+            </motion.p>
           </Section>
         </div>
       </section>

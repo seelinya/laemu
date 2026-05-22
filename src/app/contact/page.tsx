@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { useRef, useState } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 
@@ -25,17 +26,64 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
   )
 }
 
-const subjects = [
-  'Allgemeine Anfrage',
-  'Musikschule & Kurse',
-  'Community',
-  'Formation eintragen',
-  'Event eintragen',
-  'Shop & Bestellungen',
-  'Partnerschaft & Sponsoring',
-  'Presse & Medien',
-  'Anderes',
+type AudienceId = 'member' | 'partner' | 'musician' | 'press' | 'other'
+
+const audiences: { id: AudienceId; label: string; description: string; icon: string }[] = [
+  { id: 'member', label: 'Community-Mitglied', description: 'Frage zu Mitgliedschaft, Login, Kursen oder Profil.', icon: '👋' },
+  { id: 'musician', label: 'Musiker:in / Formation', description: 'Ich spiele Volksmusik und möchte mich vorstellen oder bin neugierig.', icon: '🎵' },
+  { id: 'partner', label: 'Betrieb / Organisation', description: 'Lokal, Bauer, Schule, Verein, Stiftung — Anliegen rund um Partnerschaft.', icon: '🏛️' },
+  { id: 'press', label: 'Presse / Medien', description: 'Anfragen für Interviews, Berichterstattung oder Pressematerial.', icon: '📰' },
+  { id: 'other', label: 'Anderes', description: 'Allgemeine Frage, Feedback oder Idee.', icon: '✉️' },
 ]
+
+type Subject = { id: string; label: string; shortcut?: { href: string; label: string }; help?: string }
+
+const subjectsByAudience: Record<AudienceId, Subject[]> = {
+  member: [
+    { id: 'account', label: 'Konto, Login oder Passwort', help: 'Falls du dich nicht mehr einloggen kannst, schreib uns deine E-Mail-Adresse.' },
+    { id: 'abo', label: 'Mitgliedschaft / Abo' },
+    { id: 'kurs', label: 'Frage zu einem Kurs oder Lernvideo' },
+    { id: 'community', label: 'Community / Feed / Gruppen' },
+    { id: 'bug', label: 'Etwas funktioniert nicht', help: 'Beschreib bitte kurz, was du gemacht hast und was dann passiert ist.' },
+    { id: 'feedback', label: 'Feedback oder Idee' },
+  ],
+  musician: [
+    {
+      id: 'formation-eintrag',
+      label: 'Meine Formation eintragen',
+      shortcut: { href: '/partner/anmelden?kategorie=Formation', label: 'Direkt zum Formation-Formular' },
+      help: 'Für einen vollständigen Eintrag (Mitglieder, Bilder, Auftritte) ist das Partner-Formular ideal.',
+    },
+    { id: 'auftritt', label: 'Auftrittsmöglichkeit finden' },
+    { id: 'lehrer', label: 'Als Lehrperson bei LAEMU mitmachen' },
+    { id: 'kooperation', label: 'Kooperation / Projekt vorschlagen' },
+    { id: 'allgemein', label: 'Allgemeine Frage' },
+  ],
+  partner: [
+    {
+      id: 'partner-eintrag',
+      label: 'Betrieb / Organisation eintragen',
+      shortcut: { href: '/partner/anmelden', label: 'Direkt zum Partner-Formular' },
+      help: 'Im Formular erfassen wir alles, was für deinen Eintrag wichtig ist — schneller und vollständiger als per Mail.',
+    },
+    { id: 'event', label: 'Event / Veranstaltung eintragen' },
+    { id: 'sponsoring', label: 'Sponsoring oder Partnerschaft' },
+    { id: 'angebot', label: 'Angebot für LAEMU-Mitglieder' },
+    { id: 'allgemein', label: 'Allgemeine Frage' },
+  ],
+  press: [
+    { id: 'interview', label: 'Interview-Anfrage' },
+    { id: 'berichterstattung', label: 'Berichterstattung / Recherche' },
+    { id: 'pressematerial', label: 'Pressematerial / Logos anfordern' },
+    { id: 'event', label: 'Akkreditierung / Event-Besuch' },
+  ],
+  other: [
+    { id: 'frage', label: 'Allgemeine Frage' },
+    { id: 'feedback', label: 'Feedback / Idee' },
+    { id: 'lob', label: 'Lob oder Kritik' },
+    { id: 'sonstiges', label: 'Sonstiges' },
+  ],
+}
 
 const socialLinks = [
   { name: 'Instagram', handle: '@laemu', href: 'https://instagram.com/laemu', color: 'hover:text-pink-500', icon: (
@@ -60,88 +108,251 @@ const socialLinks = [
   )},
 ]
 
+const faqs = [
+  {
+    q: 'Wie kann ich Mitglied bei LAEMU werden?',
+    a: 'Über die Registrierung — Community-Abo ab CHF 5/Monat, Musikschule + Community ab CHF 19/Monat.',
+    href: '/register',
+    hrefLabel: 'Zur Registrierung',
+  },
+  {
+    q: 'Wie trage ich meine Formation oder meinen Betrieb ein?',
+    a: 'Über das Partner-Formular — dort erfassen wir alle Infos für deinen öffentlichen Eintrag.',
+    href: '/partner/anmelden',
+    hrefLabel: 'Zum Partner-Formular',
+  },
+  {
+    q: 'Wie kann ich einen Event eintragen?',
+    a: 'Sende uns Datum, Ort, Beschreibung und ein Bild über das Kontaktformular — wir nehmen ihn ins Programm auf.',
+  },
+  {
+    q: 'Ich habe Bilder oder Videos, die zu gross sind.',
+    a: 'Sende sie via WeTransfer an info@laemu.ch — mit Betreff «Bilder [Dein Name / Formation]».',
+    href: 'mailto:info@laemu.ch',
+    hrefLabel: 'info@laemu.ch',
+  },
+]
+
+const inputCls = 'w-full border border-border p-4 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface transition-colors'
+
 export default function ContactPage() {
+  const [audience, setAudience] = useState<AudienceId | null>(null)
+  const [subject, setSubject] = useState<string>('')
+  const [subscribe, setSubscribe] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+
+  const subjects = audience ? subjectsByAudience[audience] : []
+  const activeSubject = subjects.find((s) => s.id === subject)
 
   return (
     <>
       {/* HERO */}
-      <section className="py-40 bg-background">
+      <section className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={stagger}
-            className="max-w-3xl"
-          >
+          <motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-3xl">
             <motion.span variants={fadeUp} className="label text-accent-gold">Kontakt</motion.span>
             <motion.h1 variants={fadeUp} className="font-heading text-6xl md:text-8xl font-bold leading-tight mt-4 mb-6">
               Lass uns sprechen.
             </motion.h1>
             <motion.p variants={fadeUp} className="font-sans text-xl text-text-secondary leading-relaxed max-w-xl">
               Ob Frage, Idee oder Zusammenarbeit — wir freuen uns von dir zu hören.
-              LAEMU ist ein Projekt voller Leidenschaft, und jede Botschaft zählt.
+              Damit deine Nachricht direkt bei der richtigen Person landet, sag uns kurz, worum es geht.
             </motion.p>
           </motion.div>
         </div>
       </section>
 
-      {/* CONTACT FORM + DIRECT CONTACTS */}
-      <section className="pb-32 bg-background">
+      {/* CONTACT FORM */}
+      <section className="pb-24 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
 
             {/* FORM */}
             <div className="lg:col-span-2">
               <Section>
-                <motion.h2 variants={fadeUp} className="heading-sm mb-8">Schreib uns eine Nachricht.</motion.h2>
                 {submitted ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-muted-green/10 border border-muted-green/20 p-12 text-center"
-                  >
+                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-muted-green/10 border border-muted-green/20 p-12 text-center">
                     <span className="text-5xl block mb-4">✓</span>
                     <h3 className="font-heading text-2xl font-bold mb-2">Nachricht gesendet!</h3>
-                    <p className="font-sans text-text-secondary">Wir melden uns so schnell wie möglich bei dir.</p>
+                    <p className="font-sans text-text-secondary mb-6">Wir melden uns innert 1–3 Werktagen bei dir.</p>
+                    <button
+                      onClick={() => { setSubmitted(false); setAudience(null); setSubject(''); }}
+                      className="font-sans text-sm text-accent-gold hover:underline"
+                    >
+                      Weitere Nachricht schreiben
+                    </button>
                   </motion.div>
                 ) : (
-                  <motion.div variants={stagger} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <motion.div variants={fadeUp}>
-                        <label className="label text-text-secondary block mb-2">Vorname *</label>
-                        <input type="text" className="w-full border border-border p-4 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface transition-colors" placeholder="Dein Vorname" />
-                      </motion.div>
-                      <motion.div variants={fadeUp}>
-                        <label className="label text-text-secondary block mb-2">Nachname *</label>
-                        <input type="text" className="w-full border border-border p-4 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface transition-colors" placeholder="Dein Nachname" />
-                      </motion.div>
-                    </div>
-                    <motion.div variants={fadeUp}>
-                      <label className="label text-text-secondary block mb-2">E-Mail *</label>
-                      <input type="email" className="w-full border border-border p-4 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface transition-colors" placeholder="deine@email.ch" />
+                  <>
+                    {/* AUDIENCE STEP */}
+                    <motion.h2 variants={fadeUp} className="heading-sm mb-2">Wer schreibt uns?</motion.h2>
+                    <motion.p variants={fadeUp} className="font-sans text-sm text-text-secondary mb-6">
+                      Damit wir dir gezielt helfen können.
+                    </motion.p>
+                    <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
+                      {audiences.map((a) => (
+                        <button
+                          key={a.id}
+                          onClick={() => { setAudience(a.id); setSubject('') }}
+                          className={`text-left p-4 border-2 transition-all ${audience === a.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border bg-surface hover:border-dark'}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-xl flex-shrink-0">{a.icon}</span>
+                            <div>
+                              <p className="font-heading font-bold text-sm mb-0.5">{a.label}</p>
+                              <p className="font-sans text-xs text-text-secondary leading-relaxed">{a.description}</p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
                     </motion.div>
-                    <motion.div variants={fadeUp}>
-                      <label className="label text-text-secondary block mb-2">Betreff *</label>
-                      <select className="w-full border border-border p-4 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface transition-colors">
-                        {subjects.map((s) => <option key={s}>{s}</option>)}
-                      </select>
-                    </motion.div>
-                    <motion.div variants={fadeUp}>
-                      <label className="label text-text-secondary block mb-2">Nachricht *</label>
-                      <textarea rows={6} className="w-full border border-border p-4 font-sans text-sm focus:outline-none focus:border-accent-gold bg-surface transition-colors resize-none" placeholder="Wie können wir dir helfen oder was möchtest du teilen?" />
-                    </motion.div>
-                    <motion.div variants={fadeUp}>
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={() => setSubmitted(true)}
-                        className="w-full md:w-auto"
-                      >
-                        Nachricht senden
-                      </Button>
-                    </motion.div>
-                  </motion.div>
+
+                    <AnimatePresence>
+                      {audience && (
+                        <motion.div
+                          key="form-body"
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 12 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <h2 className="heading-sm mb-2">Worum geht es?</h2>
+                          <p className="font-sans text-sm text-text-secondary mb-5">Wähle das passende Thema — wir leiten direkt an die richtige Person weiter.</p>
+                          <div className="flex flex-wrap gap-2 mb-8">
+                            {subjects.map((s) => (
+                              <button
+                                key={s.id}
+                                onClick={() => setSubject(s.id)}
+                                className={`font-sans text-sm px-4 py-2.5 border transition-all ${subject === s.id ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
+                              >
+                                {s.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Smart routing — wenn es ein dediziertes Formular gibt */}
+                          {activeSubject?.shortcut && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="border-2 border-accent-gold bg-accent-gold/5 p-5 mb-8">
+                              <div className="flex items-start gap-3">
+                                <span className="text-xl flex-shrink-0">💡</span>
+                                <div className="flex-1">
+                                  <p className="font-heading font-bold text-sm mb-1">Schneller geht's mit dem Spezial-Formular</p>
+                                  <p className="font-sans text-sm text-text-secondary mb-3">{activeSubject.help}</p>
+                                  <Link
+                                    href={activeSubject.shortcut.href}
+                                    className="inline-block bg-accent-gold text-white font-sans text-sm font-semibold px-5 py-2.5 hover:bg-dark transition-colors"
+                                  >
+                                    {activeSubject.shortcut.label} →
+                                  </Link>
+                                  <p className="font-sans text-xs text-text-secondary mt-3">
+                                    Oder schreib uns trotzdem hier — wir helfen gerne weiter.
+                                  </p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+
+                          {/* Nachricht */}
+                          <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <label className="label text-text-secondary block mb-2">Vorname *</label>
+                                <input type="text" className={inputCls} placeholder="Dein Vorname" />
+                              </div>
+                              <div>
+                                <label className="label text-text-secondary block mb-2">Nachname *</label>
+                                <input type="text" className={inputCls} placeholder="Dein Nachname" />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <label className="label text-text-secondary block mb-2">E-Mail *</label>
+                                <input type="email" className={inputCls} placeholder="deine@email.ch" />
+                              </div>
+                              <div>
+                                <label className="label text-text-secondary block mb-2">
+                                  Telefon <span className="text-text-secondary/70">(optional)</span>
+                                </label>
+                                <input type="tel" className={inputCls} placeholder="Nur falls du gerne angerufen wirst" />
+                              </div>
+                            </div>
+
+                            {/* Audience-spezifisches Zusatzfeld */}
+                            {audience === 'partner' && (
+                              <div>
+                                <label className="label text-text-secondary block mb-2">Betrieb / Organisation</label>
+                                <input type="text" className={inputCls} placeholder="z.B. Restaurant Sagi, Harmonika-Atelier Steiner" />
+                              </div>
+                            )}
+                            {audience === 'musician' && (
+                              <div>
+                                <label className="label text-text-secondary block mb-2">Formation / Hauptinstrument <span className="text-text-secondary/70">(optional)</span></label>
+                                <input type="text" className={inputCls} placeholder="z.B. Trio Alpstein, Handorgel" />
+                              </div>
+                            )}
+                            {audience === 'press' && (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                  <label className="label text-text-secondary block mb-2">Medium</label>
+                                  <input type="text" className={inputCls} placeholder="z.B. Volksmusik-Magazin, SRF, …" />
+                                </div>
+                                <div>
+                                  <label className="label text-text-secondary block mb-2">Deadline <span className="text-text-secondary/70">(optional)</span></label>
+                                  <input type="date" className={inputCls} />
+                                </div>
+                              </div>
+                            )}
+
+                            <div>
+                              <label className="label text-text-secondary block mb-2">Nachricht *</label>
+                              <textarea
+                                rows={6}
+                                className={`${inputCls} resize-none`}
+                                placeholder={
+                                  audience === 'partner'
+                                    ? 'Erzähl uns kurz, was du erreichen möchtest — wir melden uns innert 1–3 Werktagen.'
+                                    : audience === 'musician'
+                                    ? 'Worum geht es konkret? Je mehr Kontext, desto besser können wir helfen.'
+                                    : audience === 'press'
+                                    ? 'Worüber berichtest du? Welche Infos / Bilder / Gesprächspartner brauchst du?'
+                                    : audience === 'member'
+                                    ? 'Wie können wir dir helfen?'
+                                    : 'Was möchtest du uns mitteilen?'
+                                }
+                              />
+                            </div>
+
+                            <label className="flex items-start gap-3 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={subscribe}
+                                onChange={(e) => setSubscribe(e.target.checked)}
+                                className="mt-1 w-4 h-4 accent-accent-gold flex-shrink-0"
+                              />
+                              <span className="font-sans text-xs text-text-secondary leading-relaxed">
+                                Ja, ich möchte gelegentlich Neuigkeiten aus dem LAEMU-Universum per E-Mail erhalten. Abmeldung jederzeit möglich.
+                              </span>
+                            </label>
+
+                            <div>
+                              <Button
+                                variant="primary"
+                                size="lg"
+                                onClick={() => setSubmitted(true)}
+                                className="w-full md:w-auto"
+                              >
+                                Nachricht senden
+                              </Button>
+                              <p className="font-sans text-[11px] text-text-secondary mt-3">
+                                Mit dem Absenden stimmst du der{' '}
+                                <Link href="/datenschutz" className="text-accent-gold hover:underline">Datenschutzerklärung</Link>{' '}zu.
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
                 )}
               </Section>
             </div>
@@ -151,7 +362,7 @@ export default function ContactPage() {
               <Section className="space-y-6">
                 <motion.h2 variants={fadeUp} className="heading-sm mb-2">Direkt schreiben.</motion.h2>
                 <motion.p variants={fadeUp} className="font-sans text-sm text-text-secondary mb-6">
-                  Du kannst uns auch direkt per E-Mail erreichen.
+                  Du weisst schon, wer dein Anliegen am besten beantwortet?
                 </motion.p>
                 {[
                   {
@@ -184,18 +395,49 @@ export default function ContactPage() {
                         <strong className="text-text-primary">Für:</strong>{' '}
                         {contact.topics.join(', ')}
                       </p>
-                      <a
-                        href={`mailto:${contact.email}`}
-                        className="font-sans text-sm text-accent-gold hover:text-accent-earth transition-colors"
-                      >
+                      <a href={`mailto:${contact.email}`} className="font-sans text-sm text-accent-gold hover:text-accent-earth transition-colors">
                         {contact.email}
                       </a>
                     </Card>
                   </motion.div>
                 ))}
+
+                <motion.div variants={fadeUp}>
+                  <Card padding="lg">
+                    <h4 className="font-heading font-bold mb-2">Allgemein</h4>
+                    <a href="mailto:info@laemu.ch" className="font-sans text-sm text-accent-gold hover:text-accent-earth">info@laemu.ch</a>
+                    <p className="font-sans text-xs text-text-secondary mt-3 leading-relaxed">
+                      Auch für grosse Datei-Sendungen via{' '}
+                      <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer" className="text-accent-gold hover:underline">WeTransfer</a>.
+                    </p>
+                  </Card>
+                </motion.div>
               </Section>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ — vor dem Form ausfüllen */}
+      <section className="py-20 bg-surface border-y border-border">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+          <Section>
+            <motion.span variants={fadeUp} className="label text-accent-gold">Vielleicht hilft das schon</motion.span>
+            <motion.h2 variants={fadeUp} className="heading-md mt-3 mb-10">Häufige Fragen.</motion.h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border">
+              {faqs.map((faq) => (
+                <motion.div variants={fadeUp} key={faq.q} className="bg-surface p-6">
+                  <h3 className="font-heading font-bold mb-2">{faq.q}</h3>
+                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{faq.a}</p>
+                  {faq.href && (
+                    <Link href={faq.href} className="font-sans text-sm text-accent-gold hover:underline">
+                      {faq.hrefLabel} →
+                    </Link>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </Section>
         </div>
       </section>
 
