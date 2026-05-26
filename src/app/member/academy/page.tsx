@@ -671,13 +671,13 @@ export default function MemberAcademyPage() {
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                   <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Schnellzugriff</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <Link href="/member/academy/lernvideos?playlist=open" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
+                    <Link href="/member/academy/playlists" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-                        <span className="font-sans text-xs font-semibold text-accent-gold">5</span>
+                        <span className="font-sans text-xs font-semibold text-accent-gold">3</span>
                       </div>
-                      <p className="font-sans text-xs font-medium">Meine Playlist</p>
-                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Im Auto oder unterwegs abspielen</p>
+                      <p className="font-sans text-xs font-medium">Meine Playlists</p>
+                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Audio-Playlists für unterwegs</p>
                     </Link>
                     <Link href="/member/academy/lernvideos?saved=1" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
                       <div className="flex items-center justify-between">
