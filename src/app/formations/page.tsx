@@ -222,7 +222,7 @@ export default function FormationsPage() {
                     </div>
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-serif text-xl font-bold group-hover:text-accent-gold transition-colors">{f.name}</h3>
+                        <h3 className="font-heading text-xl font-bold group-hover:text-accent-gold transition-colors">{f.name}</h3>
                         <span className="font-sans text-xs px-2 py-1 bg-background border border-border ml-2 whitespace-nowrap">{f.region}</span>
                       </div>
                       <p className="font-sans text-xs text-accent-gold uppercase tracking-wider mb-3">{f.style}</p>
@@ -240,6 +240,37 @@ export default function FormationsPage() {
                 </Link>
               </motion.div>
             ))}
+          </Section>
+        </div>
+      </section>
+
+      {/* INSTRUMENTS CTA */}
+      <section className="relative py-32 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=1920&q=80"
+            alt="Musikinstrumente"
+            fill
+            className="object-cover"
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-black/75" />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 text-center">
+          <Section>
+            <motion.span variants={fadeUp} className="label text-accent-gold">Instrumente & Fachgeschäfte</motion.span>
+            <motion.h2 variants={fadeUp} className="heading-lg text-white mt-3 mb-6">
+              Auf der Suche nach den richtigen Instrumenten?
+            </motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-white/65 max-w-xl mx-auto mb-10">
+              Entdecke unsere Fachpartner — spezialisierte Musikgeschäfte und Instrumentenbauer
+              für Handorgel, Schwyzerörgeli, Klarinette und mehr.
+            </motion.p>
+            <motion.div variants={fadeUp}>
+              <Button href="/community#fachpartner" variant="primary" size="lg">
+                Fachpartner in der Community entdecken →
+              </Button>
+            </motion.div>
           </Section>
         </div>
       </section>
@@ -270,7 +301,7 @@ export default function FormationsPage() {
             >
               <div className="text-center p-8">
                 <span className="text-8xl block mb-6">🗺️</span>
-                <p className="font-serif text-2xl font-bold mb-2">Schweiz</p>
+                <p className="font-heading text-2xl font-bold mb-2">Schweiz</p>
                 <p className="font-sans text-sm text-text-secondary">Interaktive Karte</p>
                 <div className="mt-6 flex flex-wrap gap-2 justify-center">
                   {['Zürich', 'Bern', 'Luzern', 'Uri', 'Appenzell', 'Basel'].map((c) => (

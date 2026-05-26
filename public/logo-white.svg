@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 70" fill="none">
+  <!-- L -->
+  <rect x="0" y="4" width="13" height="56" fill="white"/>
+  <rect x="0" y="47" width="38" height="13" fill="white"/>
+  <!-- A -->
+  <polygon points="66,4 52,60 60,60 66,35 72,60 80,60" fill="white"/>
+  <rect x="58" y="38" width="16" height="9" fill="white"/>
+  <!-- E -->
+  <rect x="92" y="4" width="13" height="56" fill="white"/>
+  <rect x="92" y="4" width="36" height="12" fill="white"/>
+  <rect x="92" y="28" width="28" height="11" fill="white"/>
+  <rect x="92" y="48" width="36" height="12" fill="white"/>
+  <!-- Wave (replacing M) -->
+  <path d="M 142,58 C 152,8 164,8 176,34 C 186,54 196,62 208,38 C 218,16 226,8 238,12 L 238,58"
+        stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- U -->
+  <rect x="256" y="4" width="13" height="46" fill="white"/>
+  <rect x="307" y="4" width="13" height="46" fill="white"/>
+  <rect x="256" y="48" width="64" height="12" fill="white"/>
+  <path d="M 256,48 Q 288,70 320,48" stroke="white" stroke-width="13" fill="none" stroke-linecap="round"/>
+</svg>

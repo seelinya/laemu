@@ -34,14 +34,33 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 }
 
 const ecosystemItems = [
-  { icon: '👥', title: 'Community', subtitle: 'Verbinde dich', desc: 'Triff Gleichgesinnte, teile deine Musik und wachse mit einer leidenschaftlichen Community.', href: '/community' },
-  { icon: '🎓', title: 'Academy', subtitle: 'Lerne & wachse', desc: 'Online-Kurse von den Besten der Szene — für Anfänger bis Profis.', href: '/academy' },
-  { icon: '🗓️', title: 'Events', subtitle: 'Erlebe live', desc: 'Entdecke Konzerte, Tanzabende und Festivals in deiner Region.', href: '/events' },
-  { icon: '🎵', title: 'Formationen', subtitle: 'Entdecke Bands', desc: 'Durchstöbere die vielfältige Landschaft der Schweizer Ländlermusik-Formationen.', href: '/formations' },
-  { icon: '🎧', title: 'Streaming', subtitle: 'Höre & schaue', desc: 'Die beste Ländlermusik — kuratiert und immer griffbereit.', href: '/' },
-  { icon: '🛍️', title: 'Shop', subtitle: 'Trage die Kultur', desc: 'Exklusives LAEMU-Merchandise und Produkte aus der Szene.', href: '/shop' },
-  { icon: '🎸', title: 'Instrumente', subtitle: 'Spielzeug für die Seele', desc: 'Alles über Handorgel, Schwyzerörgeli, Klarinette und mehr.', href: '/academy' },
-  { icon: '✨', title: 'Musikkultur', subtitle: 'Tradition trifft Zukunft', desc: 'LAEMU bewahrt das Erbe und öffnet Türen in eine moderne Zukunft.', href: '/mission' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+  ), title: 'Community', subtitle: 'Verbinde dich', desc: 'Triff Gleichgesinnte, teile deine Musik und wachse mit einer leidenschaftlichen Community.', href: '/community' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+  ), title: 'Musikschule', subtitle: 'Lerne & wachse', desc: 'Online-Kurse von den Besten der Szene — für Anfänger bis Profis, ohne Notenkenntnisse.', href: '/musikschule' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+  ), title: 'Events', subtitle: 'Erlebe live', desc: 'Konzerte, Tanzabende, Stubetäs, Reisen und Festivals — erlebe die Szene hautnah.', href: '/events' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  ), title: 'Formationen', subtitle: 'Entdecke Bands', desc: 'Durchstöbere die vielfältige Landschaft der Schweizer Ländlermusik-Formationen.', href: '/formations' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+  ), title: 'Streaming', subtitle: 'Entdecke das Archiv', desc: 'Ein riesiges Archiv an Liedern — kuratiert, vielfältig und immer griffbereit.', href: '/' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+  ), title: 'Shop', subtitle: 'Direkt aus der Szene', desc: 'Produkte von Formationen und Künstlern — authentisch, handverlesen, für echte Fans.', href: '/shop' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3v7a6 6 0 006 6 6 6 0 006-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+  ), title: 'Instrumente', subtitle: 'Mietservice mit Qualität', desc: 'Lerne dein Lieblingsinstrument ganz einfach — mit unserem unkomplizierten Mietservice.', href: '/musikschule' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+  ), title: 'Musikkultur', subtitle: 'Tradition trifft Zukunft', desc: 'LAEMU bewahrt das Erbe und öffnet Türen in eine moderne Zukunft.', href: '/mission' },
+  { icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11h6m-3-3v6"/></svg>
+  ), title: 'Partner', subtitle: 'Gemeinsam stärker', desc: 'Musik-Brands, Veranstalter und Institutionen — vereint im Netzwerk für die Ländlermusik.', href: '/partner' },
 ]
 
 const stats = [
@@ -52,12 +71,12 @@ const stats = [
 ]
 
 const supporters = [
-  { name: 'Hansruedi Wenger', instrument: 'Akkordeon', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80' },
-  { name: 'Maria Kälin', instrument: 'Schwyzerörgeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80' },
-  { name: 'Peter Gasser', instrument: 'Klarinette', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80' },
-  { name: 'Lisa Frei', instrument: 'Piano', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80' },
-  { name: 'Thomas Müller', instrument: 'Bass', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80' },
-  { name: 'Anna Huber', instrument: 'Gesang', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80' },
+  { name: 'Seebi Diener', instrument: 'Bass / Schwyzerörgeli', img: '/images/seebi-diener.jpg' },
+  { name: 'Cyrill Rusch', instrument: 'Schwyzerörgeli', img: '/images/cyrill-rusch.jpg' },
+  { name: 'Cécile Schmidig', instrument: 'Handorgel', img: '/images/cecile-schmidig.jpg' },
+  { name: 'Franz Hess', instrument: 'Klavier', img: '/images/franz-hess.jpg' },
+  { name: 'Simon Rusch', instrument: 'Handorgel', img: '/images/simon-rusch.jpg' },
+  { name: 'Simon Lüthi', instrument: 'Handorgel / Schwyzerörgeli', img: '/images/simon-luethi.jpg' },
 ]
 
 const formations = [
@@ -104,7 +123,7 @@ export default function HomePage() {
             </motion.span>
             <motion.h1
               variants={fadeUp}
-              className="font-serif text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.95] tracking-tight mb-8 whitespace-pre-line"
+              className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[0.95] tracking-tight mb-8 whitespace-pre-line"
             >
               {"Am Puls der\nLändlermusik."}
             </motion.h1>
@@ -152,19 +171,19 @@ export default function HomePage() {
               LAEMU verbindet alles, was die Ländlermusik lebendig macht.
             </motion.p>
           </Section>
-          <Section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Section className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {ecosystemItems.map((item) => (
               <motion.div key={item.title} variants={fadeUp}>
                 <Link href={item.href}>
                   <motion.div
-                    className="group bg-surface border border-border p-6 h-full cursor-pointer"
-                    whileHover={{ y: -6, boxShadow: '0 24px 60px rgba(0,0,0,0.1)' }}
+                    className="group bg-white border border-border p-6 h-full cursor-pointer hover:bg-background transition-colors"
+                    whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(0,0,0,0.08)' }}
                     transition={{ duration: 0.25 }}
                   >
-                    <span className="text-3xl block mb-4">{item.icon}</span>
-                    <h3 className="font-serif text-lg font-bold mb-1 group-hover:text-accent-gold transition-colors">{item.title}</h3>
-                    <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-3">{item.subtitle}</p>
-                    <p className="font-sans text-sm text-text-secondary leading-relaxed">{item.desc}</p>
+                    <span className="block mb-4 text-dark group-hover:text-accent-gold transition-colors">{item.icon}</span>
+                    <h3 className="font-heading text-lg font-bold mb-1 group-hover:text-accent-gold transition-colors">{item.title}</h3>
+                    <p className="font-sans text-xs uppercase tracking-[0.15em] text-accent-gold mb-3 font-medium">{item.subtitle}</p>
+                    <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{item.desc}</p>
                   </motion.div>
                 </Link>
               </motion.div>
@@ -189,15 +208,27 @@ export default function HomePage() {
               </motion.p>
               <motion.div variants={stagger} className="space-y-6">
                 {[
-                  { icon: '🎯', title: 'Authentisch', text: 'Keine Kompromisse. LAEMU steht für echte Musik, echte Menschen, echte Leidenschaft.' },
-                  { icon: '🤝', title: 'Gemeinschaft', text: 'Von der Szene, für die Szene. Wir schaffen Verbindungen, die zählen.' },
-                  { icon: '🚀', title: 'Zukunftsorientiert', text: 'Modern gedacht, traditionell verwurzelt — für die nächste Generation der Ländlermusik.' },
+                  {
+                    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>,
+                    title: 'Authentisch',
+                    text: 'Keine Kompromisse. LAEMU steht für echte Musik, echte Menschen, echte Leidenschaft.'
+                  },
+                  {
+                    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+                    title: 'Gemeinschaft',
+                    text: 'Von der Szene, für die Szene. Wir schaffen Verbindungen, die zählen.'
+                  },
+                  {
+                    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>,
+                    title: 'Zukunftsorientiert',
+                    text: 'Modern gedacht, traditionell verwurzelt — für die nächste Generation der Ländlermusik.'
+                  },
                 ].map((item) => (
                   <motion.div key={item.title} variants={fadeUp} className="flex gap-4">
-                    <span className="text-2xl mt-1">{item.icon}</span>
+                    <span className="flex-shrink-0 mt-1 text-accent-gold">{item.icon}</span>
                     <div>
-                      <h4 className="font-serif font-bold text-lg mb-1">{item.title}</h4>
-                      <p className="font-sans text-text-secondary text-sm">{item.text}</p>
+                      <h4 className="font-heading font-bold text-lg mb-1">{item.title}</h4>
+                      <p className="font-sans font-light text-text-secondary text-sm">{item.text}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -227,7 +258,7 @@ export default function HomePage() {
                 transition={{ delay: 0.4 }}
                 className="absolute -bottom-8 -left-8 bg-accent-gold p-6 max-w-[240px]"
               >
-                <p className="font-serif text-white text-lg font-bold italic">
+                <p className="font-heading text-white text-lg font-bold italic">
                   "Musik, die Generationen verbindet."
                 </p>
               </motion.div>
@@ -241,7 +272,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <Section className="text-center mb-20">
             <motion.span variants={fadeUp} className="label text-accent-gold">Die Bewegung</motion.span>
-            <motion.h2 variants={fadeUp} className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mt-4 mb-8 max-w-4xl mx-auto">
+            <motion.h2 variants={fadeUp} className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mt-4 mb-8 max-w-4xl mx-auto">
               Die Ländlermusik verdient eine Bühne für die Zukunft.
             </motion.h2>
             <motion.p variants={fadeUp} className="body-lg text-white/60 max-w-2xl mx-auto">
@@ -256,7 +287,7 @@ export default function HomePage() {
                 variants={fadeUp}
                 className="text-center border border-white/10 p-8"
               >
-                <div className="font-serif text-5xl md:text-6xl font-bold text-accent-gold mb-2">
+                <div className="font-heading text-4xl md:text-5xl font-bold text-accent-gold mb-2">
                   {stat.value}
                 </div>
                 <div className="font-sans text-sm uppercase tracking-widest text-white/50">
@@ -296,12 +327,12 @@ export default function HomePage() {
                     src={person.img}
                     alt={person.name}
                     fill
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                    className="object-cover grayscale group-hover:grayscale-0 group-hover:saturate-[1.2] group-hover:contrast-[1.05] transition-all duration-500"
                     unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </motion.div>
-                <h4 className="font-serif font-bold text-sm">{person.name}</h4>
+                <h4 className="font-heading font-bold text-sm">{person.name}</h4>
                 <p className="font-sans text-xs text-text-secondary mt-1">{person.instrument}</p>
               </motion.div>
             ))}
@@ -348,7 +379,7 @@ export default function HomePage() {
                           <span className="font-sans text-xs px-2 py-1 bg-accent-gold/90 text-white">{f.style}</span>
                           <span className="font-sans text-xs px-2 py-1 bg-white/20 text-white backdrop-blur-sm">{f.region}</span>
                         </div>
-                        <h3 className="font-serif text-xl font-bold text-white">{f.name}</h3>
+                        <h3 className="font-heading text-xl font-bold text-white">{f.name}</h3>
                       </div>
                     </div>
                   </motion.div>
@@ -386,7 +417,7 @@ export default function HomePage() {
                   </div>
                   <div className="p-4">
                     <h4 className="font-sans font-medium text-sm mb-1">{p.name}</h4>
-                    <p className="font-serif font-bold text-accent-gold">{p.price}</p>
+                    <p className="font-heading font-bold text-accent-gold">{p.price}</p>
                   </div>
                 </Card>
               </motion.div>
@@ -408,19 +439,22 @@ export default function HomePage() {
             <motion.h2 variants={fadeUp} className="heading-lg text-white mt-3 mb-4">
               Zwei Stärken. Eine gemeinsame Mission.
             </motion.h2>
+            <motion.p variants={fadeUp} className="body-lg text-white/50 max-w-2xl mx-auto">
+              Hinter dem Beginn von LAEMU stehen Niklaus und Selina — derselben Überzeugung: Für die LAEndlerMUsik kann und soll etwas Grosses entstehen.
+            </motion.p>
           </Section>
           <Section className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
               {
                 name: 'Niklaus Hess',
                 role: 'Co-Founder',
-                bio: 'Tief verwurzelt in der Ländlermusik. Niklaus bringt das Herz der Szene in jede Entscheidung.',
+                bio: 'Als leidenschaftlicher Volksmusikant tief in der Szene verwurzelt. Niklaus bringt die ursprüngliche Vision von LAEMU mit — und will die Schweizer Ländlermusik verbinden und neue Chancen für die Volksmusikszene schaffen.',
                 img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80',
               },
               {
                 name: 'Selina Strickler',
                 role: 'Co-Founder',
-                bio: 'Branding, digitale Strategie und modernes Marketing. Selina gibt LAEMU seine unverkennbare Stimme.',
+                bio: 'Selina bringt ein feines Gespür für Branding, Marketing und digitale Lösungen ein. Begeistert von der Natürlichkeit, Lebensfreude und Echtheit der Ländlerszene — und entschlossen, sie professionell zu vermarkten.',
                 img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80',
               },
             ].map((founder) => (
@@ -436,7 +470,7 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-8">
                     <span className="font-sans text-xs uppercase tracking-widest text-accent-gold">{founder.role}</span>
-                    <h3 className="font-serif text-3xl font-bold text-white mt-1">{founder.name}</h3>
+                    <h3 className="font-heading text-3xl font-bold text-white mt-1">{founder.name}</h3>
                   </div>
                 </div>
                 <p className="font-sans text-white/60 leading-relaxed">{founder.bio}</p>
@@ -483,14 +517,32 @@ export default function HomePage() {
           </Section>
           <Section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: '💡', title: 'Idee einbringen', desc: 'Hast du eine Idee, die LAEMU besser macht? Wir hören dir zu.', href: '/contact', cta: 'Schreib uns' },
-              { icon: '🌐', title: 'Community beitreten', desc: 'Sei von Anfang an dabei und gestalte die Community aktiv mit.', href: '/community', cta: 'Jetzt beitreten' },
-              { icon: '❤️', title: 'LAEMU unterstützen', desc: 'Als Supporter oder Partner — jede Form der Unterstützung zählt.', href: '/contact', cta: 'Unterstützen' },
+              {
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+                title: 'Idee einbringen',
+                desc: 'Hast du eine Idee, die LAEMU besser macht? Wir hören dir zu.',
+                href: '/contact',
+                cta: 'Schreib uns'
+              },
+              {
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+                title: 'Community beitreten',
+                desc: 'Sei von Anfang an dabei und gestalte die Community aktiv mit.',
+                href: '/community',
+                cta: 'Jetzt beitreten'
+              },
+              {
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>,
+                title: 'LAEMU unterstützen',
+                desc: 'Als Supporter oder Partner — jede Form der Unterstützung zählt.',
+                href: '/contact',
+                cta: 'Unterstützen'
+              },
             ].map((option) => (
-              <motion.div key={option.title} variants={fadeUp} className="border border-white/10 p-8 text-center group hover:border-accent-gold transition-colors duration-300">
-                <span className="text-4xl block mb-4">{option.icon}</span>
-                <h3 className="font-serif text-xl font-bold text-white mb-3">{option.title}</h3>
-                <p className="font-sans text-white/50 text-sm mb-6">{option.desc}</p>
+              <motion.div key={option.title} variants={fadeUp} className="border border-white/10 p-8 text-center group hover:border-accent-yellow transition-colors duration-300">
+                <span className="block mb-5 text-white/50 group-hover:text-accent-yellow transition-colors mx-auto w-fit">{option.icon}</span>
+                <h3 className="font-heading text-xl font-bold text-white mb-3">{option.title}</h3>
+                <p className="font-sans font-light text-white/50 text-sm mb-6">{option.desc}</p>
                 <Button href={option.href} variant="outline" size="sm">{option.cta}</Button>
               </motion.div>
             ))}
