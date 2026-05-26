@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/Button'
 const instrumentsData: Record<string, { label: string; emoji: string; desc: string; subscribed: boolean; plan: 'starter' | 'pro' | null }> = {
   handorgel: { label: 'Handorgel', emoji: '🪗', desc: 'Das Herzstück der Ländlermusik', subscribed: true, plan: 'starter' },
   schwyzer: { label: 'Schwyzerörgeli', emoji: '🎶', desc: 'Diatonisch und voller Seele', subscribed: true, plan: 'starter' },
-  begleit: { label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klarinette · Klavier', subscribed: false, plan: null },
-  buehne: { label: 'Bühnenpräsenz', emoji: '🎤', desc: 'Auftreten mit Ausstrahlung', subscribed: false, plan: null },
+  bass: { label: 'Bass', emoji: '🎸', desc: 'Das Fundament des Klangs', subscribed: false, plan: null },
+  klavier: { label: 'Klavier', emoji: '🎹', desc: 'Harmonischer Anker der Kapelle', subscribed: false, plan: null },
 }
 
 const heroBgImages: Record<string, string> = {

@@ -22,8 +22,8 @@ function chf(n: number): string {
 const instruments = [
   { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
   { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', subtitle: 'Diatonisch und voller Seele' },
-  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', subtitle: 'Bass · Klarinette · Klavier' },
-  { id: 'buehne', label: 'Bühnenpräsenz', emoji: '🎤', subtitle: 'Auftreten mit Ausstrahlung' },
+  { id: 'bass', label: 'Bass', emoji: '🎸', subtitle: 'Das Fundament des Klangs' },
+  { id: 'klavier', label: 'Klavier', emoji: '🎹', subtitle: 'Harmonischer Anker der Kapelle' },
 ]
 
 type IndividualPlan = 'lernvideo' | 'starter' | 'pro'
@@ -176,9 +176,8 @@ function deriveQuizResult(state: QuizState): QuizResultType | null {
 const quizInstruments = [
   { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
   { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', subtitle: 'Diatonisch und voller Seele' },
-  { id: 'klavier', label: 'Klavier', emoji: '🎹', subtitle: 'Harmonischer Anker der Kapelle' },
   { id: 'bass', label: 'Bass', emoji: '🎸', subtitle: 'Das Fundament des Klangs' },
-  { id: 'klarinette', label: 'Klarinette', emoji: '🎵', subtitle: 'Melodisch und ausdrucksstark' },
+  { id: 'klavier', label: 'Klavier', emoji: '🎹', subtitle: 'Harmonischer Anker der Kapelle' },
 ]
 
 type OnboardingQuizProps = {
@@ -1004,7 +1003,9 @@ type ModalProps = {
   initial?: ModalConfig
 }
 
-type ModalStepId = 'who' | 'ind_plan' | 'ind_scope' | 'ind_instruments' | 'form_plan' | 'form_details' | 'account' | 'confirm'
+type ModalStepId = 'who' | 'ind_plan' | 'ind_scope' | 'ind_instruments' | 'form_plan' | 'form_details' | 'account' | 'payment' | 'confirm'
+
+type PaymentMethod = 'card' | 'twint' | 'invoice'
 
 function getModalSequence(
   purchaserType: 'individual' | 'formation' | '',
@@ -1012,7 +1013,7 @@ function getModalSequence(
   scope: Scope | '',
 ): ModalStepId[] {
   if (purchaserType === 'formation') {
-    return ['who', 'form_plan', 'form_details', 'account', 'confirm']
+    return ['who', 'form_plan', 'form_details', 'account', 'payment', 'confirm']
   }
   if (purchaserType === 'individual') {
     const seq: ModalStepId[] = ['who', 'ind_plan']
@@ -1020,7 +1021,7 @@ function getModalSequence(
       seq.push('ind_scope')
       if (scope === '1' || scope === '2') seq.push('ind_instruments')
     }
-    seq.push('account', 'confirm')
+    seq.push('account', 'payment', 'confirm')
     return seq
   }
   return ['who']
@@ -1045,6 +1046,10 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
   const [newName, setNewName] = useState('')
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [newStreet, setNewStreet] = useState('')
+  const [newZip, setNewZip] = useState('')
+  const [newCity, setNewCity] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('')
   const [success, setSuccess] = useState(false)
 
   const sequence = getModalSequence(purchaserType, indPlan, scope)
@@ -1124,6 +1129,7 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
     form_plan: { title: 'Welches Paket?', subtitle: 'Das passende Angebot für eure Formation.' },
     form_details: { title: 'Eure Formation', subtitle: 'Name und Mitgliederzahl eurer Formation.' },
     account: { title: 'Konto', subtitle: 'Melde dich an oder erstelle ein neues Konto.' },
+    payment: { title: 'Zahlung', subtitle: 'Wähle, wie du bezahlen möchtest.' },
     confirm: { title: 'Bestätigung', subtitle: 'Überprüfe dein Abonnement und schliesse ab.' },
   }
 
@@ -1134,8 +1140,10 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
   const canProceedIndInstruments = selectedInstruments.length === numInstruments
   const canProceedAccount = accountMode !== '' && (
     accountMode === 'existing' ? (email.trim() !== '' && password !== '') :
-    (newName.trim() !== '' && newEmail.trim() !== '' && newPassword.length >= 8)
+    (newName.trim() !== '' && newEmail.trim() !== '' && newPassword.length >= 8 &&
+      newStreet.trim() !== '' && newZip.trim() !== '' && newCity.trim() !== '')
   )
+  const canProceedPayment = paymentMethod !== ''
   const canProceedFormPlan = formPlan !== ''
   const canProceedFormDetails = formationName.trim().length > 0
 
@@ -1467,6 +1475,25 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                         <label className="font-sans text-xs text-text-secondary block mb-1">Passwort</label>
                         <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Mindestens 8 Zeichen" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
+                      <div className="pt-2 border-t border-border">
+                        <p className="font-sans text-xs font-medium text-dark mt-2 mb-2">Adresse</p>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="font-sans text-xs text-text-secondary block mb-1">Strasse & Nr.</label>
+                            <input type="text" value={newStreet} onChange={e => setNewStreet(e.target.value)} placeholder="Musterstrasse 1" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <label className="font-sans text-xs text-text-secondary block mb-1">PLZ</label>
+                              <input type="text" value={newZip} onChange={e => setNewZip(e.target.value)} placeholder="6000" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
+                            </div>
+                            <div className="col-span-2">
+                              <label className="font-sans text-xs text-text-secondary block mb-1">Ort</label>
+                              <input type="text" value={newCity} onChange={e => setNewCity(e.target.value)} placeholder="Luzern" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -1477,6 +1504,40 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                   disabled={!canProceedAccount}
                   onClick={goNext}
                   className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedAccount ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                >
+                  Weiter →
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── payment ── */}
+            {currentStep === 'payment' && (
+              <motion.div key="payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <div className="space-y-3 mb-5">
+                  {([
+                    { id: 'card' as PaymentMethod, emoji: '💳', label: 'Kreditkarte', desc: 'Visa, Mastercard oder American Express.' },
+                    { id: 'twint' as PaymentMethod, emoji: '📱', label: 'TWINT', desc: 'Bezahle bequem mit der TWINT-App.' },
+                    { id: 'invoice' as PaymentMethod, emoji: '🧾', label: 'Rechnung', desc: 'Rechnung per E-Mail, zahlbar innert 30 Tagen.' },
+                  ]).map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setPaymentMethod(opt.id)}
+                      className={`w-full text-left p-5 border transition-all ${paymentMethod === opt.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl flex-shrink-0">{opt.emoji}</span>
+                        <div>
+                          <p className="font-heading font-bold text-sm mb-0.5">{opt.label}</p>
+                          <p className="font-sans text-xs text-text-secondary">{opt.desc}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  disabled={!canProceedPayment}
+                  onClick={goNext}
+                  className={`w-full py-3 font-sans font-medium text-sm transition-colors ${canProceedPayment ? 'bg-accent-gold text-white hover:bg-accent-gold/90' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Weiter →
                 </button>
@@ -1526,6 +1587,20 @@ function MusiksSchuleModal({ onClose, initial }: ModalProps) {
                           <div>
                             <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Abrechnung</p>
                             <p className="font-sans text-sm">{billing === 'monthly' ? 'Monatlich' : 'Jährlich'}</p>
+                          </div>
+                        )}
+                        {paymentMethod && (
+                          <div>
+                            <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Zahlungsart</p>
+                            <p className="font-sans text-sm">
+                              {paymentMethod === 'card' ? '💳 Kreditkarte' : paymentMethod === 'twint' ? '📱 TWINT' : '🧾 Rechnung'}
+                            </p>
+                          </div>
+                        )}
+                        {accountMode === 'new' && newStreet.trim() && (
+                          <div>
+                            <p className="font-sans text-xs text-text-secondary uppercase tracking-wide mb-0.5">Adresse</p>
+                            <p className="font-sans text-sm">{newStreet}, {newZip} {newCity}</p>
                           </div>
                         )}
                         <div className="flex items-center gap-1.5 py-1">
@@ -1772,9 +1847,8 @@ const steps = [
 const instrumentShowcase = [
   { emoji: '🪗', name: 'Handorgel', desc: 'Das Herzstück der Ländlermusik', levels: ['Starter', 'Pro'] },
   { emoji: '🎶', name: 'Schwyzerörgeli', desc: 'Diatonisch und voller Seele', levels: ['Starter', 'Pro'] },
-  { emoji: '🎹', name: 'Klavier', desc: 'Harmonischer Anker der Kapelle', levels: ['Starter', 'Pro'] },
   { emoji: '🎸', name: 'Bass', desc: 'Das Fundament des Klangs', levels: ['Starter', 'Pro'] },
-  { emoji: '🎵', name: 'Klarinette', desc: 'Melodisch und ausdrucksstark', levels: ['Starter', 'Pro'] },
+  { emoji: '🎹', name: 'Klavier', desc: 'Harmonischer Anker der Kapelle', levels: ['Starter', 'Pro'] },
 ]
 
 const teachers = [
@@ -1919,7 +1993,7 @@ export default function MusiksschulePage() {
               Lerne das Instrument deiner Wahl — von Grund auf, mit echten Profis aus der Szene.
             </motion.p>
           </Section>
-          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <Section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {instrumentShowcase.map((inst) => (
               <motion.div key={inst.name} variants={fadeUp}>
                 <Card hover padding="md" className="text-center cursor-pointer group" onClick={() => openModal({ purchaserType: 'individual' })}>

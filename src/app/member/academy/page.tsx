@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/Button'
 const instrumentsData = [
   { id: 'handorgel', label: 'Handorgel', emoji: '🪗', desc: 'Das Herzstück der Ländlermusik', subscribed: true, plan: 'starter' as const },
   { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', desc: 'Diatonisch und voller Seele', subscribed: true, plan: 'starter' as const },
-  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klarinette · Klavier', subscribed: false, plan: null },
-  { id: 'buehne', label: 'Bühnenpräsenz', emoji: '🎤', desc: 'Auftreten mit Ausstrahlung', subscribed: false, plan: null },
+  { id: 'bass', label: 'Bass', emoji: '🎸', desc: 'Das Fundament des Klangs', subscribed: false, plan: null },
+  { id: 'klavier', label: 'Klavier', emoji: '🎹', desc: 'Harmonischer Anker der Kapelle', subscribed: false, plan: null },
 ]
 
 const activeCourses = [
@@ -147,7 +147,7 @@ const inlineLernvideos = [
   { id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', instrument: 'Handorgel', taktart: 'Walzer', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80' },
   { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80' },
   { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', plan: 'pro', purchased: true, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80' },
-  { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
+  { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Schwyzerörgeli', taktart: 'Schottisch', plan: 'starter', purchased: true, img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
   { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', plan: 'free', purchased: true, img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80' },
   { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', plan: 'pro', purchased: true, img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80' },
   { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, plan: 'free', purchased: true, img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80' },
@@ -791,7 +791,7 @@ export default function MemberAcademyPage() {
                       onChange={e => setInlineInstFilter(e.target.value)}
                       className="border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
                     >
-                      {['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette'].map(o => <option key={o}>{o}</option>)}
+                      {['Alle', 'Handorgel', 'Schwyzerörgeli', 'Bass', 'Klavier'].map(o => <option key={o}>{o}</option>)}
                     </select>
                   </div>
 

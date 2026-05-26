@@ -39,11 +39,11 @@ const videos = [
     price: 18, purchased: true,
   },
   {
-    id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', formation: 'Trio',
+    id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Schwyzerörgeli', formation: 'Trio',
     composer: 'Müller', year: 1988, difficultyNum: 3, level: 2, taktart: 'Schottisch',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
     styleTags: ['Innerschwyzer Stil'], melodieTags: [] as string[],
-    autoTags: ['Klarinette', 'Starter'],
+    autoTags: ['Schwyzerörgeli', 'Starter'],
     notesAvailable: { violinschluessel: false, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80',
     price: 18, purchased: true,
@@ -93,12 +93,12 @@ const mockPlaylist = [
 const wishes = [
   { id: 1, title: 'S Röseli', artist: 'Kapelle Alpstein', instrument: 'Handorgel', votes: 23, voted: false, status: 'offen' },
   { id: 2, title: 'Märzenschnee-Ländler', artist: 'Unbekannt', instrument: 'Schwyzerörgeli', votes: 17, voted: true, status: 'offen' },
-  { id: 3, title: 'Luzerner Polka', artist: 'Trio Rigi', instrument: 'Klarinette', votes: 41, voted: false, status: 'in Produktion' },
+  { id: 3, title: 'Luzerner Polka', artist: 'Trio Rigi', instrument: 'Handorgel', votes: 41, voted: false, status: 'in Produktion' },
 ]
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const INSTRUMENTS = ['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette']
+const INSTRUMENTS = ['Alle', 'Handorgel', 'Schwyzerörgeli', 'Bass', 'Klavier']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
 const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']

@@ -10,7 +10,7 @@ const TAKTARTEN = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schn
 const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']
 const FORMATION_OPTIONS = ['Solo', 'Duo', 'Trio', 'Quartett', 'Kapelle', 'Grossformation', 'Andere']
-const INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli', 'Bass', 'Klavier', 'Klarinette', 'Trompete', 'Posaune', 'Schlagzeug', 'Andere']
+const INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli', 'Bass', 'Klavier', 'Trompete', 'Posaune', 'Schlagzeug', 'Andere']
 const STUFEN = [2, 3, 4, 5, 6]
 
 const LEHRPERSONEN = [
