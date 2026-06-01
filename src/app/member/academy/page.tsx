@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/Button'
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const instrumentsData = [
-  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', desc: 'Das Herzstück der Ländlermusik', subscribed: true, plan: 'starter' as const },
   { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', desc: 'Diatonisch und voller Seele', subscribed: true, plan: 'starter' as const },
-  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klarinette · Klavier', subscribed: false, plan: null },
+  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', desc: 'Das Herzstück der Ländlermusik', subscribed: true, plan: 'starter' as const },
+  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klavier · Klarinette', subscribed: false, plan: null },
   { id: 'buehne', label: 'Bühnenpräsenz', emoji: '🎤', desc: 'Auftreten mit Ausstrahlung', subscribed: false, plan: null },
 ]
 
@@ -120,17 +120,16 @@ const inlineLernvideos = [
   { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', plan: 'starter', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80' },
   { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', plan: 'pro', img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80' },
   { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', plan: 'starter', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
-  { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', plan: 'free', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80' },
+  { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', plan: 'starter', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80' },
   { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', plan: 'pro', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80' },
-  { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, plan: 'free', img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80' },
+  { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, plan: 'starter', img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80' },
 ]
 
 const inlinePlanColors: Record<string, string> = {
-  free: 'bg-border/60 text-text-secondary',
   starter: 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30',
   pro: 'bg-dark/10 text-dark border border-dark/20',
 }
-const inlinePlanLabels: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
+const inlinePlanLabels: Record<string, string> = { starter: 'Starter', pro: 'Pro' }
 
 // ─── Journey data ────────────────────────────────────────────────────────────
 
@@ -352,8 +351,14 @@ function JourneyCard({ journey, onClick }: { journey: typeof journeys[0]; onClic
   )
 }
 
-function JourneyDetail({ journey, onBack }: { journey: typeof journeys[0]; onBack: () => void }) {
+function JourneyDetail({ journey, onBack, onUpgrade, isUpgraded }: { journey: typeof journeys[0]; onBack: () => void; onUpgrade: () => void; isUpgraded: boolean }) {
   const progress = Math.round((journey.completedLessons / journey.totalLessons) * 100)
+  const [expandedStage, setExpandedStage] = useState<number | null>(journey.currentStageId)
+
+  // Pro stages stay locked until the member upgrades their abo
+  const lockedStageCount = journey.stages.filter((s) => s.locked).length
+  const showProBanner = lockedStageCount > 0 && !isUpgraded
+
   return (
     <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
       <button onClick={onBack} className="flex items-center gap-2 font-sans text-sm text-text-secondary hover:text-text-primary transition-colors mb-5">← Zurück zu Journeys</button>
@@ -377,25 +382,54 @@ function JourneyDetail({ journey, onBack }: { journey: typeof journeys[0]; onBac
         <ProgressBar value={progress} className="mb-2" />
         <p className="font-sans text-xs text-text-secondary">Stufe {journey.currentStageId} von {journey.stages.length}</p>
       </div>
+
+      {/* Pro upgrade banner — opens the abo-update confirmation */}
+      {showProBanner && (
+        <div className="bg-dark text-white p-5 mb-5 flex items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🔒</span>
+            <div>
+              <p className="font-heading font-bold text-sm">{lockedStageCount} Stufen mit dem Pro-Kurs freischalten</p>
+              <p className="font-sans text-xs text-white/60 mt-0.5">Die fortgeschrittenen Stufen dieser Journey sind im Pro-Kurs enthalten.</p>
+            </div>
+          </div>
+          <button onClick={onUpgrade} className="flex-shrink-0 bg-accent-gold text-white px-4 py-2 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">
+            Abo erweitern
+          </button>
+        </div>
+      )}
+
       <h3 className="font-heading font-bold text-lg mb-3">Dein Lernweg</h3>
       <div className="space-y-3">
         {journey.stages.map((stage, i) => {
           const stagePct = stage.lessons > 0 ? Math.round((stage.completed / stage.lessons) * 100) : 0
+          const effectiveLocked = stage.locked && !isUpgraded
+          const isExpanded = expandedStage === stage.id && !effectiveLocked
+          const lessonRows = Array.from({ length: stage.lessons }, (_, idx) => ({
+            n: idx + 1,
+            done: idx < stage.completed,
+            current: idx === stage.completed && stage.current,
+          }))
           return (
             <motion.div key={stage.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className={`border overflow-hidden transition-colors ${stage.locked ? 'border-border bg-surface opacity-50' : stage.current ? 'border-accent-gold bg-accent-gold/5' : stage.done ? 'border-muted-green/40 bg-muted-green/5' : 'border-border bg-surface'}`}>
-              <div className="flex items-center gap-4 p-4">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-heading font-bold text-sm ${stage.locked ? 'bg-border text-text-secondary' : stage.done ? 'bg-muted-green text-white' : stage.current ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-primary'}`}>
-                  {stage.locked ? '🔒' : stage.done ? '✓' : stage.id}
+              className={`border overflow-hidden transition-colors ${effectiveLocked ? 'border-border bg-surface' : stage.current ? 'border-accent-gold bg-accent-gold/5' : stage.done ? 'border-muted-green/40 bg-muted-green/5' : 'border-border bg-surface'}`}>
+              <button
+                type="button"
+                onClick={() => { if (!effectiveLocked) setExpandedStage((prev) => prev === stage.id ? null : stage.id) }}
+                className={`w-full text-left flex items-center gap-4 p-4 ${effectiveLocked ? 'opacity-60 cursor-default' : 'cursor-pointer hover:bg-background/40'} transition-colors`}
+              >
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-heading font-bold text-sm ${effectiveLocked ? 'bg-border text-text-secondary' : stage.done ? 'bg-muted-green text-white' : stage.current ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-primary'}`}>
+                  {effectiveLocked ? '🔒' : stage.done ? '✓' : stage.id}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                     <h4 className="font-heading font-bold text-sm">{stage.title}</h4>
-                    {stage.current && <span className="bg-accent-gold/20 text-accent-gold font-sans text-xs px-2 py-0.5">Aktuell</span>}
+                    {stage.current && !effectiveLocked && <span className="bg-accent-gold/20 text-accent-gold font-sans text-xs px-2 py-0.5">Aktuell</span>}
                     {stage.done && <span className="bg-muted-green/20 text-muted-green font-sans text-xs px-2 py-0.5">Abgeschlossen</span>}
+                    {effectiveLocked && <span className="bg-dark text-white font-sans text-xs px-2 py-0.5">Pro</span>}
                   </div>
                   <p className="font-sans text-xs text-text-secondary">{stage.subtitle}</p>
-                  {!stage.locked && (
+                  {!effectiveLocked && (
                     <div className="mt-2">
                       <div className="flex justify-between text-xs font-sans mb-1">
                         <span className="text-text-secondary">{stage.completed}/{stage.lessons} Lektionen</span>
@@ -406,12 +440,45 @@ function JourneyDetail({ journey, onBack }: { journey: typeof journeys[0]; onBac
                   )}
                   <p className="font-sans text-xs text-text-secondary mt-2 flex items-center gap-1"><span>🎯</span>{stage.milestone}</p>
                 </div>
-                {!stage.locked && (
-                  <button className={`flex-shrink-0 px-3 py-2 font-sans text-xs font-medium transition-colors ${stage.current ? 'bg-accent-gold text-white hover:bg-accent-earth' : 'border border-border text-text-secondary hover:bg-background'}`}>
-                    {stage.current ? 'Weitermachen' : stage.done ? 'Wiederholen' : 'Starten'}
-                  </button>
+                {effectiveLocked ? (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); onUpgrade() }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); onUpgrade() } }}
+                    className="flex-shrink-0 px-3 py-2 font-sans text-xs font-medium bg-dark text-white hover:bg-accent-gold transition-colors cursor-pointer"
+                  >
+                    Mit Pro freischalten
+                  </span>
+                ) : (
+                  <span className="flex-shrink-0 text-text-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                  </span>
                 )}
-              </div>
+              </button>
+
+              {/* Expanded lesson roadmap */}
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-border">
+                    <div className="divide-y divide-border bg-background/40">
+                      {lessonRows.map((lesson) => (
+                        <div key={lesson.n} className="flex items-center gap-3 px-4 py-2.5">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${lesson.done ? 'bg-muted-green text-white' : lesson.current ? 'bg-accent-gold text-white' : 'bg-surface border border-border text-text-secondary'}`}>
+                            {lesson.done ? '✓' : lesson.current ? '▶' : lesson.n}
+                          </div>
+                          <span className={`font-sans text-sm flex-1 ${lesson.current ? 'font-medium text-dark' : lesson.done ? 'text-text-secondary' : 'text-text-primary'}`}>
+                            {stage.title} · Lektion {lesson.n}
+                          </span>
+                          <button className={`font-sans text-xs px-3 py-1.5 transition-colors ${lesson.current ? 'bg-accent-gold text-white hover:bg-accent-earth' : lesson.done ? 'border border-border text-text-secondary hover:bg-surface' : 'border border-border text-text-secondary hover:bg-surface'}`}>
+                            {lesson.done ? 'Wiederholen' : lesson.current ? 'Weitermachen' : 'Starten'}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )
         })}
@@ -681,11 +748,11 @@ export default function MemberAcademyPage() {
                     </Link>
                     <Link href="/member/academy/lernvideos?saved=1" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
                         <span className="font-sans text-xs font-semibold text-accent-gold">3</span>
                       </div>
-                      <p className="font-sans text-xs font-medium">Gelikte Stücke</p>
-                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Deine gespeicherten Favoriten</p>
+                      <p className="font-sans text-xs font-medium">Gespeicherte Videos</p>
+                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Direkt in der Lernvideo-Datenbank</p>
                     </Link>
                     <Link href="/member/academy/lernvideos" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
                       <div className="flex items-center justify-between">
@@ -905,7 +972,7 @@ export default function MemberAcademyPage() {
             {activeNav === 'journeys' && (
               <AnimatePresence mode="wait">
                 {selectedJourney ? (
-                  <JourneyDetail key="detail" journey={selectedJourney} onBack={() => setSelectedJourney(null)} />
+                  <JourneyDetail key="detail" journey={selectedJourney} onBack={() => setSelectedJourney(null)} onUpgrade={openUpgrade} isUpgraded={isUpgraded} />
                 ) : (
                   <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <div className="mb-6">
@@ -949,7 +1016,7 @@ export default function MemberAcademyPage() {
                       <input value={inlineVideoSearch} onChange={e => setInlineVideoSearch(e.target.value)} type="text" placeholder="Titel, Interpret, Instrument…" className="w-full border border-border pl-9 pr-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
                     </div>
                     <select value={inlineInstFilter} onChange={e => setInlineInstFilter(e.target.value)} className="border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface">
-                      {['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette'].map(o => <option key={o}>{o}</option>)}
+                      {['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bass', 'Klavier', 'Klarinette'].map(o => <option key={o}>{o}</option>)}
                     </select>
                   </div>
                   <div className="flex flex-col gap-2.5">

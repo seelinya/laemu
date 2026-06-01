@@ -20,9 +20,9 @@ function chf(n: number): string {
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const instruments = [
-  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
   { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', subtitle: 'Diatonisch und voller Seele' },
-  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', subtitle: 'Bass · Klarinette · Klavier' },
+  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
+  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', subtitle: 'Bass · Klavier · Klarinette' },
   { id: 'buehne', label: 'Bühnenpräsenz', emoji: '🎤', subtitle: 'Auftreten mit Ausstrahlung' },
 ]
 
@@ -174,10 +174,10 @@ function deriveQuizResult(state: QuizState): QuizResultType | null {
 }
 
 const quizInstruments = [
-  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
   { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', subtitle: 'Diatonisch und voller Seele' },
-  { id: 'klavier', label: 'Klavier', emoji: '🎹', subtitle: 'Harmonischer Anker der Kapelle' },
+  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', subtitle: 'Das Herzstück der Ländlermusik' },
   { id: 'bass', label: 'Bass', emoji: '🎸', subtitle: 'Das Fundament des Klangs' },
+  { id: 'klavier', label: 'Klavier', emoji: '🎹', subtitle: 'Harmonischer Anker der Kapelle' },
   { id: 'klarinette', label: 'Klarinette', emoji: '🎵', subtitle: 'Melodisch und ausdrucksstark' },
 ]
 

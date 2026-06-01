@@ -15,7 +15,7 @@ type Track = {
   taktart: string | null
   duration: string
   img: string
-  plan: 'free' | 'starter' | 'pro'
+  plan: 'starter' | 'pro'
 }
 
 type Playlist = {
@@ -32,12 +32,12 @@ const allTracks: Track[] = [
   { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', duration: '4:15', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=200&q=80', plan: 'starter' },
   { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', duration: '2:58', img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=200&q=80', plan: 'pro' },
   { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', duration: '3:21', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=200&q=80', plan: 'starter' },
-  { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', duration: '4:02', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=200&q=80', plan: 'free' },
+  { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', duration: '4:02', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=200&q=80', plan: 'starter' },
   { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', duration: '3:33', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=200&q=80', plan: 'pro' },
-  { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, duration: '2:47', img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=200&q=80', plan: 'free' },
+  { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, duration: '2:47', img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=200&q=80', plan: 'starter' },
   { id: 8, title: 'Heimetli-Polka', artist: 'Hansruedi Wenger', instrument: 'Handorgel', taktart: 'Polka', duration: '2:31', img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&q=80', plan: 'starter' },
   { id: 9, title: 'Muotathaler Ländler', artist: 'Kapelle Birchbach', instrument: 'Schwyzerörgeli', taktart: 'Ländler', duration: '3:55', img: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=200&q=80', plan: 'starter' },
-  { id: 10, title: 'Sonntagswalzer', artist: 'Franz Hess', instrument: 'Klavier', taktart: 'Walzer', duration: '4:18', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=200&q=80', plan: 'free' },
+  { id: 10, title: 'Sonntagswalzer', artist: 'Franz Hess', instrument: 'Klavier', taktart: 'Walzer', duration: '4:18', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=200&q=80', plan: 'starter' },
 ]
 
 // Liked tracks (simulated)
@@ -51,7 +51,6 @@ const initialPlaylists: Playlist[] = [
 ]
 
 const planColors: Record<string, string> = {
-  free: 'text-text-secondary',
   starter: 'text-accent-gold',
   pro: 'text-dark font-semibold',
 }
@@ -644,7 +643,7 @@ export default function PlaylistsPage() {
                           </div>
                           <span className="font-sans text-xs text-text-secondary">{track.duration}</span>
                           <span className={`font-sans text-[10px] px-1.5 py-0.5 border ${planColors[track.plan] === 'text-accent-gold' ? 'border-accent-gold/30 bg-accent-gold/5 text-accent-gold' : 'border-border text-text-secondary'}`}>
-                            {track.plan === 'free' ? 'Free' : track.plan === 'starter' ? 'Starter' : 'Pro'}
+                            {track.plan === 'starter' ? 'Starter' : 'Pro'}
                           </span>
                           <button
                             onClick={() => handleAddToPlaylist(track.id)}

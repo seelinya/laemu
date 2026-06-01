@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -231,7 +231,6 @@ function IconMixer() { return <svg width="14" height="14" viewBox="0 0 24 24" fi
 function IconDisc() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> }
 function IconChevron({ up }: { up: boolean }) { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${up ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg> }
 function IconBack() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg> }
-function IconHeadphones() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg> }
 
 // ─── Jam Faders (Vertical, for master video) ─────────────────────────────────
 
@@ -367,7 +366,9 @@ function VoiceMixer({ voices }: { voices: Voice[] }) {
 
 // ─── VideoPlayer ─────────────────────────────────────────────────────────────
 
-function VideoPlayer({ img, label }: { img: string; label: string }) {
+const QUALITY_OPTIONS = ['Auto', '1080p', '720p', '540p', '360p']
+
+function VideoPlayer({ img, label, showPitch = true, showLoop = true }: { img: string; label: string; showPitch?: boolean; showLoop?: boolean }) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(100)
   const [pitch, setPitch] = useState(0)
@@ -376,20 +377,54 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
   const [loopB, setLoopB] = useState(70)
   const [progress] = useState(35)
   const [dragging, setDragging] = useState<null | 'A' | 'B'>(null)
+  const [quality, setQuality] = useState('Auto')
+  const [showQuality, setShowQuality] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const barRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const pitchLabel = pitch === 0 ? '±0' : pitch > 0 ? `+${pitch}` : `${pitch}`
 
-  const handleBarClick = (e: React.MouseEvent) => {
-    if (!barRef.current) return
-    const rect = barRef.current.getBoundingClientRect()
-    const pct = Math.round(((e.clientX - rect.left) / rect.width) * 100)
-    if (loopEnabled && dragging === 'A') setLoopA(Math.min(pct, loopB - 5))
-    if (loopEnabled && dragging === 'B') setLoopB(Math.max(pct, loopA + 5))
+  // Smooth loop dragging — handles follow the cursor while held (like a slider thumb)
+  useEffect(() => {
+    if (!dragging) return
+    const move = (clientX: number) => {
+      if (!barRef.current) return
+      const rect = barRef.current.getBoundingClientRect()
+      const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))
+      if (dragging === 'A') setLoopA(Math.min(pct, loopB - 5))
+      else setLoopB(Math.max(pct, loopA + 5))
+    }
+    const onMouseMove = (e: MouseEvent) => move(e.clientX)
+    const onTouchMove = (e: TouchEvent) => { if (e.touches[0]) move(e.touches[0].clientX) }
+    const stop = () => setDragging(null)
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('touchmove', onTouchMove)
+    window.addEventListener('mouseup', stop)
+    window.addEventListener('touchend', stop)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('mouseup', stop)
+      window.removeEventListener('touchend', stop)
+    }
+  }, [dragging, loopA, loopB])
+
+  useEffect(() => {
+    const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onFs)
+    return () => document.removeEventListener('fullscreenchange', onFs)
+  }, [])
+
+  const toggleFullscreen = () => {
+    const el = containerRef.current
+    if (!el) return
+    if (document.fullscreenElement) document.exitFullscreen?.()
+    else el.requestFullscreen?.()
   }
 
   return (
-    <div className="bg-dark">
+    <div ref={containerRef} className="bg-dark">
       <div className="relative aspect-video overflow-hidden">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -400,30 +435,86 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
         <div className="absolute top-3 left-3">
           <span className="font-sans text-xs text-white/60 bg-black/50 px-2 py-1">{label}</span>
         </div>
-        {loopEnabled && (
+        {showLoop && loopEnabled && (
           <div className="absolute top-3 right-3">
             <span className="font-sans text-xs text-blue-300 bg-blue-900/60 px-2 py-1">Loop A–B</span>
           </div>
         )}
       </div>
       <div className="px-4 py-3 space-y-3">
-        <div ref={barRef} className="relative h-2 bg-white/15 cursor-pointer" onClick={handleBarClick}>
+        <div ref={barRef} className="relative h-2 bg-white/15">
           <div className="h-full bg-accent-gold/80" style={{ width: `${progress}%` }} />
-          {loopEnabled && (
+          {showLoop && loopEnabled && (
             <>
               <div className="absolute top-0 h-full bg-blue-400/25" style={{ left: `${loopA}%`, width: `${loopB - loopA}%` }} />
-              <button className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-blue-400 cursor-ew-resize" style={{ left: `${loopA}%` }} onMouseDown={() => setDragging('A')} onMouseUp={() => setDragging(null)} />
-              <button className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-blue-400 cursor-ew-resize" style={{ left: `${loopB}%` }} onMouseDown={() => setDragging('B')} onMouseUp={() => setDragging(null)} />
+              <button
+                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-5 bg-blue-400 cursor-ew-resize rounded-sm shadow hover:scale-110 transition-transform"
+                style={{ left: `${loopA}%` }}
+                onMouseDown={() => setDragging('A')}
+                onTouchStart={() => setDragging('A')}
+              />
+              <button
+                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-5 bg-blue-400 cursor-ew-resize rounded-sm shadow hover:scale-110 transition-transform"
+                style={{ left: `${loopB}%` }}
+                onMouseDown={() => setDragging('B')}
+                onTouchStart={() => setDragging('B')}
+              />
             </>
           )}
         </div>
         <div className="space-y-2">
-          {/* Time + Loop */}
-          <div className="flex items-center justify-between">
+          {/* Time + Quality + Fullscreen + Loop */}
+          <div className="flex items-center justify-between gap-2">
             <span className="font-sans text-white/50 text-xs tabular-nums">3:42 / 12:15</span>
-            <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
-              <IconRepeat /> Loop {loopEnabled ? 'AN' : 'AUS'}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Quality */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowQuality(v => !v)}
+                  className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border border-white/20 text-white/50 hover:border-white/50 transition-colors"
+                  title="Qualität"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                  {quality}
+                </button>
+                <AnimatePresence>
+                  {showQuality && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                      className="absolute right-0 bottom-full mb-1 z-20 bg-[#1a1a1a] border border-white/15 min-w-[110px] shadow-xl"
+                    >
+                      {QUALITY_OPTIONS.map(q => (
+                        <button
+                          key={q}
+                          onClick={() => { setQuality(q); setShowQuality(false) }}
+                          className={`w-full text-left px-3 py-2 font-sans text-xs transition-colors hover:bg-white/10 ${quality === q ? 'text-accent-gold' : 'text-white/70'}`}
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              {/* Fullscreen */}
+              <button
+                onClick={toggleFullscreen}
+                className="flex items-center justify-center font-sans text-xs w-7 h-7 border border-white/20 text-white/50 hover:border-white/50 transition-colors"
+                title="Vollbild"
+              >
+                {isFullscreen ? (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3"/></svg>
+                ) : (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3"/></svg>
+                )}
+              </button>
+              {/* Loop toggle */}
+              {showLoop && (
+                <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
+                  <IconRepeat /> Loop {loopEnabled ? 'AN' : 'AUS'}
+                </button>
+              )}
+            </div>
           </div>
           {/* Tempo slider */}
           <div className="flex items-center gap-3">
@@ -439,24 +530,51 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
               <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>
             )}
           </div>
-          {/* Tonhöhe slider */}
-          <div className="flex items-center gap-3">
-            <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tonhöhe</span>
-            <div className="flex-1 relative">
-              <input
-                type="range" min={-4} max={4} step={0.5} value={pitch}
-                onChange={e => setPitch(Number(e.target.value))}
-                className="w-full cursor-pointer"
-                style={{ accentColor: pitch !== 0 ? '#7BA8D8' : '#555' }}
-              />
-              {/* Centre tick */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-px h-2 bg-white/20 pointer-events-none" style={{ marginTop: -4 }} />
+          {/* Tonhöhe slider — hidden for the intro video (Vimeo-style: tempo/quality/fullscreen only) */}
+          {showPitch && (
+            <div className="flex items-center gap-3">
+              <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tonhöhe</span>
+              <div className="flex-1 relative">
+                <input
+                  type="range" min={-4} max={4} step={0.5} value={pitch}
+                  onChange={e => setPitch(Number(e.target.value))}
+                  className="w-full cursor-pointer"
+                  style={{ accentColor: pitch !== 0 ? '#7BA8D8' : '#555' }}
+                />
+                {/* Centre tick */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-px h-2 bg-white/20 pointer-events-none" style={{ marginTop: -4 }} />
+              </div>
+              <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${pitch !== 0 ? 'text-blue-300' : 'text-white/40'}`}>{pitchLabel}</span>
+              {pitch !== 0 && (
+                <button onClick={() => setPitch(0)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>
+              )}
             </div>
-            <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${pitch !== 0 ? 'text-blue-300' : 'text-white/40'}`}>{pitchLabel}</span>
-            {pitch !== 0 && (
-              <button onClick={() => setPitch(0)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>
-            )}
-          </div>
+          )}
+          {/* Loop A–B fine adjustment sliders — adjustable like the tempo slider */}
+          {showLoop && loopEnabled && (
+            <div className="space-y-2 pt-1 border-t border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="font-sans text-[10px] uppercase tracking-widest text-blue-300/70 w-16 flex-shrink-0">Loop A</span>
+                <input
+                  type="range" min={0} max={100} step={0.5} value={loopA}
+                  onChange={e => setLoopA(Math.min(Number(e.target.value), loopB - 5))}
+                  className="flex-1 cursor-pointer"
+                  style={{ accentColor: '#7BA8D8' }}
+                />
+                <span className="font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums text-blue-300">{Math.round(loopA)}%</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-sans text-[10px] uppercase tracking-widest text-blue-300/70 w-16 flex-shrink-0">Loop B</span>
+                <input
+                  type="range" min={0} max={100} step={0.5} value={loopB}
+                  onChange={e => setLoopB(Math.max(Number(e.target.value), loopA + 5))}
+                  className="flex-1 cursor-pointer"
+                  style={{ accentColor: '#7BA8D8' }}
+                />
+                <span className="font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums text-blue-300">{Math.round(loopB)}%</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -475,11 +593,6 @@ export default function LernvideoDetailPage() {
   const [activeLesson, setActiveLesson] = useState<{ id: string; label: string } | null>(null)
   const [localComments, setLocalComments] = useState<Record<string, Comment[]>>(commentsPerLesson)
   const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
-  const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
-  const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
-
-  const toggleAudioFav = (id: string) => setAudioFavs(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
-  const toggleAudioPlaylist = (id: string) => setAudioPlaylist(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
   // Group stimmenSections by instrument
   const stimmenByInstrument = v.stimmenSections.reduce<Record<string, StimmeSection[]>>((acc, s) => {
@@ -488,7 +601,7 @@ export default function LernvideoDetailPage() {
     return acc
   }, {})
 
-  const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
+  const planLabel: Record<string, string> = { starter: 'Starter', pro: 'Pro' }
   const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
 
   return (
@@ -547,9 +660,15 @@ export default function LernvideoDetailPage() {
             {/* ── ÜBERBLICK TAB ── */}
             {mainTab === 'ueberblick' && (
               <>
-                {/* 0 — INTRO VIDEO */}
+                {/* 0 — MASTER VIDEO */}
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
+                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
+                </motion.div>
+
+                {/* 1 — INTRO VIDEO (Vimeo-style: Tempo, Qualität & Vollbild — keine Tonhöhe) */}
                 {'introVideo' in v && v.introVideo && (
-                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 }}>
                     <div className="bg-surface border border-accent-gold/30 overflow-hidden">
                       <div className="px-5 py-3 border-b border-accent-gold/20 bg-accent-gold/5 flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -558,21 +677,15 @@ export default function LernvideoDetailPage() {
                           </div>
                           <div>
                             <p className="font-heading font-bold text-sm">Einführungsvideo</p>
-                            <p className="font-sans text-xs text-text-secondary">{v.introVideo.duration} · Empfohlen zum Einstieg</p>
+                            <p className="font-sans text-xs text-text-secondary">{v.introVideo.duration} · Überblick & Aufbau des Stückes</p>
                           </div>
                         </div>
-                        <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 bg-accent-gold/10">Neu hier? Zuerst ansehen</span>
+                        <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 bg-accent-gold/10">Empfohlen zum Einstieg</span>
                       </div>
-                      <VideoPlayer img={v.img} label={v.introVideo.label} />
+                      <VideoPlayer img={v.img} label={v.introVideo.label} showPitch={false} showLoop={false} />
                     </div>
                   </motion.div>
                 )}
-
-                {/* 1 — MASTER VIDEO */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
-                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
-                </motion.div>
 
                 {/* 2 — STÜCK-INFORMATION */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border p-6">
@@ -1000,22 +1113,8 @@ export default function LernvideoDetailPage() {
                                       <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
                                       <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
                                     </div>
-                                    {/* Audio buttons */}
+                                    {/* Start button — Lernvideos werden als ganzes Stück gespeichert, nicht einzeln */}
                                     <div className="flex items-center gap-1.5 flex-shrink-0">
-                                      <button
-                                        onClick={() => toggleAudioFav(lv.id)}
-                                        className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                                        title="Favorit"
-                                      >
-                                        ♡
-                                      </button>
-                                      <button
-                                        onClick={() => toggleAudioPlaylist(lv.id)}
-                                        className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                                        title="Zur Audio-Playlist"
-                                      >
-                                        <IconHeadphones /> Playlist
-                                      </button>
                                       <button
                                         onClick={() => { setActiveLesson({ id: lv.id, label: lv.label }); setMainTab('ueberblick') }}
                                         className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
@@ -1066,22 +1165,8 @@ export default function LernvideoDetailPage() {
                             <p className="font-sans text-sm font-medium truncate">{bv.label}</p>
                             <p className="font-sans text-xs text-text-secondary">{bv.instrument} · {bv.teacher} · {bv.duration}</p>
                           </div>
-                          {/* Audio buttons */}
+                          {/* Start button */}
                           <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <button
-                              onClick={() => toggleAudioFav(bv.id)}
-                              className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(bv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                              title="Favorit"
-                            >
-                              ♡
-                            </button>
-                            <button
-                              onClick={() => toggleAudioPlaylist(bv.id)}
-                              className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(bv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                              title="Zur Audio-Playlist"
-                            >
-                              <IconHeadphones /> Playlist
-                            </button>
                             <button
                               onClick={() => { setActiveLesson({ id: bv.id, label: bv.label }); setMainTab('ueberblick') }}
                               className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
@@ -1190,17 +1275,6 @@ export default function LernvideoDetailPage() {
 
         </div>
       </div>
-
-      {/* FLOATING AUDIO PLAYLIST BAR */}
-      {audioPlaylist.size > 0 && (
-        <div className="fixed bottom-6 right-6 z-50 bg-dark text-white px-4 py-3 shadow-2xl flex items-center gap-3">
-          <IconHeadphones />
-          <span className="font-sans text-sm">{audioPlaylist.size} Videos in Audio-Playlist</span>
-          <button className="font-sans text-xs px-3 py-1.5 bg-accent-gold hover:bg-accent-warm transition-colors">
-            Abspielen →
-          </button>
-        </div>
-      )}
     </div>
   )
 }
