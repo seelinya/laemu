@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 const footerLinks = {
@@ -78,7 +79,14 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
-              <span className="font-serif text-3xl font-bold text-white">LAEMU</span>
+              <Image
+                src="/logo-white.svg"
+                alt="LAEMU"
+                width={160}
+                height={40}
+                unoptimized
+                className="h-9 w-auto select-none"
+              />
             </Link>
             <p className="font-sans text-white/60 text-sm italic mb-6">
               Am Puls der Ländlermusik.

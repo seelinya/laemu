@@ -20,26 +20,15 @@ const navLinks = [
 
 function LaemuLogo({ white = false }: { white?: boolean }) {
   return (
-    <div className={`flex items-center leading-none select-none ${white ? 'text-white' : 'text-dark'}`}>
-      <span className="font-heading font-bold text-[1.4rem] tracking-[-0.02em]">LAE</span>
-      <svg
-        width="36"
-        height="28"
-        viewBox="0 0 72 54"
-        fill="none"
-        className="mx-[1px] translate-y-[1px]"
-        aria-hidden="true"
-      >
-        <path
-          d="M 2,50 C 12,2 24,2 36,28 C 46,48 56,54 70,28"
-          stroke="currentColor"
-          strokeWidth="11"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="font-heading font-bold text-[1.4rem] tracking-[-0.02em]">U</span>
-    </div>
+    <Image
+      src={white ? '/logo-white.svg' : '/logo.svg'}
+      alt="LAEMU"
+      width={120}
+      height={30}
+      priority
+      unoptimized
+      className="h-7 w-auto select-none"
+    />
   )
 }
 
