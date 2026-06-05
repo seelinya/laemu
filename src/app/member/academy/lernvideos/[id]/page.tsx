@@ -216,7 +216,18 @@ const commentsPerLesson: Record<string, Comment[]> = {
 }
 
 // Eine einzige Kommentarliste pro Lernvideo (nicht nach Stimmen/Lektionen filterbar).
-const initialVideoComments: Comment[] = Object.values(commentsPerLesson).flat()
+type VideoReply = { id: string; user: string; name: string; avatar: string; isTeam?: boolean; role?: string; text: string; time: string }
+type VideoComment = Comment & { id: string; isTeam?: boolean; role?: string; replies: VideoReply[] }
+
+const TEAM_USERS: Record<string, string> = { hansruedi: 'Lehrer', cecile: 'LAEMU Team' }
+
+const initialVideoComments: VideoComment[] = Object.values(commentsPerLesson).flat().map((c, i) => ({
+  ...c,
+  id: `vc${i}`,
+  isTeam: c.user in TEAM_USERS,
+  role: TEAM_USERS[c.user],
+  replies: [],
+}))
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -553,7 +564,9 @@ export default function LernvideoDetailPage() {
   const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
-  const [videoComments, setVideoComments] = useState<Comment[]>(initialVideoComments)
+  const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
+  const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
   const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
   const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
   const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
@@ -924,22 +937,44 @@ export default function LernvideoDetailPage() {
 
                 {/* 7 — KOMMENTARE (eine Leiste pro Lernvideo) */}
                 {(() => {
-                  const likeKey = (idx: number, user: string) => `${idx}:${user}`
+                  const MY = { user: 'ich', name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' }
+                  const profileHrefFor = (user: string) => (user === 'ich' ? '/member/profile' : `/member/u/${user}`)
+                  const totalCount = videoComments.reduce((s, c) => s + 1 + c.replies.length, 0)
 
                   const handleSend = () => {
                     if (!comment.trim()) return
                     setVideoComments(prev => [
-                      { user: 'ich', name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', text: comment.trim(), time: 'Gerade eben', likes: 0 },
+                      { ...MY, id: `vc-${Date.now()}`, text: comment.trim(), time: 'Gerade eben', likes: 0, replies: [] },
                       ...prev,
                     ])
                     setComment('')
                   }
 
+                  const handleReply = (commentId: string) => {
+                    if (!replyText.trim()) return
+                    setVideoComments(prev => prev.map(c => c.id === commentId
+                      ? { ...c, replies: [...c.replies, { id: `r-${Date.now()}`, ...MY, text: replyText.trim(), time: 'Gerade eben' }] }
+                      : c))
+                    setReplyText(''); setReplyTo(null)
+                  }
+
+                  const Avatar = ({ user, name, avatar, small = false }: { user: string; name: string; avatar: string; small?: boolean }) => (
+                    <Link href={profileHrefFor(user)} className={`relative overflow-hidden flex-shrink-0 bg-background border border-border hover:border-accent-gold transition-colors ${small ? 'w-7 h-7' : 'w-9 h-9'}`}>
+                      {avatar ? (
+                        <Image src={avatar} alt={name} fill className="object-cover" unoptimized />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-text-secondary">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                      )}
+                    </Link>
+                  )
+
                   return (
                     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
                       {/* Header */}
                       <div className="mb-5">
-                        <h3 className="font-heading font-bold text-lg">Kommentare ({videoComments.length})</h3>
+                        <h3 className="font-heading font-bold text-lg">Kommentare ({totalCount})</h3>
                         <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
                           zu: <span className="text-dark font-medium">{v.title}</span>
                         </p>
@@ -950,37 +985,80 @@ export default function LernvideoDetailPage() {
                         {videoComments.length === 0 ? (
                           <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
                         ) : (
-                          videoComments.map((c, idx) => {
-                            const isMe = c.user === 'ich'
-                            const profileHref = isMe ? '/member/profile' : `/member/u/${c.user}`
-                            return (
-                              <div key={`${c.user}-${idx}`} className="flex gap-3">
-                                <Link href={profileHref} className="relative w-9 h-9 overflow-hidden flex-shrink-0 bg-background border border-border hover:border-accent-gold transition-colors">
-                                  {c.avatar ? (
-                                    <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-text-secondary">
-                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    </div>
-                                  )}
-                                </Link>
-                                <div className="flex-1 bg-background p-4 border border-border">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Link href={profileHref} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
+                          videoComments.map((c) => (
+                            <div key={c.id} className="flex gap-3">
+                              <Avatar user={c.user} name={c.name} avatar={c.avatar} />
+                              <div className="flex-1 min-w-0">
+                                <div className="bg-background p-4 border border-border">
+                                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                    <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
+                                    {c.isTeam && (
+                                      <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                                        {c.role ?? 'LAEMU Team'}
+                                      </span>
+                                    )}
                                     <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
                                   </div>
                                   <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
-                                  <button
-                                    onClick={() => setCommentLikes(prev => ({ ...prev, [likeKey(idx, c.user)]: !prev[likeKey(idx, c.user)] }))}
-                                    className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[likeKey(idx, c.user)] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
-                                  >
-                                    <IconHeart filled={!!commentLikes[likeKey(idx, c.user)]} />
-                                    {c.likes + (commentLikes[likeKey(idx, c.user)] ? 1 : 0)}
-                                  </button>
+                                  <div className="flex items-center gap-4">
+                                    <button
+                                      onClick={() => setCommentLikes(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
+                                      className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                                    >
+                                      <IconHeart filled={!!commentLikes[c.id]} />
+                                      {c.likes + (commentLikes[c.id] ? 1 : 0)}
+                                    </button>
+                                    <button
+                                      onClick={() => { setReplyTo(replyTo === c.id ? null : c.id); setReplyText('') }}
+                                      className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                                    >
+                                      Beantworten
+                                    </button>
+                                  </div>
                                 </div>
+
+                                {/* Replies */}
+                                {c.replies.length > 0 && (
+                                  <div className="mt-3 space-y-3 border-l-2 border-border pl-4">
+                                    {c.replies.map(r => (
+                                      <div key={r.id} className="flex gap-2.5">
+                                        <Avatar user={r.user} name={r.name} avatar={r.avatar} small />
+                                        <div className="flex-1 min-w-0 bg-background p-3 border border-border">
+                                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                            <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
+                                            {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
+                                            <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
+                                          </div>
+                                          <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Reply input */}
+                                {replyTo === c.id && (
+                                  <div className="mt-3 flex gap-2.5">
+                                    <div className="w-7 h-7 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </div>
+                                    <div className="flex-1 flex gap-2">
+                                      <input
+                                        value={replyText}
+                                        onChange={e => setReplyText(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && handleReply(c.id)}
+                                        type="text"
+                                        placeholder={`Antwort an ${c.name}…`}
+                                        className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
+                                      />
+                                      <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-3 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Antwort senden</button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            )
-                          })
+                            </div>
+                          ))
                         )}
                       </div>
 

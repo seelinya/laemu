@@ -91,17 +91,19 @@ const mockPlaylist = [
   { id: 'p5', title: 'Vorspielen — ganzes Stück', piece: 'Stille Nacht', duration: '3:42' },
 ]
 
-type Wish = { id: number; title: string; artist: string; instruments: string[]; votes: number; voted: boolean; status: string }
+type Wish = { id: number; title: string; composer?: string; instruments: string[]; votesByInstrument: Record<string, number>; status: string }
 
 const initialWishes: Wish[] = [
-  { id: 1, title: 'S Röseli', artist: 'Kapelle Alpstein', instruments: ['Handorgel', 'Schwyzerörgeli'], votes: 23, voted: false, status: 'offen' },
-  { id: 2, title: 'Märzenschnee-Ländler', artist: 'Unbekannt', instruments: ['Schwyzerörgeli'], votes: 17, voted: true, status: 'offen' },
-  { id: 3, title: 'Luzerner Polka', artist: 'Trio Rigi', instruments: ['Klarinette', 'Handorgel'], votes: 41, voted: false, status: 'in Produktion' },
+  { id: 1, title: 'S Röseli', composer: 'Trad.', instruments: ['Handorgel', 'Schwyzerörgeli'], votesByInstrument: { Handorgel: 14, Schwyzerörgeli: 9 }, status: 'offen' },
+  { id: 2, title: 'Märzenschnee-Ländler', instruments: ['Schwyzerörgeli'], votesByInstrument: { Schwyzerörgeli: 17 }, status: 'offen' },
+  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', instruments: ['Klarinette', 'Handorgel'], votesByInstrument: { Klarinette: 28, Handorgel: 13 }, status: 'in Produktion' },
 ]
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+// Instrumente aus dem Profil des aktuell eingeloggten Nutzers.
+const MY_INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
 const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']
@@ -137,40 +139,58 @@ export default function LernvideosPage() {
   const [showAdvancedDesktop, setShowAdvancedDesktop] = useState(true)
   const [showWishForm, setShowWishForm] = useState(false)
   const [wishes, setWishes] = useState<Wish[]>(initialWishes)
-  const [wishVotes, setWishVotes] = useState<Record<number, boolean>>(
-    Object.fromEntries(initialWishes.map(w => [w.id, w.voted]))
-  )
+  // Eigene Stimmen pro Stück & Instrument, Schlüssel `${wishId}:${instrument}`.
+  const [wishVotes, setWishVotes] = useState<Record<string, boolean>>({})
   const [wishTitle, setWishTitle] = useState('')
-  const [wishArtist, setWishArtist] = useState('')
+  const [wishComposer, setWishComposer] = useState('')
   const [wishInstruments, setWishInstruments] = useState<string[]>(['Handorgel'])
   const [wishSearch, setWishSearch] = useState('')
   const [wishFilterInst, setWishFilterInst] = useState('Alle')
+
+  const voteKey = (id: number, inst: string) => `${id}:${inst}`
+  const wishInstVotes = (w: Wish, inst: string) => (w.votesByInstrument[inst] ?? 0) + (wishVotes[voteKey(w.id, inst)] ? 1 : 0)
+  const toggleWishVote = (id: number, inst: string) =>
+    setWishVotes(prev => ({ ...prev, [voteKey(id, inst)]: !prev[voteKey(id, inst)] }))
+  // Anzeige-Instrumente = ursprüngliche Tags + Instrumente, für die der Nutzer (aus seinem Profil) gestimmt hat.
+  const wishDisplayInstruments = (w: Wish) =>
+    Array.from(new Set([...w.instruments, ...MY_INSTRUMENTS.filter(i => wishVotes[voteKey(w.id, i)])]))
 
   const toggleWishInstrument = (inst: string) =>
     setWishInstruments(prev => prev.includes(inst) ? prev.filter(i => i !== inst) : [...prev, inst])
 
   const submitWish = () => {
     if (!wishTitle.trim() || wishInstruments.length === 0) return
+    const id = Date.now()
+    const votesByInstrument: Record<string, number> = {}
+    wishInstruments.forEach(i => { votesByInstrument[i] = 1 })
     const newWish: Wish = {
-      id: Date.now(),
+      id,
       title: wishTitle.trim(),
-      artist: wishArtist.trim() || 'Unbekannt',
+      composer: wishComposer.trim() || undefined,
       instruments: [...wishInstruments],
-      votes: 1,
-      voted: true,
+      votesByInstrument,
       status: 'offen',
     }
     setWishes(prev => [newWish, ...prev])
-    setWishVotes(prev => ({ ...prev, [newWish.id]: true }))
-    setWishTitle(''); setWishArtist(''); setWishInstruments(['Handorgel']); setShowWishForm(false)
+    setWishVotes(prev => { const n = { ...prev }; wishInstruments.forEach(i => { n[voteKey(id, i)] = true }); return n })
+    setWishTitle(''); setWishComposer(''); setWishInstruments(['Handorgel']); setShowWishForm(false)
   }
 
-  const filteredWishes = wishes.filter(w => {
-    const q = wishSearch.trim().toLowerCase()
-    const matchesSearch = !q || w.title.toLowerCase().includes(q) || w.artist.toLowerCase().includes(q)
-    const matchesInst = wishFilterInst === 'Alle' || w.instruments.includes(wishFilterInst)
-    return matchesSearch && matchesInst
-  })
+  // Relevanz: nach Instrumentenfilter die Stimmen für dieses Instrument, sonst
+  // das Instrument mit den meisten Likes (= meiste Likes pro Instrument).
+  const wishRelevance = (w: Wish) =>
+    wishFilterInst === 'Alle'
+      ? Math.max(0, ...wishDisplayInstruments(w).map(i => wishInstVotes(w, i)))
+      : wishInstVotes(w, wishFilterInst)
+
+  const filteredWishes = wishes
+    .filter(w => {
+      const q = wishSearch.trim().toLowerCase()
+      const matchesSearch = !q || w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)
+      const matchesInst = wishFilterInst === 'Alle' || wishDisplayInstruments(w).includes(wishFilterInst)
+      return matchesSearch && matchesInst
+    })
+    .sort((a, b) => wishRelevance(b) - wishRelevance(a))
 
   const toggleArt = (val: ArtFilter) => {
     setFilterArt(prev => {
@@ -208,7 +228,7 @@ export default function LernvideosPage() {
     const q = search.trim().toLowerCase()
     if (!q) return []
     return wishes.filter(w =>
-      (w.title.toLowerCase().includes(q) || w.artist.toLowerCase().includes(q)) &&
+      (w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)) &&
       (filterInst === 'Alle' || w.instruments.includes(filterInst)) &&
       !videos.some(v => v.title.toLowerCase() === w.title.toLowerCase()),
     )
@@ -768,7 +788,7 @@ export default function LernvideosPage() {
                     <div className="flex-1 p-4 flex gap-4 min-w-0">
                       <div className="flex-1 min-w-0">
                         <h4 className="font-heading font-bold text-sm leading-snug text-text-secondary">{w.title}</h4>
-                        <p className="font-sans text-xs text-text-secondary mb-2">{w.artist}</p>
+                        {w.composer && <p className="font-sans text-xs text-text-secondary mb-2">Komponist: {w.composer}</p>}
                         <div className="flex flex-wrap gap-1">
                           {w.instruments.map(inst => (
                             <span key={inst} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{inst}</span>
@@ -824,8 +844,8 @@ export default function LernvideosPage() {
                         <input value={wishTitle} onChange={e => setWishTitle(e.target.value)} placeholder="z.B. Dr Alperose" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                       <div>
-                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Interpret *</label>
-                        <input value={wishArtist} onChange={e => setWishArtist(e.target.value)} placeholder="z.B. Kapelle Hess-Ruedi" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Komponist <span className="normal-case tracking-normal text-text-secondary/70">(optional)</span></label>
+                        <input value={wishComposer} onChange={e => setWishComposer(e.target.value)} placeholder="z.B. Willi Valotti" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                     </div>
                     <div>
@@ -863,7 +883,7 @@ export default function LernvideosPage() {
                   value={wishSearch}
                   onChange={e => setWishSearch(e.target.value)}
                   type="text"
-                  placeholder="Stückwünsche durchsuchen (Titel, Interpret)…"
+                  placeholder="Stückwünsche durchsuchen (Titel, Komponist)…"
                   className="w-full border border-border pl-9 pr-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                 />
               </div>
@@ -876,30 +896,51 @@ export default function LernvideosPage() {
               </select>
             </div>
 
+            <p className="font-sans text-xs text-text-secondary mb-3">
+              Sortiert nach Relevanz — {wishFilterInst === 'Alle' ? 'die meisten Stimmen pro Instrument' : `Stimmen für ${wishFilterInst}`}.
+            </p>
             <div className="space-y-3">
               {filteredWishes.map(w => (
-                <div key={w.id} className="bg-surface border border-border p-5 flex items-center gap-4">
-                  <div className="flex flex-col items-center gap-1 w-12 flex-shrink-0">
-                    <button
-                      onClick={() => setWishVotes(prev => ({ ...prev, [w.id]: !prev[w.id] }))}
-                      className={`text-lg transition-colors ${wishVotes[w.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-accent-gold'}`}
-                    >
-                      {wishVotes[w.id] ? '❤️' : '🤍'}
-                    </button>
-                    <span className="font-sans font-bold text-sm">{w.votes + (wishVotes[w.id] ? 1 : 0) - (w.voted ? 1 : 0)}</span>
+                <div key={w.id} className="bg-surface border border-border p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-heading font-bold text-sm">{w.title}</h4>
+                      {w.composer && <p className="font-sans text-xs text-text-secondary">Komponist: {w.composer}</p>}
+                    </div>
+                    <span className={`font-sans text-xs px-2 py-1 border flex-shrink-0 ${w.status === 'in Produktion' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-border/50 text-text-secondary border-border'}`}>
+                      {w.status === 'in Produktion' ? '🎬 In Produktion' : '📋 Offen'}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-heading font-bold text-sm">{w.title}</h4>
-                    <p className="font-sans text-xs text-text-secondary">{w.artist}</p>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {w.instruments.map(inst => (
-                        <span key={inst} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{inst}</span>
-                      ))}
+                  {/* Stimmen pro Instrument (Relevanz) */}
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {wishDisplayInstruments(w).map(inst => (
+                      <span key={inst} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
+                        {inst}
+                        <span className="font-semibold text-dark tabular-nums">{wishInstVotes(w, inst)}</span>
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Eigene Stimme: aus dem Profil — wähle deine Instrumente, das zählt automatisch als Like */}
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-1.5">Deine Stimme — wähle deine Instrumente</p>
+                    <div className="flex flex-wrap gap-2">
+                      {MY_INSTRUMENTS.map(inst => {
+                        const voted = !!wishVotes[voteKey(w.id, inst)]
+                        return (
+                          <button
+                            key={inst}
+                            onClick={() => toggleWishVote(w.id, inst)}
+                            className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${voted ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
+                            {inst}
+                            {voted && <span className="font-sans text-[9px]">· Stimme gegeben</span>}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
-                  <span className={`font-sans text-xs px-2 py-1 border flex-shrink-0 ${w.status === 'in Produktion' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-border/50 text-text-secondary border-border'}`}>
-                    {w.status === 'in Produktion' ? '🎬 In Produktion' : '📋 Offen'}
-                  </span>
                 </div>
               ))}
               {filteredWishes.length === 0 && (
