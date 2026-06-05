@@ -4,106 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-type Lesson = {
-  id: string
-  title: string
-  duration: string
-  type: 'video' | 'text' | 'video+text'
-  completed: boolean
-}
-
-type Module = {
-  id: string
-  title: string
-  lessons: Lesson[]
-  status: 'completed' | 'in-progress' | 'not-started' | 'locked'
-}
-
-const grundlagenModules: Module[] = [
-  {
-    id: 'einfuehrung',
-    title: 'Einführung',
-    status: 'completed',
-    lessons: [
-      { id: 'auspacken', title: 'Auspacken des Instrumentes', duration: '5 min', type: 'video', completed: true },
-      { id: 'saitenstimmen', title: 'Stimmen & Intonation', duration: '8 min', type: 'video', completed: true },
-      { id: 'haltung', title: 'Die richtige Haltung', duration: '10 min', type: 'video', completed: true },
-      { id: 'knoepfe', title: 'Die Knöpfe kennenlernen', duration: '12 min', type: 'video', completed: true },
-      { id: 'ersterklang', title: 'Dein erster Klang', duration: '7 min', type: 'video', completed: true },
-    ],
-  },
-  {
-    id: 'erste-schritte',
-    title: 'Erste Schritte mit der Handorgel',
-    status: 'in-progress',
-    lessons: [
-      { id: 'bassseite', title: 'Die Bassseite verstehen', duration: '10 min', type: 'video', completed: true },
-      { id: 'diskantseite', title: 'Die Diskantseite', duration: '12 min', type: 'video', completed: false },
-      { id: 'koordination', title: 'Koordination beider Hände', duration: '15 min', type: 'video+text', completed: false },
-      { id: 'erstesuebung', title: 'Erste Übung: Polka-Rhythmus', duration: '18 min', type: 'video', completed: false },
-    ],
-  },
-  {
-    id: 'system',
-    title: 'System der Handorgel',
-    status: 'not-started',
-    lessons: [
-      { id: 'tonleiter', title: 'Die Tonleiter', duration: '8 min', type: 'video+text', completed: false },
-      { id: 'akkorde', title: 'Grundakkorde', duration: '12 min', type: 'video', completed: false },
-      { id: 'bassbegleitung', title: 'Bassbegleitung', duration: '15 min', type: 'video', completed: false },
-    ],
-  },
-  {
-    id: 'erste-lieder',
-    title: 'Erste Lieder',
-    status: 'locked',
-    lessons: [
-      { id: 'polka1', title: 'Einfache Polka — Schritt 1', duration: '20 min', type: 'video', completed: false },
-      { id: 'polka2', title: 'Einfache Polka — Schritt 2', duration: '20 min', type: 'video', completed: false },
-      { id: 'mazurka', title: 'Erste Mazurka', duration: '25 min', type: 'video', completed: false },
-    ],
-  },
-  {
-    id: 'feedback',
-    title: 'Feedback & Weiterentwicklung',
-    status: 'locked',
-    lessons: [
-      { id: 'selbstbewertung', title: 'Selbstbewertung — wo stehst du?', duration: '10 min', type: 'text', completed: false },
-      { id: 'tipps', title: 'Tipps vom Lehrer', duration: '15 min', type: 'video', completed: false },
-    ],
-  },
-]
-
-const courseData: Record<string, { title: string; instrument: string; emoji: string; totalLessons: number; completedLessons: number; modules: Module[]; nextModuleId: string; nextLessonId: string; nextLessonTitle: string; nextModuleTitle: string }> = {
-  grundlagen: {
-    title: 'Grundlagenkurs',
-    instrument: 'Handorgel',
-    emoji: '🪗',
-    totalLessons: 20,
-    completedLessons: 6,
-    modules: grundlagenModules,
-    nextModuleId: 'erste-schritte',
-    nextLessonId: 'diskantseite',
-    nextLessonTitle: 'Die Diskantseite',
-    nextModuleTitle: 'Erste Schritte mit der Handorgel',
-  },
-}
-
-const defaultCourse = {
-  title: 'Kurs',
-  instrument: 'Handorgel',
-  emoji: '🪗',
-  totalLessons: 0,
-  completedLessons: 0,
-  modules: [],
-  nextModuleId: '',
-  nextLessonId: '',
-  nextLessonTitle: '',
-  nextModuleTitle: '',
-}
+import { getCourse, courseStats, flatLessons, type Lesson } from '@/lib/courses'
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
@@ -142,8 +43,9 @@ function TypeBadge({ type }: { type: Lesson['type'] }) {
 // ─── Page component ───────────────────────────────────────────────────────────
 
 export default function KursPage({ params }: { params: { id: string; kursId: string } }) {
-  const course = courseData[params.kursId] ?? { ...defaultCourse, title: params.kursId, instrument: params.id }
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(['einfuehrung', 'erste-schritte']))
+  const course = getCourse(params.kursId)
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
+  const [courseCompleted, setCourseCompleted] = useState(false)
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) => {
@@ -157,14 +59,34 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
     })
   }
 
-  const progress = course.totalLessons > 0 ? Math.round((course.completedLessons / course.totalLessons) * 100) : 0
-  const instrumentLabel = course.instrument.charAt(0).toUpperCase() + course.instrument.slice(1)
-
   const getTotalMinutes = (lessons: Lesson[]): number =>
     lessons.reduce((sum, l) => {
       const match = l.duration.match(/(\d+)/)
       return sum + (match ? parseInt(match[1], 10) : 0)
     }, 0)
+
+  if (!course) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
+          <Link href={`/member/academy/instrument/${params.id}`} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            Zurück
+          </Link>
+        </div>
+        <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+          <div className="text-4xl mb-4">🚧</div>
+          <h1 className="font-heading text-2xl font-bold mb-2">Kurs in Vorbereitung</h1>
+          <p className="font-sans text-text-secondary">Dieser Kurs wird gerade aufgebaut. Schau bald wieder vorbei!</p>
+        </div>
+      </div>
+    )
+  }
+
+  const stats = courseStats(course)
+  const progress = courseCompleted ? 100 : stats.percent
+  const instrumentLabel = course.instrumentLabel
+  const next = courseCompleted ? undefined : flatLessons(course).find((x) => !x.lesson.completed)
 
   return (
     <div className="min-h-screen bg-background">
@@ -194,7 +116,13 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                 <span className="font-sans text-sm">{course.emoji}</span>
                 <span className="font-sans text-xs text-accent-gold uppercase tracking-wide">{instrumentLabel}</span>
                 <span className="font-sans text-xs text-text-secondary">·</span>
-                <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5">Starter</span>
+                <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5">{course.level}</span>
+                {courseCompleted && (
+                  <span className="font-sans text-xs bg-green-600 text-white px-2 py-0.5 flex items-center gap-1">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                    Abgeschlossen
+                  </span>
+                )}
               </div>
               <h1 className="font-heading text-3xl font-bold mb-2">{course.title}</h1>
               <div className="flex items-center gap-3 text-sm font-sans text-text-secondary">
@@ -206,22 +134,29 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                     </svg>
                   </div>
                 </div>
-                <span>Hansruedi Wenger</span>
+                <span>{course.teacher}</span>
               </div>
             </div>
             <div className="md:w-56">
               <div className="flex justify-between text-xs font-sans mb-2">
-                <span className="text-text-secondary">{course.completedLessons} von {course.totalLessons} Lektionen</span>
+                <span className="text-text-secondary">{courseCompleted ? stats.total : stats.completed} von {stats.total} Lektionen</span>
                 <span className="font-medium">{progress}%</span>
               </div>
               <ProgressBar value={progress} />
-              <p className="font-sans text-xs text-text-secondary mt-1">{course.modules.length} Module abgeschlossen</p>
+              <p className="font-sans text-xs text-text-secondary mt-1">{course.modules.length} Module</p>
+              <button
+                onClick={() => setCourseCompleted((v) => !v)}
+                className={`mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 border font-sans text-xs transition-colors ${courseCompleted ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={courseCompleted ? 3 : 2} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                {courseCompleted ? 'Kurs abgeschlossen' : 'Kurs als abgeschlossen markieren'}
+              </button>
             </div>
           </div>
         </motion.div>
 
         {/* ── Weiter lernen CTA ── */}
-        {course.nextModuleId && (
+        {next && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -230,12 +165,12 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
           >
             <div>
               <p className="font-sans text-xs text-accent-gold uppercase tracking-wide mb-1">Weiter lernen</p>
-              <p className="font-sans font-medium">{course.nextModuleTitle} — {course.nextLessonTitle}</p>
+              <p className="font-sans font-medium">{next.moduleTitle} — {next.lesson.title}</p>
             </div>
             <Button
               variant="primary"
               size="sm"
-              href={`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${course.nextModuleId}?lektion=${course.nextLessonId}`}
+              href={`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${next.moduleId}?lektion=${next.lesson.id}`}
             >
               Jetzt lernen →
             </Button>

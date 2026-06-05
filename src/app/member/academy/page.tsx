@@ -5,6 +5,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { courses, ALLGEMEIN_COURSES, courseStats } from '@/lib/courses'
+
+// Allgemeiner Lehrgang — für alle Mitglieder freigeschaltet.
+const allgemeinCardMeta: Record<string, string> = {
+  harmonielehre: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&q=80',
+  taktarten: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
+  buehnenpraesenz: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80',
+}
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -559,6 +567,47 @@ export default function MemberAcademyPage() {
                         <CourseCard course={course} />
                       </motion.div>
                     ))}
+                  </div>
+                </section>
+
+                {/* Allgemeiner Lehrgang — für alle freigeschaltet */}
+                <section>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-heading font-bold text-xl">Allgemeiner Lehrgang</h3>
+                    <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 uppercase tracking-wide">Für alle</span>
+                  </div>
+                  <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    {ALLGEMEIN_COURSES.map((cid, i) => {
+                      const c = courses[cid]
+                      const pct = courseStats(c).percent
+                      return (
+                        <motion.div key={cid} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                          <Link href={`/member/academy/instrument/allgemein/kurs/${cid}`} className="block bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors h-full">
+                            <div className="relative h-28 overflow-hidden">
+                              <Image src={allgemeinCardMeta[cid]} alt={c.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                              <div className="absolute bottom-2 left-3 right-3 flex items-center gap-2">
+                                <span className="text-lg">{c.emoji}</span>
+                                <h4 className="font-heading text-sm font-bold text-white leading-tight">{c.title}</h4>
+                              </div>
+                            </div>
+                            <div className="p-4">
+                              <p className="font-sans text-xs text-text-secondary mb-2">mit {c.teacher}</p>
+                              <div className="flex justify-between text-xs font-sans mb-1.5">
+                                <span className="text-text-secondary">Fortschritt</span>
+                                <span className="font-medium">{pct}%</span>
+                              </div>
+                              <ProgressBar value={pct} />
+                              <div className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+                                {pct > 0 ? 'Weiterfahren' : 'Kurs öffnen'}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                              </div>
+                            </div>
+                          </Link>
+                        </motion.div>
+                      )
+                    })}
                   </div>
                 </section>
 

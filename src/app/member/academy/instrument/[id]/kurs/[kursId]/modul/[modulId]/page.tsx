@@ -2,82 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/Button'
+import { getCourse, instrumentLabels, type LessonType } from '@/lib/courses'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
-
-type LessonType = 'video' | 'text' | 'video+text'
-
-type Lesson = {
-  id: string
-  title: string
-  duration: string
-  type: LessonType
-  completed: boolean
-}
-
-type ModuleData = {
-  id: string
-  title: string
-  lessons: Lesson[]
-  status: 'completed' | 'in-progress' | 'not-started' | 'locked'
-}
-
-const allModules: ModuleData[] = [
-  {
-    id: 'einfuehrung',
-    title: 'Einführung',
-    status: 'completed',
-    lessons: [
-      { id: 'auspacken', title: 'Auspacken des Instrumentes', duration: '5 min', type: 'video', completed: true },
-      { id: 'saitenstimmen', title: 'Stimmen & Intonation', duration: '8 min', type: 'video', completed: true },
-      { id: 'haltung', title: 'Die richtige Haltung', duration: '10 min', type: 'video', completed: true },
-      { id: 'knoepfe', title: 'Die Knöpfe kennenlernen', duration: '12 min', type: 'video', completed: true },
-      { id: 'ersterklang', title: 'Dein erster Klang', duration: '7 min', type: 'video', completed: true },
-    ],
-  },
-  {
-    id: 'erste-schritte',
-    title: 'Erste Schritte mit der Handorgel',
-    status: 'in-progress',
-    lessons: [
-      { id: 'bassseite', title: 'Die Bassseite verstehen', duration: '10 min', type: 'video', completed: true },
-      { id: 'diskantseite', title: 'Die Diskantseite', duration: '12 min', type: 'video', completed: false },
-      { id: 'koordination', title: 'Koordination beider Hände', duration: '15 min', type: 'video+text', completed: false },
-      { id: 'erstesuebung', title: 'Erste Übung: Polka-Rhythmus', duration: '18 min', type: 'video', completed: false },
-    ],
-  },
-  {
-    id: 'system',
-    title: 'System der Handorgel',
-    status: 'not-started',
-    lessons: [
-      { id: 'tonleiter', title: 'Die Tonleiter', duration: '8 min', type: 'video+text', completed: false },
-      { id: 'akkorde', title: 'Grundakkorde', duration: '12 min', type: 'video', completed: false },
-      { id: 'bassbegleitung', title: 'Bassbegleitung', duration: '15 min', type: 'video', completed: false },
-    ],
-  },
-  {
-    id: 'erste-lieder',
-    title: 'Erste Lieder',
-    status: 'locked',
-    lessons: [
-      { id: 'polka1', title: 'Einfache Polka — Schritt 1', duration: '20 min', type: 'video', completed: false },
-      { id: 'polka2', title: 'Einfache Polka — Schritt 2', duration: '20 min', type: 'video', completed: false },
-      { id: 'mazurka', title: 'Erste Mazurka', duration: '25 min', type: 'video', completed: false },
-    ],
-  },
-  {
-    id: 'feedback',
-    title: 'Feedback & Weiterentwicklung',
-    status: 'locked',
-    lessons: [
-      { id: 'selbstbewertung', title: 'Selbstbewertung — wo stehst du?', duration: '10 min', type: 'text', completed: false },
-      { id: 'tipps', title: 'Tipps vom Lehrer', duration: '15 min', type: 'video', completed: false },
-    ],
-  },
-]
 
 type CommentData = {
   id: string
@@ -125,19 +54,73 @@ export default function ModulPage({
   params: { id: string; kursId: string; modulId: string }
   searchParams: { lektion?: string }
 }) {
-  const activeModuleData = allModules.find((m) => m.id === params.modulId) ?? allModules[0]
-  const defaultLessonId = searchParams.lektion ?? activeModuleData.lessons[0]?.id ?? ''
+  const router = useRouter()
+  const course = getCourse(params.kursId)
+  const modules = course?.modules ?? []
+  const courseTitle = course?.title ?? params.kursId
+  const instrumentLabel = course?.instrumentLabel ?? instrumentLabels[params.id] ?? params.id
+
+  const activeModuleData = modules.find((m) => m.id === params.modulId) ?? modules[0]
+  const defaultLessonId = searchParams.lektion ?? activeModuleData?.lessons[0]?.id ?? ''
   const [activeLessonId, setActiveLessonId] = useState(defaultLessonId)
   const [isFavorite, setIsFavorite] = useState(false)
-  const [isCompleted, setIsCompleted] = useState(false)
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([params.modulId]))
   const [newComment, setNewComment] = useState('')
   const [comments, setComments] = useState<CommentData[]>(mockComments)
+  const [showCourseDone, setShowCourseDone] = useState(false)
 
-  const activeLesson = activeModuleData.lessons.find((l) => l.id === activeLessonId) ?? activeModuleData.lessons[0]
-  const activeLessonIndex = activeModuleData.lessons.findIndex((l) => l.id === activeLessonId)
-  const prevLesson = activeLessonIndex > 0 ? activeModuleData.lessons[activeLessonIndex - 1] : null
-  const nextLesson = activeLessonIndex < activeModuleData.lessons.length - 1 ? activeModuleData.lessons[activeLessonIndex + 1] : null
+  // Manuell abgeschlossene Lektionen ("moduleId:lessonId") — initial aus den Daten.
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(() => {
+    const s = new Set<string>()
+    modules.forEach((m) => m.lessons.forEach((l) => { if (l.completed) s.add(`${m.id}:${l.id}`) }))
+    return s
+  })
+  const lessonKey = (moduleId: string, lessonId: string) => `${moduleId}:${lessonId}`
+  const isLessonDone = (moduleId: string, lessonId: string) => completedLessons.has(lessonKey(moduleId, lessonId))
+  const moduleDone = (m: { id: string; lessons: { id: string }[] }) => m.lessons.length > 0 && m.lessons.every((l) => isLessonDone(m.id, l.id))
+
+  const activeLesson = activeModuleData?.lessons.find((l) => l.id === activeLessonId) ?? activeModuleData?.lessons[0]
+  const activeLessonIndex = activeModuleData ? activeModuleData.lessons.findIndex((l) => l.id === activeLessonId) : -1
+  const prevLesson = activeModuleData && activeLessonIndex > 0 ? activeModuleData.lessons[activeLessonIndex - 1] : null
+  const nextLesson = activeModuleData && activeLessonIndex < activeModuleData.lessons.length - 1 ? activeModuleData.lessons[activeLessonIndex + 1] : null
+  const activeLessonDone = !!(activeModuleData && activeLesson && isLessonDone(activeModuleData.id, activeLesson.id))
+
+  const totalLessons = modules.flatMap((m) => m.lessons).length
+  const courseProgress = totalLessons > 0 ? Math.round((completedLessons.size / totalLessons) * 100) : 0
+
+  // Nächstes nicht gesperrtes Modul (für modulübergreifende Navigation).
+  const currentModuleIndex = modules.findIndex((m) => m.id === activeModuleData?.id)
+  const nextModule = currentModuleIndex >= 0 ? modules.slice(currentModuleIndex + 1).find((m) => m.status !== 'locked') ?? null : null
+  const isCourseEnd = !nextLesson && !nextModule
+
+  const toggleActiveLessonDone = () => {
+    if (!activeModuleData || !activeLesson) return
+    setCompletedLessons((prev) => {
+      const next = new Set(prev)
+      const k = lessonKey(activeModuleData.id, activeLesson.id)
+      if (next.has(k)) next.delete(k); else next.add(k)
+      return next
+    })
+  }
+
+  const goToNext = () => {
+    if (activeModuleData && activeLesson) {
+      setCompletedLessons((prev) => new Set(prev).add(lessonKey(activeModuleData.id, activeLesson.id)))
+    }
+    if (nextLesson) {
+      setActiveLessonId(nextLesson.id)
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else if (nextModule) {
+      router.push(`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${nextModule.id}?lektion=${nextModule.lessons[0].id}`)
+    }
+  }
+
+  const finishCourse = () => {
+    if (activeModuleData && activeLesson) {
+      setCompletedLessons((prev) => new Set(prev).add(lessonKey(activeModuleData.id, activeLesson.id)))
+    }
+    setShowCourseDone(true)
+  }
 
   const toggleModule = (moduleId: string) => {
     setExpandedModuleIds((prev) => {
@@ -179,6 +162,25 @@ export default function ModulPage({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Kurs-abgeschlossen-Modal */}
+      <AnimatePresence>
+        {showCourseDone && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCourseDone(false)} />
+            <motion.div className="relative bg-surface border border-border w-full max-w-md shadow-2xl text-center p-10" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
+              <div className="text-5xl mb-4">🎉</div>
+              <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Geschafft</p>
+              <h3 className="font-heading text-2xl font-bold mb-3">Kurs abgeschlossen!</h3>
+              <p className="font-sans text-sm text-text-secondary mb-6">Super gemacht! Du hast <strong>{courseTitle}</strong> abgeschlossen. Mach weiter mit dem nächsten Kurs.</p>
+              <div className="space-y-3">
+                <Link href={kursPath} className="block w-full bg-accent-gold text-white py-3 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">Zurück zum Kurs</Link>
+                <Link href="/member/academy" className="block w-full border border-border py-3 font-sans text-sm hover:border-dark transition-colors">Zur Academy</Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Top navigation */}
       <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
         <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors hidden md:flex items-center gap-1.5">
@@ -189,17 +191,17 @@ export default function ModulPage({
         </Link>
         <span className="text-white/30 hidden md:block">/</span>
         <Link href={`/member/academy/instrument/${params.id}`} className="font-sans text-sm text-white/60 hover:text-white transition-colors hidden md:block">
-          Handorgel
+          {instrumentLabel}
         </Link>
         <span className="text-white/30 hidden md:block">/</span>
         <Link href={kursPath} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5 md:gap-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:hidden">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Grundlagenkurs
+          {courseTitle}
         </Link>
         <span className="text-white/30">/</span>
-        <span className="font-sans text-sm font-medium truncate">{activeModuleData.title}</span>
+        <span className="font-sans text-sm font-medium truncate">{activeModuleData?.title}</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -211,23 +213,24 @@ export default function ModulPage({
               {/* Course progress */}
               <div className="p-4 border-b border-border">
                 <Link href={kursPath} className="font-heading font-bold text-sm hover:text-accent-gold transition-colors">
-                  Grundlagenkurs
+                  {courseTitle}
                 </Link>
                 <div className="flex justify-between text-xs font-sans mt-2 mb-1">
                   <span className="text-text-secondary">Fortschritt</span>
-                  <span className="font-medium">30%</span>
+                  <span className="font-medium">{courseProgress}%</span>
                 </div>
                 <div className="h-1 bg-border overflow-hidden">
-                  <motion.div className="h-full bg-accent-gold" initial={{ width: 0 }} animate={{ width: '30%' }} transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }} />
+                  <motion.div className="h-full bg-accent-gold" initial={{ width: 0 }} animate={{ width: `${courseProgress}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }} />
                 </div>
               </div>
 
               {/* Module + lesson list */}
               <div className="overflow-y-auto max-h-[calc(100vh-240px)]">
-                {allModules.map((mod) => {
+                {modules.map((mod) => {
                   const isCurrentModule = mod.id === params.modulId
                   const isExpanded = expandedModuleIds.has(mod.id)
                   const isLocked = mod.status === 'locked'
+                  const isDone = moduleDone(mod)
 
                   return (
                     <div key={mod.id} className="border-b border-border last:border-0">
@@ -236,8 +239,8 @@ export default function ModulPage({
                         disabled={isLocked}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isCurrentModule ? 'bg-dark text-white' : 'hover:bg-background'} ${isLocked ? 'cursor-not-allowed opacity-50' : ''}`}
                       >
-                        <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 ${mod.status === 'completed' ? 'bg-accent-gold' : 'bg-border'}`}>
-                          {mod.status === 'completed' ? (
+                        <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 ${isDone ? 'bg-accent-gold' : 'bg-border'}`}>
+                          {isDone ? (
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="20 6 9 17 4 12" />
                             </svg>
@@ -268,24 +271,27 @@ export default function ModulPage({
                           >
                             {mod.lessons.map((lesson) => {
                               const isActiveLesson = mod.id === params.modulId && lesson.id === activeLessonId
+                              const lessonDone = isLessonDone(mod.id, lesson.id)
                               return (
                                 <button
                                   key={lesson.id}
                                   onClick={() => {
                                     if (mod.id === params.modulId) {
                                       setActiveLessonId(lesson.id)
+                                    } else {
+                                      router.push(`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${mod.id}?lektion=${lesson.id}`)
                                     }
                                   }}
                                   className={`w-full flex items-center gap-2.5 pl-8 pr-4 py-2.5 text-left transition-colors ${isActiveLesson ? 'bg-accent-gold/10 border-l-2 border-accent-gold' : 'hover:bg-background border-l-2 border-transparent'}`}
                                 >
-                                  <div className={`w-4 h-4 flex items-center justify-center flex-shrink-0 border ${lesson.completed ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
-                                    {lesson.completed && (
+                                  <div className={`w-4 h-4 flex items-center justify-center flex-shrink-0 border ${lessonDone ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
+                                    {lessonDone && (
                                       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
                                         <polyline points="20 6 9 17 4 12" />
                                       </svg>
                                     )}
                                   </div>
-                                  <span className={`font-sans text-xs truncate ${isActiveLesson ? 'text-accent-gold font-medium' : lesson.completed ? 'text-text-secondary' : ''}`}>
+                                  <span className={`font-sans text-xs truncate ${isActiveLesson ? 'text-accent-gold font-medium' : lessonDone ? 'text-text-secondary' : ''}`}>
                                     {lesson.title}
                                   </span>
                                 </button>
@@ -328,14 +334,14 @@ export default function ModulPage({
                     Merken
                   </motion.button>
                   <motion.button
-                    onClick={() => setIsCompleted(!isCompleted)}
+                    onClick={toggleActiveLessonDone}
                     whileTap={{ scale: 0.9 }}
-                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${isCompleted ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
+                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${activeLessonDone ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isCompleted ? 3 : 2} strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={activeLessonDone ? 3 : 2} strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    {isCompleted ? 'Erledigt' : 'Als erledigt markieren'}
+                    {activeLessonDone ? 'Erledigt ✓' : 'Als erledigt markieren'}
                   </motion.button>
                 </div>
               </div>
@@ -425,22 +431,36 @@ export default function ModulPage({
 
                 {nextLesson ? (
                   <button
-                    onClick={() => {
-                      setActiveLessonId(nextLesson.id)
-                      setIsCompleted(false)
-                    }}
+                    onClick={goToNext}
                     className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-4 py-2.5 hover:bg-accent-gold transition-colors"
                   >
-                    <span className="hidden sm:inline">{nextLesson.title}</span>
+                    <span className="hidden sm:inline">Weiter: {nextLesson.title}</span>
                     <span className="sm:hidden">Weiter</span>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   </button>
+                ) : nextModule ? (
+                  <button
+                    onClick={goToNext}
+                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-4 py-2.5 hover:bg-accent-gold transition-colors"
+                  >
+                    <span className="hidden sm:inline">Nächstes Modul: {nextModule.title}</span>
+                    <span className="sm:hidden">Nächstes Modul</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
                 ) : (
-                  <Button variant="primary" size="sm" href={`/member/academy/instrument/${params.id}/kurs/${params.kursId}`}>
-                    Zurück zum Kurs ✓
-                  </Button>
+                  <button
+                    onClick={finishCourse}
+                    className="flex items-center gap-2 font-sans text-sm font-medium bg-accent-gold text-white px-5 py-2.5 hover:bg-accent-earth transition-colors"
+                  >
+                    Kurs abschliessen
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </button>
                 )}
               </div>
             </motion.div>
