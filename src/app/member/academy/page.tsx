@@ -85,16 +85,6 @@ const allAchievements = [
   { id: 10, icon: '🎯', label: 'Zielorientiert', desc: 'Wöchentliches Lernziel 4x erreicht', earned: false, earnedDate: null, points: 120, category: 'Engagement' },
 ]
 
-const weeklyActivity = [
-  { day: 'Mo', minutes: 35 },
-  { day: 'Di', minutes: 0 },
-  { day: 'Mi', minutes: 52 },
-  { day: 'Do', minutes: 45 },
-  { day: 'Fr', minutes: 20 },
-  { day: 'Sa', minutes: 60 },
-  { day: 'So', minutes: 38 },
-]
-
 const courseChats = [
   { id: 'ho', name: 'Handorgel-Lehrgang', icon: '🪗', members: 48, last: 'Hansruedi: Übungsaufgabe bis Freitag!', time: '10:30', unread: 3 },
   { id: 'oe', name: 'Schwyzerörgeli-Lehrgang', icon: '🎶', members: 34, last: 'Maria: Sehr gut gemacht alle!', time: 'Gestern', unread: 0 },
@@ -116,22 +106,6 @@ const mockSearchResults: MockSearchResult[] = [
   { id: 'sr4', title: 'Erstes Repertoire', subtitle: 'Handorgel Starter · 6 Module', category: 'Kurse', href: '/member/academy/instrument/handorgel/kurs/repertoire' },
 ]
 
-const inlineLernvideos = [
-  { id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', instrument: 'Handorgel', taktart: 'Walzer', plan: 'starter', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80' },
-  { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', instrument: 'Schwyzerörgeli', taktart: 'Ländler', plan: 'starter', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=400&q=80' },
-  { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', taktart: 'Polka', plan: 'pro', img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=400&q=80' },
-  { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', instrument: 'Klarinette', taktart: 'Schottisch', plan: 'starter', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
-  { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', taktart: 'Walzer', plan: 'free', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80' },
-  { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', taktart: 'Mazurka', plan: 'pro', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80' },
-  { id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', taktart: null, plan: 'free', img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80' },
-]
-
-const inlinePlanColors: Record<string, string> = {
-  free: 'bg-border/60 text-text-secondary',
-  starter: 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30',
-  pro: 'bg-dark/10 text-dark border border-dark/20',
-}
-const inlinePlanLabels: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
 
 // ─── Journey data ────────────────────────────────────────────────────────────
 
@@ -199,12 +173,8 @@ const proPlan = {
 
 const navItems = [
   { label: 'Meine Kurse', id: 'kurse' },
-  { label: 'Meine Journeys', id: 'journeys' },
-  { label: 'Lernvideo-Datenbank', id: 'lernvideos' },
   { label: 'Kurs-Chats', id: 'chats', badge: 4 },
   { label: 'Lehrpersonen', id: 'lehrer' },
-  { label: 'Fortschritt', id: 'fortschritt' },
-  { label: 'Achievements', id: 'achievements' },
   { label: 'Mein Abo', id: 'abo' },
 ]
 
@@ -500,21 +470,14 @@ export default function MemberAcademyPage() {
   const [activeNav, setActiveNav] = useState('kurse')
   const [activeChatId, setActiveChatId] = useState<string | null>('ho')
   const [chatMsg, setChatMsg] = useState('')
-  const [achievementFilter, setAchievementFilter] = useState('Alle')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
-  const [inlineVideoSearch, setInlineVideoSearch] = useState('')
-  const [inlineInstFilter, setInlineInstFilter] = useState('Alle')
   const [selectedJourney, setSelectedJourney] = useState<typeof journeys[0] | null>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isUpgraded, setIsUpgraded] = useState(false)
 
-  const earnedCount = allAchievements.filter((a) => a.earned).length
   const totalPoints = allAchievements.filter((a) => a.earned).reduce((s, a) => s + a.points, 0)
-  const maxBarMinutes = Math.max(...weeklyActivity.map((d) => d.minutes))
-  const achievementCategories = ['Alle', ...Array.from(new Set(allAchievements.map((a) => a.category)))]
-  const filteredAchievements = achievementFilter === 'Alle' ? allAchievements : allAchievements.filter((a) => a.category === achievementFilter)
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
     ? mockSearchResults.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -628,8 +591,11 @@ export default function MemberAcademyPage() {
           {/* MAIN CONTENT */}
           <div className="lg:col-span-3 space-y-10">
 
-            {/* ── MEINE KURSE ── */}
+            {/* ── MEINE KURSE & JOURNEYS ── */}
             {activeNav === 'kurse' && (
+              selectedJourney ? (
+                <JourneyDetail journey={selectedJourney} onBack={() => setSelectedJourney(null)} />
+              ) : (
               <>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-dark p-8">
                   <div className="flex items-start justify-between">
@@ -750,6 +716,21 @@ export default function MemberAcademyPage() {
                             </Link>
                           </div>
                         </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Journeys — strukturierte Lernwege */}
+                <section>
+                  <div className="mb-4">
+                    <h3 className="font-heading font-bold text-xl">Meine Journeys</h3>
+                    <p className="font-sans text-sm text-text-secondary mt-0.5">Dein strukturierter Lernweg — von den ersten Tönen bis zur Meisterschaft.</p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {journeys.map((j, i) => (
+                      <motion.div key={j.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                        <JourneyCard journey={j} onClick={() => setSelectedJourney(j)} />
                       </motion.div>
                     ))}
                   </div>
@@ -877,96 +858,8 @@ export default function MemberAcademyPage() {
                   </section>
                 )}
               </>
-            )}
-
-            {/* ── MEINE JOURNEYS ── */}
-            {activeNav === 'journeys' && (
-              <AnimatePresence mode="wait">
-                {selectedJourney ? (
-                  <JourneyDetail key="detail" journey={selectedJourney} onBack={() => setSelectedJourney(null)} />
-                ) : (
-                  <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <div className="mb-6">
-                      <h2 className="font-heading text-2xl font-bold mb-1">Meine Journeys</h2>
-                      <p className="font-sans text-sm text-text-secondary">Dein strukturierter Lernweg — von den ersten Tönen bis zur Meisterschaft.</p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      {journeys.map((j, i) => (
-                        <motion.div key={j.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                          <JourneyCard journey={j} onClick={() => setSelectedJourney(j)} />
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            )}
-
-            {/* ── LERNVIDEO-DATENBANK ── */}
-            {activeNav === 'lernvideos' && (() => {
-              const q = inlineVideoSearch.toLowerCase()
-              const filtered = inlineLernvideos.filter(v =>
-                (inlineInstFilter === 'Alle' || v.instrument === inlineInstFilter) &&
-                (!q || v.title.toLowerCase().includes(q) || v.artist.toLowerCase().includes(q) || v.instrument.toLowerCase().includes(q))
               )
-              return (
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="font-heading text-2xl font-bold">Lernvideo-Datenbank</h2>
-                      <p className="font-sans text-sm text-text-secondary mt-0.5">Alle Stücke durchsuchen und filtern</p>
-                    </div>
-                    <Link href="/member/academy/lernvideos" className="flex items-center gap-2 font-sans text-xs text-text-secondary hover:text-dark border border-border px-3 py-2 hover:border-dark transition-colors">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                      Vollbild
-                    </Link>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                      <input value={inlineVideoSearch} onChange={e => setInlineVideoSearch(e.target.value)} type="text" placeholder="Titel, Interpret, Instrument…" className="w-full border border-border pl-9 pr-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" />
-                    </div>
-                    <select value={inlineInstFilter} onChange={e => setInlineInstFilter(e.target.value)} className="border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface">
-                      {['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette'].map(o => <option key={o}>{o}</option>)}
-                    </select>
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    {filtered.map((v, i) => (
-                      <motion.div key={v.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                        className="bg-surface border border-border flex overflow-hidden group hover:border-dark transition-colors">
-                        <div className="relative w-28 sm:w-36 flex-shrink-0">
-                          <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
-                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-7 h-7 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-xs">▶</span></div>
-                          </div>
-                        </div>
-                        <div className="flex-1 p-3 flex items-center justify-between gap-3 min-w-0">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <p className="font-heading font-bold text-sm truncate group-hover:text-accent-gold transition-colors">{v.title}</p>
-                              {v.taktart && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0">{v.taktart}</span>}
-                            </div>
-                            <p className="font-sans text-xs text-text-secondary">{v.artist} · <span className="italic">{v.instrument}</span></p>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${inlinePlanColors[v.plan]}`}>{inlinePlanLabels[v.plan]}</span>
-                            <Link href={`/member/academy/lernvideos/${v.id}`} className="font-sans text-xs bg-dark text-white px-2.5 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">Öffnen →</Link>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                    {filtered.length === 0 && <p className="font-sans text-sm text-text-secondary text-center py-10">Keine Lernvideos gefunden.</p>}
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <p className="font-sans text-xs text-text-secondary">{inlineLernvideos.length} Lernvideos · Zeige {filtered.length} Ergebnisse</p>
-                    <Link href="/member/academy/lernvideos" className="font-sans text-xs text-accent-gold hover:underline flex items-center gap-1">
-                      Alle Lernvideos anzeigen
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </Link>
-                  </div>
-                </motion.div>
-              )
-            })()}
+            )}
 
             {/* ── CHATS ── */}
             {activeNav === 'chats' && (
@@ -1060,101 +953,6 @@ export default function MemberAcademyPage() {
                             <Link href={teacher.profileHref} className="font-sans text-sm text-dark font-medium border border-dark px-4 py-2 hover:bg-dark hover:text-white transition-colors">Profil ansehen</Link>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* ── FORTSCHRITT ── */}
-            {activeNav === 'fortschritt' && (
-              <>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                  <h2 className="font-heading text-2xl font-bold mb-2">Mein Fortschritt</h2>
-                  <p className="font-sans text-text-secondary text-sm">Übersicht deiner Lernaktivität und deines Wachstums.</p>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
-                  {[
-                    { label: 'Lektionen', value: '21', sub: 'abgeschlossen' },
-                    { label: 'Lernzeit', value: '18h', sub: 'insgesamt' },
-                    { label: 'Streak', value: '7', sub: 'Tage in Folge' },
-                    { label: 'XP-Punkte', value: String(totalPoints), sub: 'verdient' },
-                  ].map((stat) => (
-                    <div key={stat.label} className="bg-surface p-6 text-center">
-                      <p className="font-heading text-3xl font-bold text-accent-gold">{stat.value}</p>
-                      <p className="font-sans text-sm font-medium mt-1">{stat.label}</p>
-                      <p className="font-sans text-xs text-text-secondary">{stat.sub}</p>
-                    </div>
-                  ))}
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface border border-border p-6">
-                  <h3 className="font-heading font-bold text-lg mb-6">Aktivität diese Woche</h3>
-                  <div className="flex items-end gap-3 h-36">
-                    {weeklyActivity.map((day, i) => (
-                      <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
-                        <span className="font-sans text-xs text-text-secondary">{day.minutes > 0 ? `${day.minutes}m` : ''}</span>
-                        <motion.div className={`w-full ${day.minutes > 0 ? 'bg-accent-gold' : 'bg-border'}`}
-                          initial={{ height: 0 }} animate={{ height: day.minutes > 0 ? `${(day.minutes / maxBarMinutes) * 100}px` : '4px' }} transition={{ duration: 0.6, delay: i * 0.08, ease: 'easeOut' }} />
-                        <span className="font-sans text-xs text-text-secondary">{day.day}</span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-surface border border-border p-6">
-                  <h3 className="font-heading font-bold text-lg mb-6">Kurs-Fortschritt</h3>
-                  <div className="space-y-6">
-                    {activeCourses.map((course) => (
-                      <div key={course.id}>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{course.emoji}</span>
-                            <div>
-                              <h4 className="font-sans font-medium text-sm">{course.title}</h4>
-                              <p className="font-sans text-xs text-text-secondary">{course.completedLessons} / {course.totalLessons} Lektionen · Zuletzt: {course.lastActivity}</p>
-                            </div>
-                          </div>
-                          <span className="font-heading font-bold text-sm">{course.progress}%</span>
-                        </div>
-                        <ProgressBar value={course.progress} />
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              </>
-            )}
-
-            {/* ── ACHIEVEMENTS ── */}
-            {activeNav === 'achievements' && (
-              <>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                  <h2 className="font-heading text-2xl font-bold mb-2">Achievements</h2>
-                  <p className="font-sans text-text-secondary text-sm">Sammle Abzeichen für deine Lernfortschritte und Meilensteine.</p>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-dark p-6 flex items-center gap-8">
-                  <div className="text-center"><p className="font-heading text-4xl font-bold text-accent-gold">{earnedCount}</p><p className="font-sans text-xs text-white/50 mt-1">Errungen</p></div>
-                  <div className="w-px h-12 bg-white/10" />
-                  <div className="text-center"><p className="font-heading text-4xl font-bold text-white">{allAchievements.length}</p><p className="font-sans text-xs text-white/50 mt-1">Total</p></div>
-                  <div className="w-px h-12 bg-white/10" />
-                  <div className="text-center"><p className="font-heading text-4xl font-bold text-accent-gold">{totalPoints}</p><p className="font-sans text-xs text-white/50 mt-1">XP-Punkte</p></div>
-                  <div className="flex-1 ml-4">
-                    <div className="flex justify-between text-xs font-sans mb-2"><span className="text-white/50">Fortschritt</span><span className="text-white/70">{Math.round((earnedCount / allAchievements.length) * 100)}%</span></div>
-                    <div className="h-2 bg-white/10 overflow-hidden"><motion.div className="h-full bg-accent-gold" initial={{ width: 0 }} animate={{ width: `${(earnedCount / allAchievements.length) * 100}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }} /></div>
-                  </div>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex flex-wrap gap-2">
-                  {achievementCategories.map((cat) => (
-                    <button key={cat} onClick={() => setAchievementFilter(cat)} className={`font-sans text-xs px-3 py-1.5 transition-all ${achievementFilter === cat ? 'bg-dark text-white' : 'bg-surface border border-border text-text-secondary hover:border-dark'}`}>{cat}</button>
-                  ))}
-                </motion.div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {filteredAchievements.map((a, i) => (
-                    <motion.div key={a.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className={`p-5 border flex flex-col gap-3 ${a.earned ? 'border-accent-gold/40 bg-surface' : 'border-border bg-surface opacity-45'}`}>
-                      <div className="flex items-start justify-between"><span className="text-3xl">{a.icon}</span><span className={`font-sans text-xs px-2 py-0.5 ${a.earned ? 'bg-accent-gold text-white' : 'bg-border text-text-secondary'}`}>+{a.points} XP</span></div>
-                      <div><h4 className="font-heading font-bold text-sm">{a.label}</h4><p className="font-sans text-xs text-text-secondary mt-1 leading-relaxed">{a.desc}</p></div>
-                      <div className="mt-auto">
-                        {a.earned ? <p className="font-sans text-xs text-accent-gold">{a.earnedDate}</p> : <p className="font-sans text-xs text-text-secondary">Noch nicht errungen</p>}
-                        <span className="font-sans text-[10px] uppercase tracking-wider text-text-secondary">{a.category}</span>
                       </div>
                     </motion.div>
                   ))}
