@@ -55,7 +55,7 @@ const initialNotifications: Notification[] = [
   },
 ]
 
-function NotificationBell() {
+export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<Notification[]>(initialNotifications)
   const unread = items.filter((n) => !n.read).length
@@ -123,7 +123,7 @@ function NotificationBell() {
   )
 }
 
-function ProfileMenu() {
+export function ProfileMenu() {
   const [open, setOpen] = useState(false)
   return (
     <div className="relative flex-shrink-0">
