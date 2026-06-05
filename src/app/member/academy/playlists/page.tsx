@@ -411,7 +411,7 @@ export default function PlaylistsPage() {
         <div className="flex items-center gap-4">
           <Link href="/member/academy" className="flex items-center gap-1.5 font-sans text-sm text-white/60 hover:text-white transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            Akademie
+            Musikschule
           </Link>
           <span className="text-white/20">/</span>
           <h1 className="font-heading font-bold">Meine Playlists</h1>

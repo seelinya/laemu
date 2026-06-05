@@ -19,14 +19,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'LAEMU — Der exklusive Bereich für Ländlermusik',
   description:
-    'Der exklusive LAEMU Mitgliederbereich: Academy, Community, Lernvideodatenbank und Streaming für die Schweizer Ländlermusik.',
-  keywords: ['Ländlermusik', 'Schweizer Volksmusik', 'LAEMU', 'Academy', 'Community', 'Streaming', 'Schwyzerörgeli', 'Handorgel'],
+    'Der exklusive LAEMU Mitgliederbereich: Musikschule, Community, Lernvideodatenbank und Streaming für die Schweizer Ländlermusik.',
+  keywords: ['Ländlermusik', 'Schweizer Volksmusik', 'LAEMU', 'Musikschule', 'Community', 'Streaming', 'Schwyzerörgeli', 'Handorgel'],
   icons: {
     icon: '/favicon.svg',
   },
   openGraph: {
     title: 'LAEMU — Der exklusive Bereich für Ländlermusik',
-    description: 'Academy, Community, Lernvideodatenbank und Streaming für die Schweizer Ländlermusik.',
+    description: 'Musikschule, Community, Lernvideodatenbank und Streaming für die Schweizer Ländlermusik.',
     type: 'website',
   },
 }

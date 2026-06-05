@@ -183,7 +183,7 @@ export default function LernvideosPage() {
       {/* Header */}
       <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
-          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Academy</Link>
+          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Musikschule</Link>
           <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
         </div>
         <div className="flex items-center gap-2">

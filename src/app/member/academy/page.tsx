@@ -316,6 +316,13 @@ export default function MemberAcademyPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isUpgraded, setIsUpgraded] = useState(false)
+  const [courseFilter, setCourseFilter] = useState('Alle')
+
+  // Instrumente, zu denen der/die Lernende Kurse hat — als Filter-Tabs.
+  const courseInstruments = Array.from(new Set(activeCourses.map((c) => c.instrument)))
+  const courseTabs = courseInstruments.length > 1 ? ['Alle', ...courseInstruments] : courseInstruments
+  const filteredCourses = courseFilter === 'Alle' ? activeCourses : activeCourses.filter((c) => c.instrument === courseFilter)
+  const filterInstrumentId = courseFilter === 'Alle' ? null : activeCourses.find((c) => c.instrument === courseFilter)?.instrumentId ?? null
 
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
@@ -342,7 +349,7 @@ export default function MemberAcademyPage() {
 
       {/* TOP BAR */}
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
-        <h1 className="font-heading font-bold text-lg">LAEMU Academy</h1>
+        <h1 className="font-heading font-bold text-lg">LAEMU Musikschule</h1>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
@@ -467,22 +474,43 @@ export default function MemberAcademyPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Meine Kurse — Journey-Design */}
+                {/* Meine Kurse — Journey-Design, filterbar nach Instrument */}
                 <section>
-                  <h3 className="font-heading font-bold text-xl mb-4">Meine Kurse</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                    <h3 className="font-heading font-bold text-xl">Meine Kurse</h3>
+                    {courseTabs.length > 1 && (
+                      <div className="flex flex-wrap gap-2">
+                        {courseTabs.map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setCourseFilter(tab)}
+                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${courseFilter === tab ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                          >
+                            {tab}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {activeCourses.map((course, i) => (
+                    {filteredCourses.map((course, i) => (
                       <motion.div key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                         <CourseCard course={course} />
                       </motion.div>
                     ))}
                   </div>
+                  {filterInstrumentId && (
+                    <Link href={`/member/academy/instrument/${filterInstrumentId}`} className="mt-4 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-accent-gold hover:text-dark transition-colors">
+                      Ganzen {courseFilter}-Lehrgang ansehen
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                    </Link>
+                  )}
                 </section>
 
-                {/* Allgemeiner Lehrgang — für alle freigeschaltet */}
+                {/* Allgemeine Grundlagen — für alle freigeschaltet */}
                 <section>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-heading font-bold text-xl">Allgemeiner Lehrgang</h3>
+                    <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
                     <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 uppercase tracking-wide">Für alle</span>
                   </div>
                   <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>

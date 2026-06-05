@@ -1364,7 +1364,7 @@ function SettingsView() {
                   <div className="flex items-center gap-3">
                     <span className="text-xl">🪗</span>
                     <div>
-                      <p className="font-sans text-sm font-semibold">LAEMU Academy – Handorgel-Lehrgang</p>
+                      <p className="font-sans text-sm font-semibold">LAEMU Musikschule – Handorgel-Lehrgang</p>
                       <p className="font-sans text-xs text-text-secondary">Jahresabo · nächste Verlängerung 1. Feb 2027</p>
                       <span className="font-sans text-[10px] text-accent-gold font-medium">Formation-Rabatt aktiv (Kapelle Hess-Ruedi)</span>
                     </div>
@@ -1398,7 +1398,7 @@ function SettingsView() {
             <h3 className="font-heading font-bold text-lg mb-3">Rechnungsverlauf</h3>
             <div className="space-y-3">
               {[
-                { date: 'Feb 2026', desc: 'LAEMU Academy – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
+                { date: 'Feb 2026', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
                 { date: 'Feb 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
                 { date: 'Jan 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
                 { date: 'Dez 2025', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
