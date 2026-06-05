@@ -4,17 +4,9 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/Button'
 import { MemberTabs } from '@/components/MemberTabs'
 
 // ─── Data ───────────────────────────────────────────────────────────────────
-
-const instrumentsData = [
-  { id: 'handorgel', label: 'Handorgel', emoji: '🪗', desc: 'Das Herzstück der Ländlermusik', subscribed: true, plan: 'starter' as const },
-  { id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎶', desc: 'Diatonisch und voller Seele', subscribed: true, plan: 'starter' as const },
-  { id: 'begleit', label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klarinette · Klavier', subscribed: false, plan: null },
-  { id: 'buehne', label: 'Bühnenpräsenz', emoji: '🎤', desc: 'Auftreten mit Ausstrahlung', subscribed: false, plan: null },
-]
 
 const activeCourses = [
   {
@@ -24,6 +16,9 @@ const activeCourses = [
     emoji: '🪗',
     instrument: 'Handorgel',
     title: 'Grundlagenkurs',
+    instructor: 'Cécile Schmidig',
+    instructorImg: '/images/cecile-schmidig.jpg',
+    coverImg: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
     progress: 65,
     completedLessons: 13,
     totalLessons: 20,
@@ -37,6 +32,9 @@ const activeCourses = [
     emoji: '🎶',
     instrument: 'Schwyzerörgeli',
     title: 'Grundlagenkurs Schwyzerörgeli',
+    instructor: 'Cyrill Rusch',
+    instructorImg: '/images/cyrill-rusch.jpg',
+    coverImg: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
     progress: 30,
     completedLessons: 6,
     totalLessons: 20,
@@ -50,6 +48,9 @@ const activeCourses = [
     emoji: '🪗',
     instrument: 'Handorgel',
     title: 'Übungskurse',
+    instructor: 'Seebi Diener',
+    instructorImg: '/images/seebi-diener.jpg',
+    coverImg: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=800&q=80',
     progress: 10,
     completedLessons: 2,
     totalLessons: 18,
@@ -63,32 +64,6 @@ const recentLessons = [
   { id: 'rl2', title: 'Die Diskantseite', course: 'Grundlagenkurs', instrument: 'Handorgel', duration: '12 min', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-schritte?lektion=diskantseite' },
   { id: 'rl3', title: 'Stimmen & Intonation', course: 'Grundlagenkurs', instrument: 'Handorgel', duration: '8 min', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/einfuehrung?lektion=saitenstimmen' },
   { id: 'rl4', title: 'Erste Melodieläufe', course: 'Grundlagenkurs Schwyzerörgeli', instrument: 'Schwyzerörgeli', duration: '10 min', href: '/member/academy/instrument/schwyzer/kurs/grundlagen/modul/einfuehrung?lektion=erste' },
-]
-
-const teachers = [
-  { id: 'seebi', name: 'Seebi Diener', specialty: 'Bass / Schwyzerörgeli', img: '/images/seebi-diener.jpg', bio: 'Multitalent und Stilpräger der modernen Ländlermusik — unterrichtet Bass und Schwyzerörgeli.', courses: 3, students: 142, rating: 4.9, instruments: ['Bass', 'Schwyzerörgeli'], location: 'Bern', profileHref: '/member/profile' },
-  { id: 'cyrill', name: 'Cyrill Rusch', specialty: 'Schwyzerörgeli', img: '/images/cyrill-rusch.jpg', bio: 'Preisgekrönter Örgelist mit tiefer Verwurzelung in der Tradition — seine Kurse sind ausserordentlich.', courses: 2, students: 98, rating: 4.9, instruments: ['Schwyzerörgeli'], location: 'Schwyz', profileHref: '/member/profile' },
-  { id: 'cecile', name: 'Cécile Schmidig', specialty: 'Handorgel', img: '/images/cecile-schmidig.jpg', bio: 'Ausdrucksstarke Handorgelistin mit einer einzigartigen Kombination aus Technik und Musikalität.', courses: 2, students: 86, rating: 4.8, instruments: ['Handorgel'], location: 'Luzern', profileHref: '/member/profile' },
-  { id: 'franz', name: 'Franz Hess', specialty: 'Klavier', img: '/images/franz-hess.jpg', bio: 'Harmonischer Anker vieler Schweizer Kapellen — Franz vermittelt das klavieristische Fundament der Ländlermusik.', courses: 2, students: 74, rating: 4.9, instruments: ['Klavier'], location: 'Zürich', profileHref: '/member/profile' },
-]
-
-const allAchievements = [
-  { id: 1, icon: '🔥', label: '7-Tage Streak', desc: '7 Tage in Folge eine Lektion absolviert', earned: true, earnedDate: '10. Jan 2025', points: 50, category: 'Streak' },
-  { id: 2, icon: '🎓', label: 'Erste Lektion', desc: 'Deine allererste Lektion abgeschlossen', earned: true, earnedDate: '5. Jan 2025', points: 10, category: 'Meilenstein' },
-  { id: 3, icon: '⭐', label: '10 Lektionen', desc: '10 Lektionen insgesamt abgeschlossen', earned: true, earnedDate: '8. Jan 2025', points: 100, category: 'Meilenstein' },
-  { id: 4, icon: '📚', label: '3 Kurse', desc: 'In 3 verschiedenen Kursen eingeschrieben', earned: true, earnedDate: '6. Jan 2025', points: 30, category: 'Engagement' },
-  { id: 5, icon: '⚡', label: 'Schnellstarter', desc: '5 Lektionen in einer Woche abgeschlossen', earned: true, earnedDate: '9. Jan 2025', points: 75, category: 'Engagement' },
-  { id: 6, icon: '🏆', label: 'Kurs abgeschlossen', desc: 'Einen Kurs vollständig abgeschlossen', earned: false, earnedDate: null, points: 200, category: 'Meilenstein' },
-  { id: 7, icon: '🌟', label: '30-Tage Streak', desc: '30 Tage in Folge gelernt', earned: false, earnedDate: null, points: 300, category: 'Streak' },
-  { id: 8, icon: '🎵', label: 'Meisterklasse', desc: 'Eine Meisterklasse-Lektion freigeschaltet', earned: false, earnedDate: null, points: 150, category: 'Engagement' },
-  { id: 9, icon: '🏅', label: 'Top Schüler', desc: 'Unter den 10% aktivsten Lernenden', earned: false, earnedDate: null, points: 250, category: 'Rang' },
-  { id: 10, icon: '🎯', label: 'Zielorientiert', desc: 'Wöchentliches Lernziel 4x erreicht', earned: false, earnedDate: null, points: 120, category: 'Engagement' },
-]
-
-const courseChats = [
-  { id: 'ho', name: 'Handorgel-Lehrgang', icon: '🪗', members: 48, last: 'Hansruedi: Übungsaufgabe bis Freitag!', time: '10:30', unread: 3 },
-  { id: 'oe', name: 'Schwyzerörgeli-Lehrgang', icon: '🎶', members: 34, last: 'Maria: Sehr gut gemacht alle!', time: 'Gestern', unread: 0 },
-  { id: 'kl', name: 'Klavier-Lehrgang', icon: '🎹', members: 29, last: 'Lisa: Nächster Live-Call am Dienstag', time: 'Mo', unread: 1 },
 ]
 
 type MockSearchResult = {
@@ -106,48 +81,6 @@ const mockSearchResults: MockSearchResult[] = [
   { id: 'sr4', title: 'Erstes Repertoire', subtitle: 'Handorgel Starter · 6 Module', category: 'Kurse', href: '/member/academy/instrument/handorgel/kurs/repertoire' },
 ]
 
-
-// ─── Journey data ────────────────────────────────────────────────────────────
-
-const journeys = [
-  {
-    id: 1,
-    instrument: 'Handorgel',
-    title: 'Weg zum Handorgel-Profi',
-    emoji: '🪗',
-    instructor: 'Cécile Schmidig',
-    instructorImg: '/images/cecile-schmidig.jpg',
-    coverImg: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
-    totalLessons: 48,
-    completedLessons: 19,
-    currentStageId: 2,
-    stages: [
-      { id: 1, title: 'Erste Töne', subtitle: 'Grundlagen & Haltung', lessons: 8, completed: 8, locked: false, done: true, current: false, milestone: 'Erste Melodie gespielt' },
-      { id: 2, title: 'Rhythmus & Grundgriffe', subtitle: 'Ländler-Basics', lessons: 12, completed: 11, locked: false, done: false, current: true, milestone: 'Erster Ländler gespielt' },
-      { id: 3, title: 'Melodieführung', subtitle: 'Phrasierung & Stil', lessons: 10, completed: 0, locked: false, done: false, current: false, milestone: 'Auftritt bereit' },
-      { id: 4, title: 'Fortgeschrittene Technik', subtitle: 'Verzierungen & Dynamik', lessons: 12, completed: 0, locked: true, done: false, current: false, milestone: 'Profi-Level erreicht' },
-      { id: 5, title: 'Meisterklasse', subtitle: 'Stil & Eigenpersönlichkeit', lessons: 6, completed: 0, locked: true, done: false, current: false, milestone: 'Journey abgeschlossen 🏆' },
-    ],
-  },
-  {
-    id: 2,
-    instrument: 'Schwyzerörgeli',
-    title: 'Schwyzerörgeli Meisterschaft',
-    emoji: '🎶',
-    instructor: 'Cyrill Rusch',
-    instructorImg: '/images/cyrill-rusch.jpg',
-    coverImg: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
-    totalLessons: 36,
-    completedLessons: 7,
-    currentStageId: 2,
-    stages: [
-      { id: 1, title: 'Kennenlernen', subtitle: 'Instrument & Haltung', lessons: 6, completed: 6, locked: false, done: true, current: false, milestone: 'Basis sitzt' },
-      { id: 2, title: 'Erste Melodien', subtitle: 'Einfache Stücke', lessons: 10, completed: 1, locked: false, done: false, current: true, milestone: 'Erstes Stück gespielt' },
-      { id: 3, title: 'Rhythmik & Stil', subtitle: 'Appenzeller Stil', lessons: 12, completed: 0, locked: true, done: false, current: false, milestone: 'Stilsicher unterwegs' },
-      { id: 4, title: 'Meisterklasse', subtitle: 'Virtuosität & Ausdruck', lessons: 8, completed: 0, locked: true, done: false, current: false, milestone: 'Journey abgeschlossen 🏆' },
-    ],
-  },
-]
 
 // ─── Abo data ────────────────────────────────────────────────────────────────
 
@@ -171,32 +104,12 @@ const proPlan = {
   ],
 }
 
-const navItems = [
-  { label: 'Meine Kurse', id: 'kurse' },
-  { label: 'Kurs-Chats', id: 'chats', badge: 4 },
-  { label: 'Lehrpersonen', id: 'lehrer' },
-  { label: 'Mein Abo', id: 'abo' },
-]
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
   return (
     <div className={`h-1.5 bg-border overflow-hidden ${className}`}>
       <motion.div className="h-full bg-accent-gold" initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }} />
-    </div>
-  )
-}
-
-function StarRating({ value }: { value: number }) {
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill={s <= Math.floor(value) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" className="text-accent-gold">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      ))}
-      <span className="font-sans text-xs text-text-secondary ml-1">{value}</span>
     </div>
   )
 }
@@ -286,108 +199,103 @@ function UpgradeSuccessModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── Journey components ───────────────────────────────────────────────────────
+// ─── Course card (Journey-Design) ─────────────────────────────────────────────
 
-function JourneyCard({ journey, onClick }: { journey: typeof journeys[0]; onClick: () => void }) {
-  const progress = Math.round((journey.completedLessons / journey.totalLessons) * 100)
-  const current = journey.stages.find((s) => s.current)
+function CourseCard({ course }: { course: typeof activeCourses[0] }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden group cursor-pointer hover:border-accent-gold transition-colors" onClick={onClick}>
+    <Link href={course.href} className="block bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors">
       <div className="relative h-36 overflow-hidden">
-        <Image src={journey.coverImg} alt={journey.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
+        <Image src={course.coverImg} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute bottom-3 left-4 right-4">
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-xl">{journey.emoji}</span>
-            <span className="font-sans text-xs text-white/60 uppercase tracking-wider">{journey.instrument}</span>
+            <span className="text-xl">{course.emoji}</span>
+            <span className="font-sans text-xs text-white/60 uppercase tracking-wider">{course.instrument}</span>
           </div>
-          <h4 className="font-heading text-base font-bold text-white">{journey.title}</h4>
+          <h4 className="font-heading text-base font-bold text-white">{course.title}</h4>
         </div>
-        <div className="absolute top-2.5 right-2.5 bg-accent-gold/90 text-white text-xs px-2 py-0.5 font-sans font-medium">Stufe {journey.currentStageId}/{journey.stages.length}</div>
+        <div className="absolute top-2.5 right-2.5 bg-accent-gold/90 text-white text-xs px-2 py-0.5 font-sans font-medium">{course.progress}%</div>
       </div>
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
           <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
-            <Image src={journey.instructorImg} alt={journey.instructor} fill className="object-cover" unoptimized />
+            <Image src={course.instructorImg} alt={course.instructor} fill className="object-cover" unoptimized />
           </div>
-          <p className="font-sans text-xs text-text-secondary">mit {journey.instructor}</p>
+          <p className="font-sans text-xs text-text-secondary">mit {course.instructor}</p>
         </div>
-        {current && <div className="bg-accent-gold/5 border border-accent-gold/20 px-3 py-1.5 mb-3"><p className="font-sans text-xs text-accent-gold font-medium">Aktuell: {current.title}</p></div>}
+        <div className="bg-accent-gold/5 border border-accent-gold/20 px-3 py-1.5 mb-3">
+          <p className="font-sans text-xs text-accent-gold font-medium">Zuletzt aktiv: {course.lastActivity}</p>
+        </div>
         <div className="flex justify-between text-xs font-sans mb-1.5">
-          <span className="text-text-secondary">{journey.completedLessons}/{journey.totalLessons} Lektionen</span>
-          <span className="font-medium">{progress}%</span>
+          <span className="text-text-secondary">{course.completedLessons}/{course.totalLessons} Lektionen</span>
+          <span className="font-medium">{course.progress}%</span>
         </div>
-        <ProgressBar value={progress} />
+        <ProgressBar value={course.progress} />
+        <div className="mt-4 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+          Weiterfahren
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+        </div>
       </div>
-    </motion.div>
+    </Link>
   )
 }
 
-function JourneyDetail({ journey, onBack }: { journey: typeof journeys[0]; onBack: () => void }) {
-  const progress = Math.round((journey.completedLessons / journey.totalLessons) * 100)
+// ─── Persönlicher Support / Live-Chat (floating) ──────────────────────────────
+
+function SupportWidget() {
+  const [open, setOpen] = useState(false)
   return (
-    <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-      <button onClick={onBack} className="flex items-center gap-2 font-sans text-sm text-text-secondary hover:text-text-primary transition-colors mb-5">← Zurück zu Journeys</button>
-      <div className="relative h-44 overflow-hidden mb-5">
-        <Image src={journey.coverImg} alt={journey.title} fill className="object-cover" unoptimized />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute bottom-4 left-5 right-5">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-xl">{journey.emoji}</span>
-            <span className="font-sans text-xs text-white/60 uppercase tracking-wider">{journey.instrument}</span>
-          </div>
-          <h2 className="font-heading text-2xl font-bold text-white">{journey.title}</h2>
-          <p className="font-sans text-sm text-white/60">mit {journey.instructor}</p>
-        </div>
-      </div>
-      <div className="bg-surface border border-border p-5 mb-5">
-        <div className="flex justify-between text-sm font-sans mb-2">
-          <span className="text-text-secondary">Gesamtfortschritt</span>
-          <span className="font-medium">{journey.completedLessons}/{journey.totalLessons} Lektionen — {progress}%</span>
-        </div>
-        <ProgressBar value={progress} className="mb-2" />
-        <p className="font-sans text-xs text-text-secondary">Stufe {journey.currentStageId} von {journey.stages.length}</p>
-      </div>
-      <h3 className="font-heading font-bold text-lg mb-3">Dein Lernweg</h3>
-      <div className="space-y-3">
-        {journey.stages.map((stage, i) => {
-          const stagePct = stage.lessons > 0 ? Math.round((stage.completed / stage.lessons) * 100) : 0
-          return (
-            <motion.div key={stage.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className={`border overflow-hidden transition-colors ${stage.locked ? 'border-border bg-surface opacity-50' : stage.current ? 'border-accent-gold bg-accent-gold/5' : stage.done ? 'border-muted-green/40 bg-muted-green/5' : 'border-border bg-surface'}`}>
-              <div className="flex items-center gap-4 p-4">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-heading font-bold text-sm ${stage.locked ? 'bg-border text-text-secondary' : stage.done ? 'bg-muted-green text-white' : stage.current ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-primary'}`}>
-                  {stage.locked ? '🔒' : stage.done ? '✓' : stage.id}
+    <>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="fixed bottom-24 right-6 z-50 w-80 max-w-[calc(100vw-3rem)] bg-surface border border-border shadow-2xl overflow-hidden"
+          >
+            <div className="bg-dark p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-accent-gold flex items-center justify-center flex-shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6" /><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" /></svg>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <h4 className="font-heading font-bold text-sm">{stage.title}</h4>
-                    {stage.current && <span className="bg-accent-gold/20 text-accent-gold font-sans text-xs px-2 py-0.5">Aktuell</span>}
-                    {stage.done && <span className="bg-muted-green/20 text-muted-green font-sans text-xs px-2 py-0.5">Abgeschlossen</span>}
-                  </div>
-                  <p className="font-sans text-xs text-text-secondary">{stage.subtitle}</p>
-                  {!stage.locked && (
-                    <div className="mt-2">
-                      <div className="flex justify-between text-xs font-sans mb-1">
-                        <span className="text-text-secondary">{stage.completed}/{stage.lessons} Lektionen</span>
-                        <span className="font-medium">{stagePct}%</span>
-                      </div>
-                      <ProgressBar value={stagePct} />
-                    </div>
-                  )}
-                  <p className="font-sans text-xs text-text-secondary mt-2 flex items-center gap-1"><span>🎯</span>{stage.milestone}</p>
+                <div>
+                  <p className="font-heading font-bold text-sm text-white">Persönlicher Support</p>
+                  <p className="font-sans text-[10px] text-white/50 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent-gold inline-block" /> Antwort meist in wenigen Minuten
+                  </p>
                 </div>
-                {!stage.locked && (
-                  <button className={`flex-shrink-0 px-3 py-2 font-sans text-xs font-medium transition-colors ${stage.current ? 'bg-accent-gold text-white hover:bg-accent-earth' : 'border border-border text-text-secondary hover:bg-background'}`}>
-                    {stage.current ? 'Weitermachen' : stage.done ? 'Wiederholen' : 'Starten'}
-                  </button>
-                )}
               </div>
-            </motion.div>
-          )
-        })}
-      </div>
-    </motion.div>
+              <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors text-xl leading-none">×</button>
+            </div>
+            <div className="p-4 bg-background">
+              <div className="bg-surface border border-border px-3 py-2.5">
+                <p className="font-sans text-[10px] uppercase tracking-wider text-accent-gold mb-0.5">LAEMU Team</p>
+                <p className="font-sans text-sm text-text-primary">Hallo Niklaus! 👋 Wie können wir dir mit deinen Kursen helfen? Schreib uns — wir antworten persönlich.</p>
+              </div>
+            </div>
+            <div className="p-3 border-t border-border flex gap-2">
+              <input placeholder="Nachricht schreiben…" className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
+              <button className="bg-accent-gold text-white px-3 py-2 font-sans text-sm font-medium hover:bg-accent-warm transition-colors">Senden</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-accent-gold text-white pl-4 pr-5 py-3.5 shadow-lg hover:bg-accent-warm transition-colors"
+        aria-label="Persönlicher Support"
+      >
+        {open ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+        )}
+        <span className="font-sans text-sm font-semibold">{open ? 'Schliessen' : 'Persönlicher Support'}</span>
+      </button>
+    </>
   )
 }
 
@@ -467,17 +375,12 @@ function AboView({ onUpgradeClick, isUpgraded }: { onUpgradeClick: () => void; i
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function MemberAcademyPage() {
-  const [activeNav, setActiveNav] = useState('kurse')
-  const [activeChatId, setActiveChatId] = useState<string | null>('ho')
-  const [chatMsg, setChatMsg] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
-  const [selectedJourney, setSelectedJourney] = useState<typeof journeys[0] | null>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isUpgraded, setIsUpgraded] = useState(false)
 
-  const totalPoints = allAchievements.filter((a) => a.earned).reduce((s, a) => s + a.points, 0)
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
     ? mockSearchResults.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -546,56 +449,16 @@ export default function MemberAcademyPage() {
                 </div>
               </div>
 
-              <nav className="bg-surface border border-border overflow-hidden">
-                {navItems.map((item) => (
-                  <button key={item.id} onClick={() => { setActiveNav(item.id); setSelectedJourney(null) }}
-                    className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${activeNav === item.id ? 'bg-dark text-white font-medium' : 'text-text-secondary hover:bg-background hover:text-dark'}`}>
-                    {item.label}
-                    {item.badge != null && <span className="ml-auto bg-accent-gold text-white text-[10px] px-1.5 py-0.5">{item.badge}</span>}
-                  </button>
-                ))}
-              </nav>
-
-              <div className="bg-surface border border-border p-5">
-                <h3 className="font-heading font-bold text-sm mb-4">Diese Woche</h3>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Lektionen', value: '5' },
-                    { label: 'Lernzeit', value: '3h 50min' },
-                    { label: 'Streak', value: '7 Tage', gold: true },
-                    { label: 'Punkte', value: `${totalPoints} XP` },
-                  ].map((stat) => (
-                    <div key={stat.label} className="flex justify-between font-sans text-sm">
-                      <span className="text-text-secondary">{stat.label}</span>
-                      <span className={`font-medium ${stat.gold ? 'text-accent-gold' : ''}`}>{stat.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* MOBILE NAV */}
-          <div className="lg:hidden lg:col-span-4 -mb-4">
-            <div className="flex overflow-x-auto gap-2 pb-2 -mx-4 px-4">
-              {navItems.map((item) => (
-                <button key={item.id} onClick={() => { setActiveNav(item.id); setSelectedJourney(null) }}
-                  className={`flex-shrink-0 font-sans text-sm px-4 py-2 border transition-colors flex items-center gap-1.5 ${activeNav === item.id ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
-                  {item.label}
-                  {item.badge != null && <span className="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 leading-none">{item.badge}</span>}
-                </button>
-              ))}
+              {/* Mein Abo — direkt unter dem Profil */}
+              <AboView onUpgradeClick={openUpgrade} isUpgraded={isUpgraded} />
             </div>
           </div>
 
           {/* MAIN CONTENT */}
           <div className="lg:col-span-3 space-y-10">
 
-            {/* ── MEINE KURSE & JOURNEYS ── */}
-            {activeNav === 'kurse' && (
-              selectedJourney ? (
-                <JourneyDetail journey={selectedJourney} onBack={() => setSelectedJourney(null)} />
-              ) : (
+            {/* ── MEINE KURSE ── */}
+            {(
               <>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-dark p-8">
                   <div className="flex items-start justify-between">
@@ -687,50 +550,13 @@ export default function MemberAcademyPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Active courses */}
+                {/* Meine Kurse — Journey-Design */}
                 <section>
-                  <h3 className="font-heading font-bold text-xl mb-4">Meine aktiven Kurse</h3>
-                  <div className="space-y-4">
-                    {activeCourses.map((course, i) => (
-                      <motion.div key={course.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                        className="bg-surface border border-border p-5 flex flex-col md:flex-row md:items-center gap-5 group hover:border-dark transition-colors">
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="text-3xl flex-shrink-0">{course.emoji}</div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-sans text-xs text-accent-gold uppercase tracking-wide mb-0.5">{course.instrument}</p>
-                            <h4 className="font-heading font-bold text-base mb-1">{course.title}</h4>
-                            <div className="flex justify-between text-xs font-sans mb-1.5">
-                              <span className="text-text-secondary">{course.completedLessons} von {course.totalLessons} Lektionen</span>
-                              <span className="font-medium">{course.progress}%</span>
-                            </div>
-                            <ProgressBar value={course.progress} />
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-start md:items-end gap-2 flex-shrink-0">
-                          <p className="font-sans text-xs text-text-secondary">Zuletzt: {course.lastActivity}</p>
-                          <div className="flex items-center gap-3">
-                            <Link href={`/member/academy/instrument/${course.instrumentId}`} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors hover:underline underline-offset-2">Zur Übersicht</Link>
-                            <Link href={course.href} className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark border border-dark px-4 py-2 hover:bg-dark hover:text-white transition-colors">
-                              Weiterfahren
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                            </Link>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* Journeys — strukturierte Lernwege */}
-                <section>
-                  <div className="mb-4">
-                    <h3 className="font-heading font-bold text-xl">Meine Journeys</h3>
-                    <p className="font-sans text-sm text-text-secondary mt-0.5">Dein strukturierter Lernweg — von den ersten Tönen bis zur Meisterschaft.</p>
-                  </div>
+                  <h3 className="font-heading font-bold text-xl mb-4">Meine Kurse</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {journeys.map((j, i) => (
-                      <motion.div key={j.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                        <JourneyCard journey={j} onClick={() => setSelectedJourney(j)} />
+                    {activeCourses.map((course, i) => (
+                      <motion.div key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                        <CourseCard course={course} />
                       </motion.div>
                     ))}
                   </div>
@@ -752,53 +578,6 @@ export default function MemberAcademyPage() {
                           </div>
                           <span className="font-sans text-xs text-text-secondary flex-shrink-0">{lesson.duration}</span>
                         </Link>
-                      </motion.div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* Instruments */}
-                <section>
-                  <h3 className="font-heading font-bold text-xl mb-4">Deine Instrumente</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {instrumentsData.map((inst, i) => (
-                      <motion.div key={inst.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                        {inst.subscribed ? (
-                          <Link href={`/member/academy/instrument/${inst.id}`} className="flex items-center gap-4 bg-surface border border-border p-5 hover:border-accent-gold transition-colors group">
-                            <div className="text-3xl">{inst.emoji}</div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <h4 className="font-heading font-bold text-base group-hover:text-accent-gold transition-colors">{inst.label}</h4>
-                                <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 uppercase tracking-wide">Starter ✓</span>
-                              </div>
-                              <p className="font-sans text-xs text-text-secondary mb-2">{inst.desc}</p>
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-1 bg-border overflow-hidden">
-                                  <div className="h-full bg-accent-gold" style={{ width: inst.id === 'handorgel' ? '42%' : '18%' }} />
-                                </div>
-                                <span className="font-sans text-xs text-text-secondary">{inst.id === 'handorgel' ? '42%' : '18%'}</span>
-                              </div>
-                            </div>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-text-secondary group-hover:text-accent-gold transition-colors flex-shrink-0"><polyline points="9 18 15 12 9 6" /></svg>
-                          </Link>
-                        ) : (
-                          <div className="flex items-center gap-4 bg-surface border border-border p-5 opacity-70">
-                            <div className="text-3xl">{inst.emoji}</div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <h4 className="font-heading font-bold text-base text-text-secondary">{inst.label}</h4>
-                                <span className="font-sans text-[10px] bg-border text-text-secondary px-1.5 py-0.5 uppercase tracking-wide flex items-center gap-1">
-                                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                                  Gesperrt
-                                </span>
-                              </div>
-                              <p className="font-sans text-xs text-text-secondary">{inst.desc}</p>
-                            </div>
-                            <button onClick={openUpgrade} className="font-sans text-xs border border-accent-gold text-accent-gold px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors flex-shrink-0">
-                              Abo erweitern
-                            </button>
-                          </div>
-                        )}
                       </motion.div>
                     ))}
                   </div>
@@ -858,116 +637,14 @@ export default function MemberAcademyPage() {
                   </section>
                 )}
               </>
-              )
-            )}
-
-            {/* ── CHATS ── */}
-            {activeNav === 'chats' && (
-              <div className="bg-surface border border-border overflow-hidden" style={{ minHeight: '500px' }}>
-                <div className="flex h-full" style={{ minHeight: '500px' }}>
-                  <div className="w-64 border-r border-border flex-shrink-0">
-                    <div className="p-4 border-b border-border">
-                      <h3 className="font-heading font-bold text-sm">Kurs-Chats</h3>
-                      <p className="font-sans text-xs text-text-secondary mt-1">Nur für eingeschriebene Kursteilnehmer</p>
-                    </div>
-                    {courseChats.map((c) => (
-                      <button key={c.id} onClick={() => setActiveChatId(c.id)} className={`w-full flex items-center gap-3 p-4 border-b border-border text-left transition-colors ${activeChatId === c.id ? 'bg-dark text-white' : 'hover:bg-background'}`}>
-                        <span className="text-lg">{c.icon}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className={`font-sans text-xs font-semibold truncate ${activeChatId === c.id ? 'text-white' : ''}`}>{c.name}</p>
-                          <p className={`font-sans text-[10px] truncate ${activeChatId === c.id ? 'text-white/50' : 'text-text-secondary'}`}>{c.last}</p>
-                        </div>
-                        {c.unread > 0 && <span className="bg-accent-gold text-white text-[10px] px-1.5 py-0.5 flex-shrink-0">{c.unread}</span>}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex-1 flex flex-col">
-                    {activeChatId ? (() => {
-                      const chat = courseChats.find((c) => c.id === activeChatId)!
-                      return (
-                        <>
-                          <div className="p-4 border-b border-border">
-                            <p className="font-sans font-semibold text-sm">{chat.name}</p>
-                            <p className="font-sans text-xs text-text-secondary">{chat.members} Mitglieder</p>
-                          </div>
-                          <div className="flex-1 p-4 space-y-3 overflow-y-auto" style={{ minHeight: '280px' }}>
-                            <div className="flex justify-start"><div className="bg-background border border-border px-3 py-2 max-w-xs"><p className="font-sans text-xs font-semibold text-accent-gold mb-0.5">Hansruedi Wenger (Lehrer)</p><p className="font-sans text-sm">Willkommen im Kurs-Chat! Hier können wir Fragen besprechen.</p></div></div>
-                            <div className="flex justify-start"><div className="bg-background border border-border px-3 py-2 max-w-xs"><p className="font-sans text-xs font-semibold mb-0.5">Maria Kälin</p><p className="font-sans text-sm">Super, ich freue mich auf den Austausch!</p></div></div>
-                            <div className="flex justify-end"><div className="bg-dark text-white px-3 py-2 max-w-xs"><p className="font-sans text-sm">Ich auch! Frage zur Lektion 3…</p></div></div>
-                          </div>
-                          <div className="p-4 border-t border-border flex gap-2">
-                            <input value={chatMsg} onChange={(e) => setChatMsg(e.target.value)} placeholder="Nachricht schreiben..." className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
-                            <button className="bg-dark text-white px-4 py-2 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
-                          </div>
-                        </>
-                      )
-                    })() : (
-                      <div className="flex-1 flex items-center justify-center">
-                        <p className="font-sans text-text-secondary text-sm">Wähle einen Kurs-Chat</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ── LEHRPERSONEN ── */}
-            {activeNav === 'lehrer' && (
-              <>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                  <h2 className="font-heading text-2xl font-bold mb-2">Lehrpersonen</h2>
-                  <p className="font-sans text-text-secondary text-sm">Die Besten der Szene — erfahrene Musikerinnen und Musiker, die ihr Wissen weitergeben.</p>
-                </motion.div>
-                <div className="space-y-6">
-                  {teachers.map((teacher, i) => (
-                    <motion.div key={teacher.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="bg-surface border border-border overflow-hidden">
-                      <div className="grid grid-cols-1 md:grid-cols-4">
-                        <div className="relative aspect-square md:aspect-auto overflow-hidden">
-                          <Image src={teacher.img} alt={teacher.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
-                        </div>
-                        <div className="md:col-span-3 p-6 flex flex-col justify-between">
-                          <div>
-                            <div className="flex items-start justify-between mb-1">
-                              <div>
-                                <h3 className="font-heading text-xl font-bold">{teacher.name}</h3>
-                                <p className="font-sans text-sm text-accent-gold">{teacher.specialty}</p>
-                              </div>
-                              <StarRating value={teacher.rating} />
-                            </div>
-                            <p className="font-sans text-sm text-text-secondary leading-relaxed mb-4 mt-2">{teacher.bio}</p>
-                            <div className="flex flex-wrap gap-1.5 mb-4">
-                              {teacher.instruments.map((inst) => (
-                                <span key={inst} className="font-sans text-xs px-2 py-1 bg-background border border-border text-text-secondary">{inst}</span>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between flex-wrap gap-4">
-                            <div className="flex gap-6 text-sm font-sans">
-                              <div><span className="font-heading font-bold text-lg">{teacher.courses}</span><span className="text-text-secondary ml-1">Kurse</span></div>
-                              <div><span className="font-heading font-bold text-lg">{teacher.students}</span><span className="text-text-secondary ml-1">Schüler</span></div>
-                              <div className="flex items-center gap-1 text-text-secondary">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                                <span>{teacher.location}</span>
-                              </div>
-                            </div>
-                            <Link href={teacher.profileHref} className="font-sans text-sm text-dark font-medium border border-dark px-4 py-2 hover:bg-dark hover:text-white transition-colors">Profil ansehen</Link>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* ── MEIN ABO ── */}
-            {activeNav === 'abo' && (
-              <AboView onUpgradeClick={openUpgrade} isUpgraded={isUpgraded} />
             )}
 
           </div>
         </div>
       </div>
+
+      {/* Persönlicher Support / Live-Chat */}
+      <SupportWidget />
     </div>
   )
 }
