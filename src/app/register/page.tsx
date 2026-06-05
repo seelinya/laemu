@@ -107,9 +107,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <div className="bg-dark py-5 px-6 flex items-center justify-between mt-20">
-        <Link href="/" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
-        <Link href="/" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+      <div className="bg-dark py-5 px-6 flex items-center justify-between">
+        <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
+        <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-12">

@@ -141,7 +141,7 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
   return (
     <div className="min-h-screen bg-background">
       {/* Top navigation */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center gap-3 mt-20">
+      <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
         <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />

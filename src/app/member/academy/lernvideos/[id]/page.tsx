@@ -494,7 +494,7 @@ export default function LernvideoDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between mt-20">
+      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1">
             <IconBack /> Datenbank
