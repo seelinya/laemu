@@ -3,7 +3,9 @@
 import React, { useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { pieceCatalog, isPieceUnlocked, type CatalogEntry } from '@/lib/academy'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -463,9 +465,85 @@ function VideoPlayer({ img, label }: { img: string; label: string }) {
   )
 }
 
+// ─── Locked view (Stück nicht im Abo enthalten) ──────────────────────────────
+
+function LockedDetailView({ piece }: { piece: CatalogEntry }) {
+  const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
+  return (
+    <div className="min-h-screen bg-background">
+      {/* TOP BAR */}
+      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1">
+            <IconBack /> Datenbank
+          </Link>
+          <span className="text-white/20">/</span>
+          <div>
+            <h1 className="font-heading font-bold text-base leading-tight">{piece.title}</h1>
+            <p className="font-sans text-xs text-white/40">{piece.artist} · {piece.year}</p>
+          </div>
+        </div>
+        <span className="font-sans text-xs px-3 py-1.5 border border-white/20 text-white/60 flex items-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Gesperrt
+        </span>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+        {/* Master video — Standard-Player, ohne JamPlayer */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} />
+          <p className="font-sans text-xs text-text-secondary mt-2">
+            Die Masteraufnahme ist frei verfügbar. Der JamPlayer sowie die Lern- und Stimmen-Videos
+            sind in deinem aktuellen Abo nicht enthalten.
+          </p>
+        </motion.div>
+
+        {/* Piece info */}
+        <div className="bg-surface border border-border p-6">
+          <h2 className="font-heading font-bold text-2xl mb-1">{piece.title}</h2>
+          <p className="font-sans text-sm text-accent-gold mb-4">{piece.artist} · {piece.year}</p>
+          <div className="flex flex-wrap gap-2">
+            <span className={`font-sans text-xs px-2.5 py-1 font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-white' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+              {planLabel[piece.plan]}
+            </span>
+            <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{piece.instrument}</span>
+          </div>
+        </div>
+
+        {/* Upgrade CTA */}
+        <div className="bg-dark p-6">
+          <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-1">Mehr freischalten</p>
+          <h3 className="font-heading text-xl font-bold text-white mb-2">Voller Zugang mit dem passenden Abo</h3>
+          <p className="font-sans text-sm text-white/60 mb-5">
+            Schalte alle Lern- und Stimmen-Videos, den JamPlayer und die komplette Lernvideo-Datenbank
+            für {piece.instrument} frei.
+          </p>
+          <div className="space-y-2 mb-5">
+            {['Alle Lern- & Stimmen-Videos', 'JamPlayer mit Einzelstimmen-Mischpult', 'Tempo & Tonhöhe anpassen', 'Noten zu jeder Stimme'].map((f) => (
+              <div key={f} className="flex items-center gap-2 font-sans text-sm text-white/80">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                <span>{f}</span>
+              </div>
+            ))}
+          </div>
+          <Link href="/member/academy" className="inline-block bg-accent-gold text-white font-sans text-sm font-medium px-6 py-3 hover:bg-accent-warm transition-colors">
+            Abo erweitern →
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function LernvideoDetailPage() {
+  const params = useParams()
+  const idNum = Number(Array.isArray(params?.id) ? params.id[0] : params?.id)
+  const catalogEntry = pieceCatalog[idNum]
+  const unlocked = catalogEntry ? isPieceUnlocked({ plan: catalogEntry.plan, instrument: catalogEntry.instrument }) : true
+
   const v = videoData
   const [mainTab, setMainTab] = useState<'ueberblick' | 'stimmen'>('ueberblick')
   const [favorited, setFavorited] = useState(false)
@@ -490,6 +568,11 @@ export default function LernvideoDetailPage() {
 
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
   const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
+
+  // Gesperrte Stücke: nur Masteraufnahme (Standard-Player, ohne JamPlayer).
+  if (catalogEntry && !unlocked) {
+    return <LockedDetailView piece={catalogEntry} />
+  }
 
   return (
     <div className="min-h-screen bg-background">
