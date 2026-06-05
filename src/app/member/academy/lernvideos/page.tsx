@@ -591,11 +591,22 @@ export default function LernvideosPage() {
 
               {/* Abo / Freischalt-Hinweis */}
               <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                  Dein Abo: <strong className="text-dark font-semibold">{mockUserAbo.plan === 'none' ? 'Kein Abo' : individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Freigeschaltet sind die deinem Abo entsprechenden Stücke. Gesperrte Stücke bleiben sichtbar — dort kannst du nur die Masteraufnahme ansehen (Standard-Player, ohne JamPlayer).{' '}
-                  <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Abo erweitern →</Link>
-                </p>
+                {mockUserAbo.plan !== 'none' ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. JamPlayer und Stimmen-Videos, da du Zugang zu einem Lehrgang hast.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Aktuell sind nur Free-Stücke verfügbar. Sobald du Zugang zu einem Lehrgang hast, ist die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> freigeschaltet.{' '}
+                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Lehrgang freischalten →</Link>
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Horizontal list */}
