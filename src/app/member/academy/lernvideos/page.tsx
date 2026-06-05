@@ -94,15 +94,19 @@ const mockPlaylist = [
 
 type Wish = { id: number; title: string; composer?: string; instruments: string[]; votesByInstrument: Record<string, number>; status: string }
 
+// Jeder Stückwunsch deckt automatisch ALLE Instrumente ab. Nutzer geben beim
+// Erfassen lediglich ihre Stimmen (Likes) für die gewünschten Instrumente ab.
+const WISH_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+
 const initialWishes: Wish[] = [
-  { id: 1, title: 'S Röseli', composer: 'Trad.', instruments: ['Handorgel', 'Schwyzerörgeli'], votesByInstrument: { Handorgel: 14, Schwyzerörgeli: 9 }, status: 'offen' },
-  { id: 2, title: 'Märzenschnee-Ländler', instruments: ['Schwyzerörgeli'], votesByInstrument: { Schwyzerörgeli: 17 }, status: 'offen' },
-  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', instruments: ['Klarinette', 'Handorgel'], votesByInstrument: { Klarinette: 28, Handorgel: 13 }, status: 'in Produktion' },
+  { id: 1, title: 'S Röseli', composer: 'Trad.', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Handorgel: 14, Schwyzerörgeli: 9, Klarinette: 4 }, status: 'offen' },
+  { id: 2, title: 'Märzenschnee-Ländler', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Schwyzerörgeli: 17, Handorgel: 6 }, status: 'offen' },
+  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Klarinette: 28, Handorgel: 13, Bassgeige: 5 }, status: 'in Produktion' },
 ]
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+const INSTRUMENTS = ['Alle', ...WISH_INSTRUMENTS]
 // Instrumente aus dem Profil des aktuell eingeloggten Nutzers.
 const MY_INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
@@ -162,14 +166,14 @@ export default function LernvideosPage() {
   const submitWish = () => {
     if (!wishTitle.trim() || wishInstruments.length === 0) return
     const id = Date.now()
-    const votesByInstrument: Record<string, number> = {}
-    wishInstruments.forEach(i => { votesByInstrument[i] = 1 })
+    // Neuer Wunsch deckt automatisch alle Instrumente ab (Basis-Stimmen 0).
+    // Die vom Nutzer gewählten Instrumente zählen über `wishVotes` als seine Likes.
     const newWish: Wish = {
       id,
       title: wishTitle.trim(),
       composer: wishComposer.trim() || undefined,
-      instruments: [...wishInstruments],
-      votesByInstrument,
+      instruments: [...WISH_INSTRUMENTS],
+      votesByInstrument: {},
       status: 'offen',
     }
     setWishes(prev => [newWish, ...prev])
@@ -857,6 +861,9 @@ export default function LernvideosPage() {
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
                   <div className="bg-surface border border-accent-gold/30 p-6 space-y-4">
                     <h3 className="font-heading font-bold text-sm">Stückwunsch erfassen</h3>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Jedes gewünschte Stück wird automatisch für <strong className="text-dark font-medium">alle Instrumente</strong> erfasst. Wähle einfach, für welche Instrumente du deine Stimme abgeben möchtest.
+                    </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Titel des Stückes *</label>
@@ -868,7 +875,7 @@ export default function LernvideosPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Instrumente * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
+                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(Instrumente — mehrere möglich)</span></label>
                       <div className="flex flex-wrap gap-2">
                         {INSTRUMENTS.filter(i => i !== 'Alle').map(i => {
                           const active = wishInstruments.includes(i)
