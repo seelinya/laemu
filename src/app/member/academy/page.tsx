@@ -307,78 +307,6 @@ function SupportWidget() {
   )
 }
 
-// ─── Abo view ─────────────────────────────────────────────────────────────────
-
-function AboView({ onUpgradeClick, isUpgraded }: { onUpgradeClick: () => void; isUpgraded: boolean }) {
-  const plan = isUpgraded ? proPlan : currentPlan
-  return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-      <div>
-        <h2 className="font-heading text-2xl font-bold mb-1">Mein Abo</h2>
-        <p className="font-sans text-sm text-text-secondary">Übersicht deines aktuellen Plans und Upgrade-Optionen.</p>
-      </div>
-      <div className="bg-surface border border-border p-6">
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Aktiver Plan</p>
-            <h4 className="font-heading text-xl font-bold">{plan.name}</h4>
-          </div>
-          <div className="text-right">
-            <p className="font-heading text-2xl font-bold text-accent-gold">{plan.price}</p>
-            <p className="font-sans text-xs text-text-secondary">{plan.period}</p>
-          </div>
-        </div>
-        <div className="space-y-2 border-t border-border pt-4 mb-5">
-          {plan.features.map((f, i) => (
-            <div key={i} className="flex items-center gap-2 font-sans text-sm">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span>{f}</span>
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center justify-between border-t border-border pt-4">
-          <p className="font-sans text-xs text-text-secondary">Nächste Abrechnung: 26. Juni 2026</p>
-          <button className="font-sans text-xs text-text-secondary underline hover:text-text-primary transition-colors">Abo kündigen</button>
-        </div>
-      </div>
-      {!isUpgraded && (
-        <div className="bg-dark p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <p className="font-sans text-xs uppercase tracking-wider text-accent-gold mb-1">Upgrade verfügbar</p>
-              <h4 className="font-heading text-xl font-bold text-white">{proPlan.name}</h4>
-              <p className="font-sans text-sm text-white/60 mt-1">Hol dir persönliches Feedback und exklusive Inhalte.</p>
-            </div>
-            <div className="text-right">
-              <p className="font-heading text-2xl font-bold text-accent-gold">{proPlan.price}</p>
-              <p className="font-sans text-xs text-white/50">{proPlan.period}</p>
-            </div>
-          </div>
-          <div className="space-y-2 mb-5">
-            {proPlan.features.slice(1).map((f, i) => (
-              <div key={i} className="flex items-center gap-2 font-sans text-sm text-white/80">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-                <span>{f}</span>
-              </div>
-            ))}
-          </div>
-          <button onClick={onUpgradeClick} className="w-full bg-accent-gold text-white py-3 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">
-            Jetzt auf Pro upgraden →
-          </button>
-        </div>
-      )}
-      {isUpgraded && (
-        <div className="bg-muted-green/5 border border-muted-green/20 p-5 flex items-center gap-3">
-          <span className="text-2xl">🎉</span>
-          <div>
-            <p className="font-heading font-bold text-sm">Du bist im Pro-Kurs!</p>
-            <p className="font-sans text-xs text-text-secondary">Alle Funktionen sind freigeschaltet.</p>
-          </div>
-        </div>
-      )}
-    </motion.div>
-  )
-}
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
@@ -416,7 +344,7 @@ export default function MemberAcademyPage() {
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
         <h1 className="font-heading font-bold text-lg">LAEMU Academy</h1>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
+          <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
             <span className="font-sans font-bold text-sm">7 Tage Streak!</span>
           </div>
@@ -425,45 +353,26 @@ export default function MemberAcademyPage() {
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" />
             </svg>
           </button>
+          {/* Profil oben rechts */}
+          <div className="flex items-center gap-2.5 pl-3 border-l border-white/15">
+            <div className="hidden sm:block text-right leading-tight">
+              <p className="font-heading font-bold text-sm">Niklaus Hess</p>
+              <p className="font-sans text-[11px] text-accent-gold">{isUpgraded ? 'Pro Mitglied' : 'Starter Mitglied'}</p>
+            </div>
+            <div className="relative w-9 h-9 overflow-hidden rounded-full border border-white/20 flex-shrink-0">
+              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Niklaus Hess" fill className="object-cover" unoptimized />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* AREA TABS */}
       <MemberTabs active="academy" />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-          {/* LEFT SIDEBAR */}
-          <div className="hidden lg:block">
-            <div className="sticky top-36 space-y-6">
-              <div className="bg-surface border border-border p-5">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="relative w-12 h-12 overflow-hidden">
-                    <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Profile" fill className="object-cover" unoptimized />
-                  </div>
-                  <div>
-                    <p className="font-heading font-bold text-sm">Niklaus Hess</p>
-                    <p className="font-sans text-xs text-accent-gold">{isUpgraded ? 'Pro Mitglied' : 'Starter Mitglied'}</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-sans mb-1">
-                    <span className="text-text-secondary">Gesamtfortschritt</span>
-                    <span className="font-medium">42%</span>
-                  </div>
-                  <ProgressBar value={42} />
-                  <p className="font-sans text-xs text-text-secondary">21 von 50 Lektionen</p>
-                </div>
-              </div>
-
-              {/* Mein Abo — direkt unter dem Profil */}
-              <AboView onUpgradeClick={openUpgrade} isUpgraded={isUpgraded} />
-            </div>
-          </div>
+      <div className="max-w-5xl mx-auto px-4 py-8">
 
           {/* MAIN CONTENT */}
-          <div className="lg:col-span-3 space-y-10">
+          <div className="space-y-10">
 
             {/* ── MEINE KURSE ── */}
             {(
@@ -689,7 +598,6 @@ export default function MemberAcademyPage() {
             )}
 
           </div>
-        </div>
       </div>
 
       {/* Persönlicher Support / Live-Chat */}
