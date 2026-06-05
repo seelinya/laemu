@@ -102,6 +102,8 @@ const initialWishes: Wish[] = [
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+// Instrumente aus dem Profil des aktuell eingeloggten Nutzers.
+const MY_INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
 const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']
@@ -149,6 +151,9 @@ export default function LernvideosPage() {
   const wishInstVotes = (w: Wish, inst: string) => (w.votesByInstrument[inst] ?? 0) + (wishVotes[voteKey(w.id, inst)] ? 1 : 0)
   const toggleWishVote = (id: number, inst: string) =>
     setWishVotes(prev => ({ ...prev, [voteKey(id, inst)]: !prev[voteKey(id, inst)] }))
+  // Anzeige-Instrumente = ursprüngliche Tags + Instrumente, für die der Nutzer (aus seinem Profil) gestimmt hat.
+  const wishDisplayInstruments = (w: Wish) =>
+    Array.from(new Set([...w.instruments, ...MY_INSTRUMENTS.filter(i => wishVotes[voteKey(w.id, i)])]))
 
   const toggleWishInstrument = (inst: string) =>
     setWishInstruments(prev => prev.includes(inst) ? prev.filter(i => i !== inst) : [...prev, inst])
@@ -175,14 +180,14 @@ export default function LernvideosPage() {
   // das Instrument mit den meisten Likes (= meiste Likes pro Instrument).
   const wishRelevance = (w: Wish) =>
     wishFilterInst === 'Alle'
-      ? Math.max(0, ...w.instruments.map(i => wishInstVotes(w, i)))
+      ? Math.max(0, ...wishDisplayInstruments(w).map(i => wishInstVotes(w, i)))
       : wishInstVotes(w, wishFilterInst)
 
   const filteredWishes = wishes
     .filter(w => {
       const q = wishSearch.trim().toLowerCase()
       const matchesSearch = !q || w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)
-      const matchesInst = wishFilterInst === 'Alle' || w.instruments.includes(wishFilterInst)
+      const matchesInst = wishFilterInst === 'Alle' || wishDisplayInstruments(w).includes(wishFilterInst)
       return matchesSearch && matchesInst
     })
     .sort((a, b) => wishRelevance(b) - wishRelevance(a))
@@ -906,12 +911,22 @@ export default function LernvideosPage() {
                       {w.status === 'in Produktion' ? '🎬 In Produktion' : '📋 Offen'}
                     </span>
                   </div>
-                  <div className="mt-3">
-                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-1.5">Stimme abgeben — für welches Instrument?</p>
+                  {/* Stimmen pro Instrument (Relevanz) */}
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {wishDisplayInstruments(w).map(inst => (
+                      <span key={inst} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
+                        {inst}
+                        <span className="font-semibold text-dark tabular-nums">{wishInstVotes(w, inst)}</span>
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Eigene Stimme: aus dem Profil — wähle deine Instrumente, das zählt automatisch als Like */}
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-1.5">Deine Stimme — wähle deine Instrumente</p>
                     <div className="flex flex-wrap gap-2">
-                      {w.instruments.map(inst => {
+                      {MY_INSTRUMENTS.map(inst => {
                         const voted = !!wishVotes[voteKey(w.id, inst)]
-                        const count = wishInstVotes(w, inst)
                         return (
                           <button
                             key={inst}
@@ -920,7 +935,7 @@ export default function LernvideosPage() {
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
                             {inst}
-                            <span className="font-bold tabular-nums">{count}</span>
+                            {voted && <span className="font-sans text-[9px]">· Stimme gegeben</span>}
                           </button>
                         )
                       })}

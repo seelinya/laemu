@@ -688,7 +688,7 @@ export default function ModulPage({
                           onClick={() => { setReplyTo(replyTo === comment.id ? null : comment.id); setReplyText('') }}
                           className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
                         >
-                          Antworten
+                          Beantworten
                         </button>
                       </div>
 
