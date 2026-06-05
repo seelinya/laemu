@@ -345,20 +345,13 @@ const navItems = [
   { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
-const knownFormations = [
-  { name: 'Ländlerkapelle Hess', id: 'hess' },
-  { name: 'Trio Alpstein', id: 'alpstein' },
-  { name: 'Quartett Rigi', id: 'rigi' },
-]
-
+// In der Community gibt es ausschliesslich persönliche Profile natürlicher
+// Personen — keine Formations-Profile. Erwähnen lassen sich nur Personen.
 const communityMentions = [
-  { handle: 'hansruedi_akkordeon', name: 'Hansruedi Wenger', type: 'person' as const, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
-  { handle: 'maria_oergeli', name: 'Maria Kälin', type: 'person' as const, img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
-  { handle: 'lisa_piano', name: 'Lisa Frei', type: 'person' as const, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80' },
-  { handle: 'peter_klarinette', name: 'Peter Gasser', type: 'person' as const, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80' },
-  { handle: 'trio_alpstein', name: 'Trio Alpstein', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', href: '/formations/alpstein' },
-  { handle: 'kapelle_hess', name: 'Ländlerkapelle Hess', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=100&q=80', href: '/formations/hess' },
-  { handle: 'quartett_rigi', name: 'Quartett Rigi', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=100&q=80', href: '/formations/rigi' },
+  { handle: 'hansruedi_akkordeon', name: 'Hansruedi Wenger', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
+  { handle: 'maria_oergeli', name: 'Maria Kälin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
+  { handle: 'lisa_piano', name: 'Lisa Frei', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80' },
+  { handle: 'peter_klarinette', name: 'Peter Gasser', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80' },
 ]
 
 const conversations = [
@@ -576,85 +569,6 @@ function PostCard({ post }: { post: Post }) {
   )
 }
 
-function FormationCreateModal({ initialName, onClose }: { initialName: string; onClose: () => void }) {
-  const [step, setStep] = useState(1)
-  const [formName, setFormName] = useState(initialName)
-  const [formType, setFormType] = useState('Duo')
-  const [region, setRegion] = useState('')
-  const [members, setMembers] = useState('')
-
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ duration: 0.2 }} className="bg-surface w-full max-w-md overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div>
-            <p className="font-heading font-bold text-sm">Formation-Profil erstellen</p>
-            <p className="font-sans text-xs text-text-secondary">Schritt {step} von 3</p>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-        {/* Step indicators */}
-        <div className="flex border-b border-border">
-          {[1, 2, 3].map(s => (
-            <div key={s} className={`flex-1 h-1 transition-colors ${s <= step ? 'bg-dark' : 'bg-border'}`} />
-          ))}
-        </div>
-        <div className="p-5 space-y-4">
-          {step === 1 && (
-            <>
-              <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Name der Formation</p>
-              <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. Kapelle Hess-Ruedi" />
-              <div>
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Art der Formation</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {['Duo', 'Trio', 'Quartett', 'Kapelle'].map(t => (
-                    <button key={t} onClick={() => setFormType(t)} className={`py-2 font-sans text-xs font-medium border transition-colors ${formType === t ? 'bg-dark text-white border-dark' : 'border-border hover:border-dark'}`}>{t}</button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <div>
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Region</p>
-                <input value={region} onChange={e => setRegion(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. Zentralschweiz" />
-              </div>
-              <div>
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Mitglieder (kommagetrennt)</p>
-                <input value={members} onChange={e => setMembers(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. @niklaus_hess, @maria_oergeli" />
-              </div>
-              <p className="font-sans text-xs text-text-secondary leading-relaxed">Mitglieder erhalten eine Einladung und müssen das Profil bestätigen.</p>
-            </>
-          )}
-          {step === 3 && (
-            <div className="text-center py-4">
-              <div className="w-14 h-14 bg-accent-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C4973A" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <p className="font-heading font-bold text-lg mb-1">{formName}</p>
-              <p className="font-sans text-sm text-text-secondary mb-2">{formType} · {region || 'Schweiz'}</p>
-              <p className="font-sans text-xs text-text-secondary leading-relaxed">Das Formation-Profil wird nach der Bestätigung aller Mitglieder öffentlich sichtbar und kann dann getaggt werden.</p>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center justify-between px-5 py-4 border-t border-border">
-          {step > 1
-            ? <button onClick={() => setStep(s => s - 1)} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Zurück</button>
-            : <button onClick={onClose} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Abbrechen</button>
-          }
-          {step < 3
-            ? <button onClick={() => setStep(s => s + 1)} disabled={step === 1 && !formName.trim()} className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40">Weiter →</button>
-            : <button onClick={onClose} className="font-sans text-sm px-5 py-2 bg-accent-gold text-white hover:bg-dark transition-colors">Einladungen senden ✓</button>
-          }
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
 function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'photo' | 'video' | 'link'; onClose: () => void }) {
   const [type, setType] = useState<'text' | 'photo' | 'video' | 'link'>(initialType)
   const [text, setText] = useState('')
@@ -749,9 +663,8 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-sans text-sm font-medium truncate">{m.name}</p>
-                        <p className="font-sans text-xs text-text-secondary">@{m.handle} · {m.type === 'formation' ? 'Formation' : 'Musiker/in'}</p>
+                        <p className="font-sans text-xs text-text-secondary">@{m.handle} · Musiker/in</p>
                       </div>
-                      {m.type === 'formation' && <span className="font-sans text-[10px] text-accent-gold font-semibold uppercase tracking-wide">Formation</span>}
                     </button>
                   ))}
                 </motion.div>
@@ -762,7 +675,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
           {mentions.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2 mb-1">
               {mentions.map(m => (
-                <span key={m.handle} className={`inline-flex items-center gap-1 font-sans text-xs px-2 py-0.5 rounded-full ${m.type === 'formation' ? 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30' : 'bg-dark/5 text-dark border border-dark/20'}`}>
+                <span key={m.handle} className="inline-flex items-center gap-1 font-sans text-xs px-2 py-0.5 rounded-full bg-dark/5 text-dark border border-dark/20">
                   @{m.handle}
                   <button onClick={() => setMentions(prev => prev.filter(x => x.handle !== m.handle))} className="ml-0.5 opacity-50 hover:opacity-100">×</button>
                 </span>
@@ -1122,13 +1035,11 @@ function ProfileView() {
   const [editMode, setEditMode] = useState(false)
   const [eventsVisible, setEventsVisible] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
-  const [createFormationName, setCreateFormationName] = useState<string | null>(null)
   const [profileTab, setProfileTab] = useState<'posts' | 'shared'>('posts')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
   const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
-  const [formation, setFormation] = useState('Kapelle Hess-Ruedi')
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
   const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
   const [openForFormation, setOpenForFormation] = useState(false)
@@ -1140,7 +1051,6 @@ function ProfileView() {
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
   const [draftBio, setDraftBio] = useState('')
-  const [draftFormation, setDraftFormation] = useState('')
   const [draftInstruments, setDraftInstruments] = useState('')
   const [draftVorbilder, setDraftVorbilder] = useState('')
   const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
@@ -1152,7 +1062,6 @@ function ProfileView() {
   const startEdit = () => {
     setDraftName(name)
     setDraftBio(bio)
-    setDraftFormation(formation)
     setDraftInstruments(instruments)
     setDraftVorbilder(vorbilder)
     setDraftOpenForFormation(openForFormation)
@@ -1166,7 +1075,6 @@ function ProfileView() {
   const saveEdit = () => {
     setName(draftName.trim() || name)
     setBio(draftBio)
-    setFormation(draftFormation)
     setInstruments(draftInstruments)
     setVorbilder(draftVorbilder)
     setOpenForFormation(draftOpenForFormation)
@@ -1182,9 +1090,6 @@ function ProfileView() {
       <AnimatePresence>
         {composerOpen && (
           <PostComposerModal key="profile-composer" initialType="text" onClose={() => setComposerOpen(false)} />
-        )}
-        {createFormationName && (
-          <FormationCreateModal key="formation-create" initialName={createFormationName} onClose={() => setCreateFormationName(null)} />
         )}
       </AnimatePresence>
 
@@ -1248,32 +1153,9 @@ function ProfileView() {
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Bio</label>
                   <textarea value={draftBio} onChange={e => setDraftBio(e.target.value)} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Formation(en)</label>
-                    <input value={draftFormation} onChange={e => setDraftFormation(e.target.value)} placeholder="Mehrere: kommagetrennt" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                    {/* Formation picker suggestions */}
-                    {draftFormation.length > 0 && (
-                      <div className="border border-border bg-surface mt-0.5 shadow-sm">
-                        {knownFormations.filter(kf => kf.name.toLowerCase().includes(draftFormation.split(',').pop()!.trim().toLowerCase())).map(kf => (
-                          <button key={kf.id} onClick={() => {
-                            const parts = draftFormation.split(',').map(s => s.trim()).filter(Boolean)
-                            parts[parts.length - 1] = kf.name
-                            setDraftFormation(parts.join(', '))
-                          }} className="w-full text-left px-3 py-2 font-sans text-xs hover:bg-background transition-colors flex items-center gap-2">
-                            <span className="text-accent-gold">✓</span> {kf.name}
-                          </button>
-                        ))}
-                        <button onClick={() => setCreateFormationName(draftFormation.split(',').pop()!.trim())} className="w-full text-left px-3 py-2 font-sans text-xs text-text-secondary hover:bg-background transition-colors flex items-center gap-2 border-t border-border">
-                          <span>+</span> «{draftFormation.split(',').pop()!.trim()}» als neue Formation erfassen…
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
-                    <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                  </div>
+                <div>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
+                  <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
@@ -1377,13 +1259,6 @@ function ProfileView() {
                   {instruments.split(',').map(i => (
                     <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
                   ))}
-                  {formation.split(',').map(f => {
-                    const trimmed = f.trim()
-                    const known = knownFormations.find(kf => kf.name.toLowerCase() === trimmed.toLowerCase())
-                    return known
-                      ? <span key={f} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Formation: {trimmed}</span>
-                      : <button key={f} onClick={() => setCreateFormationName(trimmed)} title="Kein öffentliches Profil vorhanden — jetzt erstellen" className="font-sans text-xs px-2 py-1 bg-background border border-dashed border-border hover:border-dark transition-colors flex items-center gap-1">Formation: {trimmed} <span className="text-text-secondary">+</span></button>
-                  })}
                 </div>
                 {vorbilder && (
                   <p className="font-sans text-xs text-text-secondary mb-3">
