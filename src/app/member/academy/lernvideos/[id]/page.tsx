@@ -559,7 +559,7 @@ export default function LernvideoDetailPage() {
   const unlocked = catalogEntry ? isPieceUnlocked({ plan: catalogEntry.plan, instrument: catalogEntry.instrument }) : true
 
   const v = videoData
-  const [mainTab, setMainTab] = useState<'ueberblick' | 'stimmen'>('ueberblick')
+  const [mainTab, setMainTab] = useState<'ueberblick' | 'stimme1' | 'stimme2' | 'begleit' | 'mitspielen'>('ueberblick')
   const [favorited, setFavorited] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
@@ -567,19 +567,59 @@ export default function LernvideoDetailPage() {
   const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
-  const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
   const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
   const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
 
   const toggleAudioFav = (id: string) => setAudioFavs(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   const toggleAudioPlaylist = (id: string) => setAudioPlaylist(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
-  // Group stimmenSections by instrument
-  const stimmenByInstrument = v.stimmenSections.reduce<Record<string, StimmeSection[]>>((acc, s) => {
-    if (!acc[s.instrument]) acc[s.instrument] = []
-    acc[s.instrument].push(s)
-    return acc
-  }, {})
+  // Stimmen nach Tab: 1./2. Stimme = Melodie-Instrumente, Begleitung = Klavier/Bass
+  const MELODIC = ['Handorgel', 'Schwyzerörgeli', 'Klarinette']
+  const ACCOMP = ['Klavier', 'Bass']
+  const stimme1Sections = v.stimmenSections.filter(s => s.label.startsWith('1. Stimme') && MELODIC.includes(s.instrument))
+  const stimme2Sections = v.stimmenSections.filter(s => s.label.startsWith('2. Stimme') && MELODIC.includes(s.instrument))
+  const begleitSections = v.stimmenSections.filter(s => ACCOMP.includes(s.instrument))
+
+  const renderStimmeSection = (stimme: StimmeSection) => (
+    <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
+      <div className="px-5 py-3 border-b border-border bg-background flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stimme.color }} />
+          <span className="font-heading font-bold text-sm">{stimme.label}</span>
+        </div>
+        <span className="font-sans text-xs text-text-secondary">({stimme.lernvideos.length} Teile)</span>
+      </div>
+      {stimme.lernvideos.length > 0 && (
+        <div className="divide-y divide-border">
+          {stimme.lernvideos.map((lv, partIdx) => (
+            <div key={lv.id} className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
+              <span className="font-sans text-xs text-text-secondary w-12 flex-shrink-0">Teil {partIdx + 1}</span>
+              <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
+                {lv.done ? <IconCheck /> : <IconPlay />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
+                <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <button onClick={() => toggleAudioFav(lv.id)} className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`} title="Favorit">♡</button>
+                <button onClick={() => toggleAudioPlaylist(lv.id)} className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`} title="Zur Audio-Playlist"><IconHeadphones /> Playlist</button>
+                <button onClick={() => setMainTab('mitspielen')} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"><IconPlay /> Starten</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {stimme.noten.length > 0 && (
+        <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
+          <span className="font-sans text-xs text-text-secondary">Noten:</span>
+          {stimme.noten.map(n => (
+            <button key={n.key} className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors">{n.label}{n.price ? ` CHF ${n.price}` : ''}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
   const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
@@ -622,7 +662,10 @@ export default function LernvideoDetailPage() {
           <div className="flex">
             {([
               { id: 'ueberblick', label: 'Überblick' },
-              { id: 'stimmen', label: `Stimmen (${v.stimmenSections.length})` },
+              { id: 'stimme1', label: '1. Stimme' },
+              { id: 'stimme2', label: '2. Stimme' },
+              { id: 'begleit', label: 'Begleitvorschläge' },
+              { id: 'mitspielen', label: 'Mitspielen' },
             ] as const).map(tab => (
               <button
                 key={tab.id}
@@ -665,12 +708,6 @@ export default function LernvideoDetailPage() {
                     </div>
                   </motion.div>
                 )}
-
-                {/* 1 — MASTER VIDEO */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
-                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
-                </motion.div>
 
                 {/* 2 — STÜCK-INFORMATION */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border p-6">
@@ -790,34 +827,6 @@ export default function LernvideoDetailPage() {
                       </Link>
                     </div>
                   )}
-                </motion.div>
-
-                {/* 4 — LAEMU PLAYER */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface border border-border overflow-hidden">
-                  <button
-                    onClick={() => setShowLaemuPlayer(!showLaemuPlayer)}
-                    className="w-full px-5 py-4 flex items-center justify-between hover:bg-background transition-colors border-b border-border"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-text-secondary"><IconMixer /></span>
-                      <div className="text-left">
-                        <p className="font-heading font-bold text-base">LAEMU-Player</p>
-                        <p className="font-sans text-xs text-text-secondary">Tempo 25–200% · Stimmen individuell steuerbar</p>
-                      </div>
-                    </div>
-                    <IconChevron up={showLaemuPlayer} />
-                  </button>
-                  <AnimatePresence>
-                    {showLaemuPlayer && (
-                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                        <VideoPlayer img={v.img} label="LAEMU-Player" />
-                        <div className="border-t border-border px-5 py-4 bg-background">
-                          <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Stimmen-Mix</p>
-                          <VoiceMixer voices={v.voices} />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </motion.div>
 
                 {/* 5 — VERWEISE */}
@@ -1085,145 +1094,73 @@ export default function LernvideoDetailPage() {
               </>
             )}
 
-            {/* ── STIMMEN TAB ── */}
-            {mainTab === 'stimmen' && (
+            {/* ── 1. STIMME ── */}
+            {mainTab === 'stimme1' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">1. Stimme</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Stimme ein Lernvideo — für Handorgel, Schwyzerörgeli & Klarinette.</p>
+                </div>
+                {stimme1Sections.length > 0
+                  ? stimme1Sections.map(renderStimmeSection)
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 1.-Stimme-Video.</p>}
+              </motion.div>
+            )}
+
+            {/* ── 2. STIMME ── */}
+            {mainTab === 'stimme2' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">2. Stimme</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Stimme ein Lernvideo — für Handorgel, Schwyzerörgeli & Klarinette.</p>
+                </div>
+                {stimme2Sections.length > 0
+                  ? stimme2Sections.map(renderStimmeSection)
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 2.-Stimme-Video.</p>}
+              </motion.div>
+            )}
+
+            {/* ── BEGLEITVORSCHLÄGE ── */}
+            {mainTab === 'begleit' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">Begleitvorschläge</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Stimme ein Lernvideo — Klavier- & Bassbegleitung.</p>
+                </div>
+                {begleitSections.length > 0
+                  ? begleitSections.map(renderStimmeSection)
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es keine Begleitvideos.</p>}
+              </motion.div>
+            )}
+
+            {/* ── MITSPIELEN ── */}
+            {mainTab === 'mitspielen' && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                {Object.entries(stimmenByInstrument).map(([instrument, sections]) => {
-                  const instrumentColor = sections[0].color
-                  const totalVideos = sections.reduce((sum, s) => sum + s.lernvideos.length, 0)
-                  return (
-                    <div key={instrument} className="space-y-3">
-                      {/* Dark header card for instrument group */}
-                      <div className="bg-dark text-white px-5 py-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: instrumentColor }} />
-                          <h3 className="font-heading font-bold text-base">{instrument}</h3>
-                        </div>
-                        <span className="font-sans text-xs text-white/50">{totalVideos} Videos</span>
-                      </div>
+                <div>
+                  <h2 className="font-heading font-bold text-xl">Mitspielen</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen steuerbar.</p>
+                </div>
 
-                      {/* Each stimme within this instrument */}
-                      {sections.map(stimme => {
-                        // Derive the sub-label (e.g. "1. Stimme" from "1. Stimme Handorgel")
-                        const subLabel = stimme.label.replace(instrument, '').trim() || stimme.label
-                        return (
-                          <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
-                            {/* Sub-header */}
-                            <div className="px-5 py-3 border-b border-border bg-background flex items-center justify-between">
-                              <span className="font-heading font-bold text-sm">{subLabel}</span>
-                              <span className="font-sans text-xs text-text-secondary">({stimme.lernvideos.length} Teile)</span>
-                            </div>
+                {/* Master-/Mitspielvideo mit Player-Funktionen */}
+                <div>
+                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
+                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
+                </div>
 
-                            {/* Lernvideos */}
-                            {stimme.lernvideos.length > 0 && (
-                              <div className="divide-y divide-border">
-                                {stimme.lernvideos.map((lv, partIdx) => (
-                                  <div key={lv.id} className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
-                                    {/* Part label */}
-                                    <span className="font-sans text-xs text-text-secondary w-12 flex-shrink-0">Teil {partIdx + 1}</span>
-                                    {/* Done indicator */}
-                                    <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
-                                      {lv.done ? <IconCheck /> : <IconPlay />}
-                                    </div>
-                                    {/* Label + duration */}
-                                    <div className="flex-1 min-w-0">
-                                      <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
-                                      <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
-                                    </div>
-                                    {/* Audio buttons */}
-                                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                                      <button
-                                        onClick={() => toggleAudioFav(lv.id)}
-                                        className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                                        title="Favorit"
-                                      >
-                                        ♡
-                                      </button>
-                                      <button
-                                        onClick={() => toggleAudioPlaylist(lv.id)}
-                                        className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                                        title="Zur Audio-Playlist"
-                                      >
-                                        <IconHeadphones /> Playlist
-                                      </button>
-                                      <button
-                                        onClick={() => setMainTab('ueberblick')}
-                                        className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
-                                      >
-                                        <IconPlay /> Starten
-                                      </button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Sheet music row */}
-                            {stimme.noten.length > 0 && (
-                              <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
-                                <span className="font-sans text-xs text-text-secondary">Noten:</span>
-                                {stimme.noten.map(n => (
-                                  <button key={n.key} className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors">
-                                    {n.label}{n.price ? ` CHF ${n.price}` : ''}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )
-                })}
-
-                {/* Begleitvorschläge section */}
-                {v.begleitvorschlaege && v.begleitvorschlaege.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="bg-dark text-white px-5 py-3 flex items-center justify-between">
-                      <div>
-                        <h3 className="font-heading font-bold text-base">Begleitvorschläge</h3>
-                        <p className="font-sans text-xs text-white/50 mt-0.5">Verschiedene Begleitvarianten</p>
-                      </div>
-                      <span className="font-sans text-xs text-white/50">{v.begleitvorschlaege.length} Videos</span>
-                    </div>
-                    <div className="bg-surface border border-border overflow-hidden divide-y divide-border">
-                      {v.begleitvorschlaege.map(bv => (
-                        <div key={bv.id} className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
-                          {/* Color dot */}
-                          <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: bv.color }} />
-                          {/* Label */}
-                          <div className="flex-1 min-w-0">
-                            <p className="font-sans text-sm font-medium truncate">{bv.label}</p>
-                            <p className="font-sans text-xs text-text-secondary">{bv.instrument} · {bv.teacher} · {bv.duration}</p>
-                          </div>
-                          {/* Audio buttons */}
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <button
-                              onClick={() => toggleAudioFav(bv.id)}
-                              className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(bv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                              title="Favorit"
-                            >
-                              ♡
-                            </button>
-                            <button
-                              onClick={() => toggleAudioPlaylist(bv.id)}
-                              className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(bv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`}
-                              title="Zur Audio-Playlist"
-                            >
-                              <IconHeadphones /> Playlist
-                            </button>
-                            <button
-                              onClick={() => setMainTab('ueberblick')}
-                              className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
-                            >
-                              <IconPlay /> Starten
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                {/* LAEMU-Player: Stimmen-Mix */}
+                <div className="bg-surface border border-border overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border flex items-center gap-3">
+                    <span className="text-text-secondary"><IconMixer /></span>
+                    <div>
+                      <p className="font-heading font-bold text-base">LAEMU-Player</p>
+                      <p className="font-sans text-xs text-text-secondary">Tempo 25–200% · Tonhöhe · Stimmen individuell steuerbar</p>
                     </div>
                   </div>
-                )}
+                  <div className="px-5 py-4 bg-background">
+                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Stimmen-Mix</p>
+                    <VoiceMixer voices={v.voices} />
+                  </div>
+                </div>
               </motion.div>
             )}
           </div>
@@ -1237,10 +1174,8 @@ export default function LernvideoDetailPage() {
                 <div className="space-y-0">
                   {([
                     { label: 'Komponist', value: v.composer },
-                    { label: 'Jahr', value: String(v.year) },
                     { label: 'Takt', value: v.meter },
-                    { label: 'Formation', value: v.formation },
-                    { label: 'Harmoniestufe', value: `Stufe ${v.level}` },
+                    { label: 'Harmoniestufen', value: `Stufe ${v.level}` },
                   ]).map(item => (
                     <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
                       <span className="font-sans text-xs text-text-secondary">{item.label}</span>
@@ -1248,29 +1183,18 @@ export default function LernvideoDetailPage() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-sans text-xs text-text-secondary">Stufen</span>
-                    <span className="font-sans text-xs font-medium">{v.stufen}</span>
-                  </div>
-                  <div className="flex gap-1">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className={`flex-1 h-1.5 ${i < v.stufen ? 'bg-accent-gold' : 'bg-border'}`} />
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Stimmen overview */}
               <div className="bg-surface border border-border overflow-hidden">
                 <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                   <p className="font-heading font-bold text-sm">Stimmen</p>
-                  <button onClick={() => setMainTab('stimmen')} className="font-sans text-xs text-accent-gold hover:underline">Alle ansehen →</button>
+                  <button onClick={() => setMainTab('stimme1')} className="font-sans text-xs text-accent-gold hover:underline">Alle ansehen →</button>
                 </div>
                 {v.stimmenSections.map(s => (
                   <button
                     key={s.id}
-                    onClick={() => setMainTab('stimmen')}
+                    onClick={() => setMainTab(s.label.startsWith('1. Stimme') ? 'stimme1' : s.label.startsWith('2. Stimme') ? 'stimme2' : 'begleit')}
                     className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left hover:bg-background transition-colors"
                   >
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
