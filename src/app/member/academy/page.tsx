@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
+import { MemberTabs } from '@/components/MemberTabs'
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -538,8 +539,8 @@ export default function MemberAcademyPage() {
       </AnimatePresence>
 
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between mt-20">
-        <h1 className="font-heading font-bold text-lg">LAEMU Musikschule</h1>
+      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
+        <h1 className="font-heading font-bold text-lg">LAEMU Academy</h1>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
@@ -554,30 +555,7 @@ export default function MemberAcademyPage() {
       </div>
 
       {/* AREA TABS */}
-      <div className="bg-surface border-b border-border" style={{ borderTop: '2px solid rgba(196,151,58,0.25)' }}>
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-            <div className="flex items-center gap-1.5 pr-5 border-r border-border flex-shrink-0">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-gold flex-shrink-0"><path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z"/></svg>
-              <span className="font-sans text-xs font-semibold text-accent-gold whitespace-nowrap">Mitgliederbereich</span>
-            </div>
-            <Link href="/member/community" className="flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 border-transparent text-text-secondary hover:text-dark transition-colors">
-              <span>💬</span> Community
-            </Link>
-            <button className="flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 border-accent-gold text-dark transition-colors">
-              <span>🎓</span> Akademie
-            </button>
-            <div className="ml-auto flex items-center gap-4 py-4 flex-shrink-0">
-              <span className="font-sans text-xs text-text-secondary hidden sm:block">{isUpgraded ? 'Pro · 2 Instrumente' : 'Starter · 2 Instrumente'}</span>
-              <div className="h-4 w-px bg-border" />
-              <Link href="/musikschule" className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark transition-colors">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Öffentliche Seite
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MemberTabs active="academy" />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

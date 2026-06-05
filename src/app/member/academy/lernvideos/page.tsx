@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { mockUserAbo, isPieceUnlocked, individualPlanMeta } from '@/lib/academy'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -49,21 +50,21 @@ const videos = [
     price: 18, purchased: true,
   },
   {
-    id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavier', formation: 'Solo',
+    id: 5, title: 'Walzer am See', artist: 'Lisa Frei', instrument: 'Klavierbegleitung', formation: 'Solo',
     composer: 'Frei', year: 2015, difficultyNum: 2, level: 2, taktart: 'Walzer',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'free' as const,
     styleTags: ['Modern'], melodieTags: [] as string[],
-    autoTags: ['Klavier', 'Free'],
+    autoTags: ['Klavierbegleitung', 'Free'],
     notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=400&q=80',
     price: 0, purchased: true,
   },
   {
-    id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bass', formation: 'Kapelle',
+    id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bassgeige', formation: 'Kapelle',
     composer: 'Rusch', year: 1972, difficultyNum: 5, level: 4, taktart: 'Mazurka',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
     styleTags: ['Konzertant', 'Büntner Stil'], melodieTags: [] as string[],
-    autoTags: ['Bass', 'Pro'],
+    autoTags: ['Bassgeige', 'Pro'],
     notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80',
     price: 18, purchased: true,
@@ -98,7 +99,7 @@ const wishes = [
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const INSTRUMENTS = ['Alle', 'Handorgel', 'Schwyzerörgeli', 'Klavier', 'Bass', 'Klarinette']
+const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
 const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']
@@ -180,9 +181,9 @@ export default function LernvideosPage() {
     <div className="min-h-screen bg-background">
 
       {/* Header */}
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-20 z-20">
+      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
-          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Musikschule</Link>
+          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Academy</Link>
           <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
         </div>
         <div className="flex items-center gap-2">
@@ -588,9 +589,20 @@ export default function LernvideosPage() {
                 )}
               </div>
 
+              {/* Abo / Freischalt-Hinweis */}
+              <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                  Dein Abo: <strong className="text-dark font-semibold">{mockUserAbo.plan === 'none' ? 'Kein Abo' : individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Freigeschaltet sind die deinem Abo entsprechenden Stücke. Gesperrte Stücke bleiben sichtbar — dort kannst du nur die Masteraufnahme ansehen (Standard-Player, ohne JamPlayer).{' '}
+                  <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Abo erweitern →</Link>
+                </p>
+              </div>
+
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
-                {filtered.map((v, i) => (
+                {filtered.map((v, i) => {
+                  const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument })
+                  return (
                   <motion.div
                     key={v.id}
                     initial={{ opacity: 0, y: 12 }}
@@ -613,6 +625,12 @@ export default function LernvideosPage() {
                       {savedVideoIds.has(v.id) && (
                         <div className="absolute top-2 left-2">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="#C4973A" stroke="#C4973A" strokeWidth="1"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        </div>
+                      )}
+                      {!unlocked && (
+                        <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                          <span className="font-sans text-[10px] uppercase tracking-wide">Gesperrt</span>
                         </div>
                       )}
                     </div>
@@ -659,18 +677,27 @@ export default function LernvideosPage() {
 
                       {/* Right: plan badge + action */}
                       <div className="flex flex-col items-end justify-between flex-shrink-0">
-                        <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>
-                          {planLabels[v.difficultyPlan]}
-                        </span>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>
+                            {planLabels[v.difficultyPlan]}
+                          </span>
+                          {!unlocked && (
+                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1">
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                              Gesperrt
+                            </span>
+                          )}
+                        </div>
                         <div className="mt-auto">
-                          <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
-                            Öffnen →
+                          <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
+                            {unlocked ? 'Öffnen →' : 'Master-Video →'}
                           </Link>
                         </div>
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                  )
+                })}
               </div>
 
               {filtered.length === 0 && (

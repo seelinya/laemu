@@ -3,49 +3,23 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import {
+  ACADEMY_INSTRUMENTS,
+  individualPricing,
+  individualPlanMeta,
+  INDIVIDUAL_PLAN_ORDER,
+  scopeLabels,
+  formationPlanMeta,
+  formationYearlyPrice,
+  FORMATION_INCLUDED_MEMBERS,
+  type Scope,
+  type IndividualPlanId,
+  type FormationPlanId,
+} from '@/lib/academy'
 
-const INSTRUMENTS = [
-  'Handorgel', 'Schwyzerörgeli', 'Steirische Harmonika', 'Klavier',
-  'Kontrabass / Bass', 'Klarinette', 'Violine / Geige', 'Trompete / Flügelhorn',
-  'Zither', 'Volksgesang',
-]
-
-const ABOS = [
-  {
-    id: 'community-monthly',
-    name: 'Community Monatsmitgliedschaft',
-    price: 'CHF 5',
-    period: '/ Monat',
-    description: 'Zugang zur LAEMU Community: Feed, Gruppen, Direktnachrichten, Events.',
-    highlight: false,
-  },
-  {
-    id: 'community-yearly',
-    name: 'Community Jahres­mitgliedschaft',
-    price: 'CHF 49',
-    period: '/ Jahr',
-    description: 'Gleiche Vorteile wie monatlich — 2 Monate gratis gegenüber dem Monatsabo.',
-    highlight: false,
-    badge: '2 Monate gratis',
-  },
-  {
-    id: 'academy-monthly',
-    name: 'Musikschule + Community',
-    price: 'CHF 19',
-    period: '/ Monat',
-    description: 'Vollzugang zu allen Video-Kursen, Live-Sessions, Kurs-Chats und Community.',
-    highlight: true,
-    badge: 'Beliebt',
-  },
-  {
-    id: 'academy-yearly',
-    name: 'Musikschule + Community Jahresabo',
-    price: 'CHF 179',
-    period: '/ Jahr',
-    description: 'Bester Preis — über 2 Monate gespart. Alle Academy- und Community-Vorteile.',
-    highlight: false,
-    badge: 'Bester Preis',
-  },
+const PROFILE_INSTRUMENTS = [
+  'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette',
+  'Steirische Harmonika', 'Klavier', 'Violine / Geige', 'Trompete / Flügelhorn', 'Volksgesang',
 ]
 
 const steps = [
@@ -54,19 +28,66 @@ const steps = [
   { number: 3, label: 'Profil' },
 ]
 
+const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
+
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
-  const [selectedAbo, setSelectedAbo] = useState('community-monthly')
   const [selectedPayment, setSelectedPayment] = useState('card')
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
   const [formationChoice, setFormationChoice] = useState<'yes' | 'no' | 'open' | null>(null)
   const [done, setDone] = useState(false)
+
+  // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
+  const [accountType, setAccountType] = useState<'individual' | 'formation'>('individual')
+  const [billing, setBilling] = useState<'yearly' | 'monthly'>('yearly')
+  const [individualPlan, setIndividualPlan] = useState<IndividualPlanId>('starter')
+  const [scope, setScope] = useState<Scope>('1')
+  const [aboInstruments, setAboInstruments] = useState<string[]>(['Handorgel'])
+  const [formationPlan, setFormationPlan] = useState<FormationPlanId>('pro')
+  const [memberCount, setMemberCount] = useState(4)
 
   const toggleInstrument = (inst: string) => {
     setSelectedInstruments(prev =>
       prev.includes(inst) ? prev.filter(i => i !== inst) : [...prev, inst]
     )
   }
+
+  const scopeCount = (s: Scope) => (s === 'all' ? ACADEMY_INSTRUMENTS.length : Number(s))
+
+  const toggleAboInstrument = (inst: string) => {
+    setAboInstruments(prev => {
+      if (prev.includes(inst)) return prev.filter(i => i !== inst)
+      const max = scopeCount(scope)
+      if (prev.length >= max) return [...prev.slice(1), inst]
+      return [...prev, inst]
+    })
+  }
+
+  const selectScope = (s: Scope) => {
+    setScope(s)
+    if (s === 'all') {
+      setAboInstruments([...ACADEMY_INSTRUMENTS])
+    } else {
+      setAboInstruments(prev => prev.slice(0, Number(s)))
+    }
+  }
+
+  // Preis des aktuell gewählten Einzel-Abos
+  const individualPrice = (() => {
+    if (individualPlan === 'lernvideo') return individualPricing.lernvideo[billing]
+    return individualPricing[individualPlan][scope][billing]
+  })()
+
+  // Preis pro Plan-Karte (für die aktuelle Auswahl)
+  const planCardPrice = (plan: IndividualPlanId) => {
+    if (plan === 'lernvideo') return individualPricing.lernvideo[billing]
+    return individualPricing[plan][scope][billing]
+  }
+
+  const formationPrice = formationYearlyPrice(formationPlan, memberCount)
+  const formationExtra = Math.max(0, memberCount - FORMATION_INCLUDED_MEMBERS)
+
+  const periodLabel = billing === 'yearly' ? '/ Jahr' : '/ Monat'
 
   if (done) {
     return (
@@ -96,7 +117,7 @@ export default function RegisterPage() {
               href="/member/academy"
               className="block w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
-              Musikschule entdecken
+              Academy entdecken
             </Link>
           </div>
         </motion.div>
@@ -107,9 +128,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <div className="bg-dark py-5 px-6 flex items-center justify-between mt-20">
-        <Link href="/" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
-        <Link href="/" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+      <div className="bg-dark py-5 px-6 flex items-center justify-between">
+        <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
+        <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-12">
@@ -211,39 +232,208 @@ export default function RegisterPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <h1 className="font-heading text-3xl font-bold mb-2">Mitgliedschaft wählen</h1>
-              <p className="font-sans text-text-secondary text-sm mb-8">Wähle das passende Abo und dein Zahlungsmittel.</p>
+              {/* Headline */}
+              <h1 className="font-heading text-3xl font-bold mb-2 whitespace-pre-line">
+                {'Lerne Ländlermusik.\nVon Profis. Für alle.'}
+              </h1>
+              <p className="font-sans text-text-secondary text-sm mb-8 leading-relaxed">
+                Die LAEMU Musikschule — Online-Kurse und originalgetreue Lernvideos zu unzähligen
+                Stücken, gezeigt von den Besten der Szene.
+              </p>
 
-              <div className="space-y-3 mb-8">
-                {ABOS.map((abo) => (
+              {/* Account type toggle */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {([
+                  { id: 'individual', label: 'Einzelperson', desc: 'Für dich allein' },
+                  { id: 'formation', label: 'Formation', desc: 'Für deine Kapelle' },
+                ] as const).map(opt => (
                   <button
-                    key={abo.id}
-                    onClick={() => setSelectedAbo(abo.id)}
-                    className={`w-full text-left p-5 border-2 transition-all ${
-                      selectedAbo === abo.id
-                        ? abo.highlight ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5'
-                        : 'border-border hover:border-dark bg-surface'
-                    }`}
+                    key={opt.id}
+                    onClick={() => setAccountType(opt.id)}
+                    className={`p-4 border-2 text-left transition-all ${accountType === opt.id ? 'border-dark bg-dark/5' : 'border-border bg-surface hover:border-dark'}`}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-sans font-semibold text-sm">{abo.name}</span>
-                          {abo.badge && (
-                            <span className={`font-sans text-[10px] font-bold px-2 py-0.5 ${abo.highlight ? 'bg-accent-gold text-white' : 'bg-dark text-white'}`}>{abo.badge}</span>
-                          )}
-                        </div>
-                        <p className="font-sans text-xs text-text-secondary leading-relaxed">{abo.description}</p>
-                      </div>
-                      <div className="ml-4 text-right flex-shrink-0">
-                        <span className="font-heading font-bold text-xl text-accent-gold">{abo.price}</span>
-                        <span className="font-sans text-xs text-text-secondary block">{abo.period}</span>
-                      </div>
-                    </div>
+                    <p className="font-sans font-semibold text-sm">{opt.label}</p>
+                    <p className="font-sans text-xs text-text-secondary">{opt.desc}</p>
                   </button>
                 ))}
               </div>
 
+              {/* Billing toggle (individual only) */}
+              {accountType === 'individual' && (
+                <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-fit mx-auto">
+                  {([
+                    { id: 'yearly', label: 'Jährlich', hint: '2 Monate gratis' },
+                    { id: 'monthly', label: 'Monatlich', hint: null },
+                  ] as const).map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setBilling(opt.id)}
+                      className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-2 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+                    >
+                      {opt.label}
+                      {opt.hint && <span className={`font-sans text-[10px] px-1.5 py-0.5 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* ── INDIVIDUAL OFFERING ── */}
+              {accountType === 'individual' && (
+                <>
+                  <div className="space-y-3 mb-6">
+                    {INDIVIDUAL_PLAN_ORDER.map(planId => {
+                      const meta = individualPlanMeta[planId]
+                      const active = individualPlan === planId
+                      return (
+                        <button
+                          key={planId}
+                          onClick={() => setIndividualPlan(planId)}
+                          className={`w-full text-left p-5 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border hover:border-dark bg-surface'}`}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span>{meta.emoji}</span>
+                                <span className="font-sans font-semibold text-sm">{meta.label}</span>
+                                {meta.badge && (
+                                  <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
+                                )}
+                              </div>
+                              <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
+                              <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
+                            </div>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Scope + instrument selection */}
+                  {individualPlanMeta[individualPlan].hasScope && (
+                    <div className="bg-surface border border-border p-5 mb-6">
+                      <h3 className="font-heading font-bold text-sm mb-3">Umfang wählen</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+                        {(['1', '2', '3', 'all'] as Scope[]).map(s => (
+                          <button
+                            key={s}
+                            onClick={() => selectScope(s)}
+                            className={`py-2.5 px-2 font-sans text-xs border transition-colors ${scope === s ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                          >
+                            {scopeLabels[s]}
+                          </button>
+                        ))}
+                      </div>
+
+                      {scope !== 'all' ? (
+                        <>
+                          <p className="font-sans text-xs text-text-secondary mb-2">
+                            Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({aboInstruments.length}/{scopeCount(scope)})
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {ACADEMY_INSTRUMENTS.map(inst => {
+                              const selected = aboInstruments.includes(inst)
+                              return (
+                                <button
+                                  key={inst}
+                                  onClick={() => toggleAboInstrument(inst)}
+                                  className={`font-sans text-sm px-3 py-2 border transition-all ${selected ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
+                                >
+                                  {inst}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="font-sans text-xs text-text-secondary">
+                          All-in-One — alle Instrumente inklusive: {ACADEMY_INSTRUMENTS.join(' · ')}.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Feature list of selected plan */}
+                  <div className="bg-background border border-border p-5 mb-8">
+                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Enthalten</p>
+                    <div className="space-y-2">
+                      {individualPlanMeta[individualPlan].features.map((f, i) => (
+                        <div key={i} className="flex items-center gap-2 font-sans text-sm">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                          <span>{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border mt-4 pt-4">
+                      <span className="font-sans text-sm text-text-secondary">Dein Preis</span>
+                      <span className="font-heading font-bold text-2xl text-accent-gold">{chf(individualPrice)}<span className="font-sans text-sm font-normal text-text-secondary">{periodLabel}</span></span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── FORMATION OFFERING ── */}
+              {accountType === 'formation' && (
+                <>
+                  <div className="bg-surface border border-border p-5 mb-6">
+                    <h3 className="font-heading font-bold text-sm mb-1">Anzahl Mitglieder</h3>
+                    <p className="font-sans text-xs text-text-secondary mb-4">
+                      Das Formationsangebot gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder. Bei mehr als {FORMATION_INCLUDED_MEMBERS} Mitgliedern
+                      wird ein Zuschlag von 10 % pro zusätzlichem Mitglied verrechnet.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setMemberCount(m => Math.max(1, m - 1))}
+                        className="w-10 h-10 border border-border font-heading font-bold hover:border-dark transition-colors"
+                      >−</button>
+                      <span className="font-heading font-bold text-xl w-12 text-center tabular-nums">{memberCount}</span>
+                      <button
+                        onClick={() => setMemberCount(m => m + 1)}
+                        className="w-10 h-10 border border-border font-heading font-bold hover:border-dark transition-colors"
+                      >+</button>
+                      {formationExtra > 0 && (
+                        <span className="font-sans text-xs text-accent-gold ml-2">+{formationExtra} × 10 % Zuschlag</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-8">
+                    {(['pro', 'lernvideo'] as FormationPlanId[]).map(planId => {
+                      const meta = formationPlanMeta[planId]
+                      const active = formationPlan === planId
+                      const price = formationYearlyPrice(planId, memberCount)
+                      return (
+                        <button
+                          key={planId}
+                          onClick={() => setFormationPlan(planId)}
+                          className={`w-full text-left p-5 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border hover:border-dark bg-surface'}`}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span>{meta.emoji}</span>
+                                <span className="font-sans font-semibold text-sm">Formation {meta.label}</span>
+                              </div>
+                              <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className="font-heading font-bold text-xl text-accent-gold">{chf(price)}</span>
+                              <span className="font-sans text-xs text-text-secondary block">/ Jahr</span>
+                              {formationExtra > 0 && (
+                                <span className="font-sans text-[10px] text-text-secondary block">Basis {chf(meta.basePrice)}</span>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </>
+              )}
+
+              {/* Payment */}
               <div className="mb-8">
                 <h3 className="font-heading font-bold text-lg mb-4">Zahlungsmittel</h3>
                 <div className="grid grid-cols-1 gap-3">
@@ -338,7 +528,7 @@ export default function RegisterPage() {
                 <div>
                   <label className="label text-text-secondary block mb-3">Instrumente</label>
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {INSTRUMENTS.map((inst) => (
+                    {PROFILE_INSTRUMENTS.map((inst) => (
                       <button
                         key={inst}
                         onClick={() => toggleInstrument(inst)}

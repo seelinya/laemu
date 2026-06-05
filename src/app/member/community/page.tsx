@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { MemberTabs } from '@/components/MemberTabs'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -1236,7 +1237,7 @@ function ProfileView() {
                     const trimmed = f.trim()
                     const known = knownFormations.find(kf => kf.name.toLowerCase() === trimmed.toLowerCase())
                     return known
-                      ? <Link key={f} href={`/formations/${known.id}`} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold hover:bg-accent-gold hover:text-white transition-colors">Formation: {trimmed} ↗</Link>
+                      ? <span key={f} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Formation: {trimmed}</span>
                       : <button key={f} onClick={() => setCreateFormationName(trimmed)} title="Kein öffentliches Profil vorhanden — jetzt erstellen" className="font-sans text-xs px-2 py-1 bg-background border border-dashed border-border hover:border-dark transition-colors flex items-center gap-1">Formation: {trimmed} <span className="text-text-secondary">+</span></button>
                   })}
                 </div>
@@ -1599,7 +1600,7 @@ export default function MemberCommunityPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR — embedded as section between nav and content, not sticky overlay */}
-      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between mt-20">
+      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between">
         <h1 className="font-heading font-black text-lg text-white tracking-tight">Community</h1>
         <div className="flex items-center gap-1">
           <button className="p-2 hover:bg-white/10 rounded-full transition-colors relative text-white">
@@ -1613,46 +1614,7 @@ export default function MemberCommunityPage() {
       </div>
 
       {/* ── AREA TABS ── */}
-      <div className="bg-surface border-b border-border" style={{ borderTop: '2px solid rgba(196,151,58,0.25)' }}>
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center">
-
-            {/* Exclusive area badge */}
-            <div className="flex items-center gap-1.5 pr-5 border-r border-border flex-shrink-0">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-gold flex-shrink-0">
-                <path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z"/>
-              </svg>
-              <span className="font-sans text-xs font-semibold text-accent-gold whitespace-nowrap">Mitgliederbereich</span>
-            </div>
-
-            {/* Community tab — active */}
-            <button className="flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 border-accent-gold text-dark transition-colors">
-              <span>💬</span> Community
-            </button>
-
-            {/* Akademie tab */}
-            <Link
-              href="/member/academy"
-              className="flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 border-transparent text-text-secondary hover:text-dark transition-colors"
-            >
-              <span>🎓</span> Akademie
-            </Link>
-
-            {/* Right: public area link */}
-            <div className="ml-auto flex items-center gap-4 py-4 flex-shrink-0">
-              <div className="h-4 w-px bg-border" />
-              <Link
-                href="/musikschule"
-                className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark transition-colors"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Öffentliche Seite
-              </Link>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      <MemberTabs active="community" />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -1762,18 +1724,15 @@ export default function MemberCommunityPage() {
                 <h3 className="font-heading font-bold text-sm mb-4">Kommende Events</h3>
                 <div className="space-y-3">
                   {upcomingEvents.map((e) => (
-                    <Link key={e.title} href="/events" className="flex gap-3 hover:opacity-80 transition-opacity group">
+                    <div key={e.title} className="flex gap-3 group">
                       <span className="font-sans text-xs text-accent-gold font-semibold min-w-[42px]">{e.date}</span>
                       <div>
-                        <p className="font-sans text-xs font-medium group-hover:text-accent-gold transition-colors">{e.title}</p>
+                        <p className="font-sans text-xs font-medium">{e.title}</p>
                         <span className="font-sans text-[10px] font-light text-text-secondary">{e.type}</span>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
-                <Link href="/events" className="block mt-4 font-sans text-xs text-accent-gold hover:text-dark transition-colors font-medium">
-                  Alle Events →
-                </Link>
               </div>
 
               <div className="bg-dark p-5">

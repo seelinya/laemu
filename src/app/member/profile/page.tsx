@@ -179,7 +179,7 @@ export default function MemberProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between mt-20">
+      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between">
         <Link href="/member/academy" className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           Zurück zur Musikschule
