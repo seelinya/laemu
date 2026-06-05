@@ -11,6 +11,7 @@ import { getCourse, instrumentLabels, type LessonType } from '@/lib/courses'
 type Reply = {
   id: string
   name: string
+  handle?: string
   isTeam: boolean
   role?: string
   text: string
@@ -20,6 +21,7 @@ type Reply = {
 type CommentData = {
   id: string
   name: string
+  handle?: string
   initials: string
   color: string
   isTeam: boolean
@@ -32,15 +34,21 @@ type CommentData = {
   replies: Reply[]
 }
 
+// Link zum öffentlichen Profil eines Kommentar-Autors (eigene → eigenes Profil).
+function profileHref(isAuthor: boolean | undefined, handle: string | undefined): string {
+  if (isAuthor) return '/member/profile'
+  return handle ? `/member/u/${handle}` : '#'
+}
+
 // Aktuell eingeloggter Nutzer — Kommentare erscheinen mit dem echten Namen.
 const CURRENT_USER = { name: 'Niklaus Hess', initials: 'NH' }
 
 const mockComments: CommentData[] = [
-  { id: 'c1', name: 'Hansruedi Wenger', initials: 'HW', color: 'bg-accent-gold', isTeam: true, role: 'Lehrer', text: 'Sehr gut gemacht! Achte beim Auspacken besonders auf die Balg-Schutzkappe — sie lässt sich leicht verlieren. Wenn du Fragen hast, kannst du sie direkt hier stellen.', time: 'vor 2 Tagen', likes: 12, liked: false, replies: [] },
+  { id: 'c1', name: 'Hansruedi Wenger', handle: 'hansruedi', initials: 'HW', color: 'bg-accent-gold', isTeam: true, role: 'Lehrer', text: 'Sehr gut gemacht! Achte beim Auspacken besonders auf die Balg-Schutzkappe — sie lässt sich leicht verlieren. Wenn du Fragen hast, kannst du sie direkt hier stellen.', time: 'vor 2 Tagen', likes: 12, liked: false, replies: [] },
   { id: 'c2', name: 'Niklaus Hess', initials: 'NH', color: 'bg-dark', isTeam: false, isAuthor: true, text: 'Wie halte ich die Hand bei schnellen Läufen möglichst entspannt? Bei mir verkrampft sie schnell.', time: 'vor 3 Tagen', likes: 2, liked: false, replies: [
-    { id: 'r1', name: 'Cécile Schmidig', isTeam: true, role: 'LAEMU Team', text: 'Gute Frage, Niklaus! Lass das Handgelenk locker und spiele die Bewegung mehr aus dem Arm. Ich habe dir in der nächsten Lektion eine Übung dazu markiert.', time: 'vor 2 Tagen' },
+    { id: 'r1', name: 'Cécile Schmidig', handle: 'cecile', isTeam: true, role: 'LAEMU Team', text: 'Gute Frage, Niklaus! Lass das Handgelenk locker und spiele die Bewegung mehr aus dem Arm. Ich habe dir in der nächsten Lektion eine Übung dazu markiert.', time: 'vor 2 Tagen' },
   ] },
-  { id: 'c3', name: 'Peter S.', initials: 'PS', color: 'bg-border', isTeam: false, text: 'Wo genau befindet sich die Seriennummer auf der Handorgel? Ich kann sie im Video nicht erkennen.', time: 'vor 1 Woche', likes: 1, liked: false, replies: [] },
+  { id: 'c3', name: 'Peter S.', handle: 'peter', initials: 'PS', color: 'bg-border', isTeam: false, text: 'Wo genau befindet sich die Seriennummer auf der Handorgel? Ich kann sie im Video nicht erkennen.', time: 'vor 1 Woche', likes: 1, liked: false, replies: [] },
 ]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -654,12 +662,12 @@ export default function ModulPage({
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-3"
                   >
-                    <div className={`w-9 h-9 ${comment.isTeam ? 'bg-accent-gold' : comment.color} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-xs`}>
+                    <Link href={profileHref(comment.isAuthor, comment.handle)} className={`w-9 h-9 ${comment.isTeam ? 'bg-accent-gold' : comment.color} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-xs hover:opacity-80 transition-opacity`}>
                       {comment.initials}
-                    </div>
+                    </Link>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="font-sans text-sm font-medium">{comment.name}</span>
+                        <Link href={profileHref(comment.isAuthor, comment.handle)} className="font-sans text-sm font-medium hover:text-accent-gold transition-colors">{comment.name}</Link>
                         {comment.isTeam && <TeamBadge role={comment.role} />}
                         {comment.isAuthor && !comment.isTeam && <span className="font-sans text-[10px] border border-border text-text-secondary px-1.5 py-0.5">Du</span>}
                         <span className="font-sans text-xs text-text-secondary">{comment.time}</span>
@@ -699,10 +707,10 @@ export default function ModulPage({
                             const ini = r.name.split(' ').map((w) => w[0]).join('').slice(0, 2)
                             return (
                               <div key={r.id} className="flex gap-2.5">
-                                <div className={`w-7 h-7 ${r.isTeam ? 'bg-accent-gold' : 'bg-dark'} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-[10px]`}>{ini}</div>
+                                <Link href={profileHref(r.name === CURRENT_USER.name, r.handle)} className={`w-7 h-7 ${r.isTeam ? 'bg-accent-gold' : 'bg-dark'} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-[10px] hover:opacity-80 transition-opacity`}>{ini}</Link>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                                    <span className="font-sans text-sm font-medium">{r.name}</span>
+                                    <Link href={profileHref(r.name === CURRENT_USER.name, r.handle)} className="font-sans text-sm font-medium hover:text-accent-gold transition-colors">{r.name}</Link>
                                     {r.isTeam && <TeamBadge role={r.role} />}
                                     <span className="font-sans text-xs text-text-secondary">{r.time}</span>
                                   </div>
