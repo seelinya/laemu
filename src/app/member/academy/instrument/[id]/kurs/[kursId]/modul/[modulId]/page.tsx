@@ -8,21 +8,39 @@ import { getCourse, instrumentLabels, type LessonType } from '@/lib/courses'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
+type Reply = {
+  id: string
+  name: string
+  isTeam: boolean
+  role?: string
+  text: string
+  time: string
+}
+
 type CommentData = {
   id: string
   name: string
   initials: string
   color: string
+  isTeam: boolean
+  role?: string
+  isAuthor?: boolean
   text: string
   time: string
   likes: number
   liked: boolean
+  replies: Reply[]
 }
 
+// Aktuell eingeloggter Nutzer — Kommentare erscheinen mit dem echten Namen.
+const CURRENT_USER = { name: 'Niklaus Hess', initials: 'NH' }
+
 const mockComments: CommentData[] = [
-  { id: 'c1', name: 'Hansruedi Wenger', initials: 'HW', color: 'bg-accent-gold', text: 'Sehr gut gemacht! Achte beim Auspacken besonders auf die Balg-Schutzkappe — sie lässt sich leicht verlieren. Wenn du Fragen hast, kannst du sie direkt hier stellen.', time: 'vor 2 Tagen', likes: 12, liked: false },
-  { id: 'c2', name: 'Lena Müller', initials: 'LM', color: 'bg-dark', text: 'Danke für die tolle Lektion! Ich hatte zunächst Mühe mit dem richtigen Griff, aber nach mehrmaligem Anschauen hat es geklappt.', time: 'vor 5 Tagen', likes: 4, liked: true },
-  { id: 'c3', name: 'Peter S.', initials: 'PS', color: 'bg-border', text: 'Wo genau befindet sich die Seriennummer auf der Handorgel? Ich kann sie im Video nicht erkennen.', time: 'vor 1 Woche', likes: 1, liked: false },
+  { id: 'c1', name: 'Hansruedi Wenger', initials: 'HW', color: 'bg-accent-gold', isTeam: true, role: 'Lehrer', text: 'Sehr gut gemacht! Achte beim Auspacken besonders auf die Balg-Schutzkappe — sie lässt sich leicht verlieren. Wenn du Fragen hast, kannst du sie direkt hier stellen.', time: 'vor 2 Tagen', likes: 12, liked: false, replies: [] },
+  { id: 'c2', name: 'Niklaus Hess', initials: 'NH', color: 'bg-dark', isTeam: false, isAuthor: true, text: 'Wie halte ich die Hand bei schnellen Läufen möglichst entspannt? Bei mir verkrampft sie schnell.', time: 'vor 3 Tagen', likes: 2, liked: false, replies: [
+    { id: 'r1', name: 'Cécile Schmidig', isTeam: true, role: 'LAEMU Team', text: 'Gute Frage, Niklaus! Lass das Handgelenk locker und spiele die Bewegung mehr aus dem Arm. Ich habe dir in der nächsten Lektion eine Übung dazu markiert.', time: 'vor 2 Tagen' },
+  ] },
+  { id: 'c3', name: 'Peter S.', initials: 'PS', color: 'bg-border', isTeam: false, text: 'Wo genau befindet sich die Seriennummer auf der Handorgel? Ich kann sie im Video nicht erkennen.', time: 'vor 1 Woche', likes: 1, liked: false, replies: [] },
 ]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -42,6 +60,140 @@ function PlayIcon({ size = 20 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
       <polygon points="5 3 19 12 5 21 5 3" />
     </svg>
+  )
+}
+
+// Markierung für Team-Mitglieder (Lehrpersonen / LAEMU Team).
+function TeamBadge({ role }: { role?: string }) {
+  return (
+    <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+      {role ?? 'LAEMU Team'}
+    </span>
+  )
+}
+
+// ─── Lektions-Video-Player mit Geschwindigkeit, Lautstärke & Qualität ─────────
+
+const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2]
+const VIDEO_QUALITIES = ['Auto', '1080p', '720p', '480p']
+
+function LessonVideoPlayer({ title, duration }: { title: string; duration: string }) {
+  const [playing, setPlaying] = useState(false)
+  const [speed, setSpeed] = useState(1)
+  const [volume, setVolume] = useState(80)
+  const [muted, setMuted] = useState(false)
+  const [quality, setQuality] = useState('Auto')
+  const [openMenu, setOpenMenu] = useState<null | 'speed' | 'quality'>(null)
+
+  const effectiveVolume = muted ? 0 : volume
+
+  return (
+    <div className="bg-dark overflow-hidden">
+      {/* Video surface */}
+      <div className="aspect-video relative flex flex-col items-center justify-center gap-4 overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
+        <motion.button
+          onClick={() => setPlaying((p) => !p)}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-16 h-16 bg-accent-gold flex items-center justify-center z-10"
+          aria-label={playing ? 'Pause' : 'Abspielen'}
+        >
+          {playing ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+          ) : (
+            <PlayIcon size={22} />
+          )}
+        </motion.button>
+        <p className="font-sans text-sm text-white/60 z-10">Video: {title} ({duration})</p>
+        {/* Aktive Einstellungen */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          {speed !== 1 && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{speed}×</span>}
+          {quality !== 'Auto' && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{quality}</span>}
+        </div>
+      </div>
+
+      {/* Control bar */}
+      <div className="px-4 py-3 space-y-3 border-t border-white/10">
+        {/* Progress (mock) */}
+        <div className="h-1.5 bg-white/15 cursor-pointer">
+          <div className="h-full bg-accent-gold" style={{ width: playing ? '35%' : '0%' }} />
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Play/Pause */}
+          <button onClick={() => setPlaying((p) => !p)} className="text-white/80 hover:text-white transition-colors flex-shrink-0">
+            {playing ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+            )}
+          </button>
+          <span className="font-sans text-xs text-white/50 tabular-nums flex-shrink-0">0:00 / {duration}</span>
+
+          {/* Lautstärke */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button onClick={() => setMuted((m) => !m)} className="text-white/80 hover:text-white transition-colors" aria-label="Stummschalten">
+              {effectiveVolume === 0 ? (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
+              ) : (
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 010 14.14" /><path d="M15.54 8.46a5 5 0 010 7.07" /></svg>
+              )}
+            </button>
+            <input
+              type="range" min={0} max={100} value={effectiveVolume}
+              onChange={(e) => { setVolume(Number(e.target.value)); setMuted(false) }}
+              className="w-20 cursor-pointer" style={{ accentColor: '#C4973A' }}
+              aria-label="Lautstärke"
+            />
+          </div>
+
+          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+            {/* Geschwindigkeit */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenMenu((m) => (m === 'speed' ? null : 'speed'))}
+                className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${speed !== 1 ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
+              >
+                {speed}× Tempo
+              </button>
+              {openMenu === 'speed' && (
+                <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
+                  {PLAYBACK_SPEEDS.map((s) => (
+                    <button key={s} onClick={() => { setSpeed(s); setOpenMenu(null) }}
+                      className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${s === speed ? 'text-accent-gold' : 'text-white/70'}`}>
+                      {s}× {s === 1 && '(Normal)'}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Qualität */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenMenu((m) => (m === 'quality' ? null : 'quality'))}
+                className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${quality !== 'Auto' ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
+                {quality}
+              </button>
+              {openMenu === 'quality' && (
+                <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
+                  {VIDEO_QUALITIES.map((q) => (
+                    <button key={q} onClick={() => { setQuality(q); setOpenMenu(null) }}
+                      className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${q === quality ? 'text-accent-gold' : 'text-white/70'}`}>
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -67,6 +219,8 @@ export default function ModulPage({
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([params.modulId]))
   const [newComment, setNewComment] = useState('')
   const [comments, setComments] = useState<CommentData[]>(mockComments)
+  const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [replyText, setReplyText] = useState('')
   const [showCourseDone, setShowCourseDone] = useState(false)
 
   // Manuell abgeschlossene Lektionen ("moduleId:lessonId") — initial aus den Daten.
@@ -91,7 +245,6 @@ export default function ModulPage({
   // Nächstes nicht gesperrtes Modul (für modulübergreifende Navigation).
   const currentModuleIndex = modules.findIndex((m) => m.id === activeModuleData?.id)
   const nextModule = currentModuleIndex >= 0 ? modules.slice(currentModuleIndex + 1).find((m) => m.status !== 'locked') ?? null : null
-  const isCourseEnd = !nextLesson && !nextModule
 
   const toggleActiveLessonDone = () => {
     if (!activeModuleData || !activeLesson) return
@@ -146,16 +299,33 @@ export default function ModulPage({
     if (!newComment.trim()) return
     const newC: CommentData = {
       id: `c${Date.now()}`,
-      name: 'Niklaus Hess',
-      initials: 'NH',
+      name: CURRENT_USER.name,
+      initials: CURRENT_USER.initials,
       color: 'bg-accent-gold',
+      isTeam: false,
+      isAuthor: true,
       text: newComment.trim(),
       time: 'gerade eben',
       likes: 0,
       liked: false,
+      replies: [],
     }
     setComments((prev) => [...prev, newC])
     setNewComment('')
+  }
+
+  const handleSubmitReply = (commentId: string) => {
+    if (!replyText.trim()) return
+    const reply: Reply = {
+      id: `r${Date.now()}`,
+      name: CURRENT_USER.name,
+      isTeam: false,
+      text: replyText.trim(),
+      time: 'gerade eben',
+    }
+    setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, replies: [...c.replies, reply] } : c)))
+    setReplyText('')
+    setReplyTo(null)
   }
 
   const kursPath = `/member/academy/instrument/${params.id}/kurs/${params.kursId}`
@@ -351,19 +521,7 @@ export default function ModulPage({
             <motion.div key={activeLessonId} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-6">
 
               {/* Video block */}
-              <div className="aspect-video bg-dark flex flex-col items-center justify-center gap-4 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
-                <motion.button
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-16 h-16 bg-accent-gold flex items-center justify-center z-10"
-                >
-                  <PlayIcon size={22} />
-                </motion.button>
-                <p className="font-sans text-sm text-white/60 z-10">
-                  Video: {activeLesson?.title} ({activeLesson?.duration})
-                </p>
-              </div>
+              <LessonVideoPlayer title={activeLesson?.title ?? ''} duration={activeLesson?.duration ?? ''} />
 
               {/* Text content */}
               <div className="bg-surface border border-border p-6 prose-sm max-w-none">
@@ -469,10 +627,18 @@ export default function ModulPage({
             <section className="border-t border-border pt-8 space-y-6">
               <h2 className="font-heading text-xl font-bold">Fragen &amp; Kommentare</h2>
 
+              {/* Hinweis: echter Name & Team-Antworten */}
+              <div className="bg-accent-gold/5 border border-accent-gold/20 px-4 py-3 flex items-start gap-2.5">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                  Kommentare erscheinen mit deinem echten Namen (<strong className="text-dark">{CURRENT_USER.name}</strong>). Antworten kommen direkt von einer Person aus dem LAEMU Team — du wirst benachrichtigt, sobald jemand antwortet. Für persönliches oder vertrauliches Feedback melde dich bitte direkt beim Team.
+                </p>
+              </div>
+
               {/* Comment input */}
               <div className="flex gap-3">
                 <div className="w-9 h-9 bg-accent-gold flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-sm">
-                  NH
+                  {CURRENT_USER.initials}
                 </div>
                 <div className="flex-1">
                   <textarea
@@ -482,7 +648,8 @@ export default function ModulPage({
                     rows={3}
                     className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark resize-none"
                   />
-                  <div className="flex justify-end mt-2">
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-sans text-xs text-text-secondary">Sichtbar als <strong className="text-dark font-medium">{CURRENT_USER.name}</strong></span>
                     <button
                       onClick={handleSubmitComment}
                       disabled={!newComment.trim()}
@@ -496,22 +663,23 @@ export default function ModulPage({
 
               {/* Comment list */}
               <div className="space-y-5">
-                {comments.map((comment) => (
+                {comments.map((comment) => {
+                  const teamAnswered = comment.replies.some((r) => r.isTeam)
+                  return (
                   <motion.div
                     key={comment.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-3"
                   >
-                    <div className={`w-9 h-9 ${comment.color} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-xs`}>
+                    <div className={`w-9 h-9 ${comment.isTeam ? 'bg-accent-gold' : comment.color} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-xs`}>
                       {comment.initials}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-sans text-sm font-medium">{comment.name}</span>
-                        {comment.name === 'Hansruedi Wenger' && (
-                          <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5">Lehrer</span>
-                        )}
+                        {comment.isTeam && <TeamBadge role={comment.role} />}
+                        {comment.isAuthor && !comment.isTeam && <span className="font-sans text-[10px] border border-border text-text-secondary px-1.5 py-0.5">Du</span>}
                         <span className="font-sans text-xs text-text-secondary">{comment.time}</span>
                       </div>
                       <p className="font-sans text-sm text-dark leading-relaxed">{comment.text}</p>
@@ -526,13 +694,78 @@ export default function ModulPage({
                           </svg>
                           {comment.likes}
                         </button>
-                        <button className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">
+                        <button
+                          onClick={() => { setReplyTo(replyTo === comment.id ? null : comment.id); setReplyText('') }}
+                          className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                        >
                           Antworten
                         </button>
                       </div>
+
+                      {/* Benachrichtigung bei Team-Antwort */}
+                      {teamAnswered && (
+                        <div className="mt-2 inline-flex items-center gap-1.5 bg-accent-gold/10 text-accent-gold px-2 py-1 font-sans text-[11px]">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
+                          {comment.isAuthor ? 'Du wurdest über die Antwort benachrichtigt' : `${comment.name} wurde über die Antwort benachrichtigt`}
+                        </div>
+                      )}
+
+                      {/* Antworten */}
+                      {comment.replies.length > 0 && (
+                        <div className="mt-3 space-y-3 border-l-2 border-border pl-4">
+                          {comment.replies.map((r) => {
+                            const ini = r.name.split(' ').map((w) => w[0]).join('').slice(0, 2)
+                            return (
+                              <div key={r.id} className="flex gap-2.5">
+                                <div className={`w-7 h-7 ${r.isTeam ? 'bg-accent-gold' : 'bg-dark'} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-[10px]`}>{ini}</div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                    <span className="font-sans text-sm font-medium">{r.name}</span>
+                                    {r.isTeam && <TeamBadge role={r.role} />}
+                                    <span className="font-sans text-xs text-text-secondary">{r.time}</span>
+                                  </div>
+                                  <p className="font-sans text-sm text-dark leading-relaxed">{r.text}</p>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+
+                      {/* Antwort-Eingabe */}
+                      {replyTo === comment.id && (
+                        <div className="mt-3 flex gap-2.5">
+                          <div className="w-7 h-7 bg-accent-gold flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-[10px]">{CURRENT_USER.initials}</div>
+                          <div className="flex-1">
+                            <textarea
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder={`Antwort an ${comment.name}…`}
+                              rows={2}
+                              className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark resize-none"
+                            />
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                onClick={() => handleSubmitReply(comment.id)}
+                                disabled={!replyText.trim()}
+                                className="font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                Antwort senden
+                              </button>
+                              <button
+                                onClick={() => { setReplyTo(null); setReplyText('') }}
+                                className="font-sans text-xs text-text-secondary hover:text-dark transition-colors px-2 py-1.5"
+                              >
+                                Abbrechen
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
-                ))}
+                  )
+                })}
               </div>
             </section>
 
