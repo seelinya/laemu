@@ -215,6 +215,9 @@ const commentsPerLesson: Record<string, Comment[]> = {
   ],
 }
 
+// Eine einzige Kommentarliste pro Lernvideo (nicht nach Stimmen/Lektionen filterbar).
+const initialVideoComments: Comment[] = Object.values(commentsPerLesson).flat()
+
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
 function IconPlay() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> }
@@ -550,8 +553,7 @@ export default function LernvideoDetailPage() {
   const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
-  const [activeLesson, setActiveLesson] = useState<{ id: string; label: string } | null>(null)
-  const [localComments, setLocalComments] = useState<Record<string, Comment[]>>(commentsPerLesson)
+  const [videoComments, setVideoComments] = useState<Comment[]>(initialVideoComments)
   const [showLaemuPlayer, setShowLaemuPlayer] = useState(false)
   const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
   const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
@@ -920,73 +922,40 @@ export default function LernvideoDetailPage() {
                   </motion.div>
                 )}
 
-                {/* 7 — KOMMENTARE */}
+                {/* 7 — KOMMENTARE (eine Leiste pro Lernvideo) */}
                 {(() => {
-                  const lessonId = activeLesson?.id ?? 'intro'
-                  const lessonLabel = activeLesson?.label ?? (v.introVideo ? v.introVideo.label : v.title)
-                  const currentComments = localComments[lessonId] ?? []
-                  const likeKey = (user: string) => `${lessonId}:${user}`
+                  const likeKey = (idx: number, user: string) => `${idx}:${user}`
 
                   const handleSend = () => {
                     if (!comment.trim()) return
-                    setLocalComments(prev => ({
+                    setVideoComments(prev => [
+                      { user: 'ich', name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', text: comment.trim(), time: 'Gerade eben', likes: 0 },
                       ...prev,
-                      [lessonId]: [
-                        { user: 'ich', name: 'Du', avatar: '', text: comment.trim(), time: 'Gerade eben', likes: 0 },
-                        ...(prev[lessonId] ?? []),
-                      ],
-                    }))
+                    ])
                     setComment('')
                   }
 
                   return (
-                    <motion.div key={lessonId} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
+                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
                       {/* Header */}
-                      <div className="flex items-start justify-between gap-4 mb-5">
-                        <div>
-                          <h3 className="font-heading font-bold text-lg">Kommentare ({currentComments.length})</h3>
-                          <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
-                            zu: <span className="text-dark font-medium">{lessonLabel}</span>
-                          </p>
-                        </div>
-                        {activeLesson && (
-                          <button
-                            onClick={() => setActiveLesson(null)}
-                            className="font-sans text-xs text-text-secondary hover:text-dark transition-colors border border-border px-2.5 py-1 hover:border-dark flex-shrink-0"
-                          >
-                            ← Einführungsvideo
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Lesson switcher pills */}
-                      <div className="flex gap-1.5 flex-wrap mb-5">
-                        <button
-                          onClick={() => setActiveLesson(null)}
-                          className={`font-sans text-[10px] px-2.5 py-1 border transition-colors ${lessonId === 'intro' ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                        >
-                          Einführung
-                        </button>
-                        {v.stimmenSections.flatMap(s => s.lernvideos).map(lv => (
-                          <button
-                            key={lv.id}
-                            onClick={() => setActiveLesson({ id: lv.id, label: lv.label })}
-                            className={`font-sans text-[10px] px-2.5 py-1 border transition-colors ${lessonId === lv.id ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
-                          >
-                            {lv.label.split('—')[0].trim()}
-                          </button>
-                        ))}
+                      <div className="mb-5">
+                        <h3 className="font-heading font-bold text-lg">Kommentare ({videoComments.length})</h3>
+                        <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
+                          zu: <span className="text-dark font-medium">{v.title}</span>
+                        </p>
                       </div>
 
                       {/* Comment list */}
-                      <AnimatePresence mode="wait">
-                        <motion.div key={lessonId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-4 mb-6">
-                          {currentComments.length === 0 ? (
-                            <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu dieser Lektion. Sei der Erste!</p>
-                          ) : (
-                            currentComments.map((c, idx) => (
+                      <div className="space-y-4 mb-6">
+                        {videoComments.length === 0 ? (
+                          <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
+                        ) : (
+                          videoComments.map((c, idx) => {
+                            const isMe = c.user === 'ich'
+                            const profileHref = isMe ? '/member/profile' : `/member/u/${c.user}`
+                            return (
                               <div key={`${c.user}-${idx}`} className="flex gap-3">
-                                <div className="relative w-9 h-9 overflow-hidden flex-shrink-0 bg-background border border-border">
+                                <Link href={profileHref} className="relative w-9 h-9 overflow-hidden flex-shrink-0 bg-background border border-border hover:border-accent-gold transition-colors">
                                   {c.avatar ? (
                                     <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
                                   ) : (
@@ -994,26 +963,26 @@ export default function LernvideoDetailPage() {
                                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                     </div>
                                   )}
-                                </div>
+                                </Link>
                                 <div className="flex-1 bg-background p-4 border border-border">
                                   <div className="flex items-center gap-2 mb-2">
-                                    <p className="font-sans font-semibold text-xs">{c.name}</p>
+                                    <Link href={profileHref} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
                                     <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
                                   </div>
                                   <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
                                   <button
-                                    onClick={() => setCommentLikes(prev => ({ ...prev, [likeKey(c.user)]: !prev[likeKey(c.user)] }))}
-                                    className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[likeKey(c.user)] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                                    onClick={() => setCommentLikes(prev => ({ ...prev, [likeKey(idx, c.user)]: !prev[likeKey(idx, c.user)] }))}
+                                    className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[likeKey(idx, c.user)] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
                                   >
-                                    <IconHeart filled={!!commentLikes[likeKey(c.user)]} />
-                                    {c.likes + (commentLikes[likeKey(c.user)] ? 1 : 0)}
+                                    <IconHeart filled={!!commentLikes[likeKey(idx, c.user)]} />
+                                    {c.likes + (commentLikes[likeKey(idx, c.user)] ? 1 : 0)}
                                   </button>
                                 </div>
                               </div>
-                            ))
-                          )}
-                        </motion.div>
-                      </AnimatePresence>
+                            )
+                          })
+                        )}
+                      </div>
 
                       {/* Input */}
                       <div className="flex gap-3">
@@ -1026,7 +995,7 @@ export default function LernvideoDetailPage() {
                             onChange={e => setComment(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleSend()}
                             type="text"
-                            placeholder={`Kommentar zu "${lessonLabel.split('—')[0].trim()}"…`}
+                            placeholder={`Kommentar zu "${v.title}"…`}
                             className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                           />
                           <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
@@ -1100,7 +1069,7 @@ export default function LernvideoDetailPage() {
                                         <IconHeadphones /> Playlist
                                       </button>
                                       <button
-                                        onClick={() => { setActiveLesson({ id: lv.id, label: lv.label }); setMainTab('ueberblick') }}
+                                        onClick={() => setMainTab('ueberblick')}
                                         className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
                                       >
                                         <IconPlay /> Starten
@@ -1166,7 +1135,7 @@ export default function LernvideoDetailPage() {
                               <IconHeadphones /> Playlist
                             </button>
                             <button
-                              onClick={() => { setActiveLesson({ id: bv.id, label: bv.label }); setMainTab('ueberblick') }}
+                              onClick={() => setMainTab('ueberblick')}
                               className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5"
                             >
                               <IconPlay /> Starten

@@ -360,16 +360,6 @@ export default function MemberAcademyPage() {
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" />
             </svg>
           </button>
-          {/* Profil oben rechts */}
-          <div className="flex items-center gap-2.5 pl-3 border-l border-white/15">
-            <div className="hidden sm:block text-right leading-tight">
-              <p className="font-heading font-bold text-sm">Niklaus Hess</p>
-              <p className="font-sans text-[11px] text-accent-gold">{isUpgraded ? 'Pro Mitglied' : 'Starter Mitglied'}</p>
-            </div>
-            <div className="relative w-9 h-9 overflow-hidden rounded-full border border-white/20 flex-shrink-0">
-              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Niklaus Hess" fill className="object-cover" unoptimized />
-            </div>
-          </div>
         </div>
       </div>
 

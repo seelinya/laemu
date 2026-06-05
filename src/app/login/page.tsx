@@ -15,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setTimeout(() => {
-      router.push('/member/community')
+      router.push('/member/academy')
     }, 800)
   }
 
