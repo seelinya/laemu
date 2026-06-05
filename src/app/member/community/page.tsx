@@ -344,11 +344,6 @@ const navItems = [
   { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
-const followingList = [
-  { name: 'Hansruedi Wenger', handle: '@hansruedi_akkordeon', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
-  { name: 'Maria Kälin', handle: '@maria_oergeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
-]
-
 const knownFormations = [
   { name: 'Ländlerkapelle Hess', id: 'hess' },
   { name: 'Trio Alpstein', id: 'alpstein' },
@@ -616,6 +611,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
   const [text, setText] = useState('')
   const [linkUrl, setLinkUrl] = useState('')
   const [mentions, setMentions] = useState<typeof communityMentions>([])
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public')
 
   const types = [
     { id: 'text' as const, label: 'Text', icon: <IconText /> },
@@ -780,6 +776,30 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
           )}
         </div>
 
+        {/* Visibility toggle */}
+        <div className="px-5 pb-2">
+          <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Sichtbarkeit</p>
+          <div className="inline-flex border border-border overflow-hidden">
+            <button
+              onClick={() => setVisibility('public')}
+              className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors ${visibility === 'public' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              Öffentlich posten
+            </button>
+            <button
+              onClick={() => setVisibility('private')}
+              className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors border-l border-border ${visibility === 'private' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Nur für mich / Privat
+            </button>
+          </div>
+          {visibility === 'private' && (
+            <p className="font-sans text-[11px] text-text-secondary mt-2 leading-relaxed">Privat gespeicherte Notizen sind nur für dich sichtbar — sie erscheinen nicht im Feed.</p>
+          )}
+        </div>
+
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-4 border-t border-border">
           <p className="font-sans text-xs text-text-secondary">
@@ -794,7 +814,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
               disabled={!canPost}
               className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Posten
+              {visibility === 'public' ? 'Öffentlich posten' : 'Privat speichern'}
             </button>
           </div>
         </div>
@@ -803,10 +823,10 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
   )
 }
 
-function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all' | 'following') => void }) {
+function FeedView() {
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerType, setComposerType] = useState<'text' | 'photo' | 'video' | 'link'>('text')
-  const posts = tab === 'following' ? mockPosts.filter(p => p.following) : mockPosts
+  const posts = mockPosts
 
   const openComposer = (type: 'text' | 'photo' | 'video' | 'link') => {
     setComposerType(type)
@@ -858,31 +878,13 @@ function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all'
           </div>
         </div>
 
-        {/* Tabs — Gefolgte Profile left (default), Alle Beiträge right */}
-        <div className="flex border-b border-border">
-          <button
-            onClick={() => setTab('following')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'following' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            Gefolgte Profile
-          </button>
-          <button
-            onClick={() => setTab('all')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'all' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            Alle Beiträge
-          </button>
+        {/* Linear chronological feed — neueste zuerst */}
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <h2 className="font-heading font-bold text-sm">Aktuelle Beiträge</h2>
+          <span className="font-sans text-xs text-text-secondary">Neueste zuerst</span>
         </div>
 
-        {posts.length === 0 ? (
-          <div className="bg-surface border border-border p-12 text-center">
-            <p className="font-sans text-text-secondary text-sm font-light">
-              Du folgst noch keinen Profilen. Entdecke die Community und folge anderen Musikern!
-            </p>
-          </div>
-        ) : (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
-        )}
+        {posts.map((post) => <PostCard key={post.id} post={post} />)}
 
         <button className="w-full py-4 font-sans text-sm text-text-secondary border border-border hover:bg-surface hover:text-dark transition-colors">
           Mehr laden…
@@ -1072,6 +1074,7 @@ function ProfileView() {
   const [eventsVisible, setEventsVisible] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
   const [createFormationName, setCreateFormationName] = useState<string | null>(null)
+  const [profileTab, setProfileTab] = useState<'posts' | 'shared'>('posts')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
@@ -1079,6 +1082,11 @@ function ProfileView() {
   const [formation, setFormation] = useState('Kapelle Hess-Ruedi')
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
   const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
+  const [openForFormation, setOpenForFormation] = useState(false)
+  const [instagram, setInstagram] = useState('niklaus.hess')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [facebook, setFacebook] = useState('')
+  const [tiktok, setTiktok] = useState('')
 
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
@@ -1086,6 +1094,11 @@ function ProfileView() {
   const [draftFormation, setDraftFormation] = useState('')
   const [draftInstruments, setDraftInstruments] = useState('')
   const [draftVorbilder, setDraftVorbilder] = useState('')
+  const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
+  const [draftInstagram, setDraftInstagram] = useState('')
+  const [draftWhatsapp, setDraftWhatsapp] = useState('')
+  const [draftFacebook, setDraftFacebook] = useState('')
+  const [draftTiktok, setDraftTiktok] = useState('')
 
   const startEdit = () => {
     setDraftName(name)
@@ -1093,6 +1106,11 @@ function ProfileView() {
     setDraftFormation(formation)
     setDraftInstruments(instruments)
     setDraftVorbilder(vorbilder)
+    setDraftOpenForFormation(openForFormation)
+    setDraftInstagram(instagram)
+    setDraftWhatsapp(whatsapp)
+    setDraftFacebook(facebook)
+    setDraftTiktok(tiktok)
     setEditMode(true)
   }
 
@@ -1102,6 +1120,11 @@ function ProfileView() {
     setFormation(draftFormation)
     setInstruments(draftInstruments)
     setVorbilder(draftVorbilder)
+    setOpenForFormation(draftOpenForFormation)
+    setInstagram(draftInstagram.trim())
+    setWhatsapp(draftWhatsapp.trim())
+    setFacebook(draftFacebook.trim())
+    setTiktok(draftTiktok.trim())
     setEditMode(false)
   }
 
@@ -1207,6 +1230,47 @@ function ProfileView() {
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
                   <input value={draftVorbilder} onChange={e => setDraftVorbilder(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
+
+                {/* Social-media links (managed outside the post stream) */}
+                <div className="pt-4 border-t border-border">
+                  <p className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] mb-3">Social Media</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">Instagram</label>
+                      <input value={draftInstagram} onChange={e => setDraftInstagram(e.target.value)} placeholder="benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">WhatsApp</label>
+                      <input value={draftWhatsapp} onChange={e => setDraftWhatsapp(e.target.value)} placeholder="+41 79 …" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">Facebook</label>
+                      <input value={draftFacebook} onChange={e => setDraftFacebook(e.target.value)} placeholder="profil-name" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">TikTok</label>
+                      <input value={draftTiktok} onChange={e => setDraftTiktok(e.target.value)} placeholder="@benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Offen für eine Formation */}
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div>
+                    <p className="font-sans text-sm font-medium">Offen für eine Formation</p>
+                    <p className="font-sans text-xs text-text-secondary mt-0.5">
+                      {draftOpenForFormation ? 'Andere sehen, dass du eine Formation suchst.' : 'Zeige, dass du für eine Formation offen bist.'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setDraftOpenForFormation(v => !v)}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftOpenForFormation ? 'bg-accent-gold' : 'bg-border'}`}
+                    aria-label="Offen für eine Formation"
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+
                 {/* Events toggle inside edit mode */}
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div>
@@ -1226,9 +1290,40 @@ function ProfileView() {
               </motion.div>
             ) : (
               <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <h2 className="font-heading text-2xl font-black">{name}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="font-heading text-2xl font-black">{name}</h2>
+                  {openForFormation && (
+                    <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide">Offen für Formationen</span>
+                  )}
+                </div>
                 <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
                 <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
+
+                {/* Social-media links */}
+                {(instagram || whatsapp || facebook || tiktok) && (
+                  <div className="flex items-center gap-2 mb-4">
+                    {instagram && (
+                      <a href={`https://instagram.com/${instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`Instagram: ${instagram}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                      </a>
+                    )}
+                    {whatsapp && (
+                      <a href={`https://wa.me/${whatsapp.replace(/[^\d+]/g, '')}`} target="_blank" rel="noopener noreferrer" title={`WhatsApp: ${whatsapp}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+                      </a>
+                    )}
+                    {facebook && (
+                      <a href={`https://facebook.com/${facebook.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`Facebook: ${facebook}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                      </a>
+                    )}
+                    {tiktok && (
+                      <a href={`https://tiktok.com/@${tiktok.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`TikTok: ${tiktok}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {instruments.split(',').map(i => (
                     <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
@@ -1255,18 +1350,14 @@ function ProfileView() {
                   </svg>
                   Events: {eventsVisible ? 'für andere sichtbar' : 'ausgeblendet'}
                 </div>
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border text-center">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border text-center">
                   <div>
                     <p className="font-heading font-black text-xl">48</p>
                     <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
                   </div>
                   <div>
-                    <p className="font-heading font-black text-xl">312</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">Folge ich</p>
-                  </div>
-                  <div>
-                    <p className="font-heading font-black text-xl">891</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">Follower</p>
+                    <p className="font-heading font-black text-xl">12</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Gespeichert</p>
                   </div>
                 </div>
               </motion.div>
@@ -1275,54 +1366,76 @@ function ProfileView() {
         </div>
       </div>
 
-      {/* My posts */}
+      {/* Profile content tabs */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading font-bold text-lg">Meine Beiträge</h3>
+          <div className="flex border-b border-border">
+            <button
+              onClick={() => setProfileTab('posts')}
+              className={`px-4 py-2 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === 'posts' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              Beiträge
+            </button>
+            <button
+              onClick={() => setProfileTab('shared')}
+              className={`px-4 py-2 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === 'shared' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              Geteilte Beiträge
+            </button>
+          </div>
           <button
             onClick={() => setComposerOpen(true)}
-            className="font-sans text-sm text-accent-gold hover:text-dark transition-colors"
+            className="font-sans text-sm text-accent-gold hover:text-dark transition-colors whitespace-nowrap"
           >
             + Neuer Beitrag
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          {mockPosts.slice(0, 3).map((post) => (
-            <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer">
-              <Image src={post.img ?? ''} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
-                <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
-                <button className="text-white/80 hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Following list */}
-      <div className="bg-surface border border-border p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading font-bold text-sm">Folgeliste</h3>
-          <button className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">+ Profil suchen</button>
-        </div>
-        <div className="space-y-3">
-          {followingList.map((f) => (
-            <div key={f.handle} className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
-                <Image src={f.img} alt={f.name} fill className="object-cover" unoptimized />
+        {profileTab === 'posts' ? (
+          <div className="grid grid-cols-3 gap-2">
+            {mockPosts.filter(p => p.img).slice(0, 3).map((post) => (
+              <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer">
+                <Image src={post.img ?? ''} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                  <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
+                  <button className="text-white/80 hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                  </button>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-sans font-semibold text-xs">{f.name}</p>
-                <p className="font-sans text-xs font-light text-text-secondary">{f.handle}</p>
-              </div>
-              <button className="font-sans text-xs text-red-500 border border-red-200 px-2 py-1 hover:bg-red-50 transition-colors">
-                Entfolgen
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="font-sans text-xs text-text-secondary">Die neuesten Inhalte, die du geteilt hast — Events, Videos, Links und Texte.</p>
+            {mockPosts.map((post) => {
+              const typeLabel =
+                post.type === 'video' ? 'Video' :
+                post.type === 'link' ? 'Link' :
+                (post.type === 'event' || post.type === 'event-announcement') ? 'Event' :
+                post.type === 'photo' ? 'Foto' : 'Text'
+              const typeIcon =
+                post.type === 'video' ? <IconVideo /> :
+                post.type === 'link' ? <IconLink /> :
+                post.type === 'photo' ? <IconCamera /> : <IconText />
+              return (
+                <div key={post.id} className="bg-surface border border-border p-4 flex items-start gap-3 hover:border-dark transition-colors">
+                  <span className="w-8 h-8 flex items-center justify-center bg-background border border-border text-text-secondary flex-shrink-0">{typeIcon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-sans text-[10px] font-semibold px-1.5 py-0.5 bg-dark text-white uppercase tracking-wide">{typeLabel}</span>
+                      <span className="font-sans text-xs text-text-secondary">geteilt · {post.time}</span>
+                    </div>
+                    <p className="font-sans text-sm font-light text-text-secondary leading-snug line-clamp-2">{post.text}</p>
+                    {post.type === 'link' && post.linkTitle && (
+                      <p className="font-sans text-xs text-accent-gold mt-1 truncate">{post.linkTitle}</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1533,7 +1646,6 @@ function SettingsView() {
 }
 
 function DiscoverProfiles() {
-  const [followed, setFollowed] = useState<Record<string, boolean>>({})
   const profiles = [
     ...mockPosts
       .filter(p => ['hansruedi_akkordeon', 'maria_oergeli'].includes(p.user))
@@ -1551,12 +1663,12 @@ function DiscoverProfiles() {
             <Link href={p.href} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
             <p className="font-sans text-xs font-light text-text-secondary">{p.handle} · {p.type}</p>
           </div>
-          <button
-            onClick={() => setFollowed(prev => ({ ...prev, [p.handle]: !prev[p.handle] }))}
-            className={`font-sans text-xs font-medium px-3 py-1.5 border transition-colors ${followed[p.handle] ? 'border-accent-gold text-accent-gold hover:bg-accent-gold hover:text-white' : 'border-dark text-dark hover:bg-dark hover:text-white'}`}
+          <Link
+            href={p.href}
+            className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap"
           >
-            {followed[p.handle] ? 'Gefolgt ✓' : 'Folgen'}
-          </button>
+            Profil ansehen →
+          </Link>
         </div>
       ))}
     </div>
@@ -1564,27 +1676,21 @@ function DiscoverProfiles() {
 }
 
 function SuggestedProfilesSidebar() {
-  const [followed, setFollowed] = useState<Record<string, boolean>>({})
   return (
     <div className="bg-surface border border-border p-5">
-      <h3 className="font-heading font-bold text-sm mb-4">Empfohlene Profile</h3>
+      <h3 className="font-heading font-bold text-sm mb-4">Profile entdecken</h3>
       <div className="space-y-4">
         {suggestedProfiles.map((p) => (
-          <div key={p.name} className="flex items-center gap-3">
-            <Link href="/member/profile" className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
+          <Link key={p.name} href="/member/profile" className="flex items-center gap-3 group">
+            <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 group-hover:opacity-80 transition-opacity">
               <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
-            </Link>
+            </div>
             <div className="flex-1 min-w-0">
-              <Link href="/member/profile" className="font-sans font-medium text-xs truncate hover:text-accent-gold transition-colors block">{p.name}</Link>
+              <p className="font-sans font-medium text-xs truncate group-hover:text-accent-gold transition-colors">{p.name}</p>
               <p className="font-sans text-[10px] font-light text-text-secondary">{p.type}</p>
             </div>
-            <button
-              onClick={() => setFollowed(prev => ({ ...prev, [p.name]: !prev[p.name] }))}
-              className={`font-sans text-xs font-medium px-2 py-1 border transition-colors flex-shrink-0 ${followed[p.name] ? 'border-accent-gold text-accent-gold' : 'border-dark text-dark hover:bg-dark hover:text-white'}`}
-            >
-              {followed[p.name] ? '✓' : 'Folgen'}
-            </button>
-          </div>
+            <span className="font-sans text-xs text-text-secondary group-hover:text-accent-gold transition-colors flex-shrink-0">→</span>
+          </Link>
         ))}
       </div>
     </div>
@@ -1595,7 +1701,6 @@ function SuggestedProfilesSidebar() {
 
 export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('feed')
-  const [feedTab, setFeedTab] = useState<'all' | 'following'>('following')
 
   return (
     <div className="min-h-screen bg-background">
@@ -1622,7 +1727,7 @@ export default function MemberCommunityPage() {
           {/* LEFT SIDEBAR */}
           <div className="hidden lg:block">
             <div className="sticky top-8 space-y-4">
-              {/* Own profile quick-card: follower counts visible for own profile */}
+              {/* Own profile quick-card: no follow graph — just own activity counts */}
               <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
@@ -1633,18 +1738,14 @@ export default function MemberCommunityPage() {
                     <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center border-t border-border pt-4">
+                <div className="grid grid-cols-2 gap-2 text-center border-t border-border pt-4">
                   <div>
                     <p className="font-heading font-black text-lg">48</p>
                     <p className="font-sans text-[10px] font-light text-text-secondary">Beiträge</p>
                   </div>
                   <div>
-                    <p className="font-heading font-black text-lg">312</p>
-                    <p className="font-sans text-[10px] font-light text-text-secondary">Folge ich</p>
-                  </div>
-                  <div>
-                    <p className="font-heading font-black text-lg">891</p>
-                    <p className="font-sans text-[10px] font-light text-text-secondary">Follower</p>
+                    <p className="font-heading font-black text-lg">12</p>
+                    <p className="font-sans text-[10px] font-light text-text-secondary">Gespeichert</p>
                   </div>
                 </div>
               </button>
@@ -1673,7 +1774,7 @@ export default function MemberCommunityPage() {
 
           {/* MAIN CONTENT */}
           <div className="lg:col-span-2 space-y-6">
-            {activeNav === 'feed' && <FeedView tab={feedTab} setTab={setFeedTab} />}
+            {activeNav === 'feed' && <FeedView />}
             {activeNav === 'messages' && <MessagesView />}
             {activeNav === 'groups' && <GroupsView />}
             {activeNav === 'saved' && <SavedView />}

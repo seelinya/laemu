@@ -93,115 +93,185 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
   const [muted, setMuted] = useState(false)
   const [quality, setQuality] = useState('Auto')
   const [openMenu, setOpenMenu] = useState<null | 'speed' | 'quality'>(null)
+  const [enlarged, setEnlarged] = useState(false)
 
   const effectiveVolume = muted ? 0 : volume
 
-  return (
-    <div className="bg-dark overflow-hidden">
-      {/* Video surface */}
-      <div className="aspect-video relative flex flex-col items-center justify-center gap-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
-        <motion.button
-          onClick={() => setPlaying((p) => !p)}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.95 }}
-          className="w-16 h-16 bg-accent-gold flex items-center justify-center z-10"
-          aria-label={playing ? 'Pause' : 'Abspielen'}
+  // Shared video surface content (play button, gradient, labels, status badges).
+  const videoSurface = (
+    <>
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
+      <motion.button
+        onClick={() => setPlaying((p) => !p)}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        className="w-16 h-16 bg-accent-gold flex items-center justify-center z-10"
+        aria-label={playing ? 'Pause' : 'Abspielen'}
+      >
+        {playing ? (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+        ) : (
+          <PlayIcon size={22} />
+        )}
+      </motion.button>
+      <p className="font-sans text-sm text-white/60 z-10">Video: {title} ({duration})</p>
+      {/* Aktive Einstellungen */}
+      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+        {speed !== 1 && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{speed}×</span>}
+        {quality !== 'Auto' && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{quality}</span>}
+        {/* Vergrössern-Schaltfläche */}
+        <button
+          onClick={() => setEnlarged(true)}
+          className="w-7 h-7 bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+          aria-label="Vergrössern"
+          title="Vergrössern"
         >
-          {playing ? (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
-          ) : (
-            <PlayIcon size={22} />
-          )}
-        </motion.button>
-        <p className="font-sans text-sm text-white/60 z-10">Video: {title} ({duration})</p>
-        {/* Aktive Einstellungen */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-          {speed !== 1 && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{speed}×</span>}
-          {quality !== 'Auto' && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{quality}</span>}
-        </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 3 21 3 21 9" />
+            <polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" />
+            <line x1="3" y1="21" x2="10" y2="14" />
+          </svg>
+        </button>
+      </div>
+    </>
+  )
+
+  // Shared control bar content.
+  const controlBar = (
+    <div className="px-4 py-3 space-y-3 border-t border-white/10">
+      {/* Progress (mock) */}
+      <div className="h-1.5 bg-white/15 cursor-pointer">
+        <div className="h-full bg-accent-gold" style={{ width: playing ? '35%' : '0%' }} />
       </div>
 
-      {/* Control bar */}
-      <div className="px-4 py-3 space-y-3 border-t border-white/10">
-        {/* Progress (mock) */}
-        <div className="h-1.5 bg-white/15 cursor-pointer">
-          <div className="h-full bg-accent-gold" style={{ width: playing ? '35%' : '0%' }} />
-        </div>
+      <div className="flex items-center gap-3">
+        {/* Play/Pause */}
+        <button onClick={() => setPlaying((p) => !p)} className="text-white/80 hover:text-white transition-colors flex-shrink-0">
+          {playing ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+          )}
+        </button>
+        <span className="font-sans text-xs text-white/50 tabular-nums flex-shrink-0">0:00 / {duration}</span>
 
-        <div className="flex items-center gap-3">
-          {/* Play/Pause */}
-          <button onClick={() => setPlaying((p) => !p)} className="text-white/80 hover:text-white transition-colors flex-shrink-0">
-            {playing ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+        {/* Lautstärke */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button onClick={() => setMuted((m) => !m)} className="text-white/80 hover:text-white transition-colors" aria-label="Stummschalten">
+            {effectiveVolume === 0 ? (
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 010 14.14" /><path d="M15.54 8.46a5 5 0 010 7.07" /></svg>
             )}
           </button>
-          <span className="font-sans text-xs text-white/50 tabular-nums flex-shrink-0">0:00 / {duration}</span>
+          <input
+            type="range" min={0} max={100} value={effectiveVolume}
+            onChange={(e) => { setVolume(Number(e.target.value)); setMuted(false) }}
+            className="w-20 cursor-pointer" style={{ accentColor: '#C4973A' }}
+            aria-label="Lautstärke"
+          />
+        </div>
 
-          {/* Lautstärke */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button onClick={() => setMuted((m) => !m)} className="text-white/80 hover:text-white transition-colors" aria-label="Stummschalten">
-              {effectiveVolume === 0 ? (
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
-              ) : (
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 010 14.14" /><path d="M15.54 8.46a5 5 0 010 7.07" /></svg>
-              )}
+        <div className="ml-auto flex items-center gap-2 flex-shrink-0">
+          {/* Geschwindigkeit */}
+          <div className="relative">
+            <button
+              onClick={() => setOpenMenu((m) => (m === 'speed' ? null : 'speed'))}
+              className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${speed !== 1 ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
+            >
+              {speed}× Tempo
             </button>
-            <input
-              type="range" min={0} max={100} value={effectiveVolume}
-              onChange={(e) => { setVolume(Number(e.target.value)); setMuted(false) }}
-              className="w-20 cursor-pointer" style={{ accentColor: '#C4973A' }}
-              aria-label="Lautstärke"
-            />
+            {openMenu === 'speed' && (
+              <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
+                {PLAYBACK_SPEEDS.map((s) => (
+                  <button key={s} onClick={() => { setSpeed(s); setOpenMenu(null) }}
+                    className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${s === speed ? 'text-accent-gold' : 'text-white/70'}`}>
+                    {s}× {s === 1 && '(Normal)'}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="ml-auto flex items-center gap-2 flex-shrink-0">
-            {/* Geschwindigkeit */}
-            <div className="relative">
-              <button
-                onClick={() => setOpenMenu((m) => (m === 'speed' ? null : 'speed'))}
-                className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${speed !== 1 ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
-              >
-                {speed}× Tempo
-              </button>
-              {openMenu === 'speed' && (
-                <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
-                  {PLAYBACK_SPEEDS.map((s) => (
-                    <button key={s} onClick={() => { setSpeed(s); setOpenMenu(null) }}
-                      className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${s === speed ? 'text-accent-gold' : 'text-white/70'}`}>
-                      {s}× {s === 1 && '(Normal)'}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Qualität */}
-            <div className="relative">
-              <button
-                onClick={() => setOpenMenu((m) => (m === 'quality' ? null : 'quality'))}
-                className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${quality !== 'Auto' ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
-                {quality}
-              </button>
-              {openMenu === 'quality' && (
-                <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
-                  {VIDEO_QUALITIES.map((q) => (
-                    <button key={q} onClick={() => { setQuality(q); setOpenMenu(null) }}
-                      className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${q === quality ? 'text-accent-gold' : 'text-white/70'}`}>
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+          {/* Qualität */}
+          <div className="relative">
+            <button
+              onClick={() => setOpenMenu((m) => (m === 'quality' ? null : 'quality'))}
+              className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${quality !== 'Auto' ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
+              {quality}
+            </button>
+            {openMenu === 'quality' && (
+              <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
+                {VIDEO_QUALITIES.map((q) => (
+                  <button key={q} onClick={() => { setQuality(q); setOpenMenu(null) }}
+                    className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${q === quality ? 'text-accent-gold' : 'text-white/70'}`}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
+  )
+
+  return (
+    <>
+      {/* ── Inline player ── */}
+      <div className="bg-dark overflow-hidden">
+        {/* Video surface */}
+        <div className="aspect-video relative flex flex-col items-center justify-center gap-4 overflow-hidden">
+          {videoSurface}
+        </div>
+        {controlBar}
+      </div>
+
+      {/* ── Vollbild-Overlay (vergrössert) ── */}
+      <AnimatePresence>
+        {enlarged && (
+          <motion.div
+            key="enlarged-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center"
+            onClick={(e) => { if (e.target === e.currentTarget) setEnlarged(false) }}
+          >
+            {/* Schliessen-Schaltfläche (oben rechts im Overlay) */}
+            <button
+              onClick={() => setEnlarged(false)}
+              className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
+              aria-label="Schliessen"
+              title="Schliessen"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            {/* Player im vergrösserten Modus */}
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="max-w-5xl w-full mx-4 bg-dark overflow-hidden"
+            >
+              <div className="aspect-video relative flex flex-col items-center justify-center gap-4 overflow-hidden">
+                {videoSurface}
+              </div>
+              {controlBar}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
 

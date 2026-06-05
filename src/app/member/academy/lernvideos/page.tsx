@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { mockUserAbo, isPieceUnlocked, individualPlanMeta } from '@/lib/academy'
+import { ProfileMenu, NotificationBell } from '@/components/MemberTabs'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -244,30 +245,48 @@ export default function LernvideosPage() {
     <div className="min-h-screen bg-background">
 
       {/* Header */}
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Musikschule</Link>
-          <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
+      <div className="bg-surface border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20 gap-2">
+        {/* Left: back link + title */}
+        <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
+          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors whitespace-nowrap hidden sm:inline">← Musikschule</Link>
+          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors sm:hidden">←</Link>
+          <h1 className="font-heading font-bold text-base sm:text-lg truncate">Lernvideo-Datenbank</h1>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Right: action buttons + notifications + profile */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Action buttons — icon-only on small screens, labelled on sm+ */}
           <button
             onClick={() => setFilterSaved(!filterSaved)}
-            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${filterSaved ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            className={`font-sans text-xs px-2 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${filterSaved ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            title="Gespeicherte Videos"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill={filterSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            Gespeichert ({savedVideoIds.size})
+            <span className="hidden sm:inline">Gespeichert ({savedVideoIds.size})</span>
           </button>
           <button
             onClick={() => setShowPlaylist(!showPlaylist)}
-            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            className={`font-sans text-xs px-2 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            title="Meine Playlist"
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-            Meine Playlist ({mockPlaylist.length})
+            <span className="hidden sm:inline">Playlist ({mockPlaylist.length})</span>
           </button>
-          <Link href="/member/academy/lernvideos/upload" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+          <Link
+            href="/member/academy/lernvideos/upload"
+            className="font-sans text-xs px-2 sm:px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5"
+            title="Stück hochladen"
+          >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Stück hochladen
+            <span className="hidden sm:inline">Hochladen</span>
           </Link>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-border mx-0.5 flex-shrink-0" />
+
+          {/* Notifications + profile — always visible */}
+          <NotificationBell />
+          <ProfileMenu />
         </div>
       </div>
 
@@ -682,10 +701,10 @@ export default function LernvideosPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex"
+                    className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row"
                   >
                     {/* Thumbnail */}
-                    <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch">
+                    <div className="relative w-full aspect-video sm:w-52 sm:aspect-auto sm:self-stretch flex-shrink-0">
                       <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="w-9 h-9 bg-accent-gold flex items-center justify-center">
@@ -750,7 +769,7 @@ export default function LernvideosPage() {
                       </div>
 
                       {/* Right: plan badge + action */}
-                      <div className="flex flex-col items-end justify-between flex-shrink-0">
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-between flex-shrink-0 gap-2 sm:gap-0">
                         <div className="flex flex-col items-end gap-1">
                           <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>
                             {planLabels[v.difficultyPlan]}
@@ -762,7 +781,7 @@ export default function LernvideosPage() {
                             </span>
                           )}
                         </div>
-                        <div className="mt-auto">
+                        <div className="sm:mt-auto">
                           <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
                             {unlocked ? 'Öffnen →' : 'Master-Video →'}
                           </Link>
@@ -780,9 +799,9 @@ export default function LernvideosPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="bg-surface border border-dashed border-border overflow-hidden flex select-none"
+                    className="bg-surface border border-dashed border-border overflow-hidden flex flex-col sm:flex-row select-none"
                   >
-                    <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch bg-dark/5 flex items-center justify-center min-h-[96px]">
+                    <div className="relative w-full aspect-video sm:w-52 sm:aspect-auto sm:self-stretch flex-shrink-0 bg-dark/5 flex items-center justify-center">
                       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                     </div>
                     <div className="flex-1 p-4 flex gap-4 min-w-0">
@@ -795,12 +814,12 @@ export default function LernvideosPage() {
                           ))}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end justify-between flex-shrink-0">
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-between flex-shrink-0 gap-2 sm:gap-0">
                         <span className="font-sans text-[10px] px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 whitespace-nowrap">
                           <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                           In Bearbeitung
                         </span>
-                        <span className="mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
+                        <span className="sm:mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
                       </div>
                     </div>
                   </motion.div>
