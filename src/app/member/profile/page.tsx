@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -316,12 +317,14 @@ export default function MemberProfilePage() {
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                   Nachricht
                 </button>
-                <button
-                  aria-label="Profil teilen"
+                <ShareMenu
+                  title={profile.name}
+                  text={`${profile.name} auf LAEMU`}
+                  align="right"
                   className="font-sans text-sm font-semibold px-3 py-2.5 border-2 border-border text-text-secondary hover:border-dark hover:text-dark transition-all"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                </button>
+                </ShareMenu>
               </div>
             </div>
 

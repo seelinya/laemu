@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -368,18 +369,36 @@ const conversations = [
 
 // ─── Components ───────────────────────────────────────────────────────────────
 
+type PostComment = { id: string; name: string; avatar: string; text: string; time: string; liked: boolean; likes: number }
+
+const initialPostComments: PostComment[] = [
+  { id: 'pc1', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Wunderschön! 🎶 Da wäre ich gerne dabei.', time: 'vor 1 Std.', liked: false, likes: 3 },
+  { id: 'pc2', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Tönt super — viel Erfolg beim Konzert!', time: 'vor 40 Min.', liked: false, likes: 1 },
+]
+
 function PostCard({ post }: { post: Post }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes)
   const [showComment, setShowComment] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
-  const [shareCopied, setShareCopied] = useState(false)
+  const [comments, setComments] = useState<PostComment[]>(() => initialPostComments.slice(0, Math.max(0, Math.min(2, post.comments))))
+  const [commentCount, setCommentCount] = useState(post.comments)
+  const [commentText, setCommentText] = useState('')
 
-  const handleShare = () => {
-    setShareCopied(true)
-    setTimeout(() => setShareCopied(false), 2000)
+  const addComment = () => {
+    const t = commentText.trim()
+    if (!t) return
+    setComments((prev) => [
+      ...prev,
+      { id: `pc-${Date.now()}`, name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', text: t, time: 'Gerade eben', liked: false, likes: 0 },
+    ])
+    setCommentCount((c) => c + 1)
+    setCommentText('')
   }
+
+  const toggleCommentLike = (id: string) =>
+    setComments((prev) => prev.map((c) => (c.id === id ? { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 } : c)))
 
   return (
     <motion.div
@@ -427,9 +446,6 @@ function PostCard({ post }: { post: Post }) {
                   <IconSave filled={saved} />
                   {saved ? 'Gespeichert' : 'Als Inspiration speichern'}
                 </button>
-                <button className="w-full text-left px-4 py-3 font-sans text-sm hover:bg-background transition-colors flex items-center gap-2.5">
-                  <IconShare /> Beitrag teilen
-                </button>
                 <button className="w-full text-left px-4 py-3 font-sans text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2.5">
                   <IconBlock /> Profil blockieren
                 </button>
@@ -474,7 +490,7 @@ function PostCard({ post }: { post: Post }) {
 
       <div className="p-4">
         <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{post.text}</p>
-        <div className="flex items-center gap-4 pt-3 border-t border-border">
+        <div className="flex items-center gap-3 sm:gap-4 pt-3 border-t border-border">
           <button
             onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1) }}
             className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}
@@ -484,21 +500,21 @@ function PostCard({ post }: { post: Post }) {
           </button>
           <button
             onClick={() => setShowComment(!showComment)}
-            className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors"
+            className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${showComment ? 'text-dark' : 'text-text-secondary hover:text-dark'}`}
           >
             <IconComment />
-            <span className="text-xs">{post.comments}</span>
+            <span className="text-xs">{commentCount}</span>
           </button>
-          <button onClick={handleShare} className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${shareCopied ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}>
+          <ShareMenu title={post.name} text={post.text} className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors">
             <IconShare />
-            <span className="text-xs">{shareCopied ? 'Link kopiert ✓' : 'Teilen'}</span>
-          </button>
+            <span className="text-xs hidden sm:inline">Teilen</span>
+          </ShareMenu>
           <button
             onClick={() => setSaved(!saved)}
             className={`flex items-center gap-1.5 font-sans text-sm ml-auto transition-colors ${saved ? 'text-accent-gold' : 'text-text-secondary hover:text-accent-gold'}`}
           >
             <IconSave filled={saved} />
-            <span className="text-xs">{saved ? 'Gespeichert' : 'Speichern'}</span>
+            <span className="text-xs hidden sm:inline">{saved ? 'Gespeichert' : 'Speichern'}</span>
           </button>
         </div>
         <AnimatePresence>
@@ -509,13 +525,46 @@ function PostCard({ post }: { post: Post }) {
               exit={{ opacity: 0, height: 0 }}
               className="mt-3 pt-3 border-t border-border overflow-hidden"
             >
+              {/* Kommentarliste */}
+              {comments.length > 0 && (
+                <div className="space-y-3 mb-3">
+                  {comments.map((c) => (
+                    <div key={c.id} className="flex gap-2.5">
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="bg-background border border-border px-3 py-2">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-sans font-semibold text-xs">{c.name}</span>
+                            <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
+                          </div>
+                          <p className="font-sans text-sm font-light text-dark leading-snug break-words">{c.text}</p>
+                        </div>
+                        <button
+                          onClick={() => toggleCommentLike(c.id)}
+                          className={`mt-1 flex items-center gap-1 font-sans text-[11px] transition-colors ${c.liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}
+                        >
+                          <IconHeart filled={c.liked} />
+                          {c.likes > 0 && <span>{c.likes}</span>}
+                          <span>Gefällt mir</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Eingabe */}
               <div className="flex gap-2">
                 <input
                   type="text"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') addComment() }}
                   placeholder="Kommentar schreiben..."
-                  className="flex-1 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
+                  className="flex-1 min-w-0 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
                 />
-                <button className="bg-dark text-white px-3 py-2 font-sans text-sm hover:bg-accent-gold transition-colors">
+                <button onClick={addComment} disabled={!commentText.trim()} className="bg-dark text-white px-3 py-2 font-sans text-sm hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
                   Senden
                 </button>
               </div>

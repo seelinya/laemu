@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pieceCatalog, isPieceUnlocked, type CatalogEntry } from '@/lib/academy'
+import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -641,32 +642,36 @@ export default function LernvideoDetailPage() {
             const open = expandedVideos.has(lv.id)
             return (
               <div key={lv.id}>
-                <div
+                {/* Geschlossene Zeile: bewusst schlank gehalten (mobil keine Buttons,
+                    die über den Bildschirm laufen). Like/Playlist erscheinen unter dem Video. */}
+                <button
                   onClick={() => toggleVideo(lv.id)}
-                  className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-background transition-colors text-left"
                 >
-                  <span className="font-sans text-xs text-text-secondary w-12 flex-shrink-0">Teil {partIdx + 1}</span>
+                  <span className="font-sans text-xs text-text-secondary w-10 flex-shrink-0 hidden sm:block">Teil {partIdx + 1}</span>
                   <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
-                    {lv.done ? <IconCheck /> : <IconPlay />}
+                    {lv.done ? <IconCheck /> : (open ? <IconPause /> : <IconPlay />)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
                     <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
-                    <button onClick={() => toggleAudioFav(lv.id)} className={`border px-2 py-1 text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`} title="Favorit">♡</button>
-                    <button onClick={() => toggleAudioPlaylist(lv.id)} className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`} title="Zur Audio-Playlist"><IconHeadphones /> Playlist</button>
-                    <button onClick={() => toggleVideo(lv.id)} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-                      {open ? <IconPause /> : <IconPlay />} {open ? 'Schliessen' : 'Ansehen'}
-                      <IconChevron up={open} />
-                    </button>
-                  </div>
-                </div>
+                  <span className="flex-shrink-0 text-text-secondary"><IconChevron up={open} /></span>
+                </button>
                 <AnimatePresence initial={false}>
                   {open && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="px-5 pb-4 pt-1">
+                      <div className="px-4 sm:px-5 pb-4 pt-1 space-y-3">
                         <VideoPlayer img={v.img} label={lv.label} />
+                        {/* Aktionen unterhalb des Videos — nur für dieses einzelne Video. */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button onClick={() => toggleAudioFav(lv.id)} className={`flex items-center gap-1.5 border px-3 py-1.5 font-sans text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border text-text-secondary hover:border-dark'}`}>
+                            <IconHeart filled={audioFavs.has(lv.id)} /> {audioFavs.has(lv.id) ? 'Favorit' : 'Als Favorit'}
+                          </button>
+                          <button onClick={() => toggleAudioPlaylist(lv.id)} className={`flex items-center gap-1.5 border px-3 py-1.5 font-sans text-xs transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark bg-background' : 'border-border text-text-secondary hover:border-dark'}`}>
+                            <IconHeadphones /> {audioPlaylist.has(lv.id) ? 'In Playlist' : 'Zur Playlist'}
+                          </button>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -710,9 +715,9 @@ export default function LernvideoDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
+          <ShareMenu title={v.title} text={`${v.title} — ${v.artist}`} className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
             <IconShare /> Teilen
-          </button>
+          </ShareMenu>
         </div>
       </div>
 
@@ -1247,9 +1252,9 @@ export default function LernvideoDetailPage() {
 
               {/* Actions */}
               <div className="bg-surface border border-border p-4">
-                <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
+                <ShareMenu title={v.title} text={`${v.title} — ${v.artist}`} align="left" className="w-full flex items-center justify-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
                   <IconShare /> Teilen
-                </button>
+                </ShareMenu>
               </div>
 
               {/* Teacher */}
