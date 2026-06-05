@@ -24,6 +24,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Verhindert horizontales Verrutschen/Wackeln auf Mobilgeräten.
+     `clip` (statt `hidden`) bricht position: sticky NICHT. */
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -32,6 +36,15 @@ body {
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Bildschirmbreite an Gerätebreite koppeln, kein horizontales Scrollen. */
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* Medien nie breiter als ihr Container. */
+img, video, svg, canvas {
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
