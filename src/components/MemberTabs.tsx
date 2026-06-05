@@ -6,7 +6,7 @@ type Area = 'community' | 'academy' | 'lerndatenbank' | 'streaming'
 
 const tabs: { id: Area; label: string; emoji: string; href: string }[] = [
   { id: 'community', label: 'Community', emoji: '💬', href: '/member/community' },
-  { id: 'academy', label: 'Academy', emoji: '🎓', href: '/member/academy' },
+  { id: 'academy', label: 'Musikschule', emoji: '🎓', href: '/member/academy' },
   { id: 'lerndatenbank', label: 'Lernvideodatenbank', emoji: '🎵', href: '/member/academy/lernvideos' },
   { id: 'streaming', label: 'Streaming', emoji: '🔊', href: '/member/streaming' },
 ]

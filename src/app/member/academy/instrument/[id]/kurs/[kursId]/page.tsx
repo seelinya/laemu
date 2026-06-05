@@ -45,7 +45,6 @@ function TypeBadge({ type }: { type: Lesson['type'] }) {
 export default function KursPage({ params }: { params: { id: string; kursId: string } }) {
   const course = getCourse(params.kursId)
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
-  const [courseCompleted, setCourseCompleted] = useState(false)
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) => {
@@ -84,9 +83,11 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   }
 
   const stats = courseStats(course)
-  const progress = courseCompleted ? 100 : stats.percent
+  const progress = stats.percent
+  // Ein Kurs gilt automatisch als abgeschlossen, sobald alle Lektionen erledigt sind.
+  const courseCompleted = stats.total > 0 && stats.completed === stats.total
   const instrumentLabel = course.instrumentLabel
-  const next = courseCompleted ? undefined : flatLessons(course).find((x) => !x.lesson.completed)
+  const next = flatLessons(course).find((x) => !x.lesson.completed)
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,18 +140,17 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
             </div>
             <div className="md:w-56">
               <div className="flex justify-between text-xs font-sans mb-2">
-                <span className="text-text-secondary">{courseCompleted ? stats.total : stats.completed} von {stats.total} Lektionen</span>
+                <span className="text-text-secondary">{stats.completed} von {stats.total} Lektionen</span>
                 <span className="font-medium">{progress}%</span>
               </div>
               <ProgressBar value={progress} />
               <p className="font-sans text-xs text-text-secondary mt-1">{course.modules.length} Module</p>
-              <button
-                onClick={() => setCourseCompleted((v) => !v)}
-                className={`mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 border font-sans text-xs transition-colors ${courseCompleted ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={courseCompleted ? 3 : 2} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                {courseCompleted ? 'Kurs abgeschlossen' : 'Kurs als abgeschlossen markieren'}
-              </button>
+              {courseCompleted && (
+                <div className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-green-50 border border-green-500 text-green-600 font-sans text-xs">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  Kurs abgeschlossen
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

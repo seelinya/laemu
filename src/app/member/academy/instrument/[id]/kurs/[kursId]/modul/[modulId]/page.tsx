@@ -221,7 +221,6 @@ export default function ModulPage({
   const [comments, setComments] = useState<CommentData[]>(mockComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
-  const [showCourseDone, setShowCourseDone] = useState(false)
 
   // Manuell abgeschlossene Lektionen ("moduleId:lessonId") — initial aus den Daten.
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(() => {
@@ -268,11 +267,13 @@ export default function ModulPage({
     }
   }
 
-  const finishCourse = () => {
+  // Letzte Lektion abschliessen: als erledigt markieren und zurück zum Kurs.
+  // Ein Kurs gilt automatisch als abgeschlossen, sobald alle Lektionen erledigt sind.
+  const finishLastLesson = () => {
     if (activeModuleData && activeLesson) {
       setCompletedLessons((prev) => new Set(prev).add(lessonKey(activeModuleData.id, activeLesson.id)))
     }
-    setShowCourseDone(true)
+    router.push(kursPath)
   }
 
   const toggleModule = (moduleId: string) => {
@@ -332,25 +333,6 @@ export default function ModulPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Kurs-abgeschlossen-Modal */}
-      <AnimatePresence>
-        {showCourseDone && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowCourseDone(false)} />
-            <motion.div className="relative bg-surface border border-border w-full max-w-md shadow-2xl text-center p-10" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
-              <div className="text-5xl mb-4">🎉</div>
-              <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Geschafft</p>
-              <h3 className="font-heading text-2xl font-bold mb-3">Kurs abgeschlossen!</h3>
-              <p className="font-sans text-sm text-text-secondary mb-6">Super gemacht! Du hast <strong>{courseTitle}</strong> abgeschlossen. Mach weiter mit dem nächsten Kurs.</p>
-              <div className="space-y-3">
-                <Link href={kursPath} className="block w-full bg-accent-gold text-white py-3 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">Zurück zum Kurs</Link>
-                <Link href="/member/academy" className="block w-full border border-border py-3 font-sans text-sm hover:border-dark transition-colors">Zur Academy</Link>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Top navigation */}
       <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
         <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors hidden md:flex items-center gap-1.5">
@@ -611,10 +593,10 @@ export default function ModulPage({
                   </button>
                 ) : (
                   <button
-                    onClick={finishCourse}
-                    className="flex items-center gap-2 font-sans text-sm font-medium bg-accent-gold text-white px-5 py-2.5 hover:bg-accent-earth transition-colors"
+                    onClick={finishLastLesson}
+                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-5 py-2.5 hover:bg-accent-gold transition-colors"
                   >
-                    Kurs abschliessen
+                    Lektion abschliessen &amp; zurück zum Kurs
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>

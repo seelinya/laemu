@@ -14,7 +14,7 @@ const instrumentsData: Record<string, { label: string; emoji: string; desc: stri
   schwyzer: { label: 'Schwyzerörgeli', emoji: '🎶', desc: 'Diatonisch und voller Seele', subscribed: true, plan: 'starter' },
   begleit: { label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klarinette · Klavier', subscribed: false, plan: null },
   buehne: { label: 'Bühnenpräsenz', emoji: '🎤', desc: 'Auftreten mit Ausstrahlung', subscribed: false, plan: null },
-  allgemein: { label: 'Allgemeiner Lehrgang', emoji: '🎼', desc: 'Grundlagen für alle — Harmonielehre, Taktarten & Bühnenpräsenz. Für jedes Mitglied freigeschaltet.', subscribed: true, plan: 'starter' },
+  allgemein: { label: 'Allgemeine Grundlagen', emoji: '🎼', desc: 'Grundlagen für alle — Harmonielehre, Taktarten & Bühnenpräsenz. Für jedes Mitglied freigeschaltet.', subscribed: true, plan: 'starter' },
 }
 
 const heroBgImages: Record<string, string> = {
@@ -224,7 +224,7 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
         <section>
           <div className="flex items-center gap-3 mb-1">
             <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">{isAllgemein ? 'Für alle' : 'Starter'}</span>
-            <h2 className="font-heading text-2xl font-bold">{isAllgemein ? 'Allgemeiner Lehrgang' : 'Dein Starter-Lehrgang'}</h2>
+            <h2 className="font-heading text-2xl font-bold">{isAllgemein ? 'Allgemeine Grundlagen' : 'Dein Starter-Lehrgang'}</h2>
           </div>
           <p className="font-sans text-text-secondary mb-6">
             {isAllgemein
@@ -240,39 +240,40 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  className="bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors flex flex-col"
                 >
-                  {/* Image area with title overlay */}
-                  <div className="relative aspect-[16/10] overflow-hidden flex-shrink-0">
-                    <Image src={kurs.img} alt={kurs.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                    {/* Level badge top-left */}
-                    <div className="absolute top-3 left-3">
-                      <span className="font-sans text-[10px] uppercase tracking-widest bg-black/50 text-white/70 px-2 py-0.5">{kurs.level}</span>
+                  <Link
+                    href={`/member/academy/instrument/${params.id}/kurs/${kurs.id}`}
+                    className="bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors flex h-full"
+                  >
+                    {/* Compact thumbnail */}
+                    <div className="relative w-24 sm:w-28 flex-shrink-0 self-stretch overflow-hidden">
+                      <Image src={kurs.img} alt="" fill className="object-cover" unoptimized />
+                      <div className="absolute inset-0 bg-dark/15 group-hover:bg-dark/5 transition-colors" />
                     </div>
-                    {/* Progress bar along bottom of image */}
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/15">
-                      <div className="h-full bg-accent-gold transition-none" style={{ width: `${progress}%` }} />
+                    {/* Body */}
+                    <div className="flex-1 p-4 min-w-0 flex flex-col">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <h3 className="font-heading font-bold text-base leading-snug group-hover:text-accent-gold transition-colors">{kurs.title}</h3>
+                        <span className="font-sans text-[10px] uppercase tracking-wide bg-background border border-border text-text-secondary px-2 py-0.5 flex-shrink-0">{kurs.level}</span>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary mb-2">{kurs.modules} Module · {kurs.duration}</p>
+                      <p className="font-sans text-sm text-text-secondary leading-relaxed line-clamp-2 flex-1">{kurs.desc}</p>
+                      {progress > 0 ? (
+                        <div className="mt-3">
+                          <div className="flex justify-between text-xs font-sans mb-1">
+                            <span className="text-text-secondary">{kurs.completedModules}/{kurs.modules} Module</span>
+                            <span className="font-medium">{progress}%</span>
+                          </div>
+                          <div className="h-1 bg-border overflow-hidden"><div className="h-full bg-accent-gold" style={{ width: `${progress}%` }} /></div>
+                        </div>
+                      ) : (
+                        <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+                          Kurs öffnen
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                        </span>
+                      )}
                     </div>
-                    {/* Title + metadata on image */}
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="font-heading font-bold text-white text-base leading-snug group-hover:text-accent-gold transition-colors">{kurs.title}</h3>
-                      <p className="font-sans text-xs text-white/50 mt-0.5">{kurs.modules} Module · {kurs.duration}</p>
-                    </div>
-                  </div>
-                  {/* Card body */}
-                  <div className="p-4 flex flex-col flex-1">
-                    <p className="font-sans text-sm text-text-secondary leading-relaxed flex-1">{kurs.desc}</p>
-                    {progress > 0 && (
-                      <p className="font-sans text-xs text-accent-gold mt-2">{kurs.completedModules} von {kurs.modules} Modulen</p>
-                    )}
-                    <div className="mt-3">
-                      <Link href={`/member/academy/instrument/${params.id}/kurs/${kurs.id}`} className="inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark border border-dark px-4 py-2 hover:bg-dark hover:text-white transition-colors w-full justify-center">
-                        {progress > 0 ? 'Weiterfahren' : 'Kurs öffnen'}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                      </Link>
-                    </div>
-                  </div>
+                  </Link>
                 </motion.div>
               )
             })}
@@ -301,33 +302,24 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  className="bg-surface border border-border overflow-hidden flex flex-col relative"
+                  className="bg-surface border border-border p-4 flex items-center gap-4"
                 >
-                  {/* Image area */}
-                  <div className="relative aspect-[16/10] overflow-hidden flex-shrink-0">
-                    <Image src={kurs.img} alt={kurs.title} fill className="object-cover" unoptimized />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                    <div className="absolute top-3 left-3">
-                      <span className="font-sans text-[10px] uppercase tracking-widest bg-black/50 text-white/70 px-2 py-0.5">{kurs.level}</span>
-                    </div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="font-heading font-bold text-white/70 text-base leading-snug">{kurs.title}</h3>
-                      <p className="font-sans text-xs text-white/40 mt-0.5">{kurs.modules} Module · {kurs.duration}</p>
-                    </div>
+                  <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
                   </div>
-                  {/* Card body */}
-                  <div className="p-4 flex flex-col flex-1 blur-[1px] select-none">
-                    <p className="font-sans text-sm text-text-secondary leading-relaxed flex-1">{kurs.desc}</p>
-                  </div>
-                  {/* Lock overlay — covers whole card */}
-                  <div className="absolute inset-0 bg-background/75 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2 z-10">
-                    <div className="w-10 h-10 bg-border flex items-center justify-center">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-heading font-bold text-base text-text-secondary truncate">{kurs.title}</h3>
+                      <span className="font-sans text-[10px] uppercase tracking-wide bg-background border border-border text-text-secondary px-2 py-0.5 flex-shrink-0 hidden sm:inline">{kurs.level}</span>
                     </div>
-                    <span className="font-sans text-xs text-text-secondary bg-border px-2 py-0.5">Pro erforderlich</span>
+                    <p className="font-sans text-xs text-text-secondary mt-0.5">{kurs.modules} Module · {kurs.duration}</p>
                   </div>
+                  <span className="font-sans text-[11px] text-text-secondary bg-border px-2 py-1 flex items-center gap-1 flex-shrink-0">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                    Pro
+                  </span>
                 </motion.div>
               ))}
             </div>

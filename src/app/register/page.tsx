@@ -117,7 +117,7 @@ export default function RegisterPage() {
               href="/member/academy"
               className="block w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
-              Academy entdecken
+              Musikschule entdecken
             </Link>
           </div>
         </motion.div>
