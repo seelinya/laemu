@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
+import { courses, ALLGEMEIN_COURSES } from '@/lib/courses'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -13,11 +14,19 @@ const instrumentsData: Record<string, { label: string; emoji: string; desc: stri
   schwyzer: { label: 'Schwyzerörgeli', emoji: '🎶', desc: 'Diatonisch und voller Seele', subscribed: true, plan: 'starter' },
   begleit: { label: 'Begleitinstrument', emoji: '🎸', desc: 'Bass · Klarinette · Klavier', subscribed: false, plan: null },
   buehne: { label: 'Bühnenpräsenz', emoji: '🎤', desc: 'Auftreten mit Ausstrahlung', subscribed: false, plan: null },
+  allgemein: { label: 'Allgemeiner Lehrgang', emoji: '🎼', desc: 'Grundlagen für alle — Harmonielehre, Taktarten & Bühnenpräsenz. Für jedes Mitglied freigeschaltet.', subscribed: true, plan: 'starter' },
 }
 
 const heroBgImages: Record<string, string> = {
   handorgel: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80',
   schwyzer: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=1200&q=80',
+  allgemein: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=1200&q=80',
+}
+
+const allgemeinCourseMeta: Record<string, { desc: string; img: string }> = {
+  harmonielehre: { desc: 'Intervalle, Akkorde und Kadenzen — das harmonische Fundament der Ländlermusik.', img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80' },
+  taktarten: { desc: 'Walzer, Polka, Mazurka & Co. — Taktarten sicher erkennen und spielen.', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=600&q=80' },
+  buehnenpraesenz: { desc: 'Sicher auftreten, Lampenfieber meistern und das Publikum begeistern.', img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80' },
 }
 const defaultHeroBg = 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=1200&q=80'
 
@@ -122,13 +131,28 @@ const thumbBgs = ['#C4973A22', '#1a1a1a15', '#2563eb15', '#C4973A11']
 
 export default function InstrumentPage({ params }: { params: { id: string } }) {
   const [showAllVideos, setShowAllVideos] = useState(false)
+  const isAllgemein = params.id === 'allgemein'
   const inst = instrumentsData[params.id] ?? instrumentsData['handorgel']
-  const starterKurse = params.id === 'schwyzer' ? schwyzerStarterKurse : handorgelStarterKurse
+
+  // Allgemeiner Lehrgang: Kurse aus den geteilten Kursdaten ableiten.
+  const allgemeinKurse: StarterKurs[] = ALLGEMEIN_COURSES.map((cid) => {
+    const c = courses[cid]
+    const completedModules = c.modules.filter((m) => m.lessons.length > 0 && m.lessons.every((l) => l.completed)).length
+    const minutes = c.modules.flatMap((m) => m.lessons).reduce((s, l) => s + (parseInt(l.duration, 10) || 0), 0)
+    return {
+      id: c.id, title: c.title, desc: allgemeinCourseMeta[cid]?.desc ?? `Lehrgang mit ${c.teacher}`,
+      modules: c.modules.length, completedModules,
+      duration: minutes >= 60 ? `${Math.round(minutes / 60)}h` : `${minutes} min`,
+      level: 'Für alle', img: allgemeinCourseMeta[cid]?.img ?? defaultHeroBg,
+    }
+  })
+
+  const starterKurse = isAllgemein ? allgemeinKurse : params.id === 'schwyzer' ? schwyzerStarterKurse : handorgelStarterKurse
   const proKurse = params.id === 'schwyzer' ? schwyzerProKurse : handorgelProKurse
   const lernvideos = params.id === 'schwyzer' ? schwyzerLernvideos : handorgelLernvideos
 
   const completedStarterKurse = starterKurse.filter((k) => k.completedModules > 0).length
-  const overallProgress = params.id === 'schwyzer' ? 18 : 42
+  const overallProgress = isAllgemein ? 38 : params.id === 'schwyzer' ? 18 : 42
   const visibleVideos = showAllVideos ? lernvideos : lernvideos.slice(0, 6)
 
   const heroBg = heroBgImages[params.id] ?? defaultHeroBg
@@ -172,7 +196,7 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
           {inst.plan && (
             <div>
               <span className="font-sans text-xs bg-accent-gold text-white px-3 py-1 uppercase tracking-wide">
-                {inst.plan === 'starter' ? 'Starter ✓' : 'Pro ✓'}
+                {isAllgemein ? 'Für alle ✓' : inst.plan === 'starter' ? 'Starter ✓' : 'Pro ✓'}
               </span>
             </div>
           )}
@@ -199,11 +223,13 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
         {/* ── Starter Kurs ── */}
         <section>
           <div className="flex items-center gap-3 mb-1">
-            <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
-            <h2 className="font-heading text-2xl font-bold">Dein Starter-Lehrgang</h2>
+            <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">{isAllgemein ? 'Für alle' : 'Starter'}</span>
+            <h2 className="font-heading text-2xl font-bold">{isAllgemein ? 'Allgemeiner Lehrgang' : 'Dein Starter-Lehrgang'}</h2>
           </div>
           <p className="font-sans text-text-secondary mb-6">
-            Strukturierter Einstieg in {inst.plan === 'starter' ? `die ${inst.label}` : 'dein Instrument'} — von den Basics bis zu deinen ersten Stücken.
+            {isAllgemein
+              ? 'Übergreifende Grundlagen für alle Mitglieder — unabhängig vom Instrument. Diese Kurse sind für jedes Abo freigeschaltet.'
+              : `Strukturierter Einstieg in ${inst.plan === 'starter' ? `die ${inst.label}` : 'dein Instrument'} — von den Basics bis zu deinen ersten Stücken.`}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {starterKurse.map((kurs, i) => {
@@ -253,6 +279,8 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
           </div>
         </section>
 
+        {!isAllgemein && (
+        <>
         {/* ── Pro Kurs (locked) ── */}
         <section>
           <div className="flex items-center gap-3 mb-1">
@@ -418,6 +446,8 @@ export default function InstrumentPage({ params }: { params: { id: string } }) {
             </Link>
           </motion.div>
         </section>
+        </>
+        )}
 
       </div>
     </div>
