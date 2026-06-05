@@ -617,51 +617,6 @@ export default function PlaylistsPage() {
                     </div>
                   </div>
                 )}
-
-                {/* Add more tracks section */}
-                <div className="mt-10">
-                  <h3 className="font-heading font-bold text-base mb-4">Weitere Stücke hinzufügen</h3>
-                  <p className="font-sans text-xs text-text-secondary mb-4">
-                    Klicke auf ♥ um ein Stück zu &ldquo;{activePlaylist.name}&rdquo; hinzuzufügen. Du bekommst kurz eine Bestätigung — und kannst dann die Playlist noch wechseln.
-                  </p>
-                  <div className="space-y-2">
-                    {allTracks
-                      .filter((t) => !activePlaylist.trackIds.includes(t.id))
-                      .map((track, i) => (
-                        <motion.div
-                          key={track.id}
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.04 }}
-                          className="flex items-center gap-3 p-3 border border-border bg-surface hover:border-accent-gold/30 transition-colors group"
-                        >
-                          <div className="relative w-10 h-10 flex-shrink-0 overflow-hidden">
-                            <Image src={track.img} alt={track.title} fill className="object-cover" unoptimized />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-sans text-sm font-medium truncate">{track.title}</p>
-                            <p className="font-sans text-xs text-text-secondary truncate">{track.artist} · {track.instrument}{track.taktart && ` · ${track.taktart}`}</p>
-                          </div>
-                          <span className="font-sans text-xs text-text-secondary">{track.duration}</span>
-                          <span className={`font-sans text-[10px] px-1.5 py-0.5 border ${planColors[track.plan] === 'text-accent-gold' ? 'border-accent-gold/30 bg-accent-gold/5 text-accent-gold' : 'border-border text-text-secondary'}`}>
-                            {track.plan === 'free' ? 'Free' : track.plan === 'starter' ? 'Starter' : 'Pro'}
-                          </span>
-                          <button
-                            onClick={() => handleAddToPlaylist(track.id)}
-                            title={`Zu Playlist hinzufügen`}
-                            className="w-8 h-8 border border-border flex items-center justify-center text-text-secondary hover:border-accent-gold hover:text-accent-gold transition-colors flex-shrink-0"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                            </svg>
-                          </button>
-                        </motion.div>
-                      ))}
-                    {allTracks.filter((t) => !activePlaylist.trackIds.includes(t.id)).length === 0 && (
-                      <p className="font-sans text-sm text-text-secondary text-center py-6">Alle verfügbaren Stücke sind bereits in dieser Playlist.</p>
-                    )}
-                  </div>
-                </div>
               </>
             )}
           </main>

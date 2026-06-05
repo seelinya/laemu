@@ -147,33 +147,22 @@ export const mockUserAbo: UserAbo = {
   instruments: ['Handorgel'],
 }
 
-function instrumentCovered(abo: UserAbo, instrument: string): boolean {
-  return !!abo.allInstruments || abo.instruments.includes(instrument as Instrument)
-}
-
 /**
- * Ist ein Stück mit dem aktuellen Abo vollständig freigeschaltet
- * (Lern-/Stimmen-Videos + JamPlayer)?
+ * Ist ein Stück freigeschaltet (Lern-/Stimmen-Videos + JamPlayer)?
  *
- * - Free-Stücke sind für alle frei.
- * - Lernvideodatenbank-Abo: gesamte Datenbank frei.
- * - Pro-Abo: alle Stücke der gewählten Instrumente (Starter + Pro).
- * - Starter-Abo: nur Starter-Stücke der gewählten Instrumente.
- *
- * Gesperrte Stücke bleiben in der Suche sichtbar; freigeschaltet ist dort
- * lediglich das Master-Video (Standard-Player, ohne JamPlayer).
+ * Die Lernvideo-Datenbank ist vollständig freigeschaltet, sobald man Zugang
+ * zu einem Lehrgang hat (egal ob Starter, Pro oder Lernvideodatenbank-Abo).
+ * - Free-Stücke sind ohnehin für alle frei.
+ * - Ohne Abo (kein Lehrgang) bleiben kostenpflichtige Stücke gesperrt; dort ist
+ *   nur das Master-Video verfügbar (Standard-Player, ohne JamPlayer).
  */
 export function isPieceUnlocked(
   piece: { plan: Plan; instrument: string },
   abo: UserAbo = mockUserAbo,
 ): boolean {
   if (piece.plan === 'free') return true
-  if (abo.plan === 'none') return false
-  if (abo.plan === 'lernvideo') return true
-  if (!instrumentCovered(abo, piece.instrument)) return false
-  if (abo.plan === 'pro') return true
-  // starter
-  return piece.plan === 'starter'
+  // Zugang zu einem Lehrgang → gesamte Lernvideo-Datenbank frei.
+  return abo.plan !== 'none'
 }
 
 // ─── Katalog (für die Detailseite, um Titel/Plan/Instrument je ID zu kennen) ──
