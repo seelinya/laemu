@@ -54,17 +54,19 @@ export type IndividualPlanId = 'starter' | 'pro' | 'lernvideo'
 
 export const individualPlanMeta: Record<
   IndividualPlanId,
-  { label: string; emoji: string; badge: string | null; desc: string; features: string[]; hasScope: boolean }
+  { label: string; emoji: string; badge: string | null; audience: string; desc: string; features: string[]; notIncluded?: string[]; hasScope: boolean }
 > = {
   starter: {
     label: 'Starter',
     emoji: '🎓',
     badge: null,
+    audience: 'Für Einsteiger',
     desc: 'Strukturierter Lehrgang mit Grundkursen — wähle 1, 2, 3 oder alle Instrumente.',
     features: [
       'Strukturierter Online-Lehrgang (Grundkurse)',
       'Generelle Grundkurse (Harmonielehre, Taktarten …)',
       'Starter-Stücke der gewählten Instrumente in der Lernvideo-Datenbank',
+      'Persönlicher Support durch zertifizierte LAEMU-Musiklehrpersonen',
       'Kurs-Chat & Community',
       'LAEMU Membership inklusive',
     ],
@@ -74,12 +76,14 @@ export const individualPlanMeta: Record<
     label: 'Pro',
     emoji: '⭐',
     badge: 'Empfohlen',
-    desc: 'Voller Zugang: Starter + komplette Lernvideo-Datenbank — für 1, 2, 3 oder alle Instrumente.',
+    audience: 'Für Aufsteiger',
+    desc: 'Voller Zugang: Grund- & Erweiterungskurse plus die komplette Lernvideo-Datenbank.',
     features: [
       'Alles aus Starter',
-      'Vollständige Lernvideo-Datenbank der gewählten Instrumente',
-      'Persönliches Video-Feedback',
-      'Monatliche Live-Calls',
+      'Grund- und Erweiterungskurse',
+      'Komplette Lernvideo-Datenbank — alle Instrumente',
+      'Persönlicher Support durch zertifizierte LAEMU-Musiklehrpersonen',
+      'Persönliches Video-Feedback & monatliche Live-Calls',
       'LAEMU Membership inklusive',
     ],
     hasScope: true,
@@ -88,12 +92,14 @@ export const individualPlanMeta: Record<
     label: 'Lernvideodatenbank',
     emoji: '📹',
     badge: null,
+    audience: 'Für Profis',
     desc: 'Zugang zur gesamten Lernvideo-Datenbank für alle Instrumente der Ländlermusik.',
     features: [
       'Lernvideo-Datenbank (alle Instrumente)',
       'Ständig wachsendes Angebot',
       'LAEMU Membership inklusive',
     ],
+    notIncluded: ['Keine Grundkurse', 'Keine Erweiterungskurse', 'Kein persönlicher Support'],
     hasScope: false,
   },
 }
@@ -110,19 +116,31 @@ export type FormationPlanId = 'pro' | 'lernvideo'
 
 export const formationPlanMeta: Record<
   FormationPlanId,
-  { label: string; emoji: string; basePrice: number; desc: string }
+  { label: string; emoji: string; basePrice: number; audience: string; desc: string; features: string[] }
 > = {
   pro: {
     label: 'Pro',
     emoji: '🏆',
     basePrice: 1999,
-    desc: 'Ein Pro-Lehrgang zu einem Instrument pro Mitglied — inklusive voller Lernvideo-Datenbank für das jeweilige Instrument.',
+    audience: 'Für Aufsteiger',
+    desc: 'Ein Pro-Lehrgang zu einem Instrument pro Mitglied — mit Grund- & Erweiterungskursen.',
+    features: [
+      'Pro-Lehrgang (ein Instrument pro Mitglied)',
+      'Grund- und Erweiterungskurse',
+      'Komplette Lernvideo-Datenbank — alle Instrumente',
+      'Persönlicher Support durch zertifizierte LAEMU-Musiklehrpersonen',
+    ],
   },
   lernvideo: {
     label: 'Lernvideodatenbank',
     emoji: '📹',
     basePrice: 1499,
+    audience: 'Für Profis',
     desc: 'Zugang zur gesamten Lernvideo-Datenbank für alle Mitglieder.',
+    features: [
+      'Lernvideo-Datenbank (alle Instrumente) für alle Mitglieder',
+      'Ständig wachsendes Angebot',
+    ],
   },
 }
 

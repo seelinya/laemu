@@ -85,8 +85,15 @@ type MockSearchResult = {
 const mockSearchResults: MockSearchResult[] = [
   { id: 'sr1', title: 'Einfache Polka — Schritt 1', subtitle: 'Grundlagenkurs · Handorgel', category: 'Lektionen', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-lieder?lektion=polka1' },
   { id: 'sr2', title: 'Erste Lieder', subtitle: 'Grundlagenkurs · Modul 4', category: 'Module', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-lieder' },
-  { id: 'sr3', title: 'Heimetli-Polka', subtitle: 'H. Wenger · Schwierigkeit 2', category: 'Lernvideos', href: '/member/academy/lernvideos/1' },
   { id: 'sr4', title: 'Erstes Repertoire', subtitle: 'Handorgel Starter · 6 Module', category: 'Kurse', href: '/member/academy/instrument/handorgel/kurs/repertoire' },
+  // Lernvideos aus der Lernvideodatenbank — ebenfalls über die Suche auffindbar.
+  { id: 'lv1', title: 'Dr Alperose', subtitle: 'Willi Valotti · Handorgel · Walzer', category: 'Lernvideos', href: '/member/academy/lernvideos/1' },
+  { id: 'lv2', title: 'Ländler im Dreivierteltakt', subtitle: 'Kapelle Hess-Ruedi-Hegner · Schwyzerörgeli', category: 'Lernvideos', href: '/member/academy/lernvideos/2' },
+  { id: 'lv3', title: 'Abendstern-Polka', subtitle: 'Bodästänix · Handorgel · Polka', category: 'Lernvideos', href: '/member/academy/lernvideos/3' },
+  { id: 'lv4', title: 'Innerschwizer Schottisch', subtitle: 'Trio Rigi · Klarinette · Schottisch', category: 'Lernvideos', href: '/member/academy/lernvideos/4' },
+  { id: 'lv5', title: 'Walzer am See', subtitle: 'Lisa Frei · Klavierbegleitung · Walzer', category: 'Lernvideos', href: '/member/academy/lernvideos/5' },
+  { id: 'lv6', title: 'Bergbach-Mazurka', subtitle: 'Hess-Rusch-Hegner · Bassgeige · Mazurka', category: 'Lernvideos', href: '/member/academy/lernvideos/6' },
+  { id: 'lv7', title: 'Stille Nacht', subtitle: 'Verschiedene Kapellen · Handorgel', category: 'Lernvideos', href: '/member/academy/lernvideos/7' },
 ]
 
 

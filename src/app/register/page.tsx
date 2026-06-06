@@ -17,10 +17,7 @@ import {
   type FormationPlanId,
 } from '@/lib/academy'
 
-const PROFILE_INSTRUMENTS = [
-  'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette',
-  'Steirische Harmonika', 'Klavier', 'Violine / Geige', 'Trompete / Flügelhorn', 'Volksgesang',
-]
+const PROFILE_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
 
 const steps = [
   { number: 1, label: 'Angaben' },
@@ -35,6 +32,7 @@ export default function RegisterPage() {
   const [selectedPayment, setSelectedPayment] = useState('card')
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
   const [formationChoice, setFormationChoice] = useState<'yes' | 'no' | 'open' | null>(null)
+  const [ort, setOrt] = useState('')
   const [done, setDone] = useState(false)
 
   // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
@@ -50,6 +48,15 @@ export default function RegisterPage() {
     setSelectedInstruments(prev =>
       prev.includes(inst) ? prev.filter(i => i !== inst) : [...prev, inst]
     )
+  }
+
+  // Instrumente pro Formationsmitglied (Mehrfachauswahl je Mitglied).
+  const [memberInstruments, setMemberInstruments] = useState<Record<number, string[]>>({})
+  const toggleMemberInstrument = (idx: number, inst: string) => {
+    setMemberInstruments(prev => {
+      const cur = prev[idx] ?? []
+      return { ...prev, [idx]: cur.includes(inst) ? cur.filter(i => i !== inst) : [...cur, inst] }
+    })
   }
 
   const scopeCount = (s: Scope) => (s === 'all' ? ACADEMY_INSTRUMENTS.length : Number(s))
@@ -195,17 +202,23 @@ export default function RegisterPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <label className="label text-text-secondary block mb-1.5">Strasse und Hausnummer *</label>
-                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Musterstrasse 12" />
+                    <label className="label text-text-secondary block mb-1.5">Strasse *</label>
+                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Musterstrasse" />
                   </div>
+                  <div>
+                    <label className="label text-text-secondary block mb-1.5">Hausnummer *</label>
+                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="12" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="label text-text-secondary block mb-1.5">PLZ *</label>
                     <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="6000" />
                   </div>
-                </div>
-                <div>
-                  <label className="label text-text-secondary block mb-1.5">Ort *</label>
-                  <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Luzern" />
+                  <div className="col-span-2">
+                    <label className="label text-text-secondary block mb-1.5">Ort *</label>
+                    <input value={ort} onChange={e => setOrt(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Luzern" />
+                  </div>
                 </div>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
                   Mit der Registrierung stimmst du den{' '}
@@ -292,9 +305,10 @@ export default function RegisterPage() {
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
                                 <span>{meta.emoji}</span>
                                 <span className="font-sans font-semibold text-sm">{meta.label}</span>
+                                <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                                 {meta.badge && (
                                   <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
                                 )}
@@ -365,7 +379,23 @@ export default function RegisterPage() {
                           <span>{f}</span>
                         </div>
                       ))}
+                      {billing === 'yearly' && (
+                        <div className="flex items-center gap-2 font-sans text-sm text-accent-gold">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                          <span>20 % Rabatt auf Instrumentenmieten (Jahresabo)</span>
+                        </div>
+                      )}
                     </div>
+                    {individualPlanMeta[individualPlan].notIncluded && (
+                      <div className="space-y-2 mt-3">
+                        {individualPlanMeta[individualPlan].notIncluded!.map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 font-sans text-sm text-text-secondary">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-text-secondary/60 flex-shrink-0"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between border-t border-border mt-4 pt-4">
                       <span className="font-sans text-sm text-text-secondary">Dein Preis</span>
                       <span className="font-heading font-bold text-2xl text-accent-gold">{chf(individualPrice)}<span className="font-sans text-sm font-normal text-text-secondary">{periodLabel}</span></span>
@@ -412,9 +442,10 @@ export default function RegisterPage() {
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
                                 <span>{meta.emoji}</span>
                                 <span className="font-sans font-semibold text-sm">Formation {meta.label}</span>
+                                <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                               </div>
                               <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
                             </div>
@@ -430,6 +461,24 @@ export default function RegisterPage() {
                       )
                     })}
                   </div>
+
+                  {/* Enthalten (Formation) */}
+                  <div className="bg-background border border-border p-5 mb-8">
+                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Enthalten — Formation {formationPlanMeta[formationPlan].label}</p>
+                    <div className="space-y-2">
+                      {formationPlanMeta[formationPlan].features.map((f, i) => (
+                        <div key={i} className="flex items-center gap-2 font-sans text-sm">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                          <span>{f}</span>
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2 font-sans text-sm text-accent-gold">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                        <span>20 % Rabatt auf Instrumentenmieten (Jahresabo)</span>
+                      </div>
+                    </div>
+                    <p className="font-sans text-xs text-text-secondary border-t border-border mt-4 pt-4">Gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder · {memberCount} Mitglied{memberCount !== 1 ? 'er' : ''} gewählt</p>
+                  </div>
                 </>
               )}
 
@@ -441,11 +490,11 @@ export default function RegisterPage() {
                     { id: 'card', label: 'Kredit- / Debitkarte', sub: 'Visa, Mastercard', icon: (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     )},
-                    { id: 'postfinance', label: 'PostFinance', sub: 'PostFinance Card / E-Finance', icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    )},
                     { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    )},
+                    { id: 'vorkasse', label: 'Vorkasse', sub: 'Zahlung per Banküberweisung im Voraus', icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
                     )},
                   ].map((method) => (
                     <button
@@ -493,93 +542,155 @@ export default function RegisterPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <h1 className="font-heading text-3xl font-bold mb-2">Profil einrichten</h1>
-              <p className="font-sans text-text-secondary text-sm mb-8">
-                Alle Angaben hier sind optional — du kannst sie jederzeit in deinem Profil ergänzen.
-              </p>
+              {accountType === 'formation' ? (
+                <>
+                  <h1 className="font-heading text-3xl font-bold mb-2">Profile der Formationsmitglieder</h1>
+                  <p className="font-sans text-text-secondary text-sm mb-8">
+                    Für jedes der {memberCount} Mitglieder wird ein eigenes Konto mit eigenem Login und eigenem LAEMU-Profil erstellt.
+                  </p>
+                  <div className="space-y-6">
+                    {Array.from({ length: memberCount }).map((_, idx) => (
+                      <div key={idx} className="border border-border bg-surface p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-heading font-bold text-base">Mitglied {idx + 1}{idx === 0 ? ' (du)' : ''}</h3>
+                          <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5">Eigenes Konto &amp; Login</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div><label className="label text-text-secondary block mb-1.5">Vorname *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                          <div><label className="label text-text-secondary block mb-1.5">Nachname *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                        </div>
+                        <div><label className="label text-text-secondary block mb-1.5">E-Mail-Adresse *</label><input type="email" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div><label className="label text-text-secondary block mb-1.5">Passwort *</label><input type="password" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                          <div><label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label><input type="date" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" /></div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="col-span-2"><label className="label text-text-secondary block mb-1.5">Strasse *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                          <div><label className="label text-text-secondary block mb-1.5">Hausnummer *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div><label className="label text-text-secondary block mb-1.5">PLZ *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                          <div className="col-span-2"><label className="label text-text-secondary block mb-1.5">Ort *</label><input type="text" defaultValue={idx === 0 ? ort : ''} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                        </div>
+                        <div>
+                          <label className="label text-text-secondary block mb-2">Instrumente</label>
+                          <div className="flex flex-wrap gap-2">
+                            {PROFILE_INSTRUMENTS.map(inst => {
+                              const sel = (memberInstruments[idx] ?? []).includes(inst)
+                              return (
+                                <button key={inst} onClick={() => toggleMemberInstrument(idx, inst)} className={`font-sans text-xs px-3 py-1.5 border transition-all ${sel ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}>{inst}</button>
+                              )
+                            })}
+                          </div>
+                          <input type="text" placeholder="Weiteres Instrument (freitext)" className="mt-2 w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h1 className="font-heading text-3xl font-bold mb-2">Profil einrichten</h1>
+                  <p className="font-sans text-text-secondary text-sm mb-8">
+                    Alle Angaben hier sind optional — du kannst sie jederzeit in deinem Profil ergänzen.
+                  </p>
 
-              <div className="space-y-7">
-                {/* Profile photo */}
-                <div>
-                  <label className="label text-text-secondary block mb-3">Profilbild</label>
-                  <div className="flex items-center gap-5">
-                    <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
-                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                      </svg>
+                  <div className="space-y-7">
+                    {/* Profile photo */}
+                    <div>
+                      <label className="label text-text-secondary block mb-3">Profilbild</label>
+                      <div className="flex items-center gap-5">
+                        <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                          </svg>
+                        </div>
+                        <button className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors">
+                          Bild hochladen
+                        </button>
+                      </div>
                     </div>
-                    <button className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors">
-                      Bild hochladen
-                    </button>
-                  </div>
-                </div>
 
-                {/* Bio */}
-                <div>
-                  <label className="label text-text-secondary block mb-1.5">Bio</label>
-                  <textarea
-                    rows={3}
-                    className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none"
-                    placeholder="Erzähl der Community etwas über dich — deine Musik, deine Heimat, deine Geschichte."
-                  />
-                </div>
+                    {/* Bio */}
+                    <div>
+                      <label className="label text-text-secondary block mb-1.5">Bio</label>
+                      <textarea
+                        rows={3}
+                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none"
+                        placeholder="Erzähl der Community etwas über dich — deine Musik, deine Heimat, deine Geschichte."
+                      />
+                    </div>
 
-                {/* Instruments */}
-                <div>
-                  <label className="label text-text-secondary block mb-3">Instrumente</label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {PROFILE_INSTRUMENTS.map((inst) => (
-                      <button
-                        key={inst}
-                        onClick={() => toggleInstrument(inst)}
-                        className={`font-sans text-sm px-3 py-2 border transition-all ${
-                          selectedInstruments.includes(inst)
-                            ? 'border-dark bg-dark text-white'
-                            : 'border-border bg-surface text-text-secondary hover:border-dark'
-                        }`}
-                      >
-                        {inst}
-                      </button>
-                    ))}
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Weiteres Instrument (freitext)"
-                    className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                  />
-                </div>
-
-                {/* Formation */}
-                <div>
-                  <label className="label text-text-secondary block mb-3">Formation</label>
-                  <div className="flex gap-2 mb-4">
-                    {[
-                      { id: 'yes', label: 'Ja, ich spiele in einer Formation' },
-                      { id: 'no', label: 'Nein' },
-                      { id: 'open', label: 'Offen für Formationen' },
-                    ].map((opt) => (
-                      <button
-                        key={opt.id}
-                        onClick={() => setFormationChoice(opt.id as 'yes' | 'no' | 'open')}
-                        className={`font-sans text-sm px-4 py-2.5 border transition-all ${
-                          formationChoice === opt.id ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  {formationChoice === 'yes' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                    {/* Wohnort (automatisch aus den Angaben) */}
+                    <div>
+                      <label className="label text-text-secondary block mb-1.5">Wohnort</label>
                       <input
+                        defaultValue={ort}
                         type="text"
-                        placeholder="Name der Formation"
+                        placeholder="Luzern"
                         className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
                       />
-                    </motion.div>
-                  )}
-                </div>
-              </div>
+                      <p className="font-sans text-xs text-text-secondary mt-1.5">Automatisch aus deinen Angaben übernommen — du kannst ihn hier anpassen.</p>
+                    </div>
+
+                    {/* Instruments */}
+                    <div>
+                      <label className="label text-text-secondary block mb-3">Instrumente</label>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {PROFILE_INSTRUMENTS.map((inst) => (
+                          <button
+                            key={inst}
+                            onClick={() => toggleInstrument(inst)}
+                            className={`font-sans text-sm px-3 py-2 border transition-all ${
+                              selectedInstruments.includes(inst)
+                                ? 'border-dark bg-dark text-white'
+                                : 'border-border bg-surface text-text-secondary hover:border-dark'
+                            }`}
+                          >
+                            {inst}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Weiteres Instrument (freitext)"
+                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                      />
+                    </div>
+
+                    {/* Formation */}
+                    <div>
+                      <label className="label text-text-secondary block mb-3">Formation</label>
+                      <div className="flex gap-2 mb-4">
+                        {[
+                          { id: 'yes', label: 'Ja, ich spiele in einer Formation' },
+                          { id: 'no', label: 'Nein' },
+                          { id: 'open', label: 'Offen für Formationen' },
+                        ].map((opt) => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setFormationChoice(opt.id as 'yes' | 'no' | 'open')}
+                            className={`font-sans text-sm px-4 py-2.5 border transition-all ${
+                              formationChoice === opt.id ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      {formationChoice === 'yes' && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                          <input
+                            type="text"
+                            placeholder="Name der Formation"
+                            className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="flex gap-3 mt-8">
                 <button
