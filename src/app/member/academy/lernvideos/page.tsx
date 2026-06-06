@@ -5,7 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { mockUserAbo, isPieceUnlocked, individualPlanMeta } from '@/lib/academy'
-import { ProfileMenu, NotificationBell } from '@/components/MemberTabs'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -92,17 +91,10 @@ const mockPlaylist = [
 
 type Wish = { id: number; title: string; composer?: string; votes: Record<string, number>; available: string[] }
 
-// Jeder Stückwunsch deckt automatisch ALLE Instrumente ab. Nutzer geben beim
-// Erfassen lediglich ihre Stimmen (Likes) für die gewünschten Instrumente ab.
-const WISH_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
-
 const initialWishes: Wish[] = [
   { id: 1, title: 'S Röseli', composer: 'Trad.', votes: { 'Handorgel (1. Stimme)': 14, 'Schwyzerörgeli (1. Stimme)': 9, 'Bassgeige': 4, 'Handorgel (2. Stimme)': 6 }, available: ['Schwyzerörgeli (1. Stimme)'] },
   { id: 2, title: 'Märzenschnee-Ländler', votes: { 'Schwyzerörgeli (1. Stimme)': 17, 'Klarinette (1. Stimme)': 5 }, available: [] },
   { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', votes: { 'Klarinette (1. Stimme)': 28, 'Handorgel (1. Stimme)': 13, 'Bassgeige': 7 }, available: [] },
-  { id: 1, title: 'S Röseli', composer: 'Trad.', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Handorgel: 14, Schwyzerörgeli: 9, Klarinette: 4 }, status: 'offen' },
-  { id: 2, title: 'Märzenschnee-Ländler', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Schwyzerörgeli: 17, Handorgel: 6 }, status: 'offen' },
-  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Klarinette: 28, Handorgel: 13, Bassgeige: 5 }, status: 'in Produktion' },
 ]
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -117,13 +109,6 @@ const WISH_VOTE_OPTIONS = [
   'Schwyzerörgeli (1. Stimme)', 'Handorgel (1. Stimme)', 'Bassgeige', 'Klavierbegleitung', 'Klarinette (1. Stimme)',
   'Schwyzerörgeli (2. Stimme)', 'Handorgel (2. Stimme)', 'Klarinette (2. Stimme)',
 ]
-const INSTRUMENTS = ['Alle', ...WISH_INSTRUMENTS]
-// Instrumente aus dem Profil des aktuell eingeloggten Nutzers.
-const MY_INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli']
-const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Lead', 'Marsch']
-const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Büntner Stil', 'Zweistimmig']
-const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Zweistimmig', 'Pop', 'Rock']
-const PLANS = ['Alle', 'Free', 'Starter', 'Pro']
 
 const planColors: Record<string, string> = {
   free: 'bg-border/60 text-text-secondary',
@@ -179,16 +164,6 @@ export default function LernvideosPage() {
     const votes: Record<string, number> = {}
     wishVoteSel.forEach(o => { votes[o] = 1 })
     const newWish: Wish = { id, title: wishTitle.trim(), composer: wishComposer.trim() || undefined, votes, available: [] }
-    // Neuer Wunsch deckt automatisch alle Instrumente ab (Basis-Stimmen 0).
-    // Die vom Nutzer gewählten Instrumente zählen über `wishVotes` als seine Likes.
-    const newWish: Wish = {
-      id,
-      title: wishTitle.trim(),
-      composer: wishComposer.trim() || undefined,
-      instruments: [...WISH_INSTRUMENTS],
-      votesByInstrument: {},
-      status: 'offen',
-    }
     setWishes(prev => [newWish, ...prev])
     setWishVotes(prev => { const n = { ...prev }; wishVoteSel.forEach(o => { n[voteKey(id, o)] = true }); return n })
     setWishTitle(''); setWishComposer(''); setWishVoteSel([]); setShowWishForm(false)
@@ -334,44 +309,26 @@ export default function LernvideosPage() {
     <div className="min-h-screen bg-background">
 
       {/* Header */}
-      <div className="bg-surface border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20 gap-2">
-        {/* Left: back link + title */}
-        <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
-          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors whitespace-nowrap hidden sm:inline">← Musikschule</Link>
-          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors sm:hidden">←</Link>
-          <h1 className="font-heading font-bold text-base sm:text-lg truncate">Lernvideo-Datenbank</h1>
+      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+        <div className="flex items-center gap-4">
+          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Musikschule</Link>
+          <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
         </div>
-
-        {/* Right: action buttons + notifications + profile */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {/* Action buttons — icon-only on small screens, labelled on sm+ */}
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setTab('merkliste')}
             className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             Merkliste ({saved.size})
-            onClick={() => setFilterSaved(!filterSaved)}
-            className={`font-sans text-xs px-2 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${filterSaved ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-            title="Gespeicherte Videos"
-          >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill={filterSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            <span className="hidden sm:inline">Gespeichert ({savedVideoIds.size})</span>
           </button>
           <button
             onClick={() => setShowPlaylist(!showPlaylist)}
-            className={`font-sans text-xs px-2 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-            title="Meine Playlist"
+            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-            <span className="hidden sm:inline">Playlist ({mockPlaylist.length})</span>
+            Meine Playlist ({mockPlaylist.length})
           </button>
-          {/* Divider */}
-          <div className="w-px h-6 bg-border mx-0.5 flex-shrink-0" />
-
-          {/* Notifications + profile — always visible */}
-          <NotificationBell />
-          <ProfileMenu />
         </div>
       </div>
 
@@ -755,104 +712,6 @@ export default function LernvideosPage() {
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
                 {filtered.map((v, i) => renderResultCard(v, i))}
-                {filtered.map((v, i) => {
-                  const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument })
-                  return (
-                  <motion.div
-                    key={v.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row"
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative w-full aspect-video sm:w-52 sm:aspect-auto sm:self-stretch flex-shrink-0">
-                      <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-9 h-9 bg-accent-gold flex items-center justify-center">
-                          <span className="text-white ml-0.5 text-sm">▶</span>
-                        </div>
-                      </div>
-                      {/* Instrument tag */}
-                      <div className="absolute bottom-2 left-2">
-                        <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
-                      </div>
-                      {savedVideoIds.has(v.id) && (
-                        <div className="absolute top-2 left-2">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="#C4973A" stroke="#C4973A" strokeWidth="1"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                        </div>
-                      )}
-                      {!unlocked && (
-                        <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                          <span className="font-sans text-[10px] uppercase tracking-wide">Gesperrt</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 p-4 flex gap-4 min-w-0">
-                      <div className="flex-1 min-w-0">
-                        {/* Title row */}
-                        <div className="flex items-start gap-2 mb-1">
-                          <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
-                          {v.taktart && (
-                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
-                          )}
-                        </div>
-                        <p className="font-sans text-xs text-text-secondary mb-2">{v.artist} · {v.year}</p>
-
-                        {/* Difficulty */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex gap-0.5">
-                            {Array.from({ length: 6 }).map((_, j) => (
-                              <div key={j} className={`w-2 h-1.5 ${j < v.difficultyNum ? 'bg-accent-gold' : 'bg-border'}`} />
-                            ))}
-                          </div>
-                          <span className="font-sans text-[10px] text-text-secondary">Stufe {v.level}</span>
-                        </div>
-
-                        {/* Tags row */}
-                        <div className="flex flex-wrap gap-1">
-                          {v.styleTags.slice(0, 3).map(t => (
-                            <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/8 border border-accent-gold/20 text-accent-gold">{t}</span>
-                          ))}
-                          {v.melodieTags.slice(0, 2).map(t => (
-                            <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
-                          ))}
-                          {/* Notes badges */}
-                          {v.notesAvailable.violinschluessel && (
-                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Violin</span>
-                          )}
-                          {v.notesAvailable.griffschrift && (
-                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Griff</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Right: plan badge + action */}
-                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-between flex-shrink-0 gap-2 sm:gap-0">
-                        <div className="flex flex-col items-end gap-1">
-                          <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>
-                            {planLabels[v.difficultyPlan]}
-                          </span>
-                          {!unlocked && (
-                            <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1">
-                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                              Gesperrt
-                            </span>
-                          )}
-                        </div>
-                        <div className="sm:mt-auto">
-                          <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
-                            {unlocked ? 'Öffnen →' : 'Master-Video →'}
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                  )
-                })}
 
                 {/* Bereits gewünschte Stücke (noch kein Video) — In Bearbeitung */}
                 {wishMatches.map((w, i) => (
@@ -861,9 +720,9 @@ export default function LernvideosPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="bg-surface border border-dashed border-border overflow-hidden flex flex-col sm:flex-row select-none"
+                    className="bg-surface border border-dashed border-border overflow-hidden flex select-none"
                   >
-                    <div className="relative w-full aspect-video sm:w-52 sm:aspect-auto sm:self-stretch flex-shrink-0 bg-dark/5 flex items-center justify-center">
+                    <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch bg-dark/5 flex items-center justify-center min-h-[96px]">
                       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                     </div>
                     <div className="flex-1 p-4 flex gap-4 min-w-0">
@@ -876,12 +735,12 @@ export default function LernvideosPage() {
                           ))}
                         </div>
                       </div>
-                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-between flex-shrink-0 gap-2 sm:gap-0">
+                      <div className="flex flex-col items-end justify-between flex-shrink-0">
                         <span className="font-sans text-[10px] px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 whitespace-nowrap">
                           <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                           In Bearbeitung
                         </span>
-                        <span className="sm:mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
+                        <span className="mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
                       </div>
                     </div>
                   </motion.div>
@@ -939,9 +798,6 @@ export default function LernvideosPage() {
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
                   <div className="bg-surface border border-accent-gold/30 p-6 space-y-4">
                     <h3 className="font-heading font-bold text-sm">Stückwunsch erfassen</h3>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Jedes gewünschte Stück wird automatisch für <strong className="text-dark font-medium">alle Instrumente</strong> erfasst. Wähle einfach, für welche Instrumente du deine Stimme abgeben möchtest.
-                    </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Titel des Stückes *</label>
@@ -954,7 +810,6 @@ export default function LernvideosPage() {
                     </div>
                     <div>
                       <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
-                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(Instrumente — mehrere möglich)</span></label>
                       <div className="flex flex-wrap gap-2">
                         {WISH_VOTE_OPTIONS.map(opt => {
                           const active = wishVoteSel.includes(opt)
