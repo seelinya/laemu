@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pieceCatalog, isPieceUnlocked, type CatalogEntry } from '@/lib/academy'
-import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -273,6 +272,8 @@ function IconPause() { return <svg width="14" height="14" viewBox="0 0 24 24" fi
 function IconRepeat() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg> }
 function IconDownload() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> }
 function IconShare() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> }
+function IconPlus() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> }
+function IconStar({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> }
 function IconCheck() { return <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
 function IconHeart({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> }
 function IconMusic() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> }
@@ -417,16 +418,8 @@ function VoiceMixer({ voices }: { voices: Voice[] }) {
 }
 
 // ─── VideoPlayer ─────────────────────────────────────────────────────────────
-// Vereint beide Branch-Varianten:
-//  • variant="standard"  → Master/Intro: Lautstärke, Qualität, Tempo (ohne Tonhöhe)
-//  • variant="extended"  → Lern-/Mitspielvideos: Loop A–B, Tempo, Tonhöhe
-//  • autoLoop            → zeigt "Auto-Wiederholung"-Badge (Übe-Loops)
-//  • Vollbild (enlarge)  → für jede Variante verfügbar
 
 const VIDEO_QUALITIES = ['Auto', '1080p', '720p', '480p']
-
-function IconExpand() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> }
-function IconClose() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> }
 
 function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { img: string; label: string; variant?: 'standard' | 'extended'; autoLoop?: boolean }) {
   const [playing, setPlaying] = useState(false)
@@ -440,7 +433,6 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
   const [volume, setVolume] = useState(80)
   const [muted, setMuted] = useState(false)
   const [quality, setQuality] = useState('Auto')
-  const [enlarged, setEnlarged] = useState(false)
   const barRef = useRef<HTMLDivElement>(null)
 
   const pitchLabel = pitch === 0 ? '±0' : pitch > 0 ? `+${pitch}` : `${pitch}`
@@ -454,8 +446,8 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
     if (loopEnabled && dragging === 'B') setLoopB(Math.max(pct, loopA + 5))
   }
 
-  const player = (
-    <div className="bg-dark w-full">
+  return (
+    <div className="bg-dark">
       <div className="relative aspect-video overflow-hidden">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -470,13 +462,6 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
           {autoLoop && <span className="font-sans text-xs text-accent-gold bg-black/50 px-2 py-1 flex items-center gap-1"><IconRepeat /> Auto-Wiederholung</span>}
           {variant === 'extended' && loopEnabled && <span className="font-sans text-xs text-blue-300 bg-blue-900/60 px-2 py-1">Loop A–B</span>}
           {variant === 'standard' && quality !== 'Auto' && <span className="font-sans text-xs text-white/70 bg-black/50 px-2 py-1">{quality}</span>}
-          <button
-            onClick={() => setEnlarged(e => !e)}
-            title={enlarged ? 'Verkleinern' : 'Vergrössern'}
-            className="text-white/70 hover:text-white bg-black/50 hover:bg-black/70 p-1.5 transition-colors"
-          >
-            {enlarged ? <IconClose /> : <IconExpand />}
-          </button>
         </div>
       </div>
       <div className="px-4 py-3 space-y-3">
@@ -540,24 +525,38 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
       </div>
     </div>
   )
+}
 
-  if (enlarged) {
-    return (
-      <>
-        {player}
-        <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center p-4">
-          <button onClick={() => setEnlarged(false)} title="Schliessen" className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-10">
-            <IconClose />
-          </button>
-          <div className="w-full max-w-5xl">
-            {player}
-          </div>
+// ─── Stimme-/Begleitvideo mit aufklappbarem Player (Auto-Loop) ────────────────
+
+function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist }: { lv: { id: string; label: string; duration: string; done: boolean }; img: string; inPlaylist: boolean; onPlaylist: () => void }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div>
+      <div className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
+        <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
+          {lv.done ? <IconCheck /> : <IconPlay />}
         </div>
-      </>
-    )
-  }
-
-  return player
+        <div className="flex-1 min-w-0">
+          <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
+          <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <button onClick={onPlaylist} className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${inPlaylist ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`} title="Zur Audio-Playlist (z.B. fürs Auto)"><IconHeadphones /> Playlist</button>
+          <button onClick={() => setOpen(o => !o)} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+            {open ? 'Schliessen' : <><IconPlay /> Abspielen</>}
+          </button>
+        </div>
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
 }
 
 // ─── Locked view (Stück nicht im Abo enthalten) ──────────────────────────────
@@ -587,7 +586,7 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Master video — Standard-Player, ohne JamPlayer */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} variant="standard" />
+          <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} />
           <p className="font-sans text-xs text-text-secondary mt-2">
             Die Masteraufnahme ist frei verfügbar. Der JamPlayer sowie die Lern- und Stimmen-Videos
             sind in deinem aktuellen Abo nicht enthalten.
@@ -641,19 +640,16 @@ export default function LernvideoDetailPage() {
 
   const v = videoData
   const [mainTab, setMainTab] = useState<'ueberblick' | 'stimme1' | 'stimme2' | 'begleit' | 'mitspielen'>('ueberblick')
+  const [favorited, setFavorited] = useState(false)
   const [showLyrics, setShowLyrics] = useState(false)
-  const [expandedVideos, setExpandedVideos] = useState<Set<string>>(new Set())
-  const toggleVideo = (id: string) => setExpandedVideos(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   const [comment, setComment] = useState('')
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
   const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
   const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
-  const [audioFavs, setAudioFavs] = useState<Set<string>>(new Set())
 
   const toggleAudioPlaylist = (id: string) => setAudioPlaylist(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
-  const toggleAudioFav = (id: string) => setAudioFavs(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
   // Stimmen nach Tab: 1./2. Stimme = Melodie-Instrumente, Begleitung = alle Begleitstimmen
   const MELODIC = ['Handorgel', 'Schwyzerörgeli', 'Klarinette']
@@ -669,47 +665,9 @@ export default function LernvideoDetailPage() {
       </div>
       {stimme.lernvideos.length > 0 && (
         <div className="divide-y divide-border">
-          {stimme.lernvideos.map((lv, partIdx) => {
-            const open = expandedVideos.has(lv.id)
-            return (
-              <div key={lv.id}>
-                {/* Geschlossene Zeile: bewusst schlank gehalten (mobil keine Buttons,
-                    die über den Bildschirm laufen). Like/Playlist erscheinen unter dem Video. */}
-                <button
-                  onClick={() => toggleVideo(lv.id)}
-                  className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-background transition-colors text-left"
-                >
-                  <span className="font-sans text-xs text-text-secondary w-10 flex-shrink-0 hidden sm:block">Teil {partIdx + 1}</span>
-                  <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
-                    {lv.done ? <IconCheck /> : (open ? <IconPause /> : <IconPlay />)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
-                    <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
-                  </div>
-                  <span className="flex-shrink-0 text-text-secondary"><IconChevron up={open} /></span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {open && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="px-4 sm:px-5 pb-4 pt-1 space-y-3">
-                        <VideoPlayer img={v.img} label={lv.label} autoLoop />
-                        {/* Aktionen unterhalb des Videos — nur für dieses einzelne Video. */}
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button onClick={() => toggleAudioFav(lv.id)} className={`flex items-center gap-1.5 border px-3 py-1.5 font-sans text-xs transition-colors ${audioFavs.has(lv.id) ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border text-text-secondary hover:border-dark'}`}>
-                            <IconHeart filled={audioFavs.has(lv.id)} /> {audioFavs.has(lv.id) ? 'Favorit' : 'Als Favorit'}
-                          </button>
-                          <button onClick={() => toggleAudioPlaylist(lv.id)} className={`flex items-center gap-1.5 border px-3 py-1.5 font-sans text-xs transition-colors ${audioPlaylist.has(lv.id) ? 'border-dark text-dark bg-background' : 'border-border text-text-secondary hover:border-dark'}`}>
-                            <IconHeadphones /> {audioPlaylist.has(lv.id) ? 'In Playlist' : 'Zur Playlist'}
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )
-          })}
+          {stimme.lernvideos.map(lv => (
+            <StimmeVideoItem key={lv.id} lv={lv} img={v.img} inPlaylist={audioPlaylist.has(lv.id)} onPlaylist={() => toggleAudioPlaylist(lv.id)} />
+          ))}
         </div>
       )}
       {showNoten && stimme.noten.length > 0 && (
@@ -746,9 +704,12 @@ export default function LernvideoDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <ShareMenu title={v.title} text={`${v.title} — ${v.artist}`} className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
+          <button className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
             <IconShare /> Teilen
-          </ShareMenu>
+          </button>
+          <button onClick={() => setFavorited(!favorited)} className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}>
+            <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste'}
+          </button>
         </div>
       </div>
 
@@ -922,7 +883,7 @@ export default function LernvideoDetailPage() {
                         <p className="font-sans text-xs text-text-secondary">Alle Stimmen · alle Notationsarten · inkl. Transpositionsvarianten</p>
                       </div>
                       <Link href={v.notenheftUrl} className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
-                        Alle Noten herunterladen →
+                        Zum Notenheft →
                       </Link>
                     </div>
                   )}
@@ -1086,3 +1047,263 @@ export default function LernvideoDetailPage() {
                         <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
                           zu: <span className="text-dark font-medium">{v.title}</span>
                         </p>
+                      </div>
+
+                      {/* Comment list */}
+                      <div className="space-y-4 mb-6">
+                        {videoComments.length === 0 ? (
+                          <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
+                        ) : (
+                          videoComments.map((c) => (
+                            <div key={c.id} className="flex gap-3">
+                              <Avatar user={c.user} name={c.name} avatar={c.avatar} />
+                              <div className="flex-1 min-w-0">
+                                <div className="bg-background p-4 border border-border">
+                                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                    <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
+                                    {c.isTeam && (
+                                      <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                                        {c.role ?? 'LAEMU Team'}
+                                      </span>
+                                    )}
+                                    <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
+                                  </div>
+                                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
+                                  <div className="flex items-center gap-4">
+                                    <button
+                                      onClick={() => setCommentLikes(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
+                                      className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                                    >
+                                      <IconHeart filled={!!commentLikes[c.id]} />
+                                      {c.likes + (commentLikes[c.id] ? 1 : 0)}
+                                    </button>
+                                    <button
+                                      onClick={() => { setReplyTo(replyTo === c.id ? null : c.id); setReplyText('') }}
+                                      className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                                    >
+                                      Beantworten
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Replies */}
+                                {c.replies.length > 0 && (
+                                  <div className="mt-3 space-y-3 border-l-2 border-border pl-4">
+                                    {c.replies.map(r => (
+                                      <div key={r.id} className="flex gap-2.5">
+                                        <Avatar user={r.user} name={r.name} avatar={r.avatar} small />
+                                        <div className="flex-1 min-w-0 bg-background p-3 border border-border">
+                                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                            <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
+                                            {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
+                                            <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
+                                          </div>
+                                          <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Reply input */}
+                                {replyTo === c.id && (
+                                  <div className="mt-3 flex gap-2.5">
+                                    <div className="w-7 h-7 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </div>
+                                    <div className="flex-1 flex gap-2">
+                                      <input
+                                        value={replyText}
+                                        onChange={e => setReplyText(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && handleReply(c.id)}
+                                        type="text"
+                                        placeholder={`Antwort an ${c.name}…`}
+                                        className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
+                                      />
+                                      <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-3 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Antwort senden</button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Input */}
+                      <div className="flex gap-3">
+                        <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div className="flex-1 flex gap-2">
+                          <input
+                            value={comment}
+                            onChange={e => setComment(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleSend()}
+                            type="text"
+                            placeholder={`Kommentar zu "${v.title}"…`}
+                            className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                          />
+                          <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })()}
+              </>
+            )}
+
+            {/* ── 1. STIMME ── */}
+            {mainTab === 'stimme1' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">1. Stimme</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — für Handorgel, Schwyzerörgeli & Klarinette.</p>
+                </div>
+                {stimme1Sections.length > 0
+                  ? stimme1Sections.map(s => renderStimmeSection(s, false))
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 1.-Stimme-Video.</p>}
+              </motion.div>
+            )}
+
+            {/* ── 2. STIMME ── */}
+            {mainTab === 'stimme2' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">2. Stimme</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — für Handorgel, Schwyzerörgeli & Klarinette.</p>
+                </div>
+                {stimme2Sections.length > 0
+                  ? stimme2Sections.map(s => renderStimmeSection(s, false))
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 2.-Stimme-Video.</p>}
+              </motion.div>
+            )}
+
+            {/* ── BEGLEITVORSCHLÄGE ── */}
+            {mainTab === 'begleit' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">Begleitvorschläge</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — Handorgel-, Schwyzerörgeli-, Klavier- & Bassbegleitung.</p>
+                </div>
+                {begleitSections.length > 0
+                  ? begleitSections.map(s => renderStimmeSection(s, true))
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es keine Begleitvideos.</p>}
+              </motion.div>
+            )}
+
+            {/* ── MITSPIELEN ── */}
+            {mainTab === 'mitspielen' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">Mitspielen</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den JamPlayer steuerbar.</p>
+                </div>
+
+                {/* Master-/Mitspielvideo mit JamPlayer */}
+                <div>
+                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
+                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* RIGHT SIDEBAR */}
+          <div>
+            <div className="sticky top-8 space-y-4">
+              {/* Metadata */}
+              <div className="bg-surface border border-border p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Stück-Info</p>
+                <div className="space-y-0">
+                  {([
+                    { label: 'Komponist', value: v.composer },
+                    { label: 'Takt', value: v.meter },
+                    { label: 'Harmoniestufen', value: `Stufe ${v.level}` },
+                  ]).map(item => (
+                    <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
+                      <span className="font-sans text-xs text-text-secondary">{item.label}</span>
+                      <span className="font-sans text-xs font-medium">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stimmen overview */}
+              <div className="bg-surface border border-border overflow-hidden">
+                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                  <p className="font-heading font-bold text-sm">Stimmen</p>
+                  <button onClick={() => setMainTab('stimme1')} className="font-sans text-xs text-accent-gold hover:underline">Alle ansehen →</button>
+                </div>
+                {v.stimmenSections.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setMainTab(s.label.startsWith('1. Stimme') ? 'stimme1' : s.label.startsWith('2. Stimme') ? 'stimme2' : 'begleit')}
+                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left hover:bg-background transition-colors"
+                  >
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                    <span className="font-sans text-xs flex-1 truncate">{s.label}</span>
+                    <span className="font-sans text-[10px] text-text-secondary flex-shrink-0">{s.lernvideos.length} Videos</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="bg-surface border border-border p-4 space-y-2">
+                <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}>
+                  <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste hinzufügen'}
+                </button>
+                <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
+                  <IconPlus /> Zur Playlist
+                </button>
+                <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
+                  <IconShare /> Teilen
+                </button>
+                <div className="border-t border-border pt-2 mt-2">
+                  <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 bg-dark text-white hover:bg-accent-gold transition-colors">
+                    <IconDownload /> Noten-Paket · CHF 20
+                  </button>
+                </div>
+              </div>
+
+              {/* Lehrpersonen (mehrere möglich — je Instrument/Stimme) */}
+              <div className="bg-surface border border-border p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Lehrpersonen</p>
+                <div className="space-y-5">
+                  {v.teachers.map((t, i) => (
+                    <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
+                      <div className="relative w-12 h-12 overflow-hidden flex-shrink-0">
+                        <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+                      </div>
+                      <div>
+                        <p className="font-heading font-bold text-sm">{t.name}</p>
+                        <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
+                        <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
+                          Profil ansehen
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* FLOATING AUDIO PLAYLIST BAR */}
+      {audioPlaylist.size > 0 && (
+        <div className="fixed bottom-6 right-6 z-50 bg-dark text-white px-4 py-3 shadow-2xl flex items-center gap-3">
+          <IconHeadphones />
+          <span className="font-sans text-sm">{audioPlaylist.size} Videos in Audio-Playlist</span>
+          <button className="font-sans text-xs px-3 py-1.5 bg-accent-gold hover:bg-accent-warm transition-colors">
+            Abspielen →
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
