@@ -14,7 +14,7 @@ const videos = [
     id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', instrument: 'Handorgel', formation: 'Trio',
     composer: 'Valotti', year: 1978, difficultyNum: 3, level: 2, taktart: 'Walzer',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'starter' as const,
-    styleTags: ['Urchig', 'Innerschwyzer Stil', 'Zweistimmig'], melodieTags: [] as string[],
+    styleTags: ['Urchig', 'Innerschwyzer Stil'], melodieTags: [] as string[],
     autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
     notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80',
@@ -64,7 +64,7 @@ const videos = [
     id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', instrument: 'Bassgeige', formation: 'Kapelle',
     composer: 'Rusch', year: 1972, difficultyNum: 5, level: 4, taktart: 'Mazurka',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
-    styleTags: ['Konzertant', 'Büntner Stil'], melodieTags: [] as string[],
+    styleTags: ['Konzertant', 'Bündner Stil'], melodieTags: [] as string[],
     autoTags: ['Bassgeige', 'Pro'],
     notesAvailable: { violinschluessel: true, griffschrift: true },
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&q=80',
@@ -74,15 +74,13 @@ const videos = [
     id: 7, title: 'Stille Nacht', artist: 'Verschiedene Kapellen', instrument: 'Handorgel', formation: 'Trio',
     composer: 'Franz Xaver Gruber', year: 1818, difficultyNum: 1, level: 1, taktart: null,
     artDesStückes: 'bekannte_melodie' as const, difficultyPlan: 'free' as const,
-    styleTags: [], melodieTags: ['Weihnachtslied', 'Zweistimmig'],
+    styleTags: [], melodieTags: ['Weihnachtslied'],
     autoTags: ['Handorgel', 'Free', 'Bekannte Melodie'],
     notesAvailable: { violinschluessel: true, griffschrift: false },
     img: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400&q=80',
     price: 0, purchased: true,
   },
 ]
-
-const savedVideoIds = new Set([1, 5, 7])
 
 const mockPlaylist = [
   { id: 'p1', title: '1. Stimme — Einführung & Takt 1–8', piece: 'Dr Alperose', duration: '12 Min.' },
@@ -92,13 +90,16 @@ const mockPlaylist = [
   { id: 'p5', title: 'Vorspielen — ganzes Stück', piece: 'Stille Nacht', duration: '3:42' },
 ]
 
-type Wish = { id: number; title: string; composer?: string; instruments: string[]; votesByInstrument: Record<string, number>; status: string }
+type Wish = { id: number; title: string; composer?: string; votes: Record<string, number>; available: string[] }
 
 // Jeder Stückwunsch deckt automatisch ALLE Instrumente ab. Nutzer geben beim
 // Erfassen lediglich ihre Stimmen (Likes) für die gewünschten Instrumente ab.
 const WISH_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
 
 const initialWishes: Wish[] = [
+  { id: 1, title: 'S Röseli', composer: 'Trad.', votes: { 'Handorgel (1. Stimme)': 14, 'Schwyzerörgeli (1. Stimme)': 9, 'Bassgeige': 4, 'Handorgel (2. Stimme)': 6 }, available: ['Schwyzerörgeli (1. Stimme)'] },
+  { id: 2, title: 'Märzenschnee-Ländler', votes: { 'Schwyzerörgeli (1. Stimme)': 17, 'Klarinette (1. Stimme)': 5 }, available: [] },
+  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', votes: { 'Klarinette (1. Stimme)': 28, 'Handorgel (1. Stimme)': 13, 'Bassgeige': 7 }, available: [] },
   { id: 1, title: 'S Röseli', composer: 'Trad.', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Handorgel: 14, Schwyzerörgeli: 9, Klarinette: 4 }, status: 'offen' },
   { id: 2, title: 'Märzenschnee-Ländler', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Schwyzerörgeli: 17, Handorgel: 6 }, status: 'offen' },
   { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', instruments: [...WISH_INSTRUMENTS], votesByInstrument: { Klarinette: 28, Handorgel: 13, Bassgeige: 5 }, status: 'in Produktion' },
@@ -106,6 +107,16 @@ const initialWishes: Wish[] = [
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
+const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Marsch', 'Lied']
+const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Bündner Stil']
+const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
+
+// Optionen für Stimmen bei Stückwünschen.
+const WISH_VOTE_OPTIONS = [
+  'Schwyzerörgeli (1. Stimme)', 'Handorgel (1. Stimme)', 'Bassgeige', 'Klavierbegleitung', 'Klarinette (1. Stimme)',
+  'Schwyzerörgeli (2. Stimme)', 'Handorgel (2. Stimme)', 'Klarinette (2. Stimme)',
+]
 const INSTRUMENTS = ['Alle', ...WISH_INSTRUMENTS]
 // Instrumente aus dem Profil des aktuell eingeloggten Nutzers.
 const MY_INSTRUMENTS = ['Handorgel', 'Schwyzerörgeli']
@@ -130,42 +141,44 @@ type ArtFilter = 'volkstuemlich' | 'bekannte_melodie'
 export default function LernvideosPage() {
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
-  const [filterArt, setFilterArt] = useState<ArtFilter[]>([])
+  const [filterArt, setFilterArt] = useState<ArtFilter | null>(null)
   const [filterTakt, setFilterTakt] = useState<string | null>(null)
   const [filterStyleTag, setFilterStyleTag] = useState<string | null>(null)
   const [filterGenreTag, setFilterGenreTag] = useState<string | null>(null)
-  const [filterPlan, setFilterPlan] = useState('Alle')
   const [filterNotenV, setFilterNotenV] = useState(false)
   const [filterNotenG, setFilterNotenG] = useState(false)
-  const [filterSaved, setFilterSaved] = useState(false)
-  const [tab, setTab] = useState<'datenbank' | 'wuensche'>('datenbank')
+  const [saved, setSaved] = useState<Set<number>>(new Set([1, 5, 7]))
+  const [tab, setTab] = useState<'datenbank' | 'merkliste' | 'wuensche'>('datenbank')
   const [showPlaylist, setShowPlaylist] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [showAdvancedDesktop, setShowAdvancedDesktop] = useState(true)
   const [showWishForm, setShowWishForm] = useState(false)
   const [wishes, setWishes] = useState<Wish[]>(initialWishes)
-  // Eigene Stimmen pro Stück & Instrument, Schlüssel `${wishId}:${instrument}`.
+  // Eigene Stimmen pro Stück & Option, Schlüssel `${wishId}:${option}`.
   const [wishVotes, setWishVotes] = useState<Record<string, boolean>>({})
   const [wishTitle, setWishTitle] = useState('')
   const [wishComposer, setWishComposer] = useState('')
-  const [wishInstruments, setWishInstruments] = useState<string[]>(['Handorgel'])
+  const [wishVoteSel, setWishVoteSel] = useState<string[]>([])
   const [wishSearch, setWishSearch] = useState('')
-  const [wishFilterInst, setWishFilterInst] = useState('Alle')
 
-  const voteKey = (id: number, inst: string) => `${id}:${inst}`
-  const wishInstVotes = (w: Wish, inst: string) => (w.votesByInstrument[inst] ?? 0) + (wishVotes[voteKey(w.id, inst)] ? 1 : 0)
-  const toggleWishVote = (id: number, inst: string) =>
-    setWishVotes(prev => ({ ...prev, [voteKey(id, inst)]: !prev[voteKey(id, inst)] }))
-  // Anzeige-Instrumente = ursprüngliche Tags + Instrumente, für die der Nutzer (aus seinem Profil) gestimmt hat.
-  const wishDisplayInstruments = (w: Wish) =>
-    Array.from(new Set([...w.instruments, ...MY_INSTRUMENTS.filter(i => wishVotes[voteKey(w.id, i)])]))
+  const toggleSaved = (id: number) => setSaved(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
-  const toggleWishInstrument = (inst: string) =>
-    setWishInstruments(prev => prev.includes(inst) ? prev.filter(i => i !== inst) : [...prev, inst])
+  // ── Stückwünsche: Stimmen pro Option ──
+  const voteKey = (id: number, opt: string) => `${id}:${opt}`
+  const wishOptVotes = (w: Wish, opt: string) => (w.votes[opt] ?? 0) + (wishVotes[voteKey(w.id, opt)] ? 1 : 0)
+  const toggleWishVote = (id: number, opt: string) =>
+    setWishVotes(prev => ({ ...prev, [voteKey(id, opt)]: !prev[voteKey(id, opt)] }))
+  // Gesamttotal aller Optionen (bereits vorhandene zählen nicht mit).
+  const wishTotal = (w: Wish) => WISH_VOTE_OPTIONS.reduce((s, opt) => s + (w.available.includes(opt) ? 0 : wishOptVotes(w, opt)), 0)
+  const toggleWishVoteSel = (opt: string) =>
+    setWishVoteSel(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt])
 
   const submitWish = () => {
-    if (!wishTitle.trim() || wishInstruments.length === 0) return
+    if (!wishTitle.trim() || wishVoteSel.length === 0) return
     const id = Date.now()
+    const votes: Record<string, number> = {}
+    wishVoteSel.forEach(o => { votes[o] = 1 })
+    const newWish: Wish = { id, title: wishTitle.trim(), composer: wishComposer.trim() || undefined, votes, available: [] }
     // Neuer Wunsch deckt automatisch alle Instrumente ab (Basis-Stimmen 0).
     // Die vom Nutzer gewählten Instrumente zählen über `wishVotes` als seine Likes.
     const newWish: Wish = {
@@ -177,55 +190,46 @@ export default function LernvideosPage() {
       status: 'offen',
     }
     setWishes(prev => [newWish, ...prev])
-    setWishVotes(prev => { const n = { ...prev }; wishInstruments.forEach(i => { n[voteKey(id, i)] = true }); return n })
-    setWishTitle(''); setWishComposer(''); setWishInstruments(['Handorgel']); setShowWishForm(false)
+    setWishVotes(prev => { const n = { ...prev }; wishVoteSel.forEach(o => { n[voteKey(id, o)] = true }); return n })
+    setWishTitle(''); setWishComposer(''); setWishVoteSel([]); setShowWishForm(false)
   }
-
-  // Relevanz: nach Instrumentenfilter die Stimmen für dieses Instrument, sonst
-  // das Instrument mit den meisten Likes (= meiste Likes pro Instrument).
-  const wishRelevance = (w: Wish) =>
-    wishFilterInst === 'Alle'
-      ? Math.max(0, ...wishDisplayInstruments(w).map(i => wishInstVotes(w, i)))
-      : wishInstVotes(w, wishFilterInst)
 
   const filteredWishes = wishes
     .filter(w => {
       const q = wishSearch.trim().toLowerCase()
-      const matchesSearch = !q || w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)
-      const matchesInst = wishFilterInst === 'Alle' || wishDisplayInstruments(w).includes(wishFilterInst)
-      return matchesSearch && matchesInst
+      return !q || w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)
     })
-    .sort((a, b) => wishRelevance(b) - wishRelevance(a))
+    .sort((a, b) => wishTotal(b) - wishTotal(a))
 
   const toggleArt = (val: ArtFilter) => {
     setFilterArt(prev => {
-      const next = prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val]
-      if (!next.includes('volkstuemlich')) { setFilterStyleTag(null); setFilterTakt(null) }
-      if (!next.includes('bekannte_melodie')) { setFilterGenreTag(null) }
+      const next = prev === val ? null : val
+      if (next !== 'volkstuemlich') { setFilterStyleTag(null); setFilterTakt(null) }
+      if (next !== 'bekannte_melodie') { setFilterGenreTag(null) }
       return next
     })
   }
 
   const resetAll = () => {
-    setSearch(''); setFilterInst('Alle'); setFilterArt([]); setFilterTakt(null)
-    setFilterStyleTag(null); setFilterGenreTag(null); setFilterPlan('Alle')
-    setFilterNotenV(false); setFilterNotenG(false); setFilterSaved(false)
+    setSearch(''); setFilterInst('Alle'); setFilterArt(null); setFilterTakt(null)
+    setFilterStyleTag(null); setFilterGenreTag(null)
+    setFilterNotenV(false); setFilterNotenG(false)
   }
 
   const filtered = videos.filter(v => {
-    if (filterSaved && !savedVideoIds.has(v.id)) return false
     const q = search.toLowerCase()
     if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q) && !v.autoTags.some(t => t.toLowerCase().includes(q))) return false
     if (filterInst !== 'Alle' && v.instrument !== filterInst) return false
-    if (filterArt.length === 1 && v.artDesStückes !== filterArt[0]) return false
+    if (filterArt && v.artDesStückes !== filterArt) return false
     if (filterTakt && v.taktart !== filterTakt) return false
     if (filterStyleTag && !(v.styleTags as string[]).includes(filterStyleTag)) return false
     if (filterGenreTag && !v.melodieTags.includes(filterGenreTag)) return false
-    if (filterPlan !== 'Alle' && v.difficultyPlan !== filterPlan.toLowerCase()) return false
     if (filterNotenV && !v.notesAvailable.violinschluessel) return false
     if (filterNotenG && !v.notesAvailable.griffschrift) return false
     return true
   })
+
+  const savedVideos = videos.filter(v => saved.has(v.id))
 
   // Bereits gewünschte Stücke, zu denen es noch kein Video gibt: bei der Suche
   // ausgegraut mit Tag "In Bearbeitung" anzeigen.
@@ -234,16 +238,97 @@ export default function LernvideosPage() {
     if (!q) return []
     return wishes.filter(w =>
       (w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)) &&
-      (filterInst === 'Alle' || w.instruments.includes(filterInst)) &&
       !videos.some(v => v.title.toLowerCase() === w.title.toLowerCase()),
     )
   })()
 
   const activeFilterCount = [
-    filterInst !== 'Alle', filterArt.length > 0, filterTakt !== null,
+    filterInst !== 'Alle', filterArt !== null, filterTakt !== null,
     filterStyleTag !== null, filterGenreTag !== null,
-    filterPlan !== 'Alle', filterNotenV, filterNotenG, filterSaved,
+    filterNotenV, filterNotenG,
   ].filter(Boolean).length
+
+  // Ergebnis-Karte (Stück) — geteilt von Datenbank- und Merkliste-Tab.
+  const renderResultCard = (v: typeof videos[0], i: number) => {
+    const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument })
+    const isSaved = saved.has(v.id)
+    return (
+      <motion.div
+        key={v.id}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.03 }}
+        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex"
+      >
+        {/* Thumbnail */}
+        <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch">
+          <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
+          </div>
+          <div className="absolute bottom-2 left-2">
+            <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
+          </div>
+          {!unlocked && (
+            <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <span className="font-sans text-[10px] uppercase tracking-wide">Gesperrt</span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-4 flex gap-4 min-w-0">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-2 mb-1">
+              <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
+              {v.taktart && (
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
+              )}
+            </div>
+            <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
+            <div className="flex flex-wrap gap-1">
+              {v.styleTags.slice(0, 3).map(t => (
+                <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/8 border border-accent-gold/20 text-accent-gold">{t}</span>
+              ))}
+              {v.melodieTags.slice(0, 2).map(t => (
+                <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
+              ))}
+              {v.notesAvailable.violinschluessel && (
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Violin</span>
+              )}
+              {v.notesAvailable.griffschrift && (
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Griff</span>
+              )}
+            </div>
+          </div>
+
+          {/* Right: heart + plan badge + action */}
+          <div className="flex flex-col items-end justify-between flex-shrink-0">
+            <button
+              onClick={() => toggleSaved(v.id)}
+              title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
+              className={`p-1.5 border transition-colors ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            </button>
+            <div className="flex flex-col items-end gap-1 my-2">
+              <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
+              {!unlocked && (
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  Gesperrt
+                </span>
+              )}
+            </div>
+            <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
+              {unlocked ? 'Öffnen →' : 'Master-Video →'}
+            </Link>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -261,6 +346,11 @@ export default function LernvideosPage() {
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* Action buttons — icon-only on small screens, labelled on sm+ */}
           <button
+            onClick={() => setTab('merkliste')}
+            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            Merkliste ({saved.size})
             onClick={() => setFilterSaved(!filterSaved)}
             className={`font-sans text-xs px-2 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${filterSaved ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
             title="Gespeicherte Videos"
@@ -330,6 +420,9 @@ export default function LernvideosPage() {
           <button onClick={() => setTab('datenbank')} className={`px-6 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${tab === 'datenbank' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}>
             Lernvideos durchsuchen
           </button>
+          <button onClick={() => setTab('merkliste')} className={`px-6 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${tab === 'merkliste' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}>
+            Merkliste ({saved.size})
+          </button>
           <button onClick={() => setTab('wuensche')} className={`px-6 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${tab === 'wuensche' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}>
             Stückwünsche ({wishes.length})
           </button>
@@ -385,7 +478,7 @@ export default function LernvideosPage() {
                             ['volkstuemlich', 'Volkstümlich', 'Ländler, Schottisch, Walzer …'],
                             ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder …'],
                           ] as const).map(([val, label, desc]) => {
-                            const active = filterArt.includes(val)
+                            const active = filterArt === val
                             return (
                               <div key={val}>
                                 <button onClick={() => toggleArt(val)} className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
@@ -393,8 +486,8 @@ export default function LernvideosPage() {
                                     <p className={`font-sans text-sm font-medium ${active ? 'text-accent-gold' : ''}`}>{label}</p>
                                     <p className="font-sans text-xs text-text-secondary leading-snug">{desc}</p>
                                   </div>
-                                  <div className={`w-4 h-4 border flex-shrink-0 mt-0.5 flex items-center justify-center ${active ? 'bg-accent-gold border-accent-gold' : 'border-border'}`}>
-                                    {active && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                                  <div className={`w-4 h-4 rounded-full border flex-shrink-0 mt-0.5 flex items-center justify-center ${active ? 'border-accent-gold' : 'border-border'}`}>
+                                    {active && <span className="w-2 h-2 rounded-full bg-accent-gold" />}
                                   </div>
                                 </button>
                                 <AnimatePresence>
@@ -438,15 +531,6 @@ export default function LernvideosPage() {
                               </div>
                             )
                           })}
-                        </div>
-                      </div>
-                      {/* Abonnementstufe */}
-                      <div>
-                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Abonnementstufe</label>
-                        <div className="flex gap-1">
-                          {PLANS.map(p => (
-                            <button key={p} onClick={() => setFilterPlan(p)} className={`flex-1 py-2 font-sans text-xs border transition-colors ${filterPlan === p ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{p}</button>
-                          ))}
                         </div>
                       </div>
                       {/* Noten */}
@@ -524,7 +608,7 @@ export default function LernvideosPage() {
                     ['volkstuemlich', 'Volkstümlich', 'Ländler, Schottisch, Walzer …'],
                     ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder …'],
                   ] as const).map(([val, label, desc]) => {
-                    const active = filterArt.includes(val)
+                    const active = filterArt === val
                     return (
                       <div key={val}>
                         <button
@@ -605,22 +689,6 @@ export default function LernvideosPage() {
                 </div>
               </div>
 
-              {/* Abonnementstufe */}
-              <div>
-                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Abonnementstufe</label>
-                <div className="flex gap-1">
-                  {PLANS.map(p => (
-                    <button
-                      key={p}
-                      onClick={() => setFilterPlan(p)}
-                      className={`flex-1 py-2 font-sans text-xs border transition-colors ${filterPlan === p ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Noten */}
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Noten</label>
@@ -645,21 +713,19 @@ export default function LernvideosPage() {
             <div className="lg:col-span-3">
               <div className="flex items-center justify-between mb-4">
                 <p className="font-sans text-sm text-text-secondary">
-                  {filtered.length} Lernvideo{filtered.length !== 1 ? 's' : ''}
-                  {filterSaved && <span className="ml-1.5 font-sans text-xs px-2 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">Gespeichert</span>}
+                  {filtered.length} Ergebnis{filtered.length !== 1 ? 'se' : ''}
                 </p>
                 {activeFilterCount > 0 && (
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterInst}</span>}
-                    {filterArt.map(a => (
-                      <span key={a} className="font-sans text-xs px-2 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
-                        {a === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
+                    {filterArt && (
+                      <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
+                        {filterArt === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
                       </span>
-                    ))}
+                    )}
                     {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{filterStyleTag}</span>}
                     {filterTakt && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterTakt}</span>}
                     {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterGenreTag}</span>}
-                    {filterPlan !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterPlan}</span>}
                     {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Violinschlüssel</span>}
                     {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Griffschrift</span>}
                   </div>
@@ -688,6 +754,7 @@ export default function LernvideosPage() {
 
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
+                {filtered.map((v, i) => renderResultCard(v, i))}
                 {filtered.map((v, i) => {
                   const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument })
                   return (
@@ -802,10 +869,10 @@ export default function LernvideosPage() {
                     <div className="flex-1 p-4 flex gap-4 min-w-0">
                       <div className="flex-1 min-w-0">
                         <h4 className="font-heading font-bold text-sm leading-snug text-text-secondary">{w.title}</h4>
-                        {w.composer && <p className="font-sans text-xs text-text-secondary mb-2">Komponist: {w.composer}</p>}
+                        {w.composer && <p className="font-sans text-xs text-text-secondary mb-2">Komponist / Interpret: {w.composer}</p>}
                         <div className="flex flex-wrap gap-1">
-                          {w.instruments.map(inst => (
-                            <span key={inst} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{inst}</span>
+                          {Object.keys(w.votes).map(opt => (
+                            <span key={opt} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{opt}</span>
                           ))}
                         </div>
                       </div>
@@ -823,7 +890,7 @@ export default function LernvideosPage() {
 
               {filtered.length === 0 && wishMatches.length === 0 && (
                 <div className="text-center py-16">
-                  <p className="font-heading font-bold text-lg mb-2">Keine Lernvideos gefunden</p>
+                  <p className="font-heading font-bold text-lg mb-2">Keine Ergebnisse gefunden</p>
                   <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche die gesamte Datenbank.</p>
                   <button onClick={resetAll} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
                     Alle Filter zurücksetzen
@@ -833,6 +900,26 @@ export default function LernvideosPage() {
             </div>
           </div>
           </>
+        )}
+
+        {tab === 'merkliste' && (
+          <div>
+            <div className="mb-4">
+              <h2 className="font-heading font-bold text-xl">Merkliste</h2>
+              <p className="font-sans text-sm text-text-secondary mt-0.5">Deine gemerkten Stücke ({savedVideos.length}).</p>
+            </div>
+            {savedVideos.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {savedVideos.map((v, i) => renderResultCard(v, i))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-surface border border-border">
+                <p className="font-heading font-bold text-lg mb-2">Noch keine Stücke gemerkt</p>
+                <p className="font-sans text-sm text-text-secondary mb-4">Tippe bei einem Stück auf das Herz, um es zur Merkliste hinzuzufügen.</p>
+                <button onClick={() => setTab('datenbank')} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Stücke durchsuchen</button>
+              </div>
+            )}
+          </div>
         )}
 
         {tab === 'wuensche' && (
@@ -861,30 +948,31 @@ export default function LernvideosPage() {
                         <input value={wishTitle} onChange={e => setWishTitle(e.target.value)} placeholder="z.B. Dr Alperose" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                       <div>
-                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Komponist <span className="normal-case tracking-normal text-text-secondary/70">(optional)</span></label>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Komponist / Interpret <span className="normal-case tracking-normal text-text-secondary/70">(optional)</span></label>
                         <input value={wishComposer} onChange={e => setWishComposer(e.target.value)} placeholder="z.B. Willi Valotti" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                     </div>
                     <div>
+                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
                       <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(Instrumente — mehrere möglich)</span></label>
                       <div className="flex flex-wrap gap-2">
-                        {INSTRUMENTS.filter(i => i !== 'Alle').map(i => {
-                          const active = wishInstruments.includes(i)
+                        {WISH_VOTE_OPTIONS.map(opt => {
+                          const active = wishVoteSel.includes(opt)
                           return (
                             <button
-                              key={i}
+                              key={opt}
                               type="button"
-                              onClick={() => toggleWishInstrument(i)}
+                              onClick={() => toggleWishVoteSel(opt)}
                               className={`font-sans text-xs px-3 py-1.5 border transition-colors ${active ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
                             >
-                              {active ? '✓ ' : ''}{i}
+                              {active ? '✓ ' : ''}{opt}
                             </button>
                           )
                         })}
                       </div>
                     </div>
                     <div className="flex gap-3">
-                      <button onClick={submitWish} disabled={!wishTitle.trim() || wishInstruments.length === 0} className="bg-accent-gold text-white font-sans text-sm px-5 py-2 hover:bg-accent-warm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Wunsch einreichen</button>
+                      <button onClick={submitWish} disabled={!wishTitle.trim() || wishVoteSel.length === 0} className="bg-accent-gold text-white font-sans text-sm px-5 py-2 hover:bg-accent-warm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Wunsch einreichen</button>
                       <button onClick={() => setShowWishForm(false)} className="border border-border font-sans text-sm px-4 py-2 hover:border-dark transition-colors">Abbrechen</button>
                     </div>
                   </div>
@@ -892,67 +980,53 @@ export default function LernvideosPage() {
               )}
             </AnimatePresence>
 
-            {/* Suche & Instrumentenfilter */}
-            <div className="flex flex-col sm:flex-row gap-2 mb-4">
-              <div className="relative flex-1">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                <input
-                  value={wishSearch}
-                  onChange={e => setWishSearch(e.target.value)}
-                  type="text"
-                  placeholder="Stückwünsche durchsuchen (Titel, Komponist)…"
-                  className="w-full border border-border pl-9 pr-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                />
-              </div>
-              <select
-                value={wishFilterInst}
-                onChange={e => setWishFilterInst(e.target.value)}
-                className="border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-              >
-                {INSTRUMENTS.map(i => <option key={i} value={i}>{i === 'Alle' ? 'Alle Instrumente' : i}</option>)}
-              </select>
+            {/* Suche */}
+            <div className="relative mb-4">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <input
+                value={wishSearch}
+                onChange={e => setWishSearch(e.target.value)}
+                type="text"
+                placeholder="Stückwünsche durchsuchen (Titel, Komponist / Interpret)…"
+                className="w-full border border-border pl-9 pr-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+              />
             </div>
 
-            <p className="font-sans text-xs text-text-secondary mb-3">
-              Sortiert nach Relevanz — {wishFilterInst === 'Alle' ? 'die meisten Stimmen pro Instrument' : `Stimmen für ${wishFilterInst}`}.
-            </p>
+            <p className="font-sans text-xs text-text-secondary mb-3">Sortiert nach Anzahl Stimmen pro Stück (Gesamttotal aller Optionen).</p>
             <div className="space-y-3">
               {filteredWishes.map(w => (
                 <div key={w.id} className="bg-surface border border-border p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <h4 className="font-heading font-bold text-sm">{w.title}</h4>
-                      {w.composer && <p className="font-sans text-xs text-text-secondary">Komponist: {w.composer}</p>}
+                      {w.composer && <p className="font-sans text-xs text-text-secondary">Komponist / Interpret: {w.composer}</p>}
                     </div>
-                    <span className={`font-sans text-xs px-2 py-1 border flex-shrink-0 ${w.status === 'in Produktion' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-border/50 text-text-secondary border-border'}`}>
-                      {w.status === 'in Produktion' ? '🎬 In Produktion' : '📋 Offen'}
-                    </span>
-                  </div>
-                  {/* Stimmen pro Instrument (Relevanz) */}
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {wishDisplayInstruments(w).map(inst => (
-                      <span key={inst} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex items-center gap-1">
-                        {inst}
-                        <span className="font-semibold text-dark tabular-nums">{wishInstVotes(w, inst)}</span>
-                      </span>
-                    ))}
+                    <span className="font-sans text-xs px-2.5 py-1 border border-border bg-background text-text-secondary flex-shrink-0 whitespace-nowrap">{wishTotal(w)} Stimmen</span>
                   </div>
 
-                  {/* Eigene Stimme: aus dem Profil — wähle deine Instrumente, das zählt automatisch als Like */}
+                  {/* Stimme abgeben — alle Optionen, Mehrfachauswahl */}
                   <div className="mt-3 pt-3 border-t border-border">
-                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-1.5">Deine Stimme — wähle deine Instrumente</p>
+                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-2">Deine Stimme abgeben — Mehrfachauswahl möglich</p>
                     <div className="flex flex-wrap gap-2">
-                      {MY_INSTRUMENTS.map(inst => {
-                        const voted = !!wishVotes[voteKey(w.id, inst)]
+                      {WISH_VOTE_OPTIONS.map(opt => {
+                        if (w.available.includes(opt)) {
+                          return (
+                            <span key={opt} className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border border-green-200 bg-green-50 text-green-700">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                              {opt} · bereits vorhanden
+                            </span>
+                          )
+                        }
+                        const voted = !!wishVotes[voteKey(w.id, opt)]
                         return (
                           <button
-                            key={inst}
-                            onClick={() => toggleWishVote(w.id, inst)}
+                            key={opt}
+                            onClick={() => toggleWishVote(w.id, opt)}
                             className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${voted ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
-                            {inst}
-                            {voted && <span className="font-sans text-[9px]">· Stimme gegeben</span>}
+                            {opt}
+                            <span className="font-bold tabular-nums">{wishOptVotes(w, opt)}</span>
                           </button>
                         )
                       })}
