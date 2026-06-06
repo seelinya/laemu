@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -249,11 +250,11 @@ const mockPosts: Post[] = [
   },
   {
     id: 3,
-    user: 'trio_alpstein',
-    name: 'Trio Alpstein',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80',
+    user: 'peter_klarinette',
+    name: 'Peter Gasser',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
     time: 'vor 1 Tag',
-    text: 'Wir freuen uns: Nächsten Samstag spielen wir beim Dorffest Appenzell! Kommt vorbei und tanzt mit uns durch den Abend.',
+    text: 'Nächsten Samstag spiele ich mit meiner Kapelle am Dorffest Appenzell! Kommt vorbei und tanzt mit uns durch den Abend.',
     img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=800&q=80',
     likes: 134,
     comments: 41,
@@ -262,11 +263,11 @@ const mockPosts: Post[] = [
   },
   {
     id: 4,
-    user: 'kapelle_rigi',
-    name: 'Kapelle Rigi',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
+    user: 'anna_steiner',
+    name: 'Anna Steiner',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80',
     time: 'vor 3 Stunden',
-    text: 'Wir suchen noch Mitspieler für unsere Kapelle! Handorgel und Bass sind noch frei. Wer Lust hat, melde sich.',
+    text: 'Ich suche noch Mitspieler für eine Kapelle! Handorgel und Bass wären noch frei. Wer Lust hat, meldet sich gern bei mir.',
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
     likes: 22,
     comments: 8,
@@ -275,11 +276,11 @@ const mockPosts: Post[] = [
   },
   {
     id: 5,
-    user: 'handorgel_hoeck_sz',
-    name: 'Handorgelhöck Schwyz',
-    avatar: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=100&q=80',
+    user: 'lisa_piano',
+    name: 'Lisa Frei',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
     time: 'vor 5 Tagen',
-    text: 'Kommt vorbei und bringt eure Handorgeln mit! Organisiert zusammen mit Familie Camenzind aus Immensee SZ. Wir freuen uns auf einen unvergesslichen Nachmittag.',
+    text: 'Ich organisiere zusammen mit der Familie Camenzind aus Immensee SZ einen Handorgelhöck. Kommt vorbei und bringt eure Handorgeln mit — ich freue mich auf einen unvergesslichen Nachmittag!',
     likes: 76,
     comments: 18,
     type: 'event-announcement' as const,
@@ -290,9 +291,9 @@ const mockPosts: Post[] = [
   },
   {
     id: 6,
-    user: 'volksmusik_magazin',
-    name: 'Volksmusik Magazin',
-    avatar: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=100&q=80',
+    user: 'cecile_schmidig',
+    name: 'Cécile Schmidig',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80',
     time: 'vor 2 Tagen',
     text: 'Lesenswerter Beitrag: Wie die Ländlermusik die junge Generation neu begeistert — und was das für die Szene bedeutet.',
     likes: 41,
@@ -344,25 +345,13 @@ const navItems = [
   { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
-const followingList = [
-  { name: 'Hansruedi Wenger', handle: '@hansruedi_akkordeon', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
-  { name: 'Maria Kälin', handle: '@maria_oergeli', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
-]
-
-const knownFormations = [
-  { name: 'Ländlerkapelle Hess', id: 'hess' },
-  { name: 'Trio Alpstein', id: 'alpstein' },
-  { name: 'Quartett Rigi', id: 'rigi' },
-]
-
+// In der Community gibt es ausschliesslich persönliche Profile natürlicher
+// Personen — keine Formations-Profile. Erwähnen lassen sich nur Personen.
 const communityMentions = [
-  { handle: 'hansruedi_akkordeon', name: 'Hansruedi Wenger', type: 'person' as const, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
-  { handle: 'maria_oergeli', name: 'Maria Kälin', type: 'person' as const, img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
-  { handle: 'lisa_piano', name: 'Lisa Frei', type: 'person' as const, img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80' },
-  { handle: 'peter_klarinette', name: 'Peter Gasser', type: 'person' as const, img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80' },
-  { handle: 'trio_alpstein', name: 'Trio Alpstein', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', href: '/formations/alpstein' },
-  { handle: 'kapelle_hess', name: 'Ländlerkapelle Hess', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=100&q=80', href: '/formations/hess' },
-  { handle: 'quartett_rigi', name: 'Quartett Rigi', type: 'formation' as const, img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=100&q=80', href: '/formations/rigi' },
+  { handle: 'hansruedi_akkordeon', name: 'Hansruedi Wenger', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
+  { handle: 'maria_oergeli', name: 'Maria Kälin', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' },
+  { handle: 'lisa_piano', name: 'Lisa Frei', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80' },
+  { handle: 'peter_klarinette', name: 'Peter Gasser', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80' },
 ]
 
 const conversations = [
@@ -373,18 +362,36 @@ const conversations = [
 
 // ─── Components ───────────────────────────────────────────────────────────────
 
+type PostComment = { id: string; name: string; avatar: string; text: string; time: string; liked: boolean; likes: number }
+
+const initialPostComments: PostComment[] = [
+  { id: 'pc1', name: 'Maria Kälin', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', text: 'Wunderschön! 🎶 Da wäre ich gerne dabei.', time: 'vor 1 Std.', liked: false, likes: 3 },
+  { id: 'pc2', name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', text: 'Tönt super — viel Erfolg beim Konzert!', time: 'vor 40 Min.', liked: false, likes: 1 },
+]
+
 function PostCard({ post }: { post: Post }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes)
   const [showComment, setShowComment] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
-  const [shareCopied, setShareCopied] = useState(false)
+  const [comments, setComments] = useState<PostComment[]>(() => initialPostComments.slice(0, Math.max(0, Math.min(2, post.comments))))
+  const [commentCount, setCommentCount] = useState(post.comments)
+  const [commentText, setCommentText] = useState('')
 
-  const handleShare = () => {
-    setShareCopied(true)
-    setTimeout(() => setShareCopied(false), 2000)
+  const addComment = () => {
+    const t = commentText.trim()
+    if (!t) return
+    setComments((prev) => [
+      ...prev,
+      { id: `pc-${Date.now()}`, name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', text: t, time: 'Gerade eben', liked: false, likes: 0 },
+    ])
+    setCommentCount((c) => c + 1)
+    setCommentText('')
   }
+
+  const toggleCommentLike = (id: string) =>
+    setComments((prev) => prev.map((c) => (c.id === id ? { ...c, liked: !c.liked, likes: c.liked ? c.likes - 1 : c.likes + 1 } : c)))
 
   return (
     <motion.div
@@ -432,9 +439,6 @@ function PostCard({ post }: { post: Post }) {
                   <IconSave filled={saved} />
                   {saved ? 'Gespeichert' : 'Als Inspiration speichern'}
                 </button>
-                <button className="w-full text-left px-4 py-3 font-sans text-sm hover:bg-background transition-colors flex items-center gap-2.5">
-                  <IconShare /> Beitrag teilen
-                </button>
                 <button className="w-full text-left px-4 py-3 font-sans text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2.5">
                   <IconBlock /> Profil blockieren
                 </button>
@@ -479,7 +483,7 @@ function PostCard({ post }: { post: Post }) {
 
       <div className="p-4">
         <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{post.text}</p>
-        <div className="flex items-center gap-4 pt-3 border-t border-border">
+        <div className="flex items-center gap-3 sm:gap-4 pt-3 border-t border-border">
           <button
             onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1) }}
             className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}
@@ -489,21 +493,21 @@ function PostCard({ post }: { post: Post }) {
           </button>
           <button
             onClick={() => setShowComment(!showComment)}
-            className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors"
+            className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${showComment ? 'text-dark' : 'text-text-secondary hover:text-dark'}`}
           >
             <IconComment />
-            <span className="text-xs">{post.comments}</span>
+            <span className="text-xs">{commentCount}</span>
           </button>
-          <button onClick={handleShare} className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${shareCopied ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}>
+          <ShareMenu title={post.name} text={post.text} className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors">
             <IconShare />
-            <span className="text-xs">{shareCopied ? 'Link kopiert ✓' : 'Teilen'}</span>
-          </button>
+            <span className="text-xs hidden sm:inline">Teilen</span>
+          </ShareMenu>
           <button
             onClick={() => setSaved(!saved)}
             className={`flex items-center gap-1.5 font-sans text-sm ml-auto transition-colors ${saved ? 'text-accent-gold' : 'text-text-secondary hover:text-accent-gold'}`}
           >
             <IconSave filled={saved} />
-            <span className="text-xs">{saved ? 'Gespeichert' : 'Speichern'}</span>
+            <span className="text-xs hidden sm:inline">{saved ? 'Gespeichert' : 'Speichern'}</span>
           </button>
         </div>
         <AnimatePresence>
@@ -514,13 +518,46 @@ function PostCard({ post }: { post: Post }) {
               exit={{ opacity: 0, height: 0 }}
               className="mt-3 pt-3 border-t border-border overflow-hidden"
             >
+              {/* Kommentarliste */}
+              {comments.length > 0 && (
+                <div className="space-y-3 mb-3">
+                  {comments.map((c) => (
+                    <div key={c.id} className="flex gap-2.5">
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <Image src={c.avatar} alt={c.name} fill className="object-cover" unoptimized />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="bg-background border border-border px-3 py-2">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-sans font-semibold text-xs">{c.name}</span>
+                            <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
+                          </div>
+                          <p className="font-sans text-sm font-light text-dark leading-snug break-words">{c.text}</p>
+                        </div>
+                        <button
+                          onClick={() => toggleCommentLike(c.id)}
+                          className={`mt-1 flex items-center gap-1 font-sans text-[11px] transition-colors ${c.liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}
+                        >
+                          <IconHeart filled={c.liked} />
+                          {c.likes > 0 && <span>{c.likes}</span>}
+                          <span>Gefällt mir</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Eingabe */}
               <div className="flex gap-2">
                 <input
                   type="text"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') addComment() }}
                   placeholder="Kommentar schreiben..."
-                  className="flex-1 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
+                  className="flex-1 min-w-0 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark bg-background"
                 />
-                <button className="bg-dark text-white px-3 py-2 font-sans text-sm hover:bg-accent-gold transition-colors">
+                <button onClick={addComment} disabled={!commentText.trim()} className="bg-dark text-white px-3 py-2 font-sans text-sm hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
                   Senden
                 </button>
               </div>
@@ -532,90 +569,12 @@ function PostCard({ post }: { post: Post }) {
   )
 }
 
-function FormationCreateModal({ initialName, onClose }: { initialName: string; onClose: () => void }) {
-  const [step, setStep] = useState(1)
-  const [formName, setFormName] = useState(initialName)
-  const [formType, setFormType] = useState('Duo')
-  const [region, setRegion] = useState('')
-  const [members, setMembers] = useState('')
-
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ duration: 0.2 }} className="bg-surface w-full max-w-md overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div>
-            <p className="font-heading font-bold text-sm">Formation-Profil erstellen</p>
-            <p className="font-sans text-xs text-text-secondary">Schritt {step} von 3</p>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-        {/* Step indicators */}
-        <div className="flex border-b border-border">
-          {[1, 2, 3].map(s => (
-            <div key={s} className={`flex-1 h-1 transition-colors ${s <= step ? 'bg-dark' : 'bg-border'}`} />
-          ))}
-        </div>
-        <div className="p-5 space-y-4">
-          {step === 1 && (
-            <>
-              <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Name der Formation</p>
-              <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. Kapelle Hess-Ruedi" />
-              <div>
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Art der Formation</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {['Duo', 'Trio', 'Quartett', 'Kapelle'].map(t => (
-                    <button key={t} onClick={() => setFormType(t)} className={`py-2 font-sans text-xs font-medium border transition-colors ${formType === t ? 'bg-dark text-white border-dark' : 'border-border hover:border-dark'}`}>{t}</button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <div>
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Region</p>
-                <input value={region} onChange={e => setRegion(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. Zentralschweiz" />
-              </div>
-              <div>
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-1">Mitglieder (kommagetrennt)</p>
-                <input value={members} onChange={e => setMembers(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark" placeholder="z.B. @niklaus_hess, @maria_oergeli" />
-              </div>
-              <p className="font-sans text-xs text-text-secondary leading-relaxed">Mitglieder erhalten eine Einladung und müssen das Profil bestätigen.</p>
-            </>
-          )}
-          {step === 3 && (
-            <div className="text-center py-4">
-              <div className="w-14 h-14 bg-accent-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C4973A" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <p className="font-heading font-bold text-lg mb-1">{formName}</p>
-              <p className="font-sans text-sm text-text-secondary mb-2">{formType} · {region || 'Schweiz'}</p>
-              <p className="font-sans text-xs text-text-secondary leading-relaxed">Das Formation-Profil wird nach der Bestätigung aller Mitglieder öffentlich sichtbar und kann dann getaggt werden.</p>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center justify-between px-5 py-4 border-t border-border">
-          {step > 1
-            ? <button onClick={() => setStep(s => s - 1)} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Zurück</button>
-            : <button onClick={onClose} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Abbrechen</button>
-          }
-          {step < 3
-            ? <button onClick={() => setStep(s => s + 1)} disabled={step === 1 && !formName.trim()} className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40">Weiter →</button>
-            : <button onClick={onClose} className="font-sans text-sm px-5 py-2 bg-accent-gold text-white hover:bg-dark transition-colors">Einladungen senden ✓</button>
-          }
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
 function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'photo' | 'video' | 'link'; onClose: () => void }) {
   const [type, setType] = useState<'text' | 'photo' | 'video' | 'link'>(initialType)
   const [text, setText] = useState('')
   const [linkUrl, setLinkUrl] = useState('')
   const [mentions, setMentions] = useState<typeof communityMentions>([])
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public')
 
   const types = [
     { id: 'text' as const, label: 'Text', icon: <IconText /> },
@@ -704,9 +663,8 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-sans text-sm font-medium truncate">{m.name}</p>
-                        <p className="font-sans text-xs text-text-secondary">@{m.handle} · {m.type === 'formation' ? 'Formation' : 'Musiker/in'}</p>
+                        <p className="font-sans text-xs text-text-secondary">@{m.handle} · Musiker/in</p>
                       </div>
-                      {m.type === 'formation' && <span className="font-sans text-[10px] text-accent-gold font-semibold uppercase tracking-wide">Formation</span>}
                     </button>
                   ))}
                 </motion.div>
@@ -717,7 +675,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
           {mentions.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2 mb-1">
               {mentions.map(m => (
-                <span key={m.handle} className={`inline-flex items-center gap-1 font-sans text-xs px-2 py-0.5 rounded-full ${m.type === 'formation' ? 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30' : 'bg-dark/5 text-dark border border-dark/20'}`}>
+                <span key={m.handle} className="inline-flex items-center gap-1 font-sans text-xs px-2 py-0.5 rounded-full bg-dark/5 text-dark border border-dark/20">
                   @{m.handle}
                   <button onClick={() => setMentions(prev => prev.filter(x => x.handle !== m.handle))} className="ml-0.5 opacity-50 hover:opacity-100">×</button>
                 </span>
@@ -780,6 +738,30 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
           )}
         </div>
 
+        {/* Visibility toggle */}
+        <div className="px-5 pb-2">
+          <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Sichtbarkeit</p>
+          <div className="inline-flex border border-border overflow-hidden">
+            <button
+              onClick={() => setVisibility('public')}
+              className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors ${visibility === 'public' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              Öffentlich posten
+            </button>
+            <button
+              onClick={() => setVisibility('private')}
+              className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors border-l border-border ${visibility === 'private' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Nur für mich / Privat
+            </button>
+          </div>
+          {visibility === 'private' && (
+            <p className="font-sans text-[11px] text-text-secondary mt-2 leading-relaxed">Privat gespeicherte Notizen sind nur für dich sichtbar — sie erscheinen nicht im Feed.</p>
+          )}
+        </div>
+
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-4 border-t border-border">
           <p className="font-sans text-xs text-text-secondary">
@@ -794,7 +776,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
               disabled={!canPost}
               className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Posten
+              {visibility === 'public' ? 'Öffentlich posten' : 'Privat speichern'}
             </button>
           </div>
         </div>
@@ -803,10 +785,10 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
   )
 }
 
-function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all' | 'following') => void }) {
+function FeedView() {
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerType, setComposerType] = useState<'text' | 'photo' | 'video' | 'link'>('text')
-  const posts = tab === 'following' ? mockPosts.filter(p => p.following) : mockPosts
+  const posts = mockPosts
 
   const openComposer = (type: 'text' | 'photo' | 'video' | 'link') => {
     setComposerType(type)
@@ -858,31 +840,13 @@ function FeedView({ tab, setTab }: { tab: 'all' | 'following'; setTab: (t: 'all'
           </div>
         </div>
 
-        {/* Tabs — Gefolgte Profile left (default), Alle Beiträge right */}
-        <div className="flex border-b border-border">
-          <button
-            onClick={() => setTab('following')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'following' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            Gefolgte Profile
-          </button>
-          <button
-            onClick={() => setTab('all')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${tab === 'all' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            Alle Beiträge
-          </button>
+        {/* Linear chronological feed — neueste zuerst */}
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <h2 className="font-heading font-bold text-sm">Aktuelle Beiträge</h2>
+          <span className="font-sans text-xs text-text-secondary">Neueste zuerst</span>
         </div>
 
-        {posts.length === 0 ? (
-          <div className="bg-surface border border-border p-12 text-center">
-            <p className="font-sans text-text-secondary text-sm font-light">
-              Du folgst noch keinen Profilen. Entdecke die Community und folge anderen Musikern!
-            </p>
-          </div>
-        ) : (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
-        )}
+        {posts.map((post) => <PostCard key={post.id} post={post} />)}
 
         <button className="w-full py-4 font-sans text-sm text-text-secondary border border-border hover:bg-surface hover:text-dark transition-colors">
           Mehr laden…
@@ -1071,37 +1035,53 @@ function ProfileView() {
   const [editMode, setEditMode] = useState(false)
   const [eventsVisible, setEventsVisible] = useState(true)
   const [composerOpen, setComposerOpen] = useState(false)
-  const [createFormationName, setCreateFormationName] = useState<string | null>(null)
+  const [profileTab, setProfileTab] = useState<'posts' | 'shared'>('posts')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
   const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
-  const [formation, setFormation] = useState('Kapelle Hess-Ruedi')
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
   const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
+  const [openForFormation, setOpenForFormation] = useState(false)
+  const [instagram, setInstagram] = useState('niklaus.hess')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [facebook, setFacebook] = useState('')
+  const [tiktok, setTiktok] = useState('')
 
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
   const [draftBio, setDraftBio] = useState('')
-  const [draftFormation, setDraftFormation] = useState('')
   const [draftInstruments, setDraftInstruments] = useState('')
   const [draftVorbilder, setDraftVorbilder] = useState('')
+  const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
+  const [draftInstagram, setDraftInstagram] = useState('')
+  const [draftWhatsapp, setDraftWhatsapp] = useState('')
+  const [draftFacebook, setDraftFacebook] = useState('')
+  const [draftTiktok, setDraftTiktok] = useState('')
 
   const startEdit = () => {
     setDraftName(name)
     setDraftBio(bio)
-    setDraftFormation(formation)
     setDraftInstruments(instruments)
     setDraftVorbilder(vorbilder)
+    setDraftOpenForFormation(openForFormation)
+    setDraftInstagram(instagram)
+    setDraftWhatsapp(whatsapp)
+    setDraftFacebook(facebook)
+    setDraftTiktok(tiktok)
     setEditMode(true)
   }
 
   const saveEdit = () => {
     setName(draftName.trim() || name)
     setBio(draftBio)
-    setFormation(draftFormation)
     setInstruments(draftInstruments)
     setVorbilder(draftVorbilder)
+    setOpenForFormation(draftOpenForFormation)
+    setInstagram(draftInstagram.trim())
+    setWhatsapp(draftWhatsapp.trim())
+    setFacebook(draftFacebook.trim())
+    setTiktok(draftTiktok.trim())
     setEditMode(false)
   }
 
@@ -1110,9 +1090,6 @@ function ProfileView() {
       <AnimatePresence>
         {composerOpen && (
           <PostComposerModal key="profile-composer" initialType="text" onClose={() => setComposerOpen(false)} />
-        )}
-        {createFormationName && (
-          <FormationCreateModal key="formation-create" initialName={createFormationName} onClose={() => setCreateFormationName(null)} />
         )}
       </AnimatePresence>
 
@@ -1176,37 +1153,55 @@ function ProfileView() {
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Bio</label>
                   <textarea value={draftBio} onChange={e => setDraftBio(e.target.value)} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Formation(en)</label>
-                    <input value={draftFormation} onChange={e => setDraftFormation(e.target.value)} placeholder="Mehrere: kommagetrennt" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                    {/* Formation picker suggestions */}
-                    {draftFormation.length > 0 && (
-                      <div className="border border-border bg-surface mt-0.5 shadow-sm">
-                        {knownFormations.filter(kf => kf.name.toLowerCase().includes(draftFormation.split(',').pop()!.trim().toLowerCase())).map(kf => (
-                          <button key={kf.id} onClick={() => {
-                            const parts = draftFormation.split(',').map(s => s.trim()).filter(Boolean)
-                            parts[parts.length - 1] = kf.name
-                            setDraftFormation(parts.join(', '))
-                          }} className="w-full text-left px-3 py-2 font-sans text-xs hover:bg-background transition-colors flex items-center gap-2">
-                            <span className="text-accent-gold">✓</span> {kf.name}
-                          </button>
-                        ))}
-                        <button onClick={() => setCreateFormationName(draftFormation.split(',').pop()!.trim())} className="w-full text-left px-3 py-2 font-sans text-xs text-text-secondary hover:bg-background transition-colors flex items-center gap-2 border-t border-border">
-                          <span>+</span> «{draftFormation.split(',').pop()!.trim()}» als neue Formation erfassen…
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
-                    <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                  </div>
+                <div>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
+                  <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
                   <input value={draftVorbilder} onChange={e => setDraftVorbilder(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
+
+                {/* Social-media links (managed outside the post stream) */}
+                <div className="pt-4 border-t border-border">
+                  <p className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] mb-3">Social Media</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">Instagram</label>
+                      <input value={draftInstagram} onChange={e => setDraftInstagram(e.target.value)} placeholder="benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">WhatsApp</label>
+                      <input value={draftWhatsapp} onChange={e => setDraftWhatsapp(e.target.value)} placeholder="+41 79 …" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">Facebook</label>
+                      <input value={draftFacebook} onChange={e => setDraftFacebook(e.target.value)} placeholder="profil-name" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">TikTok</label>
+                      <input value={draftTiktok} onChange={e => setDraftTiktok(e.target.value)} placeholder="@benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Offen für eine Formation */}
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div>
+                    <p className="font-sans text-sm font-medium">Offen für eine Formation</p>
+                    <p className="font-sans text-xs text-text-secondary mt-0.5">
+                      {draftOpenForFormation ? 'Andere sehen, dass du eine Formation suchst.' : 'Zeige, dass du für eine Formation offen bist.'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setDraftOpenForFormation(v => !v)}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftOpenForFormation ? 'bg-accent-gold' : 'bg-border'}`}
+                    aria-label="Offen für eine Formation"
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+
                 {/* Events toggle inside edit mode */}
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div>
@@ -1226,20 +1221,44 @@ function ProfileView() {
               </motion.div>
             ) : (
               <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <h2 className="font-heading text-2xl font-black">{name}</h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="font-heading text-2xl font-black">{name}</h2>
+                  {openForFormation && (
+                    <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide">Offen für Formationen</span>
+                  )}
+                </div>
                 <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
                 <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
+
+                {/* Social-media links */}
+                {(instagram || whatsapp || facebook || tiktok) && (
+                  <div className="flex items-center gap-2 mb-4">
+                    {instagram && (
+                      <a href={`https://instagram.com/${instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`Instagram: ${instagram}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                      </a>
+                    )}
+                    {whatsapp && (
+                      <a href={`https://wa.me/${whatsapp.replace(/[^\d+]/g, '')}`} target="_blank" rel="noopener noreferrer" title={`WhatsApp: ${whatsapp}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+                      </a>
+                    )}
+                    {facebook && (
+                      <a href={`https://facebook.com/${facebook.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`Facebook: ${facebook}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                      </a>
+                    )}
+                    {tiktok && (
+                      <a href={`https://tiktok.com/@${tiktok.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`TikTok: ${tiktok}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {instruments.split(',').map(i => (
                     <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
                   ))}
-                  {formation.split(',').map(f => {
-                    const trimmed = f.trim()
-                    const known = knownFormations.find(kf => kf.name.toLowerCase() === trimmed.toLowerCase())
-                    return known
-                      ? <span key={f} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Formation: {trimmed}</span>
-                      : <button key={f} onClick={() => setCreateFormationName(trimmed)} title="Kein öffentliches Profil vorhanden — jetzt erstellen" className="font-sans text-xs px-2 py-1 bg-background border border-dashed border-border hover:border-dark transition-colors flex items-center gap-1">Formation: {trimmed} <span className="text-text-secondary">+</span></button>
-                  })}
                 </div>
                 {vorbilder && (
                   <p className="font-sans text-xs text-text-secondary mb-3">
@@ -1255,18 +1274,14 @@ function ProfileView() {
                   </svg>
                   Events: {eventsVisible ? 'für andere sichtbar' : 'ausgeblendet'}
                 </div>
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border text-center">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border text-center">
                   <div>
                     <p className="font-heading font-black text-xl">48</p>
                     <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
                   </div>
                   <div>
-                    <p className="font-heading font-black text-xl">312</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">Folge ich</p>
-                  </div>
-                  <div>
-                    <p className="font-heading font-black text-xl">891</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">Follower</p>
+                    <p className="font-heading font-black text-xl">12</p>
+                    <p className="font-sans text-xs font-light text-text-secondary">Gespeichert</p>
                   </div>
                 </div>
               </motion.div>
@@ -1275,54 +1290,76 @@ function ProfileView() {
         </div>
       </div>
 
-      {/* My posts */}
+      {/* Profile content tabs */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading font-bold text-lg">Meine Beiträge</h3>
+          <div className="flex border-b border-border">
+            <button
+              onClick={() => setProfileTab('posts')}
+              className={`px-4 py-2 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === 'posts' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              Beiträge
+            </button>
+            <button
+              onClick={() => setProfileTab('shared')}
+              className={`px-4 py-2 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === 'shared' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              Geteilte Beiträge
+            </button>
+          </div>
           <button
             onClick={() => setComposerOpen(true)}
-            className="font-sans text-sm text-accent-gold hover:text-dark transition-colors"
+            className="font-sans text-sm text-accent-gold hover:text-dark transition-colors whitespace-nowrap"
           >
             + Neuer Beitrag
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          {mockPosts.slice(0, 3).map((post) => (
-            <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer">
-              <Image src={post.img ?? ''} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
-                <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
-                <button className="text-white/80 hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Following list */}
-      <div className="bg-surface border border-border p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading font-bold text-sm">Folgeliste</h3>
-          <button className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">+ Profil suchen</button>
-        </div>
-        <div className="space-y-3">
-          {followingList.map((f) => (
-            <div key={f.handle} className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
-                <Image src={f.img} alt={f.name} fill className="object-cover" unoptimized />
+        {profileTab === 'posts' ? (
+          <div className="grid grid-cols-3 gap-2">
+            {mockPosts.filter(p => p.img).slice(0, 3).map((post) => (
+              <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer">
+                <Image src={post.img ?? ''} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                  <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
+                  <button className="text-white/80 hover:text-red-300 transition-colors" onClick={e => e.stopPropagation()}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                  </button>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="font-sans font-semibold text-xs">{f.name}</p>
-                <p className="font-sans text-xs font-light text-text-secondary">{f.handle}</p>
-              </div>
-              <button className="font-sans text-xs text-red-500 border border-red-200 px-2 py-1 hover:bg-red-50 transition-colors">
-                Entfolgen
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="font-sans text-xs text-text-secondary">Die neuesten Inhalte, die du geteilt hast — Events, Videos, Links und Texte.</p>
+            {mockPosts.map((post) => {
+              const typeLabel =
+                post.type === 'video' ? 'Video' :
+                post.type === 'link' ? 'Link' :
+                (post.type === 'event' || post.type === 'event-announcement') ? 'Event' :
+                post.type === 'photo' ? 'Foto' : 'Text'
+              const typeIcon =
+                post.type === 'video' ? <IconVideo /> :
+                post.type === 'link' ? <IconLink /> :
+                post.type === 'photo' ? <IconCamera /> : <IconText />
+              return (
+                <div key={post.id} className="bg-surface border border-border p-4 flex items-start gap-3 hover:border-dark transition-colors">
+                  <span className="w-8 h-8 flex items-center justify-center bg-background border border-border text-text-secondary flex-shrink-0">{typeIcon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-sans text-[10px] font-semibold px-1.5 py-0.5 bg-dark text-white uppercase tracking-wide">{typeLabel}</span>
+                      <span className="font-sans text-xs text-text-secondary">geteilt · {post.time}</span>
+                    </div>
+                    <p className="font-sans text-sm font-light text-text-secondary leading-snug line-clamp-2">{post.text}</p>
+                    {post.type === 'link' && post.linkTitle && (
+                      <p className="font-sans text-xs text-accent-gold mt-1 truncate">{post.linkTitle}</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -1533,7 +1570,6 @@ function SettingsView() {
 }
 
 function DiscoverProfiles() {
-  const [followed, setFollowed] = useState<Record<string, boolean>>({})
   const profiles = [
     ...mockPosts
       .filter(p => ['hansruedi_akkordeon', 'maria_oergeli'].includes(p.user))
@@ -1551,12 +1587,12 @@ function DiscoverProfiles() {
             <Link href={p.href} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
             <p className="font-sans text-xs font-light text-text-secondary">{p.handle} · {p.type}</p>
           </div>
-          <button
-            onClick={() => setFollowed(prev => ({ ...prev, [p.handle]: !prev[p.handle] }))}
-            className={`font-sans text-xs font-medium px-3 py-1.5 border transition-colors ${followed[p.handle] ? 'border-accent-gold text-accent-gold hover:bg-accent-gold hover:text-white' : 'border-dark text-dark hover:bg-dark hover:text-white'}`}
+          <Link
+            href={p.href}
+            className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap"
           >
-            {followed[p.handle] ? 'Gefolgt ✓' : 'Folgen'}
-          </button>
+            Profil ansehen →
+          </Link>
         </div>
       ))}
     </div>
@@ -1564,27 +1600,21 @@ function DiscoverProfiles() {
 }
 
 function SuggestedProfilesSidebar() {
-  const [followed, setFollowed] = useState<Record<string, boolean>>({})
   return (
     <div className="bg-surface border border-border p-5">
-      <h3 className="font-heading font-bold text-sm mb-4">Empfohlene Profile</h3>
+      <h3 className="font-heading font-bold text-sm mb-4">Profile entdecken</h3>
       <div className="space-y-4">
         {suggestedProfiles.map((p) => (
-          <div key={p.name} className="flex items-center gap-3">
-            <Link href="/member/profile" className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
+          <Link key={p.name} href="/member/profile" className="flex items-center gap-3 group">
+            <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 group-hover:opacity-80 transition-opacity">
               <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
-            </Link>
+            </div>
             <div className="flex-1 min-w-0">
-              <Link href="/member/profile" className="font-sans font-medium text-xs truncate hover:text-accent-gold transition-colors block">{p.name}</Link>
+              <p className="font-sans font-medium text-xs truncate group-hover:text-accent-gold transition-colors">{p.name}</p>
               <p className="font-sans text-[10px] font-light text-text-secondary">{p.type}</p>
             </div>
-            <button
-              onClick={() => setFollowed(prev => ({ ...prev, [p.name]: !prev[p.name] }))}
-              className={`font-sans text-xs font-medium px-2 py-1 border transition-colors flex-shrink-0 ${followed[p.name] ? 'border-accent-gold text-accent-gold' : 'border-dark text-dark hover:bg-dark hover:text-white'}`}
-            >
-              {followed[p.name] ? '✓' : 'Folgen'}
-            </button>
-          </div>
+            <span className="font-sans text-xs text-text-secondary group-hover:text-accent-gold transition-colors flex-shrink-0">→</span>
+          </Link>
         ))}
       </div>
     </div>
@@ -1595,7 +1625,6 @@ function SuggestedProfilesSidebar() {
 
 export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('feed')
-  const [feedTab, setFeedTab] = useState<'all' | 'following'>('following')
 
   return (
     <div className="min-h-screen bg-background">
@@ -1622,7 +1651,7 @@ export default function MemberCommunityPage() {
           {/* LEFT SIDEBAR */}
           <div className="hidden lg:block">
             <div className="sticky top-8 space-y-4">
-              {/* Own profile quick-card: follower counts visible for own profile */}
+              {/* Own profile quick-card: no follow graph — just own activity counts */}
               <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
@@ -1633,18 +1662,14 @@ export default function MemberCommunityPage() {
                     <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center border-t border-border pt-4">
+                <div className="grid grid-cols-2 gap-2 text-center border-t border-border pt-4">
                   <div>
                     <p className="font-heading font-black text-lg">48</p>
                     <p className="font-sans text-[10px] font-light text-text-secondary">Beiträge</p>
                   </div>
                   <div>
-                    <p className="font-heading font-black text-lg">312</p>
-                    <p className="font-sans text-[10px] font-light text-text-secondary">Folge ich</p>
-                  </div>
-                  <div>
-                    <p className="font-heading font-black text-lg">891</p>
-                    <p className="font-sans text-[10px] font-light text-text-secondary">Follower</p>
+                    <p className="font-heading font-black text-lg">12</p>
+                    <p className="font-sans text-[10px] font-light text-text-secondary">Gespeichert</p>
                   </div>
                 </div>
               </button>
@@ -1673,7 +1698,7 @@ export default function MemberCommunityPage() {
 
           {/* MAIN CONTENT */}
           <div className="lg:col-span-2 space-y-6">
-            {activeNav === 'feed' && <FeedView tab={feedTab} setTab={setFeedTab} />}
+            {activeNav === 'feed' && <FeedView />}
             {activeNav === 'messages' && <MessagesView />}
             {activeNav === 'groups' && <GroupsView />}
             {activeNav === 'saved' && <SavedView />}

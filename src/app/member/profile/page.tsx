@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -11,11 +12,19 @@ const profile = {
   name: 'Hansruedi Wenger',
   handle: '@hansruedi_akkordeon',
   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
+  tagline: 'Schweizer Örgeli-Kurslehrer',
   bio: 'Handorgelist und Akkordeonlehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Musikschule und spiele in mehreren Formationen der Innerschweiz.',
   location: 'Luzern LU',
   instruments: ['Handorgel', 'Akkordeon', 'Steirische Harmonika'],
   formations: ['Hess-Rusch-Hegner', 'Ländlertrio Freiamt'],
   roles: ['Lehrperson', 'Musiker'],
+  openForFormation: true,
+  social: {
+    instagram: 'hansruedi.oergeli',
+    whatsapp: '+41 79 123 45 67',
+    facebook: 'hansruedi.wenger.musik',
+    tiktok: 'hansruedi_oergeli',
+  },
 }
 
 type PostType = 'photo' | 'video' | 'text' | 'link' | 'event-announcement'
@@ -110,6 +119,109 @@ function IconPlay() {
   )
 }
 
+function IconInstagram() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+  )
+}
+function IconWhatsApp() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+  )
+}
+function IconFacebook() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+  )
+}
+function IconTikTok() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>
+  )
+}
+
+function SocialLinks({ social }: { social: typeof profile.social }) {
+  const links: { key: string; href: string; icon: React.ReactNode; label: string }[] = []
+  if (social.instagram) links.push({ key: 'ig', href: `https://instagram.com/${social.instagram}`, icon: <IconInstagram />, label: 'Instagram' })
+  if (social.whatsapp) links.push({ key: 'wa', href: `https://wa.me/${social.whatsapp.replace(/[^0-9]/g, '')}`, icon: <IconWhatsApp />, label: 'WhatsApp' })
+  if (social.facebook) links.push({ key: 'fb', href: `https://facebook.com/${social.facebook}`, icon: <IconFacebook />, label: 'Facebook' })
+  if (social.tiktok) links.push({ key: 'tt', href: `https://tiktok.com/@${social.tiktok}`, icon: <IconTikTok />, label: 'TikTok' })
+  if (links.length === 0) return null
+  return (
+    <div className="flex flex-wrap gap-2 mb-4">
+      {links.map((l) => (
+        <a
+          key={l.key}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={l.label}
+          className="w-9 h-9 flex items-center justify-center border border-border bg-background text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors"
+        >
+          {l.icon}
+        </a>
+      ))}
+    </div>
+  )
+}
+
+// ─── Shared-activity stream (derived from posts + events) ────────────────────
+
+type SharedKind = 'event' | 'video' | 'link' | 'text' | 'photo'
+
+interface SharedItem {
+  id: string
+  kind: SharedKind
+  label: string
+  title: string
+  meta?: string
+  time: string
+}
+
+const sharedItems: SharedItem[] = [
+  ...upcomingEvents.map((e, i) => ({
+    id: `ev-${i}`,
+    kind: 'event' as SharedKind,
+    label: 'Event geteilt',
+    title: e.title,
+    meta: `${e.date} · ${e.location}`,
+    time: e.date,
+  })),
+  ...posts
+    .filter((p) => p.type === 'video' || p.type === 'link' || p.type === 'text' || p.type === 'photo')
+    .map((p) => ({
+      id: `po-${p.id}`,
+      kind: p.type as SharedKind,
+      label:
+        p.type === 'video' ? 'Video geteilt'
+        : p.type === 'link' ? 'Link geteilt'
+        : p.type === 'photo' ? 'Foto geteilt'
+        : 'Beitrag geteilt',
+      title: p.type === 'link' && p.linkTitle ? p.linkTitle : p.text,
+      meta: p.type === 'link' ? p.linkDomain : undefined,
+      time: p.time,
+    })),
+]
+
+function SharedRow({ item }: { item: SharedItem }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-surface border border-border p-4 flex items-start gap-3 hover:border-dark transition-colors"
+    >
+      <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide flex-shrink-0">
+        {item.label}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-sans text-sm font-medium leading-snug">{item.title}</p>
+        {item.meta && <p className="font-sans text-xs text-text-secondary mt-0.5">{item.meta}</p>}
+        <p className="font-sans text-[11px] text-text-secondary/70 mt-1">{item.time}</p>
+      </div>
+    </motion.div>
+  )
+}
+
 function PostCard({ post }: { post: ProfilePost }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes)
@@ -173,9 +285,7 @@ function PostCard({ post }: { post: ProfilePost }) {
 }
 
 export default function MemberProfilePage() {
-  const [following, setFollowing] = useState(false)
-  const [activeTab, setActiveTab] = useState<'posts' | 'events'>('posts')
-  const [eventsVisible, setEventsVisible] = useState(true)
+  const [activeTab, setActiveTab] = useState<'posts' | 'shared'>('posts')
 
   return (
     <div className="min-h-screen bg-background">
@@ -202,21 +312,36 @@ export default function MemberProfilePage() {
               <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-surface flex-shrink-0">
                 <Image src={profile.avatar} alt={profile.name} fill className="object-cover" unoptimized />
               </div>
-              <button
-                onClick={() => setFollowing(!following)}
-                className={`font-sans text-sm font-semibold px-5 py-2.5 border-2 transition-all ${
-                  following
-                    ? 'border-border text-text-secondary hover:border-red-300 hover:text-red-500'
-                    : 'border-dark bg-dark text-white hover:bg-accent-gold hover:border-accent-gold'
-                }`}
-              >
-                {following ? 'Gefolgt ✓' : '+ Folgen'}
-              </button>
+              <div className="flex items-center gap-2">
+                <button className="font-sans text-sm font-semibold px-5 py-2.5 border-2 border-dark bg-dark text-white hover:bg-accent-gold hover:border-accent-gold transition-all flex items-center gap-2">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  Nachricht
+                </button>
+                <ShareMenu
+                  title={profile.name}
+                  text={`${profile.name} auf LAEMU`}
+                  align="right"
+                  className="font-sans text-sm font-semibold px-3 py-2.5 border-2 border-border text-text-secondary hover:border-dark hover:text-dark transition-all"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </ShareMenu>
+              </div>
             </div>
 
-            <h1 className="font-heading text-2xl font-black">{profile.name}</h1>
-            <p className="font-sans text-sm text-accent-gold mb-2">{profile.handle}</p>
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <h1 className="font-heading text-2xl font-black">{profile.name}</h1>
+              {profile.openForFormation && (
+                <span className="font-sans text-[10px] inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 font-medium">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                  Offen für Formationen
+                </span>
+              )}
+            </div>
+            <p className="font-sans text-sm text-accent-gold">{profile.handle}</p>
+            <p className="font-sans text-sm font-medium text-dark mb-2">{profile.tagline}</p>
             <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">{profile.bio}</p>
+
+            <SocialLinks social={profile.social} />
 
             <div className="flex flex-wrap gap-3 text-xs font-sans text-text-secondary mb-4">
               <span className="flex items-center gap-1.5">
@@ -251,13 +376,10 @@ export default function MemberProfilePage() {
             Beiträge
           </button>
           <button
-            onClick={() => setActiveTab('events')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 flex items-center justify-center gap-2 ${activeTab === 'events' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            onClick={() => setActiveTab('shared')}
+            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'shared' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
           >
-            Events
-            {!eventsVisible && (
-              <span className="font-sans text-[10px] text-text-secondary/60 border border-border px-1.5 py-0.5 leading-tight">versteckt</span>
-            )}
+            Geteilte Beiträge
           </button>
         </div>
 
@@ -267,66 +389,12 @@ export default function MemberProfilePage() {
               {posts.map((post) => <PostCard key={post.id} post={post} />)}
             </motion.div>
           )}
-          {activeTab === 'events' && (
-            <motion.div key="events" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-
-              {/* Visibility toggle — owner-only setting */}
-              <div className="bg-surface border border-border px-5 py-4 flex items-center justify-between">
-                <div>
-                  <p className="font-sans text-sm font-medium">Events für andere sichtbar</p>
-                  <p className="font-sans text-xs text-text-secondary mt-0.5">
-                    {eventsVisible
-                      ? 'Andere Nutzer sehen deine Events im Profil.'
-                      : 'Events werden anderen Nutzern nicht angezeigt.'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setEventsVisible(!eventsVisible)}
-                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${eventsVisible ? 'bg-dark' : 'bg-border'}`}
-                  aria-label="Events ein-/ausblenden"
-                >
-                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${eventsVisible ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                </button>
-              </div>
-
-              <AnimatePresence>
-                {eventsVisible ? (
-                  <motion.div
-                    key="events-on"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-3 overflow-hidden"
-                  >
-                    <p className="font-sans text-sm text-text-secondary pt-2">Anstehende Events:</p>
-                    {upcomingEvents.map((event, i) => (
-                      <div key={i} className="bg-surface border border-border p-5 hover:border-dark transition-colors">
-                        <p className="font-sans text-xs text-accent-gold font-semibold mb-1">{event.date}</p>
-                        <h3 className="font-heading font-bold text-base mb-1">{event.title}</h3>
-                        <p className="font-sans text-xs text-text-secondary flex items-center gap-1.5">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          {event.location}
-                        </p>
-                      </div>
-                    ))}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="events-off"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="bg-background border border-dashed border-border p-8 text-center"
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary mx-auto mb-3">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                    <p className="font-sans text-sm text-text-secondary">Events sind ausgeblendet.</p>
-                    <p className="font-sans text-xs text-text-secondary/60 mt-1">Andere Nutzer sehen diesen Tab nicht.</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+          {activeTab === 'shared' && (
+            <motion.div key="shared" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+              <p className="font-sans text-sm text-text-secondary">
+                Beiträge, Events, Videos und Links, die {profile.name.split(' ')[0]} geteilt hat.
+              </p>
+              {sharedItems.map((item) => <SharedRow key={item.id} item={item} />)}
             </motion.div>
           )}
         </AnimatePresence>

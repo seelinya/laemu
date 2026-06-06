@@ -1,28 +1,53 @@
 'use client'
 
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 type Shares = {
   whatsapp?: string
   instagram?: string
   email?: string
   website?: string
+  facebook?: string
+  tiktok?: string
   openForFormation?: boolean
+}
+
+type ProfilePostType = 'text' | 'photo' | 'video' | 'link' | 'event'
+
+type ProfilePost = {
+  id: number
+  type: ProfilePostType
+  time: string
+  text: string
+  img?: string
+  linkTitle?: string
+  linkDomain?: string
+  eventDate?: string
+  eventLocation?: string
 }
 
 type PublicProfile = {
   name: string
   avatar: string
   role?: 'Lehrer' | 'LAEMU Team' | null
+  tagline?: string
   instruments: string[]
   location: string
   formation?: string
   bio: string
   joined: string
   shares: Shares
+  posts?: ProfilePost[]
 }
+
+const samplePosts: ProfilePost[] = [
+  { id: 1, type: 'photo', time: 'vor 2 Tagen', text: 'Schöner Probeabend mit der Kapelle 🎶', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80' },
+  { id: 2, type: 'text', time: 'vor 5 Tagen', text: 'Übe gerade einen neuen Schottisch — Volksmusik macht einfach Freude.' },
+  { id: 3, type: 'link', time: 'vor 1 Woche', text: 'Spannender Artikel über die Geschichte des Schwyzerörgelis.', linkTitle: 'Das Schwyzerörgeli — eine Schweizer Geschichte', linkDomain: 'volksmusik.ch' },
+]
 
 const profiles: Record<string, PublicProfile> = {
   maria: {
@@ -34,10 +59,16 @@ const profiles: Record<string, PublicProfile> = {
   },
   hansruedi: {
     name: 'Hansruedi Wenger', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80', role: 'Lehrer',
+    tagline: 'Schweizer Örgeli-Kurslehrer',
     instruments: ['Handorgel', 'Schwyzerörgeli'], location: 'Luzern',
     bio: 'Handorgel-Lehrer bei der LAEMU Musikschule. Über 25 Jahre Bühnenerfahrung in diversen Formationen.',
     joined: 'Lehrperson seit 2024',
-    shares: { email: 'hansruedi@laemu.ch', website: 'wenger-musik.ch', openForFormation: false },
+    shares: { email: 'hansruedi@laemu.ch', website: 'wenger-musik.ch', facebook: 'hansruedi.wenger.musik', tiktok: 'hansruedi_oergeli', openForFormation: false },
+    posts: [
+      { id: 1, type: 'video', time: 'vor 1 Tag', text: 'Neue Video-Lektion: Der Zwiefache — Rhythmus und Interpretation.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },
+      { id: 2, type: 'event', time: 'vor 4 Tagen', text: 'Frühlingskonzert Kapelle Hess-Ruedi-Hegner', eventDate: 'Sa, 7. Juni 2025', eventLocation: 'Luzern, Zunfthaus' },
+      { id: 3, type: 'text', time: 'vor 1 Woche', text: 'Die Handorgel ist für mich ein Stück Heimat. Mein Lieblingsübungsstück für Einsteiger steht jetzt online.' },
+    ],
   },
   peter: {
     name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80',
@@ -62,10 +93,11 @@ const profiles: Record<string, PublicProfile> = {
   },
   cecile: {
     name: 'Cécile Schmidig', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80', role: 'LAEMU Team',
+    tagline: 'Handorgel-Lehrerin · LAEMU Team',
     instruments: ['Handorgel'], location: 'Luzern',
     bio: 'Handorgel-Lehrerin und Teil des LAEMU Teams. Ich begleite dich gerne auf deinem Lernweg.',
     joined: 'LAEMU Team',
-    shares: { email: 'cecile@laemu.ch', openForFormation: false },
+    shares: { email: 'cecile@laemu.ch', instagram: 'cecile.handorgel', tiktok: 'cecile_handorgel', openForFormation: false },
   },
 }
 
@@ -91,10 +123,92 @@ function ShareRow({ icon, label, value, href }: { icon: ReactNode; label: string
   return href ? <a href={href} target="_blank" rel="noopener noreferrer">{content}</a> : content
 }
 
+const POST_TYPE_LABEL: Record<ProfilePostType, string> = {
+  text: 'Beitrag',
+  photo: 'Foto',
+  video: 'Video',
+  link: 'Link',
+  event: 'Event',
+}
+
+function PostCard({ post, name, avatar }: { post: ProfilePost; name: string; avatar: string }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden">
+      <div className="p-4 flex items-center gap-3">
+        <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-background border border-border">
+          {avatar && <Image src={avatar} alt={name} fill className="object-cover" unoptimized />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-heading font-bold text-sm truncate">{name}</p>
+          <p className="font-sans text-xs text-text-secondary">{post.time}</p>
+        </div>
+        <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-dark text-white tracking-wide uppercase flex-shrink-0">{POST_TYPE_LABEL[post.type]}</span>
+      </div>
+
+      {post.img && (
+        <div className="relative aspect-video overflow-hidden">
+          <Image src={post.img} alt="" fill className="object-cover" unoptimized />
+          {post.type === 'video' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {post.type === 'link' && post.linkDomain && (
+        <div className="mx-4 mt-4 border border-border p-4 bg-background flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wider mb-1">{post.linkDomain}</p>
+            <p className="font-sans text-sm font-medium leading-snug">{post.linkTitle}</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-text-secondary mt-0.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+        </div>
+      )}
+
+      {post.type === 'event' && (
+        <div className="mx-4 mt-4 border border-accent-gold/30 bg-accent-gold/5 p-4">
+          <p className="font-sans text-sm font-medium leading-snug mb-1">{post.text}</p>
+          <p className="font-sans text-xs text-text-secondary">{post.eventDate}{post.eventLocation ? ` · ${post.eventLocation}` : ''}</p>
+        </div>
+      )}
+
+      {post.type !== 'event' && (
+        <div className="p-4">
+          <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{post.text}</p>
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+function SharedRow({ post }: { post: ProfilePost }) {
+  const title = post.type === 'link' && post.linkTitle ? post.linkTitle : post.text
+  const meta = post.type === 'link' ? post.linkDomain
+    : post.type === 'event' ? [post.eventDate, post.eventLocation].filter(Boolean).join(' · ')
+    : undefined
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border p-4 flex items-start gap-3 hover:border-accent-gold transition-colors">
+      <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide flex-shrink-0">
+        {POST_TYPE_LABEL[post.type]} geteilt
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-sans text-sm font-medium leading-snug">{title}</p>
+        {meta && <p className="font-sans text-xs text-text-secondary mt-0.5">{meta}</p>}
+        <p className="font-sans text-[11px] text-text-secondary/70 mt-1">{post.time}</p>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function PublicProfilePage({ params }: { params: { handle: string } }) {
   const profile = profiles[params.handle] ?? fallbackProfile(params.handle)
   const s = profile.shares
-  const hasShares = !!(s.whatsapp || s.instagram || s.email || s.website || s.openForFormation)
+  const hasShares = !!(s.whatsapp || s.instagram || s.email || s.website || s.facebook || s.tiktok || s.openForFormation)
+  const posts = profile.posts ?? samplePosts
+  const [activeTab, setActiveTab] = useState<'posts' | 'shared'>('posts')
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,6 +244,9 @@ export default function PublicProfilePage({ params }: { params: { handle: string
                 </span>
               )}
             </div>
+            {profile.tagline && (
+              <p className="font-sans text-sm font-medium text-accent-gold mb-2">{profile.tagline}</p>
+            )}
             <div className="flex items-center gap-2 text-text-secondary font-sans text-sm mb-3">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
               <span>{profile.location}</span>
@@ -147,6 +264,52 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             <p className="font-sans text-sm text-text-secondary leading-relaxed">{profile.bio}</p>
           </div>
         </motion.div>
+
+        {/* Tabs */}
+        <div>
+          <div className="flex border-b border-border mb-6">
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'posts' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              Beiträge
+            </button>
+            <button
+              onClick={() => setActiveTab('shared')}
+              className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'shared' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+            >
+              Geteilte Beiträge
+            </button>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {activeTab === 'posts' && (
+              <motion.div key="posts" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                {posts.length > 0 ? (
+                  posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} />)
+                ) : (
+                  <div className="bg-surface border border-border p-6 text-center">
+                    <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Beiträge veröffentlicht.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+            {activeTab === 'shared' && (
+              <motion.div key="shared" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+                <p className="font-sans text-sm text-text-secondary">
+                  Beiträge, Events, Videos und Links, die {profile.name.split(' ')[0]} geteilt hat.
+                </p>
+                {posts.length > 0 ? (
+                  posts.map((post) => <SharedRow key={post.id} post={post} />)
+                ) : (
+                  <div className="bg-surface border border-border p-6 text-center">
+                    <p className="font-sans text-sm text-text-secondary">Noch nichts geteilt.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Shared info */}
         {hasShares ? (
@@ -177,6 +340,14 @@ export default function PublicProfilePage({ params }: { params: { handle: string
               {s.website && (
                 <ShareRow label="Website" value={s.website} href={`https://${s.website}`}
                   icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>} />
+              )}
+              {s.facebook && (
+                <ShareRow label="Facebook" value={s.facebook} href={`https://facebook.com/${s.facebook}`}
+                  icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>} />
+              )}
+              {s.tiktok && (
+                <ShareRow label="TikTok" value={`@${s.tiktok}`} href={`https://tiktok.com/@${s.tiktok}`}
+                  icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5" /></svg>} />
               )}
             </div>
           </motion.div>
