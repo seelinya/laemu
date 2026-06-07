@@ -350,31 +350,39 @@ export default function LernvideosPage() {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden border-b border-border bg-dark text-white"
           >
-            <div className="max-w-7xl mx-auto px-6 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <p className="font-sans text-xs uppercase tracking-widest text-white/40">Meine Playlist</p>
-                  <button className="font-sans text-xs px-3 py-1 bg-accent-gold text-white hover:bg-accent-warm transition-colors flex items-center gap-1.5">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <p className="font-sans text-xs uppercase tracking-widest text-white/40 flex-shrink-0">Meine Playlist</p>
+                  <Link href="/member/academy/playlists" className="font-sans text-xs px-3 py-1 bg-accent-gold text-white hover:bg-accent-warm transition-colors flex items-center gap-1.5 flex-shrink-0">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     Alle abspielen
-                  </button>
+                  </Link>
                 </div>
-                <button onClick={() => setShowPlaylist(false)} className="text-white/30 hover:text-white transition-colors">
+                <button onClick={() => setShowPlaylist(false)} className="text-white/30 hover:text-white transition-colors flex-shrink-0">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
               <div className="flex gap-3 overflow-x-auto pb-1">
                 {mockPlaylist.map((item, i) => (
-                  <div key={item.id} className="flex-shrink-0 bg-white/5 border border-white/10 p-3 w-52 hover:border-accent-gold/40 transition-colors group cursor-pointer">
+                  <Link href="/member/academy/playlists" key={item.id} className="flex-shrink-0 bg-white/5 border border-white/10 p-3 w-44 sm:w-52 hover:border-accent-gold/40 transition-colors group cursor-pointer">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <span className="font-sans text-[10px] text-white/30 tabular-nums">{i + 1}</span>
                       <span className="font-sans text-[10px] text-white/30">{item.duration}</span>
                     </div>
                     <p className="font-sans text-xs text-white leading-snug mb-0.5 group-hover:text-accent-gold transition-colors">{item.title}</p>
                     <p className="font-sans text-[10px] text-white/40">{item.piece}</p>
-                  </div>
+                  </Link>
                 ))}
+                {/* Verweis in die zentrale Playlist-Verwaltung */}
+                <Link href="/member/academy/playlists" className="flex-shrink-0 w-44 sm:w-52 border border-dashed border-white/20 hover:border-accent-gold/60 transition-colors flex flex-col items-center justify-center gap-1.5 text-white/50 hover:text-white p-3">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  <span className="font-sans text-xs text-center leading-tight">Alle Playlists<br/>öffnen & verwalten →</span>
+                </Link>
               </div>
+              <p className="font-sans text-[11px] text-white/40 mt-3">
+                Tipp: Tippe bei einem Lernvideo auf <span className="text-white/70">Playlist</span>, um Audios zu sammeln — z.B. zum Üben unterwegs oder im Auto.
+              </p>
             </div>
           </motion.div>
         )}

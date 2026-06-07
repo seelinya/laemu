@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pieceCatalog, isPieceUnlocked, type CatalogEntry } from '@/lib/academy'
+import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -711,9 +712,9 @@ export default function LernvideoDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <button title="Teilen" aria-label="Teilen" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
+          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
             <IconShare /> <span className="hidden sm:inline">Teilen</span>
-          </button>
+          </ShareMenu>
           <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}>
             <IconHeart filled={favorited} /> <span className="hidden sm:inline">{favorited ? 'In Merkliste' : 'Zur Merkliste'}</span>
           </button>
@@ -1113,22 +1114,25 @@ export default function LernvideoDetailPage() {
                                   </div>
                                 )}
 
-                                {/* Reply input */}
+                                {/* Reply input — auf Mobile gestapelt statt zusammengequetscht */}
                                 {replyTo === c.id && (
-                                  <div className="mt-3 flex gap-2.5">
+                                  <div className="mt-3 flex gap-2 sm:gap-2.5">
                                     <div className="w-7 h-7 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
                                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                     </div>
-                                    <div className="flex-1 flex gap-2">
+                                    <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
                                       <input
                                         value={replyText}
                                         onChange={e => setReplyText(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && handleReply(c.id)}
                                         type="text"
                                         placeholder={`Antwort an ${c.name}…`}
-                                        className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
+                                        className="flex-1 min-w-0 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
                                       />
-                                      <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-3 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Antwort senden</button>
+                                      <div className="flex gap-2 justify-end">
+                                        <button onClick={() => { setReplyTo(null); setReplyText('') }} className="sm:hidden border border-border text-text-secondary px-3 py-2 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
+                                        <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
+                                      </div>
                                     </div>
                                   </div>
                                 )}
@@ -1143,16 +1147,16 @@ export default function LernvideoDetailPage() {
                         <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </div>
-                        <div className="flex-1 flex gap-2">
+                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
                           <input
                             value={comment}
                             onChange={e => setComment(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleSend()}
                             type="text"
                             placeholder={`Kommentar zu "${v.title}"…`}
-                            className="flex-1 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                            className="flex-1 min-w-0 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                           />
-                          <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors">Senden</button>
+                          <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors whitespace-nowrap sm:w-auto">Senden</button>
                         </div>
                       </div>
                     </motion.div>
@@ -1237,33 +1241,14 @@ export default function LernvideoDetailPage() {
                 </div>
               </div>
 
-              {/* Stimmen overview */}
-              <div className="bg-surface border border-border overflow-hidden">
-                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                  <p className="font-heading font-bold text-sm">Stimmen</p>
-                  <button onClick={() => setMainTab('stimme1')} className="font-sans text-xs text-accent-gold hover:underline">Alle ansehen →</button>
-                </div>
-                {v.stimmenSections.map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => setMainTab(s.label.startsWith('1. Stimme') ? 'stimme1' : s.label.startsWith('2. Stimme') ? 'stimme2' : 'begleit')}
-                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left hover:bg-background transition-colors"
-                  >
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
-                    <span className="font-sans text-xs flex-1 truncate">{s.label}</span>
-                    <span className="font-sans text-[10px] text-text-secondary flex-shrink-0">{s.lernvideos.length} Videos</span>
-                  </button>
-                ))}
-              </div>
-
               {/* Actions */}
               <div className="bg-surface border border-border p-4 space-y-2">
                 <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}>
                   <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste hinzufügen'}
                 </button>
-                <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
+                <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="left" className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
                   <IconShare /> Teilen
-                </button>
+                </ShareMenu>
                 <div className="border-t border-border pt-2 mt-2">
                   <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 bg-dark text-white hover:bg-accent-gold transition-colors">
                     <IconDownload /> Noten-Paket · CHF 20
@@ -1298,14 +1283,17 @@ export default function LernvideoDetailPage() {
         </div>
       </div>
 
-      {/* FLOATING AUDIO PLAYLIST BAR */}
+      {/* FLOATING AUDIO PLAYLIST BAR — verweist in die zentrale Playlist-Verwaltung */}
       {audioPlaylist.size > 0 && (
-        <div className="fixed bottom-6 right-6 z-50 bg-dark text-white px-4 py-3 shadow-2xl flex items-center gap-3">
-          <IconHeadphones />
-          <span className="font-sans text-sm">{audioPlaylist.size} Videos in Audio-Playlist</span>
-          <button className="font-sans text-xs px-3 py-1.5 bg-accent-gold hover:bg-accent-warm transition-colors">
-            Abspielen →
-          </button>
+        <div className="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 bg-dark text-white px-4 py-3 shadow-2xl flex items-center gap-3">
+          <span className="text-accent-gold flex-shrink-0"><IconHeadphones /></span>
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-sm leading-tight">{audioPlaylist.size} {audioPlaylist.size === 1 ? 'Video' : 'Videos'} zur Playlist hinzugefügt</p>
+            <p className="font-sans text-[11px] text-white/50 leading-tight hidden sm:block">In „Meine Playlists“ anhören & ordnen — z.B. fürs Auto.</p>
+          </div>
+          <Link href="/member/academy/playlists" className="font-sans text-xs px-3 py-1.5 bg-accent-gold hover:bg-accent-warm transition-colors flex-shrink-0 whitespace-nowrap">
+            Zur Playlist →
+          </Link>
         </div>
       )}
     </div>
