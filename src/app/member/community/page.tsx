@@ -574,7 +574,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
   const [text, setText] = useState('')
   const [linkUrl, setLinkUrl] = useState('')
   const [mentions, setMentions] = useState<typeof communityMentions>([])
-  const [visibility, setVisibility] = useState<'public' | 'private'>('public')
+  const [visibility, setVisibility] = useState<'public' | 'profile'>('public')
 
   const types = [
     { id: 'text' as const, label: 'Text', icon: <IconText /> },
@@ -740,26 +740,28 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
 
         {/* Visibility toggle */}
         <div className="px-5 pb-2">
-          <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Sichtbarkeit</p>
+          <p className="font-sans text-xs text-text-secondary uppercase tracking-widest mb-2">Wo soll dein Beitrag erscheinen?</p>
           <div className="inline-flex border border-border overflow-hidden">
             <button
               onClick={() => setVisibility('public')}
               className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors ${visibility === 'public' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-              Öffentlich posten
+              In der Community teilen
             </button>
             <button
-              onClick={() => setVisibility('private')}
-              className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors border-l border-border ${visibility === 'private' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+              onClick={() => setVisibility('profile')}
+              className={`flex items-center gap-1.5 px-4 py-2 font-sans text-xs font-medium transition-colors border-l border-border ${visibility === 'profile' ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Nur für mich / Privat
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Nur auf meinem Profil
             </button>
           </div>
-          {visibility === 'private' && (
-            <p className="font-sans text-[11px] text-text-secondary mt-2 leading-relaxed">Privat gespeicherte Notizen sind nur für dich sichtbar — sie erscheinen nicht im Feed.</p>
-          )}
+          <p className="font-sans text-[11px] text-text-secondary mt-2 leading-relaxed">
+            {visibility === 'public'
+              ? 'Dein Beitrag erscheint im Feed und ist für die ganze Szene sichtbar.'
+              : 'Dein Beitrag landet auf deinem Profil – sichtbar für alle, die vorbeischauen, aber ohne Benachrichtigung im Feed.'}
+          </p>
         </div>
 
         {/* Footer */}
@@ -776,7 +778,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'text' | 'ph
               disabled={!canPost}
               className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {visibility === 'public' ? 'Öffentlich posten' : 'Privat speichern'}
+              {visibility === 'public' ? 'In der Community teilen' : 'Auf Profil veröffentlichen'}
             </button>
           </div>
         </div>
