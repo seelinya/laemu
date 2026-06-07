@@ -233,10 +233,10 @@ export default function LernvideosPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.03 }}
-        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex"
+        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row"
       >
-        {/* Thumbnail */}
-        <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch">
+        {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
+        <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
           <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
@@ -253,7 +253,7 @@ export default function LernvideosPage() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-4 flex gap-4 min-w-0">
+        <div className="flex-1 p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-2 mb-1">
               <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
@@ -278,16 +278,16 @@ export default function LernvideosPage() {
             </div>
           </div>
 
-          {/* Right: heart + plan badge + action */}
-          <div className="flex flex-col items-end justify-between flex-shrink-0">
+          {/* Aktionen — auf Mobile als Reihe unter dem Text, auf Desktop als Spalte rechts */}
+          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 flex-shrink-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0 mt-1 sm:mt-0">
             <button
               onClick={() => toggleSaved(v.id)}
               title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
-              className={`p-1.5 border transition-colors ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+              className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
             </button>
-            <div className="flex flex-col items-end gap-1 my-2">
+            <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:my-2">
               <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
               {!unlocked && (
                 <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1">
@@ -296,7 +296,7 @@ export default function LernvideosPage() {
                 </span>
               )}
             </div>
-            <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
+            <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
               {unlocked ? 'Öffnen →' : 'Master-Video →'}
             </Link>
           </div>
@@ -309,25 +309,34 @@ export default function LernvideosPage() {
     <div className="min-h-screen bg-background">
 
       {/* Header */}
-      <div className="bg-surface border-b border-border px-6 py-3 flex items-center justify-between sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors">← Musikschule</Link>
-          <h1 className="font-heading font-bold text-lg">Lernvideo-Datenbank</h1>
+      <div className="bg-surface border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <Link href="/member/academy" className="font-sans text-sm text-text-secondary hover:text-dark transition-colors flex-shrink-0">
+            <span className="sm:hidden text-lg leading-none">←</span>
+            <span className="hidden sm:inline">← Musikschule</span>
+          </Link>
+          <h1 className="font-heading font-bold text-base sm:text-lg truncate">Lernvideo-Datenbank</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           <button
             onClick={() => setTab('merkliste')}
-            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            title={`Merkliste (${saved.size})`}
+            aria-label={`Merkliste (${saved.size})`}
+            className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
           >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            Merkliste ({saved.size})
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            <span className="hidden sm:inline">Merkliste </span>
+            <span className="tabular-nums">({saved.size})</span>
           </button>
           <button
             onClick={() => setShowPlaylist(!showPlaylist)}
-            className={`font-sans text-xs px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+            title={`Meine Playlist (${mockPlaylist.length})`}
+            aria-label={`Meine Playlist (${mockPlaylist.length})`}
+            className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
           >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-            Meine Playlist ({mockPlaylist.length})
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+            <span className="hidden sm:inline">Meine Playlist </span>
+            <span className="tabular-nums">({mockPlaylist.length})</span>
           </button>
         </div>
       </div>
@@ -372,15 +381,15 @@ export default function LernvideosPage() {
       </AnimatePresence>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Tabs */}
-        <div className="flex border-b border-border mb-8">
-          <button onClick={() => setTab('datenbank')} className={`px-6 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${tab === 'datenbank' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}>
+        {/* Tabs — gerahmt, einzeilig, horizontal scrollbar auf Mobile */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <button onClick={() => setTab('datenbank')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'datenbank' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
             Lernvideos durchsuchen
           </button>
-          <button onClick={() => setTab('merkliste')} className={`px-6 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${tab === 'merkliste' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}>
+          <button onClick={() => setTab('merkliste')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'merkliste' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
             Merkliste ({saved.size})
           </button>
-          <button onClick={() => setTab('wuensche')} className={`px-6 py-3 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${tab === 'wuensche' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}>
+          <button onClick={() => setTab('wuensche')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'wuensche' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
             Stückwünsche ({wishes.length})
           </button>
         </div>
@@ -402,7 +411,8 @@ export default function LernvideosPage() {
                   className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 font-sans text-xs border transition-colors ${showMobileFilters ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-                  Erweiterte Suche
+                  <span className="hidden sm:inline">Erweiterte Suche</span>
+                  <span className="sm:hidden">Filter</span>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 {activeFilterCount > 0 && (
@@ -720,12 +730,12 @@ export default function LernvideosPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 0.6, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="bg-surface border border-dashed border-border overflow-hidden flex select-none"
+                    className="bg-surface border border-dashed border-border overflow-hidden flex flex-col sm:flex-row select-none"
                   >
-                    <div className="relative w-40 sm:w-52 flex-shrink-0 self-stretch bg-dark/5 flex items-center justify-center min-h-[96px]">
+                    <div className="relative w-full h-32 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch bg-dark/5 flex items-center justify-center sm:min-h-[96px]">
                       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                     </div>
-                    <div className="flex-1 p-4 flex gap-4 min-w-0">
+                    <div className="flex-1 p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
                       <div className="flex-1 min-w-0">
                         <h4 className="font-heading font-bold text-sm leading-snug text-text-secondary">{w.title}</h4>
                         {w.composer && <p className="font-sans text-xs text-text-secondary mb-2">Komponist / Interpret: {w.composer}</p>}
@@ -735,12 +745,12 @@ export default function LernvideosPage() {
                           ))}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end justify-between flex-shrink-0">
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 flex-shrink-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0">
                         <span className="font-sans text-[10px] px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 whitespace-nowrap">
                           <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                           In Bearbeitung
                         </span>
-                        <span className="mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
+                        <span className="sm:mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
                       </div>
                     </div>
                   </motion.div>
