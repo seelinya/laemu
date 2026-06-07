@@ -283,6 +283,10 @@ function IconDisc() { return <svg width="14" height="14" viewBox="0 0 24 24" fil
 function IconChevron({ up }: { up: boolean }) { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${up ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg> }
 function IconBack() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg> }
 function IconHeadphones() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg> }
+// Tempo: Geschwindigkeitsanzeige (Tacho) — wie bei YouTube/Vimeo
+function IconSpeed() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 14l3.5-3.5"/><path d="M4.6 18a9 9 0 1114.8 0"/><circle cx="12" cy="14" r="1" fill="currentColor"/></svg> }
+// Tonhöhe: Stimmgabel
+function IconPitch() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v9a4 4 0 008 0V3"/><path d="M12 16v5"/></svg> }
 
 // ─── Jam Faders (Vertical, for master video) ─────────────────────────────────
 
@@ -404,7 +408,7 @@ function VoiceMixer({ voices }: { voices: Voice[] }) {
           <button onClick={() => toggleMute(voice.id)} className={`flex items-center justify-center w-6 h-6 transition-colors flex-shrink-0 ${voice.muted ? 'text-text-secondary' : 'text-dark'}`}>
             {voice.muted ? <IconVolOff /> : <IconVolOn />}
           </button>
-          <span className="font-sans text-xs text-text-secondary w-44 flex-shrink-0 truncate">{voice.label}</span>
+          <span className="font-sans text-xs text-text-secondary w-28 sm:w-44 flex-shrink-0 truncate">{voice.label}</span>
           <div className="flex-1 relative h-1 bg-border">
             <div className="absolute left-0 top-0 h-full transition-all" style={{ width: `${voice.muted ? 0 : voice.volume}%`, backgroundColor: voice.color }} />
             <input type="range" min={0} max={100} value={voice.muted ? 0 : voice.volume} onChange={e => setVol(voice.id, parseInt(e.target.value))} disabled={voice.muted} className="absolute inset-0 w-full opacity-0 cursor-pointer disabled:cursor-default" />
@@ -477,7 +481,7 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
 
         {variant === 'standard' ? (
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-sans text-white/50 text-xs tabular-nums flex-shrink-0">3:42 / 12:15</span>
               <div className="flex items-center gap-2 ml-auto flex-shrink-0">
                 <button onClick={() => setMuted(m => !m)} className="text-white/70 hover:text-white transition-colors" aria-label="Stummschalten">
@@ -490,7 +494,7 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
               </select>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tempo</span>
+              <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tempo / Geschwindigkeit"><IconSpeed /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tempo</span></span>
               <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#C4973A' }} />
               <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
               {speed !== 100 && <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
@@ -505,13 +509,13 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
               </button>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tempo</span>
+              <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tempo / Geschwindigkeit"><IconSpeed /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tempo</span></span>
               <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#C4973A' }} />
               <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
               {speed !== 100 && <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-sans text-[10px] uppercase tracking-widest text-white/30 w-16 flex-shrink-0">Tonhöhe</span>
+              <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tonhöhe"><IconPitch /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tonhöhe</span></span>
               <div className="flex-1 relative">
                 <input type="range" min={-4} max={4} step={1} value={pitch} onChange={e => setPitch(Number(e.target.value))} className="w-full cursor-pointer" style={{ accentColor: pitch !== 0 ? '#7BA8D8' : '#555' }} />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-px h-2 bg-white/20 pointer-events-none" style={{ marginTop: -4 }} />
@@ -532,18 +536,22 @@ function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist }: { lv: { id: string
   const [open, setOpen] = useState(false)
   return (
     <div>
-      <div className="flex items-center gap-3 px-5 py-3 hover:bg-background transition-colors">
-        <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
-          {lv.done ? <IconCheck /> : <IconPlay />}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 hover:bg-background transition-colors">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
+            {lv.done ? <IconCheck /> : <IconPlay />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
+            <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
-          <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
-        </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <button onClick={onPlaylist} className={`border px-2 py-1 text-xs flex items-center gap-1 transition-colors ${inPlaylist ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`} title="Zur Audio-Playlist (z.B. fürs Auto)"><IconHeadphones /> Playlist</button>
-          <button onClick={() => setOpen(o => !o)} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-            {open ? 'Schliessen' : <><IconPlay /> Abspielen</>}
+        <div className="flex items-center gap-1.5 flex-shrink-0 pl-10 sm:pl-0">
+          <button onClick={onPlaylist} className={`border px-2 py-1.5 text-xs flex items-center gap-1 transition-colors ${inPlaylist ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`} title="Zur Audio-Playlist (z.B. fürs Auto)"><IconHeadphones /> <span className="hidden sm:inline">Playlist</span></button>
+          <button onClick={() => setOpen(o => !o)} title={open ? 'Schliessen' : 'Abspielen'} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+            {open
+              ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span className="hidden sm:inline">Schliessen</span></>
+              : <><IconPlay /> <span className="hidden sm:inline">Abspielen</span></>}
           </button>
         </div>
       </div>
@@ -565,18 +573,18 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1">
-            <IconBack /> Datenbank
+      <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
+            <IconBack /> <span className="hidden sm:inline">Datenbank</span>
           </Link>
-          <span className="text-white/20">/</span>
-          <div>
-            <h1 className="font-heading font-bold text-base leading-tight">{piece.title}</h1>
-            <p className="font-sans text-xs text-white/40">{piece.artist} · {piece.year}</p>
+          <span className="text-white/20 hidden sm:inline">/</span>
+          <div className="min-w-0">
+            <h1 className="font-heading font-bold text-base leading-tight truncate">{piece.title}</h1>
+            <p className="font-sans text-xs text-white/40 truncate">{piece.artist} · {piece.year}</p>
           </div>
         </div>
-        <span className="font-sans text-xs px-3 py-1.5 border border-white/20 text-white/60 flex items-center gap-1.5">
+        <span className="font-sans text-xs px-3 py-1.5 border border-white/20 text-white/60 flex items-center gap-1.5 flex-shrink-0">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           Gesperrt
         </span>
@@ -691,31 +699,31 @@ export default function LernvideoDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1">
-            <IconBack /> Datenbank
+      <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
+            <IconBack /> <span className="hidden sm:inline">Datenbank</span>
           </Link>
-          <span className="text-white/20">/</span>
-          <div>
-            <h1 className="font-heading font-bold text-base leading-tight">{v.title}</h1>
-            <p className="font-sans text-xs text-white/40">{v.artist} · {v.year}</p>
+          <span className="text-white/20 hidden sm:inline">/</span>
+          <div className="min-w-0">
+            <h1 className="font-heading font-bold text-base leading-tight truncate">{v.title}</h1>
+            <p className="font-sans text-xs text-white/40 truncate">{v.artist} · {v.year}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
-            <IconShare /> Teilen
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <button title="Teilen" aria-label="Teilen" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
+            <IconShare /> <span className="hidden sm:inline">Teilen</span>
           </button>
-          <button onClick={() => setFavorited(!favorited)} className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}>
-            <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste'}
+          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}>
+            <IconHeart filled={favorited} /> <span className="hidden sm:inline">{favorited ? 'In Merkliste' : 'Zur Merkliste'}</span>
           </button>
         </div>
       </div>
 
-      {/* MAIN TABS */}
+      {/* MAIN TABS — einzeilig, horizontal scrollbar auf Mobile */}
       <div className="border-b border-border bg-surface">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex">
+          <div className="flex overflow-x-auto">
             {([
               { id: 'ueberblick', label: 'Überblick' },
               { id: 'stimme1', label: '1. Stimme' },
@@ -726,7 +734,7 @@ export default function LernvideoDetailPage() {
               <button
                 key={tab.id}
                 onClick={() => setMainTab(tab.id)}
-                className={`px-6 py-4 font-sans text-sm font-medium border-b-2 -mb-px transition-colors ${mainTab === tab.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+                className={`px-4 sm:px-6 py-4 font-sans text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap flex-shrink-0 ${mainTab === tab.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
               >
                 {tab.label}
               </button>
@@ -868,8 +876,8 @@ export default function LernvideoDetailPage() {
                         </div>
                         <div className="flex items-center justify-between mt-auto">
                           <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
-                          <button className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-                            <IconDownload /> Kaufen
+                          <button title="Kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                            <IconDownload /> <span className="hidden sm:inline">Kaufen</span>
                           </button>
                         </div>
                       </div>
