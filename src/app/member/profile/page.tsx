@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ShareMenu } from '@/components/ShareMenu'
+import { motion } from 'framer-motion'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -27,21 +26,18 @@ const profile = {
   },
 }
 
-type PostType = 'photo' | 'video' | 'text' | 'link' | 'event-announcement'
+// In der Community ergänzt man sein Profil ausschliesslich mit Foto- und
+// Video-Beiträgen. Links, Texte und Events lassen sich nicht teilen.
+type PostType = 'photo' | 'video'
 
 interface ProfilePost {
   id: number
   time: string
   text: string
-  img?: string
+  img: string
   likes: number
   comments: number
   type: PostType
-  linkTitle?: string
-  linkDomain?: string
-  eventDate?: string
-  eventTime?: string
-  eventLocation?: string
 }
 
 const posts: ProfilePost[] = [
@@ -56,24 +52,6 @@ const posts: ProfilePost[] = [
   },
   {
     id: 2,
-    time: 'vor 3 Tagen',
-    text: 'Die Handorgel ist für mich nicht nur ein Instrument — sie ist ein Stück Heimat. Hier mein Lieblingsübungsstück für Einsteiger.',
-    likes: 63,
-    comments: 18,
-    type: 'text',
-  },
-  {
-    id: 3,
-    time: 'vor 1 Woche',
-    text: 'Empfehlenswerte Lektüre für alle, die tiefer in die Geschichte der Schweizer Volksmusik eintauchen wollen.',
-    likes: 29,
-    comments: 5,
-    type: 'link',
-    linkTitle: 'Volksmusik in der Schweiz — Tradition und Wandel',
-    linkDomain: 'volksmusik.ch',
-  },
-  {
-    id: 4,
     time: 'vor 2 Wochen',
     text: 'Unser Konzert war ein voller Erfolg! Danke an alle, die dabei waren — die Energie im Saal war unvergesslich.',
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
@@ -82,7 +60,7 @@ const posts: ProfilePost[] = [
     type: 'photo',
   },
   {
-    id: 5,
+    id: 3,
     time: 'vor 3 Wochen',
     text: 'Neue Video-Lektion auf LAEMU Musikschule: Der Zwiefache — Rhythmus und Interpretation.',
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
@@ -90,11 +68,6 @@ const posts: ProfilePost[] = [
     comments: 23,
     type: 'video',
   },
-]
-
-const upcomingEvents = [
-  { date: 'Sa, 7. Juni 2025', title: 'Frühlingskonzert Kapelle Hess-Ruedi-Hegner', location: 'Luzern, Zunfthaus' },
-  { date: 'So, 15. Juni 2025', title: 'LAEMU Live-Session Handorgel', location: 'Online' },
 ]
 
 function IconHeart({ filled = false }: { filled?: boolean }) {
@@ -165,63 +138,6 @@ function SocialLinks({ social }: { social: typeof profile.social }) {
   )
 }
 
-// ─── Shared-activity stream (derived from posts + events) ────────────────────
-
-type SharedKind = 'event' | 'video' | 'link' | 'text' | 'photo'
-
-interface SharedItem {
-  id: string
-  kind: SharedKind
-  label: string
-  title: string
-  meta?: string
-  time: string
-}
-
-const sharedItems: SharedItem[] = [
-  ...upcomingEvents.map((e, i) => ({
-    id: `ev-${i}`,
-    kind: 'event' as SharedKind,
-    label: 'Event geteilt',
-    title: e.title,
-    meta: `${e.date} · ${e.location}`,
-    time: e.date,
-  })),
-  ...posts
-    .filter((p) => p.type === 'video' || p.type === 'link' || p.type === 'text' || p.type === 'photo')
-    .map((p) => ({
-      id: `po-${p.id}`,
-      kind: p.type as SharedKind,
-      label:
-        p.type === 'video' ? 'Video geteilt'
-        : p.type === 'link' ? 'Link geteilt'
-        : p.type === 'photo' ? 'Foto geteilt'
-        : 'Beitrag geteilt',
-      title: p.type === 'link' && p.linkTitle ? p.linkTitle : p.text,
-      meta: p.type === 'link' ? p.linkDomain : undefined,
-      time: p.time,
-    })),
-]
-
-function SharedRow({ item }: { item: SharedItem }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-surface border border-border p-4 flex items-start gap-3 hover:border-dark transition-colors"
-    >
-      <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide flex-shrink-0">
-        {item.label}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="font-sans text-sm font-medium leading-snug">{item.title}</p>
-        {item.meta && <p className="font-sans text-xs text-text-secondary mt-0.5">{item.meta}</p>}
-        <p className="font-sans text-[11px] text-text-secondary/70 mt-1">{item.time}</p>
-      </div>
-    </motion.div>
-  )
-}
-
 function PostCard({ post }: { post: ProfilePost }) {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes)
@@ -241,28 +157,16 @@ function PostCard({ post }: { post: ProfilePost }) {
         )}
       </div>
 
-      {post.img && (
-        <div className="relative aspect-video overflow-hidden">
-          <Image src={post.img} alt="" fill className="object-cover" unoptimized />
-          {post.type === 'video' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <IconPlay />
-              </div>
+      <div className="relative aspect-video overflow-hidden">
+        <Image src={post.img} alt="" fill className="object-cover" unoptimized />
+        {post.type === 'video' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <IconPlay />
             </div>
-          )}
-        </div>
-      )}
-
-      {post.type === 'link' && post.linkDomain && (
-        <div className="mx-4 mb-3 border border-border p-4 bg-background hover:border-dark transition-colors cursor-pointer flex items-start gap-3">
-          <div className="flex-1">
-            <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wider mb-1">{post.linkDomain}</p>
-            <p className="font-sans text-sm font-medium leading-snug">{post.linkTitle}</p>
           </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-text-secondary mt-0.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="p-4">
         <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">{post.text}</p>
@@ -285,8 +189,6 @@ function PostCard({ post }: { post: ProfilePost }) {
 }
 
 export default function MemberProfilePage() {
-  const [activeTab, setActiveTab] = useState<'posts' | 'shared'>('posts')
-
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between">
@@ -308,23 +210,9 @@ export default function MemberProfilePage() {
             />
           </div>
           <div className="px-6 pb-6 -mt-10">
-            <div className="flex items-end justify-between mb-4">
+            <div className="mb-4">
               <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-surface flex-shrink-0">
                 <Image src={profile.avatar} alt={profile.name} fill className="object-cover" unoptimized />
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="font-sans text-sm font-semibold px-5 py-2.5 border-2 border-dark bg-dark text-white hover:bg-accent-gold hover:border-accent-gold transition-all flex items-center gap-2">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                  Nachricht
-                </button>
-                <ShareMenu
-                  title={profile.name}
-                  text={`${profile.name} auf LAEMU`}
-                  align="right"
-                  className="font-sans text-sm font-semibold px-3 py-2.5 border-2 border-border text-text-secondary hover:border-dark hover:text-dark transition-all"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                </ShareMenu>
               </div>
             </div>
 
@@ -367,37 +255,11 @@ export default function MemberProfilePage() {
           </div>
         </motion.div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-border mb-6">
-          <button
-            onClick={() => setActiveTab('posts')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'posts' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            Beiträge
-          </button>
-          <button
-            onClick={() => setActiveTab('shared')}
-            className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'shared' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            Geteilte Beiträge
-          </button>
+        {/* Beiträge — nur Foto & Video */}
+        <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
+        <div className="space-y-4">
+          {posts.map((post) => <PostCard key={post.id} post={post} />)}
         </div>
-
-        <AnimatePresence mode="wait">
-          {activeTab === 'posts' && (
-            <motion.div key="posts" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-              {posts.map((post) => <PostCard key={post.id} post={post} />)}
-            </motion.div>
-          )}
-          {activeTab === 'shared' && (
-            <motion.div key="shared" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-              <p className="font-sans text-sm text-text-secondary">
-                Beiträge, Events, Videos und Links, die {profile.name.split(' ')[0]} geteilt hat.
-              </p>
-              {sharedItems.map((item) => <SharedRow key={item.id} item={item} />)}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -821,6 +821,24 @@ export default function LernvideoDetailPage() {
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
   const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
+  // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
+  // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
+  const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash
+    if (!hash.startsWith('#comment-')) return
+    const commentId = hash.slice('#comment-'.length)
+    setHighlightedComment(commentId)
+    // Kommentare liegen im Überblick-Tab — dorthin wechseln und hinscrollen.
+    setMainTab('ueberblick')
+    const scrollTimer = setTimeout(() => {
+      document.getElementById(`comment-${commentId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 300)
+    const clearTimer = setTimeout(() => setHighlightedComment(null), 3500)
+    return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer) }
+  }, [])
 
   const toggleAudioPlaylist = (id: string) => setAudioPlaylist(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
@@ -1172,10 +1190,10 @@ export default function LernvideoDetailPage() {
                           <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
                         ) : (
                           videoComments.map((c) => (
-                            <div key={c.id} className="flex gap-3">
+                            <div key={c.id} id={`comment-${c.id}`} className="flex gap-3 scroll-mt-24">
                               <Avatar user={c.user} name={c.name} avatar={c.avatar} />
                               <div className="flex-1 min-w-0">
-                                <div className="bg-background p-4 border border-border">
+                                <div className={`p-4 border transition-colors ${highlightedComment === c.id ? 'bg-accent-gold/10 border-accent-gold' : 'bg-background border-border'}`}>
                                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                                     <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
                                     {c.isTeam && (

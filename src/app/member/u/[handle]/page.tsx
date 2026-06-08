@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import type { ReactNode } from 'react'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 type Shares = {
   whatsapp?: string
@@ -15,18 +14,16 @@ type Shares = {
   openForFormation?: boolean
 }
 
-type ProfilePostType = 'text' | 'photo' | 'video' | 'link' | 'event'
+// In der Community ergänzt man sein Profil ausschliesslich mit Foto- und
+// Video-Beiträgen. Links, Texte und Events lassen sich nicht teilen.
+type ProfilePostType = 'photo' | 'video'
 
 type ProfilePost = {
   id: number
   type: ProfilePostType
   time: string
   text: string
-  img?: string
-  linkTitle?: string
-  linkDomain?: string
-  eventDate?: string
-  eventLocation?: string
+  img: string
 }
 
 type PublicProfile = {
@@ -45,8 +42,7 @@ type PublicProfile = {
 
 const samplePosts: ProfilePost[] = [
   { id: 1, type: 'photo', time: 'vor 2 Tagen', text: 'Schöner Probeabend mit der Kapelle 🎶', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80' },
-  { id: 2, type: 'text', time: 'vor 5 Tagen', text: 'Übe gerade einen neuen Schottisch — Volksmusik macht einfach Freude.' },
-  { id: 3, type: 'link', time: 'vor 1 Woche', text: 'Spannender Artikel über die Geschichte des Schwyzerörgelis.', linkTitle: 'Das Schwyzerörgeli — eine Schweizer Geschichte', linkDomain: 'volksmusik.ch' },
+  { id: 2, type: 'video', time: 'vor 5 Tagen', text: 'Ein kurzer Ausschnitt aus meinem neuen Schottisch — Volksmusik macht einfach Freude.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },
 ]
 
 const profiles: Record<string, PublicProfile> = {
@@ -66,8 +62,7 @@ const profiles: Record<string, PublicProfile> = {
     shares: { email: 'hansruedi@laemu.ch', website: 'wenger-musik.ch', facebook: 'hansruedi.wenger.musik', tiktok: 'hansruedi_oergeli', openForFormation: false },
     posts: [
       { id: 1, type: 'video', time: 'vor 1 Tag', text: 'Neue Video-Lektion: Der Zwiefache — Rhythmus und Interpretation.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },
-      { id: 2, type: 'event', time: 'vor 4 Tagen', text: 'Frühlingskonzert Kapelle Hess-Ruedi-Hegner', eventDate: 'Sa, 7. Juni 2025', eventLocation: 'Luzern, Zunfthaus' },
-      { id: 3, type: 'text', time: 'vor 1 Woche', text: 'Die Handorgel ist für mich ein Stück Heimat. Mein Lieblingsübungsstück für Einsteiger steht jetzt online.' },
+      { id: 2, type: 'photo', time: 'vor 4 Tagen', text: 'Rückblick aufs Frühlingskonzert der Kapelle Hess-Ruedi-Hegner in Luzern.', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80' },
     ],
   },
   peter: {
@@ -124,11 +119,8 @@ function ShareRow({ icon, label, value, href }: { icon: ReactNode; label: string
 }
 
 const POST_TYPE_LABEL: Record<ProfilePostType, string> = {
-  text: 'Beitrag',
   photo: 'Foto',
   video: 'Video',
-  link: 'Link',
-  event: 'Event',
 }
 
 function PostCard({ post, name, avatar }: { post: ProfilePost; name: string; avatar: string }) {
@@ -145,59 +137,19 @@ function PostCard({ post, name, avatar }: { post: ProfilePost; name: string; ava
         <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-dark text-white tracking-wide uppercase flex-shrink-0">{POST_TYPE_LABEL[post.type]}</span>
       </div>
 
-      {post.img && (
-        <div className="relative aspect-video overflow-hidden">
-          <Image src={post.img} alt="" fill className="object-cover" unoptimized />
-          {post.type === 'video' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-              </div>
+      <div className="relative aspect-video overflow-hidden">
+        <Image src={post.img} alt="" fill className="object-cover" unoptimized />
+        {post.type === 'video' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
             </div>
-          )}
-        </div>
-      )}
-
-      {post.type === 'link' && post.linkDomain && (
-        <div className="mx-4 mt-4 border border-border p-4 bg-background flex items-start gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="font-sans text-[10px] text-text-secondary uppercase tracking-wider mb-1">{post.linkDomain}</p>
-            <p className="font-sans text-sm font-medium leading-snug">{post.linkTitle}</p>
           </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-text-secondary mt-0.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-        </div>
-      )}
+        )}
+      </div>
 
-      {post.type === 'event' && (
-        <div className="mx-4 mt-4 border border-accent-gold/30 bg-accent-gold/5 p-4">
-          <p className="font-sans text-sm font-medium leading-snug mb-1">{post.text}</p>
-          <p className="font-sans text-xs text-text-secondary">{post.eventDate}{post.eventLocation ? ` · ${post.eventLocation}` : ''}</p>
-        </div>
-      )}
-
-      {post.type !== 'event' && (
-        <div className="p-4">
-          <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{post.text}</p>
-        </div>
-      )}
-    </motion.div>
-  )
-}
-
-function SharedRow({ post }: { post: ProfilePost }) {
-  const title = post.type === 'link' && post.linkTitle ? post.linkTitle : post.text
-  const meta = post.type === 'link' ? post.linkDomain
-    : post.type === 'event' ? [post.eventDate, post.eventLocation].filter(Boolean).join(' · ')
-    : undefined
-  return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border p-4 flex items-start gap-3 hover:border-accent-gold transition-colors">
-      <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide flex-shrink-0">
-        {POST_TYPE_LABEL[post.type]} geteilt
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="font-sans text-sm font-medium leading-snug">{title}</p>
-        {meta && <p className="font-sans text-xs text-text-secondary mt-0.5">{meta}</p>}
-        <p className="font-sans text-[11px] text-text-secondary/70 mt-1">{post.time}</p>
+      <div className="p-4">
+        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{post.text}</p>
       </div>
     </motion.div>
   )
@@ -208,7 +160,6 @@ export default function PublicProfilePage({ params }: { params: { handle: string
   const s = profile.shares
   const hasShares = !!(s.whatsapp || s.instagram || s.email || s.website || s.facebook || s.tiktok || s.openForFormation)
   const posts = profile.posts ?? samplePosts
-  const [activeTab, setActiveTab] = useState<'posts' | 'shared'>('posts')
 
   return (
     <div className="min-h-screen bg-background">
@@ -265,50 +216,18 @@ export default function PublicProfilePage({ params }: { params: { handle: string
           </div>
         </motion.div>
 
-        {/* Tabs */}
+        {/* Beiträge — nur Foto & Video */}
         <div>
-          <div className="flex border-b border-border mb-6">
-            <button
-              onClick={() => setActiveTab('posts')}
-              className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'posts' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-            >
-              Beiträge
-            </button>
-            <button
-              onClick={() => setActiveTab('shared')}
-              className={`flex-1 py-3 font-sans text-sm font-medium transition-colors border-b-2 ${activeTab === 'shared' ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-            >
-              Geteilte Beiträge
-            </button>
+          <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
+          <div className="space-y-4">
+            {posts.length > 0 ? (
+              posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} />)
+            ) : (
+              <div className="bg-surface border border-border p-6 text-center">
+                <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Beiträge veröffentlicht.</p>
+              </div>
+            )}
           </div>
-
-          <AnimatePresence mode="wait">
-            {activeTab === 'posts' && (
-              <motion.div key="posts" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                {posts.length > 0 ? (
-                  posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} />)
-                ) : (
-                  <div className="bg-surface border border-border p-6 text-center">
-                    <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Beiträge veröffentlicht.</p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-            {activeTab === 'shared' && (
-              <motion.div key="shared" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-                <p className="font-sans text-sm text-text-secondary">
-                  Beiträge, Events, Videos und Links, die {profile.name.split(' ')[0]} geteilt hat.
-                </p>
-                {posts.length > 0 ? (
-                  posts.map((post) => <SharedRow key={post.id} post={post} />)
-                ) : (
-                  <div className="bg-surface border border-border p-6 text-center">
-                    <p className="font-sans text-sm text-text-secondary">Noch nichts geteilt.</p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* Shared info */}

@@ -39,19 +39,19 @@ const initialNotifications: Notification[] = [
     id: 'n1', kind: 'reply',
     title: 'Antwort auf deinen Kommentar',
     text: 'Cécile Schmidig (LAEMU Team) hat auf deinen Kommentar zu «Dr Alperose» geantwortet.',
-    time: 'vor 2 Std.', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-schritte?lektion=koordination', read: false,
+    time: 'vor 2 Std.', href: '/member/academy/lernvideos/1#comment-vc1', read: false,
   },
   {
     id: 'n2', kind: 'feedback',
-    title: 'Feedback vom LAEMU Team',
-    text: 'Du hast eine persönliche Antwort auf deine Anfrage vom LAEMU Team erhalten.',
-    time: 'gestern', href: '/member/account?tab=konto', read: false,
+    title: 'Feedback auf deinen Kommentar',
+    text: 'Du hast ein Feedback zu deinem Kommentar bei «Dr Alperose» erhalten.',
+    time: 'gestern', href: '/member/academy/lernvideos/1#comment-vc5', read: false,
   },
   {
     id: 'n3', kind: 'reply',
     title: 'Antwort auf deinen Kommentar',
-    text: 'Hansruedi Wenger (Lehrer) hat auf deine Frage im Grundlagenkurs geantwortet.',
-    time: 'vor 3 Tagen', href: '/member/academy/instrument/handorgel/kurs/grundlagen', read: true,
+    text: 'Hansruedi Wenger (Lehrer) hat auf deine Frage zu «Dr Alperose» geantwortet.',
+    time: 'vor 3 Tagen', href: '/member/academy/lernvideos/1#comment-vc4', read: true,
   },
 ]
 
