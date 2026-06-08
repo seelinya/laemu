@@ -104,11 +104,14 @@ const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka'
 const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Bündner Stil']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
 
-// Optionen für Stimmen bei Stückwünschen.
-const WISH_VOTE_OPTIONS = [
-  'Schwyzerörgeli (1. Stimme)', 'Handorgel (1. Stimme)', 'Bassgeige', 'Klavierbegleitung', 'Klarinette (1. Stimme)',
-  'Schwyzerörgeli (2. Stimme)', 'Handorgel (2. Stimme)', 'Klarinette (2. Stimme)',
+// Optionen für Stimmen bei Stückwünschen — gruppiert nach 1. Stimme, 2. Stimme
+// und Begleitstimmvorschlägen (Bassgeige & Klavierbegleitung gehören zu Letzteren).
+const WISH_VOTE_GROUPS: { label: string; options: string[] }[] = [
+  { label: '1. Stimme', options: ['Handorgel (1. Stimme)', 'Schwyzerörgeli (1. Stimme)', 'Klarinette (1. Stimme)'] },
+  { label: '2. Stimme', options: ['Handorgel (2. Stimme)', 'Schwyzerörgeli (2. Stimme)', 'Klarinette (2. Stimme)'] },
+  { label: 'Begleitstimmvorschläge', options: ['Bassgeige', 'Klavierbegleitung'] },
 ]
+const WISH_VOTE_OPTIONS = WISH_VOTE_GROUPS.flatMap(g => g.options)
 
 const planColors: Record<string, string> = {
   free: 'bg-border/60 text-text-secondary',
@@ -132,7 +135,10 @@ export default function LernvideosPage() {
   const [filterGenreTag, setFilterGenreTag] = useState<string | null>(null)
   const [filterNotenV, setFilterNotenV] = useState(false)
   const [filterNotenG, setFilterNotenG] = useState(false)
+  const [filterLearned, setFilterLearned] = useState<'all' | 'learned' | 'unlearned'>('all')
   const [saved, setSaved] = useState<Set<number>>(new Set([1, 5, 7]))
+  // Welche Stücke man bereits gelernt hat — markierbar & filterbar.
+  const [learned, setLearned] = useState<Set<number>>(new Set([1, 2]))
   const [tab, setTab] = useState<'datenbank' | 'merkliste' | 'wuensche'>('datenbank')
   const [showPlaylist, setShowPlaylist] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
@@ -147,6 +153,7 @@ export default function LernvideosPage() {
   const [wishSearch, setWishSearch] = useState('')
 
   const toggleSaved = (id: number) => setSaved(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  const toggleLearned = (id: number) => setLearned(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
   // ── Stückwünsche: Stimmen pro Option ──
   const voteKey = (id: number, opt: string) => `${id}:${opt}`
@@ -188,7 +195,7 @@ export default function LernvideosPage() {
   const resetAll = () => {
     setSearch(''); setFilterInst('Alle'); setFilterArt(null); setFilterTakt(null)
     setFilterStyleTag(null); setFilterGenreTag(null)
-    setFilterNotenV(false); setFilterNotenG(false)
+    setFilterNotenV(false); setFilterNotenG(false); setFilterLearned('all')
   }
 
   const filtered = videos.filter(v => {
@@ -201,6 +208,8 @@ export default function LernvideosPage() {
     if (filterGenreTag && !v.melodieTags.includes(filterGenreTag)) return false
     if (filterNotenV && !v.notesAvailable.violinschluessel) return false
     if (filterNotenG && !v.notesAvailable.griffschrift) return false
+    if (filterLearned === 'learned' && !learned.has(v.id)) return false
+    if (filterLearned === 'unlearned' && learned.has(v.id)) return false
     return true
   })
 
@@ -220,13 +229,14 @@ export default function LernvideosPage() {
   const activeFilterCount = [
     filterInst !== 'Alle', filterArt !== null, filterTakt !== null,
     filterStyleTag !== null, filterGenreTag !== null,
-    filterNotenV, filterNotenG,
+    filterNotenV, filterNotenG, filterLearned !== 'all',
   ].filter(Boolean).length
 
   // Ergebnis-Karte (Stück) — geteilt von Datenbank- und Merkliste-Tab.
   const renderResultCard = (v: typeof videos[0], i: number) => {
     const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument })
     const isSaved = saved.has(v.id)
+    const isLearned = learned.has(v.id)
     return (
       <motion.div
         key={v.id}
@@ -244,6 +254,14 @@ export default function LernvideosPage() {
           <div className="absolute bottom-2 left-2">
             <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
           </div>
+          {isLearned && (
+            <div className="absolute top-2 left-2">
+              <span className="font-sans text-[10px] bg-green-600 text-white px-1.5 py-0.5 flex items-center gap-1">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                Gelernt
+              </span>
+            </div>
+          )}
           {!unlocked && (
             <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -280,13 +298,23 @@ export default function LernvideosPage() {
 
           {/* Aktionen — auf Mobile als Reihe unter dem Text, auf Desktop als Spalte rechts */}
           <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 flex-shrink-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0 mt-1 sm:mt-0">
-            <button
-              onClick={() => toggleSaved(v.id)}
-              title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
-              className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => toggleLearned(v.id)}
+                title={isLearned ? 'Als nicht gelernt markieren' : 'Als gelernt markieren'}
+                aria-label={isLearned ? 'Als nicht gelernt markieren' : 'Als gelernt markieren'}
+                className={`p-1.5 border transition-colors flex-shrink-0 ${isLearned ? 'border-green-600 bg-green-600 text-white' : 'border-border text-text-secondary hover:border-green-600 hover:text-green-600'}`}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button
+                onClick={() => toggleSaved(v.id)}
+                title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
+                className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              </button>
+            </div>
             <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:my-2">
               <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
               {!unlocked && (
@@ -522,6 +550,15 @@ export default function LernvideosPage() {
                           </label>
                         </div>
                       </div>
+                      {/* Lernstatus */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Lernstatus</label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {([['all', 'Alle'], ['learned', 'Gelernt'], ['unlearned', 'Offen']] as const).map(([val, lbl]) => (
+                            <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border text-text-secondary hover:border-dark'}`}>{lbl}</button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -678,6 +715,16 @@ export default function LernvideosPage() {
                   </label>
                 </div>
               </div>
+
+              {/* Lernstatus */}
+              <div>
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Lernstatus</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {([['all', 'Alle'], ['learned', 'Gelernt'], ['unlearned', 'Offen']] as const).map(([val, lbl]) => (
+                    <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border text-text-secondary hover:border-dark'}`}>{lbl}</button>
+                  ))}
+                </div>
+              </div>
                     </div>
                   </motion.div>
                 )}
@@ -703,17 +750,26 @@ export default function LernvideosPage() {
                     {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterGenreTag}</span>}
                     {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Violinschlüssel</span>}
                     {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Griffschrift</span>}
+                    {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 ${filterLearned === 'learned' ? 'bg-green-600 text-white' : 'bg-dark text-white'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
                   </div>
                 )}
               </div>
 
               {/* Abo / Freischalt-Hinweis */}
               <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                {mockUserAbo.plan !== 'none' ? (
+                {mockUserAbo.plan === 'pro' || mockUserAbo.plan === 'lernvideo' ? (
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. JamPlayer und Stimmen-Videos, da du Zugang zu einem Lehrgang hast.
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. JamPlayer und Stimmen-Videos.
+                    </p>
+                  </>
+                ) : mockUserAbo.plan === 'starter' ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den JamPlayer ist ein Upgrade nötig.{' '}
+                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
                     </p>
                   </>
                 ) : (
@@ -827,21 +883,28 @@ export default function LernvideosPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
-                      <div className="flex flex-wrap gap-2">
-                        {WISH_VOTE_OPTIONS.map(opt => {
-                          const active = wishVoteSel.includes(opt)
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => toggleWishVoteSel(opt)}
-                              className={`font-sans text-xs px-3 py-1.5 border transition-colors ${active ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                            >
-                              {active ? '✓ ' : ''}{opt}
-                            </button>
-                          )
-                        })}
+                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
+                      <div className="space-y-3">
+                        {WISH_VOTE_GROUPS.map(group => (
+                          <div key={group.label}>
+                            <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-1.5">{group.label}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {group.options.map(opt => {
+                                const active = wishVoteSel.includes(opt)
+                                return (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => toggleWishVoteSel(opt)}
+                                    className={`font-sans text-xs px-3 py-1.5 border transition-colors ${active ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                                  >
+                                    {active ? '✓ ' : ''}{opt}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                     <div className="flex gap-3">
@@ -877,32 +940,39 @@ export default function LernvideosPage() {
                     <span className="font-sans text-xs px-2.5 py-1 border border-border bg-background text-text-secondary flex-shrink-0 whitespace-nowrap">{wishTotal(w)} Stimmen</span>
                   </div>
 
-                  {/* Stimme abgeben — alle Optionen, Mehrfachauswahl */}
+                  {/* Stimme abgeben — gruppiert nach Stimmen, Mehrfachauswahl */}
                   <div className="mt-3 pt-3 border-t border-border">
-                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-2">Deine Stimme abgeben — Mehrfachauswahl möglich</p>
-                    <div className="flex flex-wrap gap-2">
-                      {WISH_VOTE_OPTIONS.map(opt => {
-                        if (w.available.includes(opt)) {
-                          return (
-                            <span key={opt} className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border border-green-200 bg-green-50 text-green-700">
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                              {opt} · bereits vorhanden
-                            </span>
-                          )
-                        }
-                        const voted = !!wishVotes[voteKey(w.id, opt)]
-                        return (
-                          <button
-                            key={opt}
-                            onClick={() => toggleWishVote(w.id, opt)}
-                            className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${voted ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                          >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
-                            {opt}
-                            <span className="font-bold tabular-nums">{wishOptVotes(w, opt)}</span>
-                          </button>
-                        )
-                      })}
+                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-2.5">Deine Stimme abgeben — Mehrfachauswahl möglich</p>
+                    <div className="space-y-3">
+                      {WISH_VOTE_GROUPS.map(group => (
+                        <div key={group.label}>
+                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-1.5">{group.label}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {group.options.map(opt => {
+                              if (w.available.includes(opt)) {
+                                return (
+                                  <span key={opt} className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border border-green-200 bg-green-50 text-green-700">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                    {opt} · bereits vorhanden
+                                  </span>
+                                )
+                              }
+                              const voted = !!wishVotes[voteKey(w.id, opt)]
+                              return (
+                                <button
+                                  key={opt}
+                                  onClick={() => toggleWishVote(w.id, opt)}
+                                  className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${voted ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
+                                  {opt}
+                                  <span className="font-bold tabular-nums">{wishOptVotes(w, opt)}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
