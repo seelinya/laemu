@@ -1031,17 +1031,6 @@ export default function LernvideoDetailPage() {
                     <>
                       <p className="font-sans text-sm text-text-secondary mb-4">Einzelne Notenblätter à CHF 5 — als Violinschlüssel oder Griffschrift (Schwyzerörgeli).</p>
 
-                      {/* Verfügbare Notationsarten */}
-                      <div className="flex flex-wrap gap-2 mb-5 p-3 bg-background border border-border">
-                        <span className="font-sans text-xs text-text-secondary self-center">Verfügbare Notationsarten:</span>
-                        {STANDARD_NOTEN.map(s => (
-                          <span key={s.key} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            {s.label}
-                          </span>
-                        ))}
-                      </div>
-
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
                         {STANDARD_NOTEN.map(s => (
                           <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">
