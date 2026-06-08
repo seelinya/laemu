@@ -37,6 +37,13 @@ function IconHomeSimple() {
     </svg>
   )
 }
+function IconSearch() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  )
+}
 function IconHeart({ filled = false }: { filled?: boolean }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -201,6 +208,7 @@ const profilePosts: ProfilePost[] = [
 const navItems = [
   { icon: <IconHomeSimple />, label: 'Start', id: 'start' },
   { icon: <IconUser />, label: 'Mein Profil', id: 'profile' },
+  { icon: <IconSearch />, label: 'Entdecken', id: 'discover' },
   { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
@@ -457,7 +465,6 @@ function ProfileView() {
   const [editMode, setEditMode] = useState(false)
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerType, setComposerType] = useState<'photo' | 'video'>('photo')
-  const [profileTab, setProfileTab] = useState<'profile' | 'discover'>('profile')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
@@ -572,26 +579,6 @@ function ProfileView() {
         )}
       </AnimatePresence>
 
-      {/* Tabs: Mein Profil / Entdecken */}
-      <div className="flex border-b border-border">
-        {([
-          { id: 'profile' as const, label: 'Mein Profil' },
-          { id: 'discover' as const, label: 'Entdecken' },
-        ]).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setProfileTab(t.id)}
-            className={`px-4 py-2.5 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === t.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {profileTab === 'discover' ? (
-        <DiscoverView />
-      ) : (
-      <>
       {/* Profile header — ohne Titelbild, Profilbild optional */}
       <div className="bg-surface border border-border overflow-hidden">
         <div className="p-6">
@@ -885,8 +872,6 @@ function ProfileView() {
           </div>
         )}
       </div>
-      </>
-      )}
     </div>
   )
 }
@@ -1167,6 +1152,7 @@ export default function MemberCommunityPage() {
 
             {activeNav === 'start' && <StartView />}
             {activeNav === 'profile' && <ProfileView />}
+            {activeNav === 'discover' && <DiscoverView />}
             {activeNav === 'settings' && <SettingsView />}
           </div>
 
