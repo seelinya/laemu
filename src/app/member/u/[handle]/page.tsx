@@ -80,7 +80,7 @@ const profiles: Record<string, PublicProfile> = {
   lisa: {
     name: 'Lisa Frei', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&q=80',
     instruments: ['Klavierbegleitung'], location: 'Zug',
-    bio: 'Pianistin mit Faible für moderne Ländlermusik. Übe am liebsten mit dem JamPlayer.',
+    bio: 'Pianistin mit Faible für moderne Ländlermusik. Übe am liebsten mit dem Mixer.',
     joined: 'Mitglied seit Dez 2024',
     shares: { instagram: 'lisa.piano', openForFormation: false },
   },

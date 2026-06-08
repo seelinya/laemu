@@ -22,7 +22,7 @@ const PIECES_WITHOUT_NOTEN = [4]
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Voice = { id: string; label: string; volume: number; muted: boolean; color: string }
-type JamMusician = { id: string; name: string; voice: string; instrument: string; singing?: string; volume: number; muted: boolean; color: string }
+type MixerMusician = { id: string; name: string; voice: string; instrument: string; singing?: string; volume: number; muted: boolean; color: string }
 type StimmeSection = {
   id: string; label: string; instrument: string; color: string
   lernvideos: { id: string; label: string; duration: string; done: boolean }[]
@@ -54,14 +54,14 @@ const videoData = {
   img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
   intro: 'Dr Alperose ist ein klassischer Ländlerwalzer im 3/4-Takt, komponiert von Willi Valotti im Jahr 1978. Das Stück gehört zum Standardrepertoire jeder Schweizer Ländlerkapelle und zeichnet sich durch seine eingängige Melodielinie und charakteristischen Begleitfiguren aus. Besondere Aufmerksamkeit verdient der harmonische Übergang von Teil A nach Teil B — ein Merkmal, das viele Ländler der 1970er-Jahre kennzeichnet und den Stücken eine besondere Tiefe verleiht.',
   masterVideo: { type: 'laemu' as const },
-  hasJamPlayer: true,
+  hasMixer: true,
   introVideo: { label: 'Einführungsvideo — Überblick & Aufbau des Stückes', duration: '4:32' },
-  jamMusicians: [
+  mixerMusicians: [
     { id: 'j1', name: 'Seebi Diener', voice: '1. Stimme', instrument: 'Handorgel', volume: 85, muted: false, color: '#C4973A' },
     { id: 'j2', name: 'Cyrill Rusch', voice: '2. Stimme', instrument: 'Schwyzerörgeli', volume: 75, muted: false, color: '#5A8A6A' },
     { id: 'j3', name: 'Franz Hess', voice: 'Begleitung', instrument: 'Klavier', volume: 70, muted: false, color: '#7A6A9A' },
     { id: 'j4', name: 'Simon Rusch', voice: 'Bassbegleitung', instrument: 'Bass', volume: 68, muted: true, color: '#8A5A4A' },
-  ] as JamMusician[],
+  ] as MixerMusician[],
   voices: [
     { id: 'v1_ho', label: '1. Stimme Handorgel', volume: 80, muted: false, color: '#C4973A' },
     { id: 'v2_ho', label: '2. Stimme Handorgel', volume: 70, muted: false, color: '#C4973A' },
@@ -299,9 +299,9 @@ function IconSpeed() { return <svg width="15" height="15" viewBox="0 0 24 24" fi
 // Tonhöhe: Stimmgabel
 function IconPitch() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v9a4 4 0 008 0V3"/><path d="M12 16v5"/></svg> }
 
-// ─── Jam Faders (Vertical, for master video) ─────────────────────────────────
+// ─── Mixer Faders (Vertical, for master video) ───────────────────────────────
 
-function JamFaders({ musicians }: { musicians: JamMusician[] }) {
+function MixerFaders({ musicians }: { musicians: MixerMusician[] }) {
   const [state, setState] = useState(musicians)
 
   const toggleMute = (id: string) =>
@@ -322,7 +322,7 @@ function JamFaders({ musicians }: { musicians: JamMusician[] }) {
       <div className="px-4 py-2.5 flex items-center justify-between border-b border-white/10">
         <div className="flex items-center gap-2">
           <span className="text-accent-gold"><IconMixer /></span>
-          <span className="font-sans text-xs uppercase tracking-widest text-white/50">Jam-Player</span>
+          <span className="font-sans text-xs uppercase tracking-widest text-white/50">Mixer</span>
           <span className="font-sans text-[10px] text-white/25 hidden sm:inline">— Stimmen individuell steuern</span>
         </div>
         <button onClick={resetAll} className="font-sans text-[10px] text-white/30 hover:text-white/60 transition-colors">
@@ -385,10 +385,10 @@ function JamFaders({ musicians }: { musicians: JamMusician[] }) {
                 <span className="font-mono text-[10px] text-white/30 w-8 text-center">{m.muted ? '—' : `${m.volume}`}</span>
                 {/* Divider */}
                 <div className="w-8 h-px bg-white/10 my-0.5" />
-                {/* Musician info */}
+                {/* Musician info — Stimme gross, Name klein */}
                 <div className="text-center" style={{ maxWidth: 80 }}>
-                  <p className="font-heading font-bold text-[11px] text-white leading-tight truncate">{m.name}</p>
-                  <p className="font-sans text-[9px] text-white/40 leading-tight mt-0.5">{m.voice}</p>
+                  <p className="font-heading font-bold text-[11px] text-white leading-tight truncate">{m.voice}</p>
+                  <p className="font-sans text-[9px] text-white/40 leading-tight mt-0.5">{m.name}</p>
                   <p className="font-sans text-[9px] leading-tight mt-0.5" style={{ color: m.color }}>{m.instrument}</p>
                   {m.singing && <p className="font-sans text-[9px] text-white/30 leading-tight mt-0.5">{m.singing}</p>}
                 </div>
@@ -744,11 +744,11 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Master video — Standard-Player, ohne JamPlayer */}
+        {/* Master video — Standard-Player, ohne Mixer */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} variant="standard" />
           <p className="font-sans text-xs text-text-secondary mt-2">
-            Die Masteraufnahme ist frei verfügbar. Der JamPlayer sowie die einzelnen Stimmen-Videos
+            Die Masteraufnahme ist frei verfügbar. Der Mixer sowie die einzelnen Stimmen-Videos
             (1. Stimme, 2. Stimme & Begleitvorschläge) sind in deinem {planLabel[mockUserAbo.plan] ?? 'aktuellen'}-Abo nicht enthalten.
           </p>
         </motion.div>
@@ -758,8 +758,8 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
           <p className="font-sans text-xs text-text-secondary leading-relaxed">
             {needsProUpgrade
-              ? <>Dieses Stück gehört zum <strong className="text-dark font-semibold">Pro-Angebot</strong>. Mit deinem Starter-Abo siehst du nur die Masteraufnahme. Für die einzelnen Stimmen-Videos und den JamPlayer ist ein <strong className="text-dark font-semibold">Upgrade auf Pro</strong> nötig.</>
-              : <>Für die einzelnen Stimmen-Videos und den JamPlayer ist ein passendes Abo nötig.</>}
+              ? <>Dieses Stück gehört zum <strong className="text-dark font-semibold">Pro-Angebot</strong>. Mit deinem Starter-Abo siehst du nur die Masteraufnahme. Für die einzelnen Stimmen-Videos und den Mixer ist ein <strong className="text-dark font-semibold">Upgrade auf Pro</strong> nötig.</>
+              : <>Für die einzelnen Stimmen-Videos und den Mixer ist ein passendes Abo nötig.</>}
           </p>
         </div>
 
@@ -781,11 +781,11 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
           <h3 className="font-heading text-xl font-bold text-white mb-2">{needsProUpgrade ? 'Upgrade auf Pro' : 'Voller Zugang mit dem passenden Abo'}</h3>
           <p className="font-sans text-sm text-white/60 mb-5">
             {needsProUpgrade
-              ? 'Mit dem Pro-Abo schaltest du alle Stimmen-Videos, den JamPlayer und die komplette Lernvideo-Datenbank für alle Instrumente frei.'
-              : <>Schalte alle Lern- und Stimmen-Videos, den JamPlayer und die komplette Lernvideo-Datenbank für {piece.instrument} frei.</>}
+              ? 'Mit dem Pro-Abo schaltest du alle Stimmen-Videos, den Mixer und die komplette Lernvideo-Datenbank für alle Instrumente frei.'
+              : <>Schalte alle Lern- und Stimmen-Videos, den Mixer und die komplette Lernvideo-Datenbank für {piece.instrument} frei.</>}
           </p>
           <div className="space-y-2 mb-5">
-            {['Alle Lern- & Stimmen-Videos', 'JamPlayer mit Einzelstimmen-Mischpult', 'Tempo & Tonhöhe anpassen', 'Noten zu jeder Stimme'].map((f) => (
+            {['Alle Lern- & Stimmen-Videos', 'Mixer mit Einzelstimmen-Steuerung', 'Tempo & Tonhöhe anpassen', 'Noten zu jeder Stimme'].map((f) => (
               <div key={f} className="flex items-center gap-2 font-sans text-sm text-white/80">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
                 <span>{f}</span>
@@ -863,7 +863,7 @@ export default function LernvideoDetailPage() {
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
   const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
 
-  // Gesperrte Stücke: nur Masteraufnahme (Standard-Player, ohne JamPlayer).
+  // Gesperrte Stücke: nur Masteraufnahme (Standard-Player, ohne Mixer).
   if (catalogEntry && !unlocked) {
     return <LockedDetailView piece={catalogEntry} />
   }
@@ -1318,13 +1318,13 @@ export default function LernvideoDetailPage() {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div>
                   <h2 className="font-heading font-bold text-xl">Mitspielen</h2>
-                  <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den JamPlayer steuerbar.</p>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den Mixer steuerbar.</p>
                 </div>
 
-                {/* Master-/Mitspielvideo mit JamPlayer */}
+                {/* Master-/Mitspielvideo mit Mixer */}
                 <div>
                   <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
-                  {v.hasJamPlayer && <JamFaders musicians={v.jamMusicians} />}
+                  {v.hasMixer && <MixerFaders musicians={v.mixerMusicians} />}
                 </div>
               </motion.div>
             )}

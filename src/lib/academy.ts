@@ -166,7 +166,7 @@ export const mockUserAbo: UserAbo = {
 }
 
 /**
- * Ist ein Stück freigeschaltet (Lern-/Stimmen-Videos + JamPlayer)?
+ * Ist ein Stück freigeschaltet (Lern-/Stimmen-Videos + Mixer)?
  *
  * Freischalt-Stufen nach Abo:
  * - Free-Stücke sind für alle frei.
