@@ -51,13 +51,10 @@ export default function RegisterPage() {
     )
   }
 
-  // Instrumente pro Formationsmitglied (Mehrfachauswahl je Mitglied).
-  const [memberInstruments, setMemberInstruments] = useState<Record<number, string[]>>({})
-  const toggleMemberInstrument = (idx: number, inst: string) => {
-    setMemberInstruments(prev => {
-      const cur = prev[idx] ?? []
-      return { ...prev, [idx]: cur.includes(inst) ? cur.filter(i => i !== inst) : [...cur, inst] }
-    })
+  // Genau ein Instrument pro Formationsmitglied (Zugriff auf einen Lehrgang).
+  const [memberInstruments, setMemberInstruments] = useState<Record<number, string>>({})
+  const selectMemberInstrument = (idx: number, inst: string) => {
+    setMemberInstruments(prev => ({ ...prev, [idx]: prev[idx] === inst ? '' : inst }))
   }
 
   const scopeCount = (s: Scope) => (s === 'all' ? ACADEMY_INSTRUMENTS.length : Number(s))
@@ -102,7 +99,7 @@ export default function RegisterPage() {
   // Freischaltung). Erst dann lässt sich die Registrierung abschliessen.
   const formationReady =
     accountType !== 'formation' ||
-    Array.from({ length: memberCount }).every((_, idx) => (memberInstruments[idx]?.length ?? 0) > 0)
+    Array.from({ length: memberCount }).every((_, idx) => !!memberInstruments[idx])
 
   if (done) {
     return (
@@ -641,13 +638,13 @@ export default function RegisterPage() {
                         <div>
                           <label className="label text-text-secondary block mb-1.5">Zugriff: Für welches Instrument? *</label>
                           <p className="font-sans text-xs text-text-secondary mb-2.5 leading-relaxed">
-                            Wähle, für welche(s) Instrument(e) dieses Mitglied innerhalb des Formationsabos Zugriff auf die Lehrgänge und Lernvideos erhält.
+                            Wähle genau ein Instrument, für das dieses Mitglied innerhalb des Formationsabos Zugriff auf den Lehrgang und die Lernvideos erhält.
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {ACADEMY_INSTRUMENTS.map(inst => {
-                              const sel = (memberInstruments[idx] ?? []).includes(inst)
+                              const sel = memberInstruments[idx] === inst
                               return (
-                                <button key={inst} onClick={() => toggleMemberInstrument(idx, inst)} className={`font-sans text-xs px-3 py-1.5 border transition-all ${sel ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}>{inst}</button>
+                                <button key={inst} onClick={() => selectMemberInstrument(idx, inst)} className={`font-sans text-xs px-3 py-1.5 border transition-all ${sel ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}>{inst}</button>
                               )
                             })}
                           </div>
@@ -778,7 +775,7 @@ export default function RegisterPage() {
               {accountType === 'formation' ? (
                 !formationReady && (
                   <p className="font-sans text-xs text-text-secondary text-center mt-3">
-                    Weise jedem Mitglied mindestens ein Instrument für den Zugriff zu, um die Registrierung abzuschliessen.
+                    Weise jedem Mitglied ein Instrument für den Zugriff zu, um die Registrierung abzuschliessen.
                   </p>
                 )
               ) : (
