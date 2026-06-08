@@ -14,8 +14,6 @@ const tabs: { id: Area; label: string; emoji: string; href: string }[] = [
 
 const accountLinks = [
   { label: 'Konto & Daten', href: '/member/account?tab=konto' },
-  { label: 'Mein Profil', href: '/member/profile' },
-  { label: 'Meine Beiträge', href: '/member/account?tab=beitraege' },
   { label: 'Mein Abo', href: '/member/account?tab=abo' },
   { label: 'Rechnungen & Zahlungen', href: '/member/account?tab=rechnungen' },
   { label: 'Zahlungsmittel', href: '/member/account?tab=zahlungsmittel' },
