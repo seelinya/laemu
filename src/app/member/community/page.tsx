@@ -388,6 +388,8 @@ function ProfileView() {
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
   const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
+  const [wohnort, setWohnort] = useState('Luzern')
+  const [hideWohnort, setHideWohnort] = useState(false)
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
   const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
   const [openForFormation, setOpenForFormation] = useState(false)
@@ -399,6 +401,8 @@ function ProfileView() {
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
   const [draftBio, setDraftBio] = useState('')
+  const [draftWohnort, setDraftWohnort] = useState('')
+  const [draftHideWohnort, setDraftHideWohnort] = useState(false)
   const [draftInstruments, setDraftInstruments] = useState('')
   const [draftVorbilder, setDraftVorbilder] = useState('')
   const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
@@ -415,6 +419,8 @@ function ProfileView() {
   const startEdit = () => {
     setDraftName(name)
     setDraftBio(bio)
+    setDraftWohnort(wohnort)
+    setDraftHideWohnort(hideWohnort)
     setDraftInstruments(instruments)
     setDraftVorbilder(vorbilder)
     setDraftOpenForFormation(openForFormation)
@@ -428,6 +434,8 @@ function ProfileView() {
   const saveEdit = () => {
     setName(draftName.trim() || name)
     setBio(draftBio)
+    setWohnort(draftWohnort.trim())
+    setHideWohnort(draftHideWohnort)
     setInstruments(draftInstruments)
     setVorbilder(draftVorbilder)
     setOpenForFormation(draftOpenForFormation)
@@ -508,6 +516,25 @@ function ProfileView() {
                   <p className="font-sans text-[11px] text-text-secondary mt-1">Tipp: Links zu deinen Kanälen kannst du hier in der Bio integrieren.</p>
                 </div>
                 <div>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Wohnort</label>
+                  <input value={draftWohnort} onChange={e => setDraftWohnort(e.target.value)} placeholder="z.B. Luzern" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  <div className="flex items-center justify-between mt-3">
+                    <div>
+                      <p className="font-sans text-sm font-medium">Wohnort auf dem Profil verbergen</p>
+                      <p className="font-sans text-xs text-text-secondary mt-0.5">
+                        {draftHideWohnort ? 'Dein Wohnort ist für andere nicht sichtbar.' : 'Dein Wohnort wird auf deinem Profil angezeigt.'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setDraftHideWohnort(v => !v)}
+                      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftHideWohnort ? 'bg-accent-gold' : 'bg-border'}`}
+                      aria-label="Wohnort auf dem Profil verbergen"
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHideWohnort ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                </div>
+                <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
                   <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
@@ -565,6 +592,12 @@ function ProfileView() {
                   )}
                 </div>
                 <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
+                {!hideWohnort && wohnort && (
+                  <p className="flex items-center gap-1 font-sans text-xs text-text-secondary mb-2">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {wohnort}
+                  </p>
+                )}
                 <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
 
                 {/* Social-media links */}
