@@ -204,6 +204,65 @@ const navItems = [
   { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
+// Andere Mitglieder, die unter «Entdecken» sichtbar sind (im echten Betrieb:
+// alle, die ihr Profil nicht verborgen haben).
+const discoverProfiles = [
+  { name: 'Maria Kälin', handle: 'maria', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', role: 'Schwyzerörgeli · Schwyz' },
+  { name: 'Hansruedi Wenger', handle: 'hansruedi', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', role: 'Lehrer · Handorgel' },
+  { name: 'Peter Gasser', handle: 'peter', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', role: 'Klarinette · Stans' },
+  { name: 'Lisa Frei', handle: 'lisa', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', role: 'Klavierbegleitung · Zug' },
+  { name: 'Anna Steiner', handle: 'anna', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', role: 'Handorgel · Appenzell' },
+]
+
+function DiscoverView() {
+  const [query, setQuery] = useState('')
+  const results = discoverProfiles.filter(p =>
+    p.name.toLowerCase().includes(query.toLowerCase()) || p.role.toLowerCase().includes(query.toLowerCase())
+  )
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-heading font-bold text-lg mb-1">Entdecken</h3>
+        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">
+          Finde andere Mitglieder der LAEMU-Szene. Hier erscheinen nur Personen, die ihr Profil
+          nicht verborgen haben.
+        </p>
+      </div>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Profile suchen…"
+        className="w-full border border-border px-4 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
+      />
+      <div className="space-y-3">
+        {results.map((p) => (
+          <div key={p.handle} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
+            <Link href={`/member/u/${p.handle}`} className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
+              <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
+            </Link>
+            <div className="flex-1 min-w-0">
+              <Link href={`/member/u/${p.handle}`} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
+              <p className="font-sans text-xs font-light text-text-secondary">{p.role}</p>
+            </div>
+            <Link
+              href={`/member/u/${p.handle}`}
+              className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap"
+            >
+              Profil ansehen →
+            </Link>
+          </div>
+        ))}
+        {results.length === 0 && (
+          <div className="bg-surface border border-border p-8 text-center">
+            <p className="font-sans text-sm text-text-secondary">Keine Profile gefunden.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Start: schlanke Community-Landingpage ────────────────────────────────────
 // Verlinkt die offiziellen LAEMU-Kanäle (Instagram für Eindrücke, geschlossene
 // WhatsApp-Gruppe für News). Bewusst ohne Feed, Gruppen oder Chats.
@@ -384,6 +443,7 @@ function ProfileView() {
   const [editMode, setEditMode] = useState(false)
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerType, setComposerType] = useState<'photo' | 'video'>('photo')
+  const [profileTab, setProfileTab] = useState<'profile' | 'discover'>('profile')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
@@ -393,6 +453,7 @@ function ProfileView() {
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
   const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
   const [openForFormation, setOpenForFormation] = useState(false)
+  const [hiddenFromDiscover, setHiddenFromDiscover] = useState(false)
   const [instagram, setInstagram] = useState('niklaus.hess')
   const [whatsapp, setWhatsapp] = useState('')
   const [facebook, setFacebook] = useState('')
@@ -406,6 +467,7 @@ function ProfileView() {
   const [draftInstruments, setDraftInstruments] = useState('')
   const [draftVorbilder, setDraftVorbilder] = useState('')
   const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
+  const [draftHiddenFromDiscover, setDraftHiddenFromDiscover] = useState(false)
   const [draftInstagram, setDraftInstagram] = useState('')
   const [draftWhatsapp, setDraftWhatsapp] = useState('')
   const [draftFacebook, setDraftFacebook] = useState('')
@@ -424,6 +486,7 @@ function ProfileView() {
     setDraftInstruments(instruments)
     setDraftVorbilder(vorbilder)
     setDraftOpenForFormation(openForFormation)
+    setDraftHiddenFromDiscover(hiddenFromDiscover)
     setDraftInstagram(instagram)
     setDraftWhatsapp(whatsapp)
     setDraftFacebook(facebook)
@@ -439,6 +502,7 @@ function ProfileView() {
     setInstruments(draftInstruments)
     setVorbilder(draftVorbilder)
     setOpenForFormation(draftOpenForFormation)
+    setHiddenFromDiscover(draftHiddenFromDiscover)
     setInstagram(draftInstagram.trim())
     setWhatsapp(draftWhatsapp.trim())
     setFacebook(draftFacebook.trim())
@@ -454,6 +518,26 @@ function ProfileView() {
         )}
       </AnimatePresence>
 
+      {/* Tabs: Mein Profil / Entdecken */}
+      <div className="flex border-b border-border">
+        {([
+          { id: 'profile' as const, label: 'Mein Profil' },
+          { id: 'discover' as const, label: 'Entdecken' },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setProfileTab(t.id)}
+            className={`px-4 py-2.5 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === t.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {profileTab === 'discover' ? (
+        <DiscoverView />
+      ) : (
+      <>
       {/* Profile header */}
       <div className="bg-surface border border-border overflow-hidden">
         <div className="h-36 bg-gradient-to-r from-dark via-dark-secondary to-dark relative overflow-hidden">
@@ -582,6 +666,25 @@ function ProfileView() {
                     <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </button>
                 </div>
+
+                {/* Mein Profil unter «Entdecken» verbergen */}
+                <div className="flex items-start justify-between gap-4 pt-4 border-t border-border">
+                  <div>
+                    <p className="font-sans text-sm font-medium">Mein Profil unter der Seite Entdecken verbergen</p>
+                    <p className="font-sans text-xs text-text-secondary mt-0.5 leading-relaxed">
+                      {draftHiddenFromDiscover
+                        ? 'Dein Profil erscheint nicht unter «Entdecken». Du bist anonym und wirst nur gefunden, wenn du aktiv unter Lernvideos kommentierst — was du nicht musst. Bei Fragen kannst du dich auch direkt ans LAEMU-Team wenden.'
+                        : 'Dein Profil ist unter «Entdecken» für andere Mitglieder sichtbar.'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setDraftHiddenFromDiscover(v => !v)}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 mt-0.5 ${draftHiddenFromDiscover ? 'bg-accent-gold' : 'bg-border'}`}
+                    aria-label="Mein Profil unter der Seite Entdecken verbergen"
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHiddenFromDiscover ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -589,6 +692,12 @@ function ProfileView() {
                   <h2 className="font-heading text-2xl font-black">{name}</h2>
                   {openForFormation && (
                     <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide">Offen für Formationen</span>
+                  )}
+                  {hiddenFromDiscover && (
+                    <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-background border border-border text-text-secondary uppercase tracking-wide inline-flex items-center gap-1">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      In Entdecken verborgen
+                    </span>
                   )}
                 </div>
                 <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
@@ -697,6 +806,8 @@ function ProfileView() {
           </div>
         )}
       </div>
+      </>
+      )}
     </div>
   )
 }
