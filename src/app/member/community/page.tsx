@@ -66,6 +66,13 @@ function IconPlay() {
     </svg>
   )
 }
+function IconUpload() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+  )
+}
 function IconCard() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -605,18 +612,39 @@ function ProfileView() {
         </div>
       </div>
 
+      {/* Klarer Upload-Button — direkt unter dem Profil */}
+      <div className="bg-surface border border-border p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="w-10 h-10 flex items-center justify-center bg-accent-gold/10 text-accent-gold flex-shrink-0">
+              <IconUpload />
+            </span>
+            <div className="min-w-0">
+              <p className="font-sans text-sm font-semibold text-dark">Foto oder Video hochladen</p>
+              <p className="font-sans text-xs text-text-secondary leading-snug">Ergänze dein Profil mit einem neuen Beitrag.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => openComposer('photo')}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold transition-colors"
+            >
+              <IconCamera /> Foto
+            </button>
+            <button
+              onClick={() => openComposer('video')}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-4 py-2.5 hover:bg-dark hover:text-white transition-colors"
+            >
+              <IconVideo /> Video
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Profile content — nur eigene Foto- & Video-Beiträge */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-heading font-bold text-lg">Beiträge</h3>
-          <div className="flex items-center gap-1">
-            <button onClick={() => openComposer('photo')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-surface transition-colors">
-              <IconCamera /> Foto
-            </button>
-            <button onClick={() => openComposer('video')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-surface transition-colors">
-              <IconVideo /> Video
-            </button>
-          </div>
         </div>
 
         {profilePosts.length > 0 ? (
