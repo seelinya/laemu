@@ -282,7 +282,7 @@ const initialVideoComments: VideoComment[] = Object.values(commentsPerLesson).fl
 function IconPlay() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> }
 function IconPause() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> }
 function IconRepeat() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg> }
-function IconDownload() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> }
+function IconArrowRight() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> }
 function IconShare() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> }
 function IconStar({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> }
 function IconCheck() { return <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
@@ -812,6 +812,7 @@ export default function LernvideoDetailPage() {
   const v = videoData
   // Szenario „keine Noten verfügbar" (z.B. Innerschwizer Schottisch).
   const noNotes = PIECES_WITHOUT_NOTEN.includes(idNum)
+  const [showLyrics, setShowLyrics] = useState(false)
   const [mainTab, setMainTab] = useState<'ueberblick' | 'stimme1' | 'stimme2' | 'begleit' | 'mitspielen'>('ueberblick')
   const [favorited, setFavorited] = useState(false)
   const [comment, setComment] = useState('')
@@ -849,8 +850,8 @@ export default function LernvideoDetailPage() {
           <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
             <span className="font-sans text-xs text-text-secondary">Noten (PDF):</span>
             {noten.map(n => (
-              <button key={n.key} title="PDF herunterladen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
-                <IconDownload /> {n.label}{n.price ? ` · CHF ${n.price}` : ''}
+              <button key={n.key} title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+                {n.label}{n.price ? ` · CHF ${n.price}` : ''} <IconArrowRight />
               </button>
             ))}
           </div>
@@ -956,60 +957,42 @@ export default function LernvideoDetailPage() {
                     </div>
                   )}
 
-                  {/* Formations */}
-                  {v.formations && v.formations.length > 0 && (
-                    <div className="mb-4">
-                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Formationen</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {v.formations.map(f => (
-                          <span key={f} className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{f}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Plan / Art / Taktart row */}
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  {/* Tags — alle nacheinander, ohne Gruppierung */}
+                  <div className="flex flex-wrap gap-1.5">
                     <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
                       {planLabel[v.difficulty] ?? v.difficulty}
                     </span>
                     <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
-                    <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{v.taktart}</span>
+                    {v.taktart && <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{v.taktart}</span>}
+                    {v.formations?.map(f => (
+                      <span key={f} className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{f}</span>
+                    ))}
+                    {v.styleTags?.map(tag => (
+                      <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
+                    ))}
+                    {v.autoTags?.map(tag => (
+                      <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-background border border-border text-text-secondary">{tag}</span>
+                    ))}
                   </div>
-
-                  {/* Style tags */}
-                  {v.styleTags && v.styleTags.length > 0 && (
-                    <div className="mb-4">
-                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Stil</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {v.styleTags.map(tag => (
-                          <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Auto-tags */}
-                  {v.autoTags && v.autoTags.length > 0 && (
-                    <div>
-                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">Automatische Tags</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {v.autoTags.map(tag => (
-                          <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-background border border-border text-text-secondary">{tag}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </motion.div>
 
-                {/* 3 — LIEDTEXT (eigener Absatz: unterhalb des Videos, oberhalb der Noten) */}
+                {/* 3 — LIEDTEXT (Akkordeon, standardmässig geschlossen) */}
                 {v.lyrics && (
-                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} className="bg-surface border border-border p-6">
-                    <h3 className="font-heading font-bold text-lg mb-4 flex items-center gap-2">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-                      Liedtext
-                    </h3>
-                    <pre className="font-sans text-sm text-text-primary leading-loose whitespace-pre-wrap">{v.lyrics}</pre>
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} className="bg-surface border border-border">
+                    <button onClick={() => setShowLyrics(s => !s)} className="w-full flex items-center justify-between gap-2 px-6 py-4 hover:bg-background transition-colors" aria-expanded={showLyrics}>
+                      <span className="font-heading font-bold text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                        Liedtext
+                      </span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-text-secondary transition-transform ${showLyrics ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {showLyrics && (
+                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                          <pre className="font-sans text-sm text-text-primary leading-loose whitespace-pre-wrap px-6 pb-6">{v.lyrics}</pre>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 )}
 
@@ -1053,8 +1036,8 @@ export default function LernvideoDetailPage() {
                             </div>
                             <div className="flex items-center justify-between mt-auto">
                               <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
-                              <button title="PDF kaufen & herunterladen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-                                <IconDownload /> PDF herunterladen
+                              <button title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                                Im Shop kaufen <IconArrowRight />
                               </button>
                             </div>
                           </div>
@@ -1095,24 +1078,26 @@ export default function LernvideoDetailPage() {
                     </div>
                   )}
 
-                  {/* Originalaufnahmen */}
-                  <div>
-                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Originalaufnahmen & Versionen</p>
-                    <div className="space-y-2">
-                      {v.originalRecordings.map((r, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark group transition-colors">
-                          <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:border-dark group-hover:text-white transition-colors flex-shrink-0">
-                            {r.type === 'youtube' ? <IconPlay /> : <IconVolOn />}
+                  {/* Originalaufnahmen — nur YouTube-Links */}
+                  {v.originalRecordings.some(r => r.type === 'youtube') && (
+                    <div>
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Originalaufnahmen & Versionen</p>
+                      <div className="space-y-2">
+                        {v.originalRecordings.filter(r => r.type === 'youtube').map((r, i) => (
+                          <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark group transition-colors">
+                            <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:border-dark group-hover:text-white transition-colors flex-shrink-0">
+                              <IconPlay />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-sans text-sm font-medium truncate">{r.label}</p>
+                              <p className="font-sans text-xs text-text-secondary">{r.artist} · YouTube</p>
+                            </div>
+                            <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Auf YouTube ansehen</button>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-sans text-sm font-medium truncate">{r.label}</p>
-                            <p className="font-sans text-xs text-text-secondary">{r.artist} · {r.type === 'youtube' ? 'YouTube' : 'Audio'}</p>
-                          </div>
-                          <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Abspielen</button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Tonträger */}
                   {v.tontraeger && v.tontraeger.length > 0 && (
@@ -1136,44 +1121,7 @@ export default function LernvideoDetailPage() {
                   )}
                 </motion.div>
 
-                {/* 6 — KOMPONIST & MUSIKER */}
-                {(v.composerInfo || v.performerInfo) && (
-                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }} className="bg-surface border border-border p-6 space-y-5">
-                    <h3 className="font-heading font-bold text-lg">Komponist & Musiker:in</h3>
-                    {v.composerInfo && (
-                      <div className="flex items-start gap-4">
-                        {v.composerInfo.img && (
-                          <div className="relative w-16 h-16 overflow-hidden flex-shrink-0">
-                            <Image src={v.composerInfo.img} alt={v.composerInfo.name} fill className="object-cover grayscale" unoptimized />
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <p className="font-heading font-bold text-base">{v.composerInfo.name}</p>
-                          {v.composerInfo.years && <p className="font-sans text-xs text-accent-gold mb-2">{v.composerInfo.years}</p>}
-                          <p className="font-sans text-sm text-text-secondary leading-relaxed">{v.composerInfo.bio}</p>
-                        </div>
-                      </div>
-                    )}
-                    {v.performerInfo && (
-                      <>
-                        {v.composerInfo && <div className="border-t border-border" />}
-                        <div className="flex items-start gap-4">
-                          {v.performerInfo.img && (
-                            <div className="relative w-16 h-16 overflow-hidden flex-shrink-0">
-                              <Image src={v.performerInfo.img} alt={v.performerInfo.name} fill className="object-cover" unoptimized />
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <p className="font-heading font-bold text-base">{v.performerInfo.name}</p>
-                            <p className="font-sans text-sm text-text-secondary leading-relaxed">{v.performerInfo.bio}</p>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* 7 — KOMMENTARE (eine Leiste pro Lernvideo) */}
+                {/* 6 — KOMMENTARE (eine Leiste pro Lernvideo) */}
                 {(() => {
                   const MY = { user: 'ich', name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' }
                   const profileHrefFor = (user: string) => (user === 'ich' ? '/member/profile' : `/member/u/${user}`)
