@@ -168,19 +168,24 @@ export const mockUserAbo: UserAbo = {
 /**
  * Ist ein Stück freigeschaltet (Lern-/Stimmen-Videos + JamPlayer)?
  *
- * Die Lernvideo-Datenbank ist vollständig freigeschaltet, sobald man Zugang
- * zu einem Lehrgang hat (egal ob Starter, Pro oder Lernvideodatenbank-Abo).
- * - Free-Stücke sind ohnehin für alle frei.
- * - Ohne Abo (kein Lehrgang) bleiben kostenpflichtige Stücke gesperrt; dort ist
- *   nur das Master-Video verfügbar (Standard-Player, ohne JamPlayer).
+ * Freischalt-Stufen nach Abo:
+ * - Free-Stücke sind für alle frei.
+ * - Pro- & Lernvideodatenbank-Abo: komplette Datenbank inkl. aller Stimmen-Videos.
+ * - Starter-Abo: nur Free- & Starter-Stücke. Pro-Stücke bleiben gesperrt — dort
+ *   ist nur das Master-Video verfügbar; für die einzelnen Stimmen-Videos ist ein
+ *   Upgrade nötig.
+ * - Ohne Abo (kein Lehrgang) bleiben alle kostenpflichtigen Stücke gesperrt.
  */
 export function isPieceUnlocked(
   piece: { plan: Plan; instrument: string },
   abo: UserAbo = mockUserAbo,
 ): boolean {
   if (piece.plan === 'free') return true
-  // Zugang zu einem Lehrgang → gesamte Lernvideo-Datenbank frei.
-  return abo.plan !== 'none'
+  if (abo.plan === 'none') return false
+  if (abo.plan === 'pro' || abo.plan === 'lernvideo') return true
+  // Starter: Free- & Starter-Stücke; Pro-Stücke erfordern ein Upgrade.
+  if (abo.plan === 'starter') return piece.plan !== 'pro'
+  return false
 }
 
 // ─── Katalog (für die Detailseite, um Titel/Plan/Instrument je ID zu kennen) ──

@@ -5,8 +5,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pieceCatalog, isPieceUnlocked, type CatalogEntry } from '@/lib/academy'
+import { pieceCatalog, isPieceUnlocked, mockUserAbo, type CatalogEntry } from '@/lib/academy'
 import { ShareMenu } from '@/components/ShareMenu'
+
+// ─── Noten ───────────────────────────────────────────────────────────────────
+// Bei Lernvideos sind generell nur Violinschlüssel- und Griffschrift-Noten
+// (Schwyzerörgeli) ersichtlich.
+const ALLOWED_NOTEN_KEYS = ['violin', 'griff-soe']
+const STANDARD_NOTEN: { label: string; key: string; price: number }[] = [
+  { label: 'Violinschlüssel', key: 'violin', price: 5 },
+  { label: 'Griffschrift Schwyzerörgeli', key: 'griff-soe', price: 5 },
+]
+// Stücke ohne verfügbare Noten (Szenario „keine Noten").
+const PIECES_WITHOUT_NOTEN = [4]
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -36,7 +47,7 @@ const videoData = {
   level: 2,
   stufen: 3,
   artDesStückes: 'volkstuemlich' as const,
-  styleTags: ['Urchig', 'Innerschwyzer Stil', 'Zweistimmig'],
+  styleTags: ['Urchig', 'Innerschwyzer Stil'],
   taktart: 'Walzer' as const,
   autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
   formations: ['Hess-Rusch-Hegner Trio', 'Kapelle Schwyz', 'Bodästänix'],
@@ -281,7 +292,6 @@ function IconVolOff() { return <svg width="14" height="14" viewBox="0 0 24 24" f
 function IconVolOn() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg> }
 function IconMixer() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg> }
 function IconDisc() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> }
-function IconChevron({ up }: { up: boolean }) { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${up ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg> }
 function IconBack() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg> }
 function IconHeadphones() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg> }
 // Tempo: Geschwindigkeitsanzeige (Tacho) — wie bei YouTube/Vimeo
@@ -425,7 +435,175 @@ function VoiceMixer({ voices }: { voices: Voice[] }) {
 
 const VIDEO_QUALITIES = ['Auto', '1080p', '720p', '480p']
 
+// Abspielgeschwindigkeiten — wie im Vimeo-Einstellungsmenü.
+const SPEED_OPTIONS: { value: number; label: string }[] = [
+  { value: 50, label: '0.5×' },
+  { value: 75, label: '0.75×' },
+  { value: 100, label: 'Normal' },
+  { value: 125, label: '1.25×' },
+  { value: 150, label: '1.5×' },
+  { value: 175, label: '1.75×' },
+  { value: 200, label: '2×' },
+]
+
+// Steuerungs-Icons im Vimeo-Stil
+function IconSettings() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> }
+function IconFullscreen() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3"/></svg> }
+function IconChevronRight() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg> }
+
+// ─── Standard-Player im Vimeo-Stil ───────────────────────────────────────────
+// Overlay-Steuerung am unteren Videorand: Play, Zeit, Lautstärke (Slider beim
+// Hover), Einstellungen (Qualität + Geschwindigkeit) und Vollbild.
+
+function StandardVideoPlayer({ img, label }: { img: string; label: string }) {
+  const [playing, setPlaying] = useState(false)
+  const [progress] = useState(35)
+  const [volume, setVolume] = useState(80)
+  const [muted, setMuted] = useState(false)
+  const [speed, setSpeed] = useState(100)
+  const [quality, setQuality] = useState('Auto')
+  const [showSettings, setShowSettings] = useState(false)
+  const [settingsView, setSettingsView] = useState<'main' | 'quality' | 'speed'>('main')
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const effVolume = muted ? 0 : volume
+  const speedLabel = SPEED_OPTIONS.find(o => o.value === speed)?.label ?? `${speed}%`
+
+  const toggleSettings = () => { setShowSettings(s => !s); setSettingsView('main') }
+  const toggleFullscreen = () => {
+    const el = containerRef.current
+    if (!el) return
+    if (typeof document !== 'undefined' && document.fullscreenElement) document.exitFullscreen?.()
+    else el.requestFullscreen?.()
+  }
+
+  const Check = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><polyline points="20 6 9 17 4 12"/></svg>
+
+  return (
+    <div ref={containerRef} className="bg-black">
+      <div className="group relative aspect-video overflow-hidden select-none">
+        <Image src={img} alt={label} fill className="object-cover" unoptimized />
+
+        {/* Zentraler Play-Button, solange pausiert */}
+        {!playing && (
+          <button onClick={() => setPlaying(true)} aria-label="Abspielen" className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
+            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold flex items-center justify-center transition-colors">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            </span>
+          </button>
+        )}
+
+        {/* Titel oben links */}
+        <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="font-sans text-xs text-white/80 bg-black/40 px-2 py-1">{label}</span>
+        </div>
+
+        {/* Klick-Fänger, schliesst das Einstellungsmenü */}
+        {showSettings && <button aria-hidden className="absolute inset-0 z-10 cursor-default" onClick={() => setShowSettings(false)} />}
+
+        {/* Einstellungsmenü (Vimeo): Qualität & Geschwindigkeit */}
+        <AnimatePresence>
+          {showSettings && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.12 }}
+              className="absolute bottom-14 right-3 z-20 w-60 bg-[#1a1a1a]/95 backdrop-blur text-white shadow-2xl overflow-hidden"
+            >
+              {settingsView === 'main' && (
+                <div className="py-1">
+                  <button onClick={() => setSettingsView('quality')} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                    <span className="font-sans text-sm">Qualität</span>
+                    <span className="flex items-center gap-1.5 font-sans text-sm text-white/50">{quality === 'Auto' ? 'Automatisch' : quality}<IconChevronRight /></span>
+                  </button>
+                  <button onClick={() => setSettingsView('speed')} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                    <span className="font-sans text-sm">Geschwindigkeit</span>
+                    <span className="flex items-center gap-1.5 font-sans text-sm text-white/50">{speed === 100 ? 'Normal' : speedLabel}<IconChevronRight /></span>
+                  </button>
+                </div>
+              )}
+              {settingsView === 'quality' && (
+                <div className="py-1">
+                  <button onClick={() => setSettingsView('main')} className="w-full flex items-center gap-2 px-4 py-2.5 border-b border-white/10 hover:bg-white/10 transition-colors">
+                    <span className="rotate-180"><IconChevronRight /></span>
+                    <span className="font-sans text-sm font-medium">Qualität</span>
+                  </button>
+                  {VIDEO_QUALITIES.map(q => (
+                    <button key={q} onClick={() => { setQuality(q); setSettingsView('main') }} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                      <span className="font-sans text-sm">{q === 'Auto' ? 'Automatisch' : q}</span>
+                      {quality === q && <Check />}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {settingsView === 'speed' && (
+                <div className="py-1">
+                  <button onClick={() => setSettingsView('main')} className="w-full flex items-center gap-2 px-4 py-2.5 border-b border-white/10 hover:bg-white/10 transition-colors">
+                    <span className="rotate-180"><IconChevronRight /></span>
+                    <span className="font-sans text-sm font-medium">Geschwindigkeit</span>
+                  </button>
+                  {SPEED_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => { setSpeed(o.value); setSettingsView('main') }} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                      <span className="font-sans text-sm">{o.label}</span>
+                      {speed === o.value && <Check />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Untere Steuerleiste */}
+        <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-2 pt-10 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
+          {/* Fortschrittsleiste */}
+          <div className="relative h-1 bg-white/30 cursor-pointer mb-2 group/bar">
+            <div className="h-full bg-accent-gold" style={{ width: `${progress}%` }} />
+            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent-gold opacity-0 group-hover/bar:opacity-100 transition-opacity" style={{ left: `${progress}%` }} />
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setPlaying(p => !p)} className="text-white hover:text-accent-gold transition-colors" aria-label={playing ? 'Pause' : 'Abspielen'}>
+              {playing ? <IconPause /> : <IconPlay />}
+            </button>
+            <span className="font-sans text-xs text-white/80 tabular-nums">3:42 / 12:15</span>
+
+            <div className="ml-auto flex items-center gap-3">
+              {/* Lautstärke — Slider klappt beim Hover auf (Vimeo-Stil) */}
+              <div className="flex items-center group/vol">
+                <button onClick={() => setMuted(m => !m)} className="text-white hover:text-accent-gold transition-colors" aria-label="Stummschalten">
+                  {effVolume === 0 ? <IconVolOff /> : <IconVolOn />}
+                </button>
+                <input
+                  type="range" min={0} max={100} value={effVolume}
+                  onChange={e => { setVolume(Number(e.target.value)); setMuted(false) }}
+                  aria-label="Lautstärke"
+                  className="w-0 group-hover/vol:w-16 ml-0 group-hover/vol:ml-2 opacity-0 group-hover/vol:opacity-100 transition-all duration-200 cursor-pointer"
+                  style={{ accentColor: '#C4973A' }}
+                />
+              </div>
+              {/* Einstellungen (Qualität + Geschwindigkeit) */}
+              <button onClick={toggleSettings} className={`transition-colors ${showSettings ? 'text-accent-gold' : 'text-white hover:text-accent-gold'}`} aria-label="Einstellungen">
+                <IconSettings />
+              </button>
+              {/* Vollbild */}
+              <button onClick={toggleFullscreen} className="text-white hover:text-accent-gold transition-colors" aria-label="Vollbild">
+                <IconFullscreen />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { img: string; label: string; variant?: 'standard' | 'extended'; autoLoop?: boolean }) {
+  // Standard-Player im Vimeo-Stil
+  if (variant === 'standard') return <StandardVideoPlayer img={img} label={label} />
+
+  // Erweiterter Player (Stimmen- & Mitspiel-Videos): Loop A–B, Tempo & Tonhöhe
+  return <ExtendedVideoPlayer img={img} label={label} autoLoop={autoLoop} />
+}
+
+function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; label: string; autoLoop?: boolean }) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(100)
   const [pitch, setPitch] = useState(0)
@@ -434,13 +612,9 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
   const [loopB, setLoopB] = useState(70)
   const [progress] = useState(35)
   const [dragging, setDragging] = useState<null | 'A' | 'B'>(null)
-  const [volume, setVolume] = useState(80)
-  const [muted, setMuted] = useState(false)
-  const [quality, setQuality] = useState('Auto')
   const barRef = useRef<HTMLDivElement>(null)
 
   const pitchLabel = pitch === 0 ? '±0' : pitch > 0 ? `+${pitch}` : `${pitch}`
-  const effVolume = muted ? 0 : volume
 
   const handleBarClick = (e: React.MouseEvent) => {
     if (!barRef.current) return
@@ -464,14 +638,13 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
         </div>
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
           {autoLoop && <span className="font-sans text-xs text-accent-gold bg-black/50 px-2 py-1 flex items-center gap-1"><IconRepeat /> Auto-Wiederholung</span>}
-          {variant === 'extended' && loopEnabled && <span className="font-sans text-xs text-blue-300 bg-blue-900/60 px-2 py-1">Loop A–B</span>}
-          {variant === 'standard' && quality !== 'Auto' && <span className="font-sans text-xs text-white/70 bg-black/50 px-2 py-1">{quality}</span>}
+          {loopEnabled && <span className="font-sans text-xs text-blue-300 bg-blue-900/60 px-2 py-1">Loop A–B</span>}
         </div>
       </div>
       <div className="px-4 py-3 space-y-3">
         <div ref={barRef} className="relative h-2 bg-white/15 cursor-pointer" onClick={handleBarClick}>
           <div className="h-full bg-accent-gold/80" style={{ width: `${progress}%` }} />
-          {variant === 'extended' && loopEnabled && (
+          {loopEnabled && (
             <>
               <div className="absolute top-0 h-full bg-blue-400/25" style={{ left: `${loopA}%`, width: `${loopB - loopA}%` }} />
               <button className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-blue-400 cursor-ew-resize" style={{ left: `${loopA}%` }} onMouseDown={() => setDragging('A')} onMouseUp={() => setDragging(null)} />
@@ -480,52 +653,29 @@ function VideoPlayer({ img, label, variant = 'extended', autoLoop = false }: { i
           )}
         </div>
 
-        {variant === 'standard' ? (
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="font-sans text-white/50 text-xs tabular-nums flex-shrink-0">3:42 / 12:15</span>
-              <div className="flex items-center gap-2 ml-auto flex-shrink-0">
-                <button onClick={() => setMuted(m => !m)} className="text-white/70 hover:text-white transition-colors" aria-label="Stummschalten">
-                  {effVolume === 0 ? <IconVolOff /> : <IconVolOn />}
-                </button>
-                <input type="range" min={0} max={100} value={effVolume} onChange={e => { setVolume(Number(e.target.value)); setMuted(false) }} className="w-20 cursor-pointer" style={{ accentColor: '#C4973A' }} aria-label="Lautstärke" />
-              </div>
-              <select value={quality} onChange={e => setQuality(e.target.value)} className="bg-white/10 border border-white/15 text-white/80 font-sans text-xs px-2 py-1 focus:outline-none flex-shrink-0">
-                {VIDEO_QUALITIES.map(q => <option key={q} value={q} className="text-dark">{q}</option>)}
-              </select>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tempo / Geschwindigkeit"><IconSpeed /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tempo</span></span>
-              <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#C4973A' }} />
-              <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
-              {speed !== 100 && <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
-            </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="font-sans text-white/50 text-xs tabular-nums">3:42 / 12:15</span>
+            <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
+              <IconRepeat /> Loop A–B {loopEnabled ? 'AN' : 'AUS'}
+            </button>
           </div>
-        ) : (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-sans text-white/50 text-xs tabular-nums">3:42 / 12:15</span>
-              <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
-                <IconRepeat /> Loop A–B {loopEnabled ? 'AN' : 'AUS'}
-              </button>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tempo / Geschwindigkeit"><IconSpeed /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tempo</span></span>
-              <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#C4973A' }} />
-              <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
-              {speed !== 100 && <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tonhöhe"><IconPitch /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tonhöhe</span></span>
-              <div className="flex-1 relative">
-                <input type="range" min={-4} max={4} step={1} value={pitch} onChange={e => setPitch(Number(e.target.value))} className="w-full cursor-pointer" style={{ accentColor: pitch !== 0 ? '#7BA8D8' : '#555' }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-px h-2 bg-white/20 pointer-events-none" style={{ marginTop: -4 }} />
-              </div>
-              <span className={`font-sans text-xs font-semibold w-16 text-right flex-shrink-0 tabular-nums ${pitch !== 0 ? 'text-blue-300' : 'text-white/40'}`}>{pitchLabel} HT</span>
-              {pitch !== 0 && <button onClick={() => setPitch(0)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
-            </div>
+          <div className="flex items-center gap-3">
+            <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tempo / Geschwindigkeit"><IconSpeed /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tempo</span></span>
+            <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#C4973A' }} />
+            <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
+            {speed !== 100 && <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
           </div>
-        )}
+          <div className="flex items-center gap-3">
+            <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tonhöhe"><IconPitch /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tonhöhe</span></span>
+            <div className="flex-1 relative">
+              <input type="range" min={-4} max={4} step={1} value={pitch} onChange={e => setPitch(Number(e.target.value))} className="w-full cursor-pointer" style={{ accentColor: pitch !== 0 ? '#7BA8D8' : '#555' }} />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-px h-2 bg-white/20 pointer-events-none" style={{ marginTop: -4 }} />
+            </div>
+            <span className={`font-sans text-xs font-semibold w-16 text-right flex-shrink-0 tabular-nums ${pitch !== 0 ? 'text-blue-300' : 'text-white/40'}`}>{pitchLabel} HT</span>
+            {pitch !== 0 && <button onClick={() => setPitch(0)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -571,6 +721,8 @@ function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist }: { lv: { id: string
 
 function LockedDetailView({ piece }: { piece: CatalogEntry }) {
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
+  // Starter-Mitglied bei einem Pro-Stück: Upgrade auf Pro nötig.
+  const needsProUpgrade = piece.plan === 'pro' && mockUserAbo.plan === 'starter'
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
@@ -594,12 +746,22 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Master video — Standard-Player, ohne JamPlayer */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} />
+          <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} variant="standard" />
           <p className="font-sans text-xs text-text-secondary mt-2">
-            Die Masteraufnahme ist frei verfügbar. Der JamPlayer sowie die Lern- und Stimmen-Videos
-            sind in deinem aktuellen Abo nicht enthalten.
+            Die Masteraufnahme ist frei verfügbar. Der JamPlayer sowie die einzelnen Stimmen-Videos
+            (1. Stimme, 2. Stimme & Begleitvorschläge) sind in deinem {planLabel[mockUserAbo.plan] ?? 'aktuellen'}-Abo nicht enthalten.
           </p>
         </motion.div>
+
+        {/* Hinweis: Stimmen-Videos gesperrt — Upgrade nötig */}
+        <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+          <p className="font-sans text-xs text-text-secondary leading-relaxed">
+            {needsProUpgrade
+              ? <>Dieses Stück gehört zum <strong className="text-dark font-semibold">Pro-Angebot</strong>. Mit deinem Starter-Abo siehst du nur die Masteraufnahme. Für die einzelnen Stimmen-Videos und den JamPlayer ist ein <strong className="text-dark font-semibold">Upgrade auf Pro</strong> nötig.</>
+              : <>Für die einzelnen Stimmen-Videos und den JamPlayer ist ein passendes Abo nötig.</>}
+          </p>
+        </div>
 
         {/* Piece info */}
         <div className="bg-surface border border-border p-6">
@@ -616,10 +778,11 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
         {/* Upgrade CTA */}
         <div className="bg-dark p-6">
           <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-1">Mehr freischalten</p>
-          <h3 className="font-heading text-xl font-bold text-white mb-2">Voller Zugang mit dem passenden Abo</h3>
+          <h3 className="font-heading text-xl font-bold text-white mb-2">{needsProUpgrade ? 'Upgrade auf Pro' : 'Voller Zugang mit dem passenden Abo'}</h3>
           <p className="font-sans text-sm text-white/60 mb-5">
-            Schalte alle Lern- und Stimmen-Videos, den JamPlayer und die komplette Lernvideo-Datenbank
-            für {piece.instrument} frei.
+            {needsProUpgrade
+              ? 'Mit dem Pro-Abo schaltest du alle Stimmen-Videos, den JamPlayer und die komplette Lernvideo-Datenbank für alle Instrumente frei.'
+              : <>Schalte alle Lern- und Stimmen-Videos, den JamPlayer und die komplette Lernvideo-Datenbank für {piece.instrument} frei.</>}
           </p>
           <div className="space-y-2 mb-5">
             {['Alle Lern- & Stimmen-Videos', 'JamPlayer mit Einzelstimmen-Mischpult', 'Tempo & Tonhöhe anpassen', 'Noten zu jeder Stimme'].map((f) => (
@@ -630,7 +793,7 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
             ))}
           </div>
           <Link href="/member/academy" className="inline-block bg-accent-gold text-white font-sans text-sm font-medium px-6 py-3 hover:bg-accent-warm transition-colors">
-            Abo erweitern →
+            {needsProUpgrade ? 'Auf Pro upgraden →' : 'Abo erweitern →'}
           </Link>
         </div>
       </div>
@@ -647,9 +810,10 @@ export default function LernvideoDetailPage() {
   const unlocked = catalogEntry ? isPieceUnlocked({ plan: catalogEntry.plan, instrument: catalogEntry.instrument }) : true
 
   const v = videoData
+  // Szenario „keine Noten verfügbar" (z.B. Innerschwizer Schottisch).
+  const noNotes = PIECES_WITHOUT_NOTEN.includes(idNum)
   const [mainTab, setMainTab] = useState<'ueberblick' | 'stimme1' | 'stimme2' | 'begleit' | 'mitspielen'>('ueberblick')
   const [favorited, setFavorited] = useState(false)
-  const [showLyrics, setShowLyrics] = useState(false)
   const [comment, setComment] = useState('')
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({})
   const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
@@ -665,29 +829,35 @@ export default function LernvideoDetailPage() {
   const stimme2Sections = v.stimmenSections.filter(s => s.label.startsWith('2. Stimme') && MELODIC.includes(s.instrument))
   const begleitSections = v.stimmenSections.filter(s => s.label.toLowerCase().includes('begleitung'))
 
-  const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean) => (
-    <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
-      <div className="px-5 py-3 border-b border-border bg-background flex items-center gap-2.5">
-        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stimme.color }} />
-        <span className="font-heading font-bold text-sm">{stimme.label}</span>
+  const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean) => {
+    // Nur Violinschlüssel- & Griffschrift-Noten (Schwyzerörgeli) anzeigen.
+    const noten = stimme.noten.filter(n => ALLOWED_NOTEN_KEYS.includes(n.key))
+    return (
+      <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
+        <div className="px-5 py-3 border-b border-border bg-background flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stimme.color }} />
+          <span className="font-heading font-bold text-sm">{stimme.label}</span>
+        </div>
+        {stimme.lernvideos.length > 0 && (
+          <div className="divide-y divide-border">
+            {stimme.lernvideos.map(lv => (
+              <StimmeVideoItem key={lv.id} lv={lv} img={v.img} inPlaylist={audioPlaylist.has(lv.id)} onPlaylist={() => toggleAudioPlaylist(lv.id)} />
+            ))}
+          </div>
+        )}
+        {showNoten && !noNotes && noten.length > 0 && (
+          <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
+            <span className="font-sans text-xs text-text-secondary">Noten (PDF):</span>
+            {noten.map(n => (
+              <button key={n.key} title="PDF herunterladen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+                <IconDownload /> {n.label}{n.price ? ` · CHF ${n.price}` : ''}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-      {stimme.lernvideos.length > 0 && (
-        <div className="divide-y divide-border">
-          {stimme.lernvideos.map(lv => (
-            <StimmeVideoItem key={lv.id} lv={lv} img={v.img} inPlaylist={audioPlaylist.has(lv.id)} onPlaylist={() => toggleAudioPlaylist(lv.id)} />
-          ))}
-        </div>
-      )}
-      {showNoten && stimme.noten.length > 0 && (
-        <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
-          <span className="font-sans text-xs text-text-secondary">Noten:</span>
-          {stimme.noten.map(n => (
-            <button key={n.key} className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors">{n.label}{n.price ? ` CHF ${n.price}` : ''}</button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+    )
+  }
 
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
   const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
@@ -832,68 +1002,76 @@ export default function LernvideoDetailPage() {
                   )}
                 </motion.div>
 
-                {/* 3 — NOTEN */}
+                {/* 3 — LIEDTEXT (eigener Absatz: unterhalb des Videos, oberhalb der Noten) */}
+                {v.lyrics && (
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} className="bg-surface border border-border p-6">
+                    <h3 className="font-heading font-bold text-lg mb-4 flex items-center gap-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                      Liedtext
+                    </h3>
+                    <pre className="font-sans text-sm text-text-primary leading-loose whitespace-pre-wrap">{v.lyrics}</pre>
+                  </motion.div>
+                )}
+
+                {/* 4 — NOTEN */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="bg-surface border border-border p-6">
                   <h3 className="font-heading font-bold text-lg mb-1 flex items-center gap-2"><IconMusic /> Noten</h3>
-                  <p className="font-sans text-sm text-text-secondary mb-4">Einzelne Notenblätter à CHF 5 — für alle Instrumente und Notationsarten.</p>
 
-                  {/* Available notation types summary */}
-                  {(() => {
-                    const hasViolin = v.sheets.some(s => s.key === 'violin' || s.key === 'violin-simple')
-                    const hasGriff = v.sheets.some(s => s.key === 'griff' || s.key === 'griff-soe')
-                    return (
+                  {noNotes ? (
+                    /* Szenario: keine Noten verfügbar */
+                    <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-4 flex items-start gap-3">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600 flex-shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                      <div>
+                        <p className="font-heading font-bold text-sm text-amber-800">Aktuell keine Noten verfügbar</p>
+                        <p className="font-sans text-xs text-amber-700 leading-relaxed mt-0.5">Zu diesem Stück sind momentan keine Noten erhältlich. Wir arbeiten daran — schau bald wieder vorbei.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-sans text-sm text-text-secondary mb-4">Einzelne Notenblätter à CHF 5 — als Violinschlüssel oder Griffschrift (Schwyzerörgeli).</p>
+
+                      {/* Verfügbare Notationsarten */}
                       <div className="flex flex-wrap gap-2 mb-5 p-3 bg-background border border-border">
                         <span className="font-sans text-xs text-text-secondary self-center">Verfügbare Notationsarten:</span>
-                        {hasViolin ? (
-                          <span className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
+                        {STANDARD_NOTEN.map(s => (
+                          <span key={s.key} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            Violinschlüssel
+                            {s.label}
                           </span>
-                        ) : (
-                          <span className="font-sans text-xs px-2.5 py-1 bg-border/40 border border-border text-text-secondary/50 flex items-center gap-1.5 line-through">
-                            Violinschlüssel
-                          </span>
-                        )}
-                        {hasGriff ? (
-                          <span className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            Griffschrift
-                          </span>
-                        ) : (
-                          <span className="font-sans text-xs px-2.5 py-1 bg-border/40 border border-border text-text-secondary/50 flex items-center gap-1.5 line-through">
-                            Griffschrift
-                          </span>
-                        )}
+                        ))}
                       </div>
-                    )
-                  })()}
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-5">
-                    {v.sheets.map(s => (
-                      <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">
-                        <div>
-                          <p className="font-heading font-bold text-sm">{s.label}</p>
-                          <p className="font-sans text-xs text-text-secondary">{v.title}</p>
-                        </div>
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
-                          <button title="Kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-                            <IconDownload /> <span className="hidden sm:inline">Kaufen</span>
-                          </button>
-                        </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
+                        {STANDARD_NOTEN.map(s => (
+                          <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">
+                            <div>
+                              <p className="font-heading font-bold text-sm flex items-center gap-1.5">
+                                {s.label}
+                                <span className="font-sans text-[10px] font-medium px-1.5 py-0.5 bg-background border border-border text-text-secondary">PDF</span>
+                              </p>
+                              <p className="font-sans text-xs text-text-secondary">{v.title} · PDF-Download</p>
+                            </div>
+                            <div className="flex items-center justify-between mt-auto">
+                              <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
+                              <button title="PDF kaufen & herunterladen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                                <IconDownload /> PDF herunterladen
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  {v.notenheftUrl && (
-                    <div className="border border-accent-gold/30 bg-accent-gold/5 p-4 flex items-center justify-between">
-                      <div>
-                        <p className="font-heading font-bold text-sm">Komplettes Notenheft</p>
-                        <p className="font-sans text-xs text-text-secondary">Alle Stimmen · alle Notationsarten · inkl. Transpositionsvarianten</p>
-                      </div>
-                      <Link href={v.notenheftUrl} className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
-                        Zum Notenheft →
-                      </Link>
-                    </div>
+                      {v.notenheftUrl && (
+                        <div className="border border-accent-gold/30 bg-accent-gold/5 p-4 flex items-center justify-between">
+                          <div>
+                            <p className="font-heading font-bold text-sm">Komplettes Notenheft</p>
+                            <p className="font-sans text-xs text-text-secondary">Violinschlüssel & Griffschrift (Schwyzerörgeli) · alle Stimmen</p>
+                          </div>
+                          <Link href={v.notenheftUrl} className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
+                            Zum Notenheft →
+                          </Link>
+                        </div>
+                      )}
+                    </>
                   )}
                 </motion.div>
 
@@ -935,23 +1113,6 @@ export default function LernvideoDetailPage() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Liedtext */}
-                  {v.lyrics && (
-                    <div className="border border-border">
-                      <button onClick={() => setShowLyrics(!showLyrics)} className="w-full flex items-center justify-between px-4 py-3 font-heading font-bold text-sm hover:bg-background transition-colors">
-                        Liedtext
-                        <IconChevron up={showLyrics} />
-                      </button>
-                      <AnimatePresence>
-                        {showLyrics && (
-                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <pre className="px-4 pb-4 font-sans text-sm text-text-secondary leading-loose whitespace-pre-wrap">{v.lyrics}</pre>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  )}
 
                   {/* Tonträger */}
                   {v.tontraeger && v.tontraeger.length > 0 && (
@@ -1249,11 +1410,6 @@ export default function LernvideoDetailPage() {
                 <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="left" className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
                   <IconShare /> Teilen
                 </ShareMenu>
-                <div className="border-t border-border pt-2 mt-2">
-                  <button className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 bg-dark text-white hover:bg-accent-gold transition-colors">
-                    <IconDownload /> Noten-Paket · CHF 20
-                  </button>
-                </div>
               </div>
 
               {/* Lehrpersonen (mehrere möglich — je Instrument/Stimme) */}

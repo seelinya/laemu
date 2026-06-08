@@ -390,37 +390,6 @@ export default function MemberAcademyPage() {
                   </div>
                 </motion.div>
 
-                {/* Quick Access — ohne "Stück hochladen" */}
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Schnellzugriff</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <Link href="/member/academy/playlists" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-                        <span className="font-sans text-xs font-semibold text-accent-gold">3</span>
-                      </div>
-                      <p className="font-sans text-xs font-medium">Meine Playlists</p>
-                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Audio-Playlists für unterwegs</p>
-                    </Link>
-                    <Link href="/member/academy/lernvideos?saved=1" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-accent-gold transition-colors"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                        <span className="font-sans text-xs font-semibold text-accent-gold">3</span>
-                      </div>
-                      <p className="font-sans text-xs font-medium">Gelikte Stücke</p>
-                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Deine gespeicherten Favoriten</p>
-                    </Link>
-                    <Link href="/member/academy/lernvideos" className="bg-surface border border-border p-4 hover:border-dark transition-colors group flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary group-hover:text-dark transition-colors"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                        <span className="font-sans text-xs text-text-secondary">→</span>
-                      </div>
-                      <p className="font-sans text-xs font-medium">Lernvideo-Datenbank</p>
-                      <p className="font-sans text-[10px] text-text-secondary leading-snug">Alle Stücke durchsuchen & filtern</p>
-                    </Link>
-                  </div>
-                </motion.div>
-
                 {/* Search */}
                 <div className="relative">
                   <div className={`flex items-center border transition-colors ${searchFocused ? 'border-accent-gold' : 'border-border'} bg-surface`}>
