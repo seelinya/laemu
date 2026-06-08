@@ -116,7 +116,7 @@ export type FormationPlanId = 'pro' | 'lernvideo'
 
 export const formationPlanMeta: Record<
   FormationPlanId,
-  { label: string; emoji: string; basePrice: number; audience: string; desc: string; features: string[] }
+  { label: string; emoji: string; basePrice: number; audience: string; desc: string; features: string[]; notIncluded?: string[] }
 > = {
   pro: {
     label: 'Pro',
@@ -130,6 +130,7 @@ export const formationPlanMeta: Record<
       'Komplette Lernvideo-Datenbank — alle Instrumente',
       'Persönlicher Support durch zertifizierte LAEMU-Musiklehrpersonen',
     ],
+    notIncluded: ['Pro Mitglied nur ein Instrument-Lehrgang (weitere Instrumente nur als Lernvideos)'],
   },
   lernvideo: {
     label: 'Lernvideodatenbank',
@@ -141,6 +142,7 @@ export const formationPlanMeta: Record<
       'Lernvideo-Datenbank (alle Instrumente) für alle Mitglieder',
       'Ständig wachsendes Angebot',
     ],
+    notIncluded: ['Keine Grundkurse', 'Keine Erweiterungskurse', 'Kein persönlicher Support'],
   },
 }
 

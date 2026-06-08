@@ -110,9 +110,25 @@ export default function RegisterPage() {
             </svg>
           </div>
           <h1 className="font-heading text-4xl font-bold mb-4">Willkommen bei LAEMU!</h1>
-          <p className="font-sans text-text-secondary leading-relaxed mb-8">
+          <p className="font-sans text-text-secondary leading-relaxed mb-6">
             Dein Konto wurde erfolgreich erstellt. Du bist jetzt Teil der Schweizer Volksmusik-Community.
           </p>
+
+          {accountType === 'formation' && (
+            <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 text-left flex gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+              <div>
+                <p className="font-sans text-sm font-semibold mb-1">Die weiteren Mitglieder sind informiert</p>
+                <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                  Da dein Abo bezahlt wurde, haben die anderen Mitglieder deiner Formation ein
+                  Bestätigungs-E-Mail erhalten. Sobald sie ihr Login abgeschlossen (Passwort gesetzt)
+                  haben, können sie sich ab sofort bei LAEMU einloggen — mit Zugriff auf die
+                  zugewiesenen Instrumente.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <Link
               href="/member/community"
@@ -387,7 +403,8 @@ export default function RegisterPage() {
                       )}
                     </div>
                     {individualPlanMeta[individualPlan].notIncluded && (
-                      <div className="space-y-2 mt-3">
+                      <div className="mt-4 pt-4 border-t border-border space-y-2">
+                        <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-1">Nicht enthalten</p>
                         {individualPlanMeta[individualPlan].notIncluded!.map((f, i) => (
                           <div key={i} className="flex items-center gap-2 font-sans text-sm text-text-secondary">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-text-secondary/60 flex-shrink-0"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
@@ -477,6 +494,17 @@ export default function RegisterPage() {
                         <span>20 % Rabatt auf Instrumentenmieten (Jahresabo)</span>
                       </div>
                     </div>
+                    {formationPlanMeta[formationPlan].notIncluded && (
+                      <div className="mt-4 pt-4 border-t border-border space-y-2">
+                        <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-1">Nicht enthalten</p>
+                        {formationPlanMeta[formationPlan].notIncluded!.map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 font-sans text-sm text-text-secondary">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-text-secondary/60 flex-shrink-0"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <p className="font-sans text-xs text-text-secondary border-t border-border mt-4 pt-4">Gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder · {memberCount} Mitglied{memberCount !== 1 ? 'er' : ''} gewählt</p>
                   </div>
                 </>
@@ -545,9 +573,23 @@ export default function RegisterPage() {
               {accountType === 'formation' ? (
                 <>
                   <h1 className="font-heading text-3xl font-bold mb-2">Profile der Formationsmitglieder</h1>
-                  <p className="font-sans text-text-secondary text-sm mb-8">
+                  <p className="font-sans text-text-secondary text-sm mb-6">
                     Für jedes der {memberCount} Mitglieder wird ein eigenes Konto mit eigenem Login und eigenem LAEMU-Profil erstellt.
                   </p>
+
+                  {/* Info: Bestätigungs-E-Mail & Login-Abschluss der weiteren Mitglieder */}
+                  <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 flex gap-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+                    <div>
+                      <p className="font-sans text-sm font-semibold mb-1">So erhalten die anderen Mitglieder Zugang</p>
+                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                        Sobald du die Registrierung abgeschlossen und das Abo bezahlt hast, erhält jedes weitere Mitglied
+                        automatisch ein Bestätigungs-E-Mail. Damit schliesst es sein Login ab (Passwort setzen) und kann
+                        sich anschliessend ab sofort bei LAEMU einloggen — mit Zugriff auf die hier zugewiesenen Instrumente.
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="space-y-6">
                     {Array.from({ length: memberCount }).map((_, idx) => (
                       <div key={idx} className="border border-border bg-surface p-5 space-y-4">
@@ -573,16 +615,18 @@ export default function RegisterPage() {
                           <div className="col-span-2"><label className="label text-text-secondary block mb-1.5">Ort *</label><input type="text" defaultValue={idx === 0 ? ort : ''} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
                         </div>
                         <div>
-                          <label className="label text-text-secondary block mb-2">Instrumente</label>
+                          <label className="label text-text-secondary block mb-1.5">Zugriff: Für welches Instrument? *</label>
+                          <p className="font-sans text-xs text-text-secondary mb-2.5 leading-relaxed">
+                            Wähle, für welche(s) Instrument(e) dieses Mitglied innerhalb des Formationsabos Zugriff auf die Lehrgänge und Lernvideos erhält.
+                          </p>
                           <div className="flex flex-wrap gap-2">
-                            {PROFILE_INSTRUMENTS.map(inst => {
+                            {ACADEMY_INSTRUMENTS.map(inst => {
                               const sel = (memberInstruments[idx] ?? []).includes(inst)
                               return (
                                 <button key={inst} onClick={() => toggleMemberInstrument(idx, inst)} className={`font-sans text-xs px-3 py-1.5 border transition-all ${sel ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}>{inst}</button>
                               )
                             })}
                           </div>
-                          <input type="text" placeholder="Weiteres Instrument (freitext)" className="mt-2 w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface" />
                         </div>
                       </div>
                     ))}
