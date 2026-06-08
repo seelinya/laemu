@@ -8,8 +8,8 @@ import { MemberTabs } from '@/components/MemberTabs'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
-const LAEMU_INSTAGRAM_HANDLE = 'laemu.musikschule'
-const LAEMU_INSTAGRAM_URL = `https://instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
+const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
+const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
 const LAEMU_WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
@@ -598,14 +598,10 @@ function ProfileView() {
                   ))}
                 </div>
                 {vorbilder && (
-                  <p className="font-sans text-xs text-text-secondary mb-4">
+                  <p className="font-sans text-xs text-text-secondary">
                     <span className="font-medium text-dark">Vorbilder:</span> {vorbilder}
                   </p>
                 )}
-                <div className="pt-4 border-t border-border text-center max-w-[160px]">
-                  <p className="font-heading font-black text-xl">{profilePosts.length}</p>
-                  <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -899,7 +895,7 @@ export default function MemberCommunityPage() {
             <div className="sticky top-8 space-y-4">
               {/* Own profile quick-card */}
               <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
                     <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Profile" fill className="object-cover" unoptimized />
                   </div>
@@ -907,10 +903,6 @@ export default function MemberCommunityPage() {
                     <p className="font-heading font-bold text-sm">Niklaus Hess</p>
                     <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
                   </div>
-                </div>
-                <div className="text-center border-t border-border pt-4">
-                  <p className="font-heading font-black text-lg">{profilePosts.length}</p>
-                  <p className="font-sans text-[10px] font-light text-text-secondary">Beiträge</p>
                 </div>
               </button>
 

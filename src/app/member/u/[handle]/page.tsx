@@ -60,10 +60,8 @@ const profiles: Record<string, PublicProfile> = {
     bio: 'Handorgel-Lehrer bei der LAEMU Musikschule. Über 25 Jahre Bühnenerfahrung in diversen Formationen.',
     joined: 'Lehrperson seit 2024',
     shares: { email: 'hansruedi@laemu.ch', website: 'wenger-musik.ch', facebook: 'hansruedi.wenger.musik', tiktok: 'hansruedi_oergeli', openForFormation: false },
-    posts: [
-      { id: 1, type: 'video', time: 'vor 1 Tag', text: 'Neue Video-Lektion: Der Zwiefache — Rhythmus und Interpretation.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },
-      { id: 2, type: 'photo', time: 'vor 4 Tagen', text: 'Rückblick aufs Frühlingskonzert der Kapelle Hess-Ruedi-Hegner in Luzern.', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80' },
-    ],
+    // Musiklehrer-Profil ohne hochgeladene Beiträge — zeigt den Leerzustand.
+    posts: [],
   },
   peter: {
     name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80',
@@ -223,8 +221,14 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             {posts.length > 0 ? (
               posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} />)
             ) : (
-              <div className="bg-surface border border-border p-6 text-center">
-                <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Beiträge veröffentlicht.</p>
+              <div className="bg-surface border border-dashed border-border p-10 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-background border border-border text-text-secondary">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                </div>
+                <p className="font-sans text-sm font-semibold text-dark mb-1">Noch keine Beiträge</p>
+                <p className="font-sans text-sm text-text-secondary leading-relaxed">
+                  {profile.name.split(' ')[0]} hat noch keine Fotos oder Videos hochgeladen.<br className="hidden sm:block" /> Schau später wieder vorbei.
+                </p>
               </div>
             )}
           </div>
