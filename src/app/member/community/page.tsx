@@ -228,13 +228,27 @@ function DiscoverView() {
           nicht verborgen haben.
         </p>
       </div>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Profile suchen…"
-        className="w-full border border-border px-4 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
-      />
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Mitglieder suchen — Name oder Instrument…"
+          className="w-full border border-border pl-10 pr-9 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
+        />
+        {query && (
+          <button
+            onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-dark transition-colors"
+            aria-label="Suche zurücksetzen"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        )}
+      </div>
       <div className="space-y-3">
         {results.map((p) => (
           <div key={p.handle} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
@@ -447,6 +461,7 @@ function ProfileView() {
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
+  const [avatar, setAvatar] = useState<string>('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80')
   const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
   const [wohnort, setWohnort] = useState('Luzern')
   const [hideWohnort, setHideWohnort] = useState(false)
@@ -456,11 +471,18 @@ function ProfileView() {
   const [hiddenFromDiscover, setHiddenFromDiscover] = useState(false)
   const [instagram, setInstagram] = useState('niklaus.hess')
   const [whatsapp, setWhatsapp] = useState('')
+  const [email, setEmail] = useState('')
   const [facebook, setFacebook] = useState('')
   const [tiktok, setTiktok] = useState('')
 
+  // Eigene Beiträge (löschbar) + Vergrösserungs-Ansicht (Lightbox)
+  const [posts, setPosts] = useState<ProfilePost[]>(profilePosts)
+  const [lightbox, setLightbox] = useState<ProfilePost | null>(null)
+  const deletePost = (id: number) => setPosts(prev => prev.filter(p => p.id !== id))
+
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
+  const [draftAvatar, setDraftAvatar] = useState<string>('')
   const [draftBio, setDraftBio] = useState('')
   const [draftWohnort, setDraftWohnort] = useState('')
   const [draftHideWohnort, setDraftHideWohnort] = useState(false)
@@ -470,6 +492,7 @@ function ProfileView() {
   const [draftHiddenFromDiscover, setDraftHiddenFromDiscover] = useState(false)
   const [draftInstagram, setDraftInstagram] = useState('')
   const [draftWhatsapp, setDraftWhatsapp] = useState('')
+  const [draftEmail, setDraftEmail] = useState('')
   const [draftFacebook, setDraftFacebook] = useState('')
   const [draftTiktok, setDraftTiktok] = useState('')
 
@@ -480,6 +503,7 @@ function ProfileView() {
 
   const startEdit = () => {
     setDraftName(name)
+    setDraftAvatar(avatar)
     setDraftBio(bio)
     setDraftWohnort(wohnort)
     setDraftHideWohnort(hideWohnort)
@@ -489,6 +513,7 @@ function ProfileView() {
     setDraftHiddenFromDiscover(hiddenFromDiscover)
     setDraftInstagram(instagram)
     setDraftWhatsapp(whatsapp)
+    setDraftEmail(email)
     setDraftFacebook(facebook)
     setDraftTiktok(tiktok)
     setEditMode(true)
@@ -496,6 +521,7 @@ function ProfileView() {
 
   const saveEdit = () => {
     setName(draftName.trim() || name)
+    setAvatar(draftAvatar)
     setBio(draftBio)
     setWohnort(draftWohnort.trim())
     setHideWohnort(draftHideWohnort)
@@ -505,6 +531,7 @@ function ProfileView() {
     setHiddenFromDiscover(draftHiddenFromDiscover)
     setInstagram(draftInstagram.trim())
     setWhatsapp(draftWhatsapp.trim())
+    setEmail(draftEmail.trim())
     setFacebook(draftFacebook.trim())
     setTiktok(draftTiktok.trim())
     setEditMode(false)
@@ -515,6 +542,33 @@ function ProfileView() {
       <AnimatePresence>
         {composerOpen && (
           <PostComposerModal key="profile-composer" initialType={composerType} onClose={() => setComposerOpen(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox — Beitrag vergrössert anzeigen */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            key="lightbox"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setLightbox(null)}
+          >
+            <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Schliessen">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+              <div className="relative aspect-video bg-black overflow-hidden">
+                <Image src={lightbox.img} alt={lightbox.caption} fill className="object-contain" unoptimized />
+                {lightbox.type === 'video' && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"><IconPlay /></div>
+                  </div>
+                )}
+              </div>
+              {lightbox.caption && <p className="font-sans text-sm text-white/80 mt-3 text-center">{lightbox.caption}</p>}
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -538,26 +592,31 @@ function ProfileView() {
         <DiscoverView />
       ) : (
       <>
-      {/* Profile header */}
+      {/* Profile header — ohne Titelbild, Profilbild optional */}
       <div className="bg-surface border border-border overflow-hidden">
-        <div className="h-36 bg-gradient-to-r from-dark via-dark-secondary to-dark relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20"
-            style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)' }}
-          />
-          {editMode && (
-            <button className="absolute bottom-3 right-3 bg-white/20 text-white text-xs px-3 py-1.5 font-sans hover:bg-white/30 transition-colors">
-              Titelbild ändern
-            </button>
-          )}
-        </div>
-        <div className="p-6 -mt-10">
+        <div className="p-6">
           <div className="flex items-end justify-between mb-5">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-surface bg-background">
-              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Profile" fill className="object-cover" unoptimized />
+            <div className="flex flex-col gap-1.5">
+              <div className="relative w-20 h-20 rounded-full overflow-hidden border border-border bg-background flex items-center justify-center text-text-secondary">
+                {(editMode ? draftAvatar : avatar) ? (
+                  <Image src={editMode ? draftAvatar : avatar} alt="Profile" fill className="object-cover" unoptimized />
+                ) : (
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                )}
+                {editMode && (
+                  <button
+                    onClick={() => setDraftAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80')}
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer"
+                    title="Profilbild auswählen"
+                  >
+                    <span className="text-white"><IconEdit /></span>
+                  </button>
+                )}
+              </div>
               {editMode && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer">
-                  <span className="text-white"><IconEdit /></span>
-                </div>
+                draftAvatar
+                  ? <button onClick={() => setDraftAvatar('')} className="font-sans text-[11px] text-text-secondary hover:text-red-500 transition-colors w-20 text-center">Bild entfernen</button>
+                  : <span className="font-sans text-[11px] text-text-secondary w-20 text-center">optional</span>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -640,6 +699,10 @@ function ProfileView() {
                       <input value={draftWhatsapp} onChange={e => setDraftWhatsapp(e.target.value)} placeholder="+41 79 …" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                     </div>
                     <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">E-Mail</label>
+                      <input value={draftEmail} onChange={e => setDraftEmail(e.target.value)} type="email" placeholder="name@email.ch" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">Facebook</label>
                       <input value={draftFacebook} onChange={e => setDraftFacebook(e.target.value)} placeholder="profil-name" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                     </div>
@@ -710,11 +773,16 @@ function ProfileView() {
                 <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
 
                 {/* Social-media links */}
-                {(instagram || whatsapp || facebook || tiktok) && (
+                {(instagram || whatsapp || email || facebook || tiktok) && (
                   <div className="flex items-center gap-2 mb-4">
                     {instagram && (
                       <a href={`https://instagram.com/${instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`Instagram: ${instagram}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                      </a>
+                    )}
+                    {email && (
+                      <a href={`mailto:${email}`} title={`E-Mail: ${email}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
                       </a>
                     )}
                     {whatsapp && (
@@ -785,15 +853,26 @@ function ProfileView() {
           <h3 className="font-heading font-bold text-lg">Beiträge</h3>
         </div>
 
-        {profilePosts.length > 0 ? (
+        {posts.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
-            {profilePosts.map((post) => (
-              <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer bg-background">
-                <Image src={post.img} alt={post.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+            {posts.map((post) => (
+              <div key={post.id} className="relative aspect-square overflow-hidden group bg-background">
+                <button onClick={() => setLightbox(post)} className="absolute inset-0 w-full h-full cursor-zoom-in" aria-label="Beitrag vergrössern">
+                  <Image src={post.img} alt={post.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                </button>
                 {post.type === 'video' && (
-                  <div className="absolute top-2 right-2 text-white drop-shadow"><IconVideo /></div>
+                  <div className="absolute top-2 left-2 text-white drop-shadow pointer-events-none"><IconVideo /></div>
                 )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                {/* Eigenen Beitrag löschen */}
+                <button
+                  onClick={() => deletePost(post.id)}
+                  className="absolute top-2 right-2 w-7 h-7 bg-black/50 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                  title="Beitrag löschen"
+                  aria-label="Beitrag löschen"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                </button>
+                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
                   <span className="text-white text-xs flex items-center gap-1"><IconComment16 /> {post.comments}</span>
                 </div>

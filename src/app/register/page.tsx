@@ -33,6 +33,7 @@ export default function RegisterPage() {
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
   const [formationChoice, setFormationChoice] = useState<'yes' | 'no' | 'open' | null>(null)
   const [ort, setOrt] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
 
   // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
@@ -244,16 +245,26 @@ export default function RegisterPage() {
                     <input value={ort} onChange={e => setOrt(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Luzern" />
                   </div>
                 </div>
-                <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                  Mit der Registrierung stimmst du den{' '}
-                  <Link href="/agb" className="text-accent-gold hover:underline">Nutzungsbedingungen</Link>{' '}
-                  und der{' '}
-                  <Link href="/datenschutz" className="text-accent-gold hover:underline">Datenschutzerklärung</Link>{' '}
-                  von LAEMU zu.
-                </p>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 flex-shrink-0 cursor-pointer"
+                    style={{ accentColor: '#C4973A' }}
+                  />
+                  <span className="font-sans text-xs text-text-secondary leading-relaxed">
+                    Ich habe die{' '}
+                    <Link href="/agb" className="text-accent-gold hover:underline">Nutzungsbedingungen</Link>{' '}
+                    und die{' '}
+                    <Link href="/datenschutz" className="text-accent-gold hover:underline">Datenschutzerklärung</Link>{' '}
+                    von LAEMU gelesen und stimme ihnen zu. *
+                  </span>
+                </label>
                 <button
                   onClick={() => setStep(2)}
-                  className="w-full bg-dark text-white font-sans font-semibold py-4 hover:bg-accent-gold transition-colors"
+                  disabled={!acceptedTerms}
+                  className={`w-full font-sans font-semibold py-4 transition-colors ${acceptedTerms ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Weiter →
                 </button>
