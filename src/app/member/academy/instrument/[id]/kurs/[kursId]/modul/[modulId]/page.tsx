@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -63,14 +63,6 @@ function TypeBadge({ type }: { type: LessonType }) {
   return <span className={`font-sans text-[10px] px-1.5 py-0.5 ${c.cls}`}>{c.label}</span>
 }
 
-function PlayIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
-      <polygon points="5 3 19 12 5 21 5 3" />
-    </svg>
-  )
-}
-
 // Markierung für Team-Mitglieder (Lehrpersonen / LAEMU Team).
 function TeamBadge({ role }: { role?: string }) {
   return (
@@ -81,197 +73,169 @@ function TeamBadge({ role }: { role?: string }) {
   )
 }
 
-// ─── Lektions-Video-Player mit Geschwindigkeit, Lautstärke & Qualität ─────────
+// ─── Lektions-Video-Player im Vimeo-Stil (Qualität, Geschwindigkeit, Lautstärke) ─
+// Übernimmt die Vimeo-Darstellung aus der Lernvideodatenbank: Overlay-Steuerung am
+// unteren Videorand mit Play, Zeit, Lautstärke (Slider beim Hover), Einstellungen
+// (Qualität + Geschwindigkeit) und Vollbild.
 
-const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2]
 const VIDEO_QUALITIES = ['Auto', '1080p', '720p', '480p']
+const SPEED_OPTIONS: { value: number; label: string }[] = [
+  { value: 50, label: '0.5×' },
+  { value: 75, label: '0.75×' },
+  { value: 100, label: 'Normal' },
+  { value: 125, label: '1.25×' },
+  { value: 150, label: '1.5×' },
+  { value: 175, label: '1.75×' },
+  { value: 200, label: '2×' },
+]
+
+function VPIconSettings() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> }
+function VPIconFullscreen() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3"/></svg> }
+function VPIconChevronRight() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg> }
+function VPIconPlay() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> }
+function VPIconPause() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> }
+function VPIconVolOff() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg> }
+function VPIconVolOn() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg> }
 
 function LessonVideoPlayer({ title, duration }: { title: string; duration: string }) {
   const [playing, setPlaying] = useState(false)
-  const [speed, setSpeed] = useState(1)
+  const [progress] = useState(35)
   const [volume, setVolume] = useState(80)
   const [muted, setMuted] = useState(false)
+  const [speed, setSpeed] = useState(100)
   const [quality, setQuality] = useState('Auto')
-  const [openMenu, setOpenMenu] = useState<null | 'speed' | 'quality'>(null)
-  const [enlarged, setEnlarged] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [settingsView, setSettingsView] = useState<'main' | 'quality' | 'speed'>('main')
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const effectiveVolume = muted ? 0 : volume
+  const effVolume = muted ? 0 : volume
+  const speedLabel = SPEED_OPTIONS.find(o => o.value === speed)?.label ?? `${speed}%`
 
-  // Shared video surface content (play button, gradient, labels, status badges).
-  const videoSurface = (
-    <>
-      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
-      <motion.button
-        onClick={() => setPlaying((p) => !p)}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.95 }}
-        className="w-16 h-16 bg-accent-gold flex items-center justify-center z-10"
-        aria-label={playing ? 'Pause' : 'Abspielen'}
-      >
-        {playing ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
-        ) : (
-          <PlayIcon size={22} />
-        )}
-      </motion.button>
-      <p className="font-sans text-sm text-white/60 z-10">Video: {title} ({duration})</p>
-      {/* Aktive Einstellungen */}
-      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-        {speed !== 1 && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{speed}×</span>}
-        {quality !== 'Auto' && <span className="font-sans text-[10px] bg-black/50 text-white px-2 py-0.5">{quality}</span>}
-        {/* Vergrössern-Schaltfläche */}
-        <button
-          onClick={() => setEnlarged(true)}
-          className="w-7 h-7 bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
-          aria-label="Vergrössern"
-          title="Vergrössern"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 3 21 3 21 9" />
-            <polyline points="9 21 3 21 3 15" />
-            <line x1="21" y1="3" x2="14" y2="10" />
-            <line x1="3" y1="21" x2="10" y2="14" />
-          </svg>
-        </button>
-      </div>
-    </>
-  )
+  const toggleSettings = () => { setShowSettings(s => !s); setSettingsView('main') }
+  const toggleFullscreen = () => {
+    const el = containerRef.current
+    if (!el) return
+    if (typeof document !== 'undefined' && document.fullscreenElement) document.exitFullscreen?.()
+    else el.requestFullscreen?.()
+  }
 
-  // Shared control bar content.
-  const controlBar = (
-    <div className="px-4 py-3 space-y-3 border-t border-white/10">
-      {/* Progress (mock) */}
-      <div className="h-1.5 bg-white/15 cursor-pointer">
-        <div className="h-full bg-accent-gold" style={{ width: playing ? '35%' : '0%' }} />
-      </div>
+  const Check = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><polyline points="20 6 9 17 4 12"/></svg>
 
-      <div className="flex items-center gap-3">
-        {/* Play/Pause */}
-        <button onClick={() => setPlaying((p) => !p)} className="text-white/80 hover:text-white transition-colors flex-shrink-0">
-          {playing ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-          )}
-        </button>
-        <span className="font-sans text-xs text-white/50 tabular-nums flex-shrink-0">0:00 / {duration}</span>
+  return (
+    <div ref={containerRef} className="bg-black">
+      <div className="group relative aspect-video overflow-hidden select-none">
+        {/* Video-Oberfläche (ohne Bild) — dunkel mit Akzent-Verlauf */}
+        <div className="absolute inset-0 bg-dark" />
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
 
-        {/* Lautstärke */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button onClick={() => setMuted((m) => !m)} className="text-white/80 hover:text-white transition-colors" aria-label="Stummschalten">
-            {effectiveVolume === 0 ? (
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
-            ) : (
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M19.07 4.93a10 10 0 010 14.14" /><path d="M15.54 8.46a5 5 0 010 7.07" /></svg>
-            )}
+        {/* Zentraler Play-Button, solange pausiert */}
+        {!playing && (
+          <button onClick={() => setPlaying(true)} aria-label="Abspielen" className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
+            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold flex items-center justify-center transition-colors">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            </span>
           </button>
-          <input
-            type="range" min={0} max={100} value={effectiveVolume}
-            onChange={(e) => { setVolume(Number(e.target.value)); setMuted(false) }}
-            className="w-20 cursor-pointer" style={{ accentColor: '#C4973A' }}
-            aria-label="Lautstärke"
-          />
+        )}
+
+        {/* Titel oben links */}
+        <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="font-sans text-xs text-white/80 bg-black/40 px-2 py-1">{title} · {duration}</span>
         </div>
 
-        <div className="ml-auto flex items-center gap-2 flex-shrink-0">
-          {/* Geschwindigkeit */}
-          <div className="relative">
-            <button
-              onClick={() => setOpenMenu((m) => (m === 'speed' ? null : 'speed'))}
-              className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${speed !== 1 ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
-            >
-              {speed}× Tempo
-            </button>
-            {openMenu === 'speed' && (
-              <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
-                {PLAYBACK_SPEEDS.map((s) => (
-                  <button key={s} onClick={() => { setSpeed(s); setOpenMenu(null) }}
-                    className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${s === speed ? 'text-accent-gold' : 'text-white/70'}`}>
-                    {s}× {s === 1 && '(Normal)'}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Klick-Fänger, schliesst das Einstellungsmenü */}
+        {showSettings && <button aria-hidden className="absolute inset-0 z-10 cursor-default" onClick={() => setShowSettings(false)} />}
 
-          {/* Qualität */}
-          <div className="relative">
-            <button
-              onClick={() => setOpenMenu((m) => (m === 'quality' ? null : 'quality'))}
-              className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${quality !== 'Auto' ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/70 hover:border-white/50'}`}
+        {/* Einstellungsmenü (Vimeo): Qualität & Geschwindigkeit */}
+        <AnimatePresence>
+          {showSettings && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.12 }}
+              className="absolute bottom-14 right-3 z-20 w-60 bg-[#1a1a1a]/95 backdrop-blur text-white shadow-2xl overflow-hidden"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
-              {quality}
-            </button>
-            {openMenu === 'quality' && (
-              <div className="absolute bottom-full right-0 mb-1 bg-dark border border-white/15 shadow-xl min-w-[110px] z-20">
-                {VIDEO_QUALITIES.map((q) => (
-                  <button key={q} onClick={() => { setQuality(q); setOpenMenu(null) }}
-                    className={`w-full text-left px-3 py-2 font-sans text-xs hover:bg-white/10 transition-colors ${q === quality ? 'text-accent-gold' : 'text-white/70'}`}>
-                    {q}
+              {settingsView === 'main' && (
+                <div className="py-1">
+                  <button onClick={() => setSettingsView('quality')} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                    <span className="font-sans text-sm">Qualität</span>
+                    <span className="flex items-center gap-1.5 font-sans text-sm text-white/50">{quality === 'Auto' ? 'Automatisch' : quality}<VPIconChevronRight /></span>
                   </button>
-                ))}
+                  <button onClick={() => setSettingsView('speed')} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                    <span className="font-sans text-sm">Geschwindigkeit</span>
+                    <span className="flex items-center gap-1.5 font-sans text-sm text-white/50">{speed === 100 ? 'Normal' : speedLabel}<VPIconChevronRight /></span>
+                  </button>
+                </div>
+              )}
+              {settingsView === 'quality' && (
+                <div className="py-1">
+                  <button onClick={() => setSettingsView('main')} className="w-full flex items-center gap-2 px-4 py-2.5 border-b border-white/10 hover:bg-white/10 transition-colors">
+                    <span className="rotate-180"><VPIconChevronRight /></span>
+                    <span className="font-sans text-sm font-medium">Qualität</span>
+                  </button>
+                  {VIDEO_QUALITIES.map(q => (
+                    <button key={q} onClick={() => { setQuality(q); setSettingsView('main') }} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                      <span className="font-sans text-sm">{q === 'Auto' ? 'Automatisch' : q}</span>
+                      {quality === q && <Check />}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {settingsView === 'speed' && (
+                <div className="py-1">
+                  <button onClick={() => setSettingsView('main')} className="w-full flex items-center gap-2 px-4 py-2.5 border-b border-white/10 hover:bg-white/10 transition-colors">
+                    <span className="rotate-180"><VPIconChevronRight /></span>
+                    <span className="font-sans text-sm font-medium">Geschwindigkeit</span>
+                  </button>
+                  {SPEED_OPTIONS.map(o => (
+                    <button key={o.value} onClick={() => { setSpeed(o.value); setSettingsView('main') }} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/10 transition-colors">
+                      <span className="font-sans text-sm">{o.label}</span>
+                      {speed === o.value && <Check />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Untere Steuerleiste */}
+        <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-2 pt-10 bg-gradient-to-t from-black/70 via-black/20 to-transparent">
+          {/* Fortschrittsleiste */}
+          <div className="relative h-1 bg-white/30 cursor-pointer mb-2 group/bar">
+            <div className="h-full bg-accent-gold" style={{ width: `${progress}%` }} />
+            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-accent-gold opacity-0 group-hover/bar:opacity-100 transition-opacity" style={{ left: `${progress}%` }} />
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setPlaying(p => !p)} className="text-white hover:text-accent-gold transition-colors" aria-label={playing ? 'Pause' : 'Abspielen'}>
+              {playing ? <VPIconPause /> : <VPIconPlay />}
+            </button>
+            <span className="font-sans text-xs text-white/80 tabular-nums">0:00 / {duration}</span>
+
+            <div className="ml-auto flex items-center gap-3">
+              {/* Lautstärke — Slider klappt beim Hover auf (Vimeo-Stil) */}
+              <div className="flex items-center group/vol">
+                <button onClick={() => setMuted(m => !m)} className="text-white hover:text-accent-gold transition-colors" aria-label="Stummschalten">
+                  {effVolume === 0 ? <VPIconVolOff /> : <VPIconVolOn />}
+                </button>
+                <input
+                  type="range" min={0} max={100} value={effVolume}
+                  onChange={e => { setVolume(Number(e.target.value)); setMuted(false) }}
+                  aria-label="Lautstärke"
+                  className="w-0 group-hover/vol:w-16 ml-0 group-hover/vol:ml-2 opacity-0 group-hover/vol:opacity-100 transition-all duration-200 cursor-pointer"
+                  style={{ accentColor: '#C4973A' }}
+                />
               </div>
-            )}
+              {/* Einstellungen (Qualität + Geschwindigkeit) */}
+              <button onClick={toggleSettings} className={`transition-colors ${showSettings ? 'text-accent-gold' : 'text-white hover:text-accent-gold'}`} aria-label="Einstellungen">
+                <VPIconSettings />
+              </button>
+              {/* Vollbild */}
+              <button onClick={toggleFullscreen} className="text-white hover:text-accent-gold transition-colors" aria-label="Vollbild">
+                <VPIconFullscreen />
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-
-  return (
-    <>
-      {/* ── Inline player ── */}
-      <div className="bg-dark overflow-hidden">
-        {/* Video surface */}
-        <div className="aspect-video relative flex flex-col items-center justify-center gap-4 overflow-hidden">
-          {videoSurface}
-        </div>
-        {controlBar}
-      </div>
-
-      {/* ── Vollbild-Overlay (vergrössert) ── */}
-      <AnimatePresence>
-        {enlarged && (
-          <motion.div
-            key="enlarged-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center"
-            onClick={(e) => { if (e.target === e.currentTarget) setEnlarged(false) }}
-          >
-            {/* Schliessen-Schaltfläche (oben rechts im Overlay) */}
-            <button
-              onClick={() => setEnlarged(false)}
-              className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
-              aria-label="Schliessen"
-              title="Schliessen"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            {/* Player im vergrösserten Modus */}
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="max-w-5xl w-full mx-4 bg-dark overflow-hidden"
-            >
-              <div className="aspect-video relative flex flex-col items-center justify-center gap-4 overflow-hidden">
-                {videoSurface}
-              </div>
-              {controlBar}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
   )
 }
 
@@ -599,14 +563,10 @@ export default function ModulPage({
                 )}
               </div>
 
-              {/* Second content block (short video placeholder) */}
-              <div className="aspect-video bg-dark/5 border border-border flex flex-col items-center justify-center gap-2">
-                <div className="w-10 h-10 bg-dark/10 flex items-center justify-center">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-dark/40">
-                    <polygon points="5 3 19 12 5 21 5 3" />
-                  </svg>
-                </div>
-                <p className="font-sans text-xs text-text-secondary">Zusätzliches Übungsvideo (2 min)</p>
+              {/* Second content block (kurzes Übungsvideo) */}
+              <div>
+                <p className="font-sans text-xs text-text-secondary mb-2">Zusätzliches Übungsvideo</p>
+                <LessonVideoPlayer title="Zusätzliches Übungsvideo" duration="2 min" />
               </div>
 
               {/* Download section */}

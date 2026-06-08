@@ -8,8 +8,8 @@ import { MemberTabs } from '@/components/MemberTabs'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
-const LAEMU_INSTAGRAM_HANDLE = 'laemu.musikschule'
-const LAEMU_INSTAGRAM_URL = `https://instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
+const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
+const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
 const LAEMU_WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
@@ -63,6 +63,13 @@ function IconPlay() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
       <polygon points="5 3 19 12 5 21 5 3"/>
+    </svg>
+  )
+}
+function IconUpload() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
     </svg>
   )
 }
@@ -591,17 +598,42 @@ function ProfileView() {
                   ))}
                 </div>
                 {vorbilder && (
-                  <p className="font-sans text-xs text-text-secondary mb-4">
+                  <p className="font-sans text-xs text-text-secondary">
                     <span className="font-medium text-dark">Vorbilder:</span> {vorbilder}
                   </p>
                 )}
-                <div className="pt-4 border-t border-border text-center max-w-[160px]">
-                  <p className="font-heading font-black text-xl">{profilePosts.length}</p>
-                  <p className="font-sans text-xs font-light text-text-secondary">Beiträge</p>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Klarer Upload-Button — direkt unter dem Profil */}
+      <div className="bg-surface border border-border p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="w-10 h-10 flex items-center justify-center bg-accent-gold/10 text-accent-gold flex-shrink-0">
+              <IconUpload />
+            </span>
+            <div className="min-w-0">
+              <p className="font-sans text-sm font-semibold text-dark">Foto oder Video hochladen</p>
+              <p className="font-sans text-xs text-text-secondary leading-snug">Ergänze dein Profil mit einem neuen Beitrag.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => openComposer('photo')}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold transition-colors"
+            >
+              <IconCamera /> Foto
+            </button>
+            <button
+              onClick={() => openComposer('video')}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-4 py-2.5 hover:bg-dark hover:text-white transition-colors"
+            >
+              <IconVideo /> Video
+            </button>
+          </div>
         </div>
       </div>
 
@@ -609,14 +641,6 @@ function ProfileView() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-heading font-bold text-lg">Beiträge</h3>
-          <div className="flex items-center gap-1">
-            <button onClick={() => openComposer('photo')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-surface transition-colors">
-              <IconCamera /> Foto
-            </button>
-            <button onClick={() => openComposer('video')} className="flex items-center gap-1.5 font-sans text-xs text-text-secondary hover:text-dark px-3 py-2 hover:bg-surface transition-colors">
-              <IconVideo /> Video
-            </button>
-          </div>
         </div>
 
         {profilePosts.length > 0 ? (
@@ -871,7 +895,7 @@ export default function MemberCommunityPage() {
             <div className="sticky top-8 space-y-4">
               {/* Own profile quick-card */}
               <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
                     <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Profile" fill className="object-cover" unoptimized />
                   </div>
@@ -879,10 +903,6 @@ export default function MemberCommunityPage() {
                     <p className="font-heading font-bold text-sm">Niklaus Hess</p>
                     <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
                   </div>
-                </div>
-                <div className="text-center border-t border-border pt-4">
-                  <p className="font-heading font-black text-lg">{profilePosts.length}</p>
-                  <p className="font-sans text-[10px] font-light text-text-secondary">Beiträge</p>
                 </div>
               </button>
 
