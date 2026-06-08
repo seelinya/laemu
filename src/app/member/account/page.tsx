@@ -6,8 +6,6 @@ import { useSearchParams } from 'next/navigation'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
-  { id: 'profil', label: 'Mein Profil' },
-  { id: 'beitraege', label: 'Meine Beiträge' },
   { id: 'abo', label: 'Mein Abo' },
   { id: 'rechnungen', label: 'Rechnungen & Zahlungen' },
   { id: 'zahlungsmittel', label: 'Zahlungsmittel' },
@@ -48,11 +46,6 @@ const SEED_DEVICES: Device[] = [
   { id: 'd2', name: 'MacBook Pro — Chrome', location: 'Luzern, CH', last: 'vor 2 Stunden', current: false },
 ]
 
-const myPosts = [
-  { id: 'p1', text: 'Endlich den Grundlagenkurs Handorgel abgeschlossen! 🪗 Danke an Hansruedi für die super Erklärungen.', time: 'vor 2 Tagen', likes: 14, comments: 3 },
-  { id: 'p2', text: 'Wer übt auch gerade «Dr Alperose»? Suche Austausch zur 2. Stimme.', time: 'vor 1 Woche', likes: 8, comments: 6 },
-]
-
 const PLANS = [
   { id: 'starter', name: 'Starterkurs', price: 79, desc: 'Grundlagen, Community-Zugang' },
   { id: 'pro', name: 'Pro', price: 149, desc: 'Alle Kurse, Livecoaching, Downloads' },
@@ -78,57 +71,6 @@ function SectionCard({ title, desc, children }: { title: string; desc?: string; 
 }
 
 // Frei hinzufügbare „Sonstiges“-Links (z.B. YouTube, Website …) — beliebig viele.
-function WeitereLinks() {
-  const [links, setLinks] = useState<{ id: number; label: string; value: string }[]>([])
-  const add = () => setLinks((prev) => [...prev, { id: Date.now(), label: '', value: '' }])
-  const update = (id: number, key: 'label' | 'value', val: string) =>
-    setLinks((prev) => prev.map((l) => (l.id === id ? { ...l, [key]: val } : l)))
-  const remove = (id: number) => setLinks((prev) => prev.filter((l) => l.id !== id))
-
-  const inputClass = 'border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface'
-  return (
-    <div className="mt-4">
-      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Sonstiges (frei)</label>
-      {links.length > 0 && (
-        <div className="space-y-2 mb-3">
-          {links.map((l) => (
-            <div key={l.id} className="flex flex-col sm:flex-row gap-2">
-              <input
-                value={l.label}
-                onChange={(e) => update(l.id, 'label', e.target.value)}
-                placeholder="Bezeichnung (z.B. YouTube)"
-                className={`${inputClass} sm:w-2/5`}
-              />
-              <div className="flex gap-2 flex-1 min-w-0">
-                <input
-                  value={l.value}
-                  onChange={(e) => update(l.id, 'value', e.target.value)}
-                  placeholder="Link oder Text"
-                  className={`${inputClass} flex-1 min-w-0`}
-                />
-                <button
-                  onClick={() => remove(l.id)}
-                  aria-label="Entfernen"
-                  className="flex-shrink-0 w-10 border border-border text-text-secondary hover:border-red-400 hover:text-red-500 transition-colors flex items-center justify-center"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      <button
-        onClick={add}
-        className="flex items-center gap-2 font-sans text-sm text-accent-gold hover:text-dark transition-colors"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Sonstiges hinzufügen
-      </button>
-    </div>
-  )
-}
-
 // ---------------------------------------------------------------------------
 // Abo Tab
 // ---------------------------------------------------------------------------
@@ -612,58 +554,6 @@ function AccountInner() {
                   <button className="font-sans text-xs text-red-600 hover:underline">Konto löschen</button>
                   <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold transition-colors">Änderungen speichern</button>
                 </div>
-              </SectionCard>
-            )}
-
-            {tab === 'profil' && (
-              <SectionCard title="Mein Profil" desc="Diese Angaben sind öffentlich sichtbar, wenn andere Mitglieder auf dein Profil klicken.">
-                <div className="space-y-4">
-                  <Field label="Anzeigename" value="Niklaus Hess" />
-                  <div>
-                    <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Bio</label>
-                    <textarea defaultValue="Handorgelist aus Luzern, leidenschaftlich für Ländlermusik." rows={3} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none" />
-                  </div>
-                  <Field label="Instrumente" value="Handorgel, Schwyzerörgeli" />
-                  <div className="border-t border-border pt-4">
-                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Öffentlich geteilte Kontakt-Infos</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="WhatsApp (optional)" value="" />
-                      <Field label="Instagram (optional)" value="niklaus.oergeli" />
-                      <Field label="Facebook (optional)" value="" />
-                      <Field label="TikTok (optional)" value="" />
-                    </div>
-                    <WeitereLinks />
-                    <label className="flex items-center gap-2 mt-4 font-sans text-sm cursor-pointer">
-                      <input type="checkbox" defaultChecked className="accent-accent-gold w-4 h-4" />
-                      Offen für Formationen
-                    </label>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mt-6 pt-5 border-t border-border">
-                  <Link href="/member/profile" className="font-sans text-sm text-accent-gold hover:text-dark transition-colors">Öffentliches Profil ansehen →</Link>
-                  <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold transition-colors">Profil speichern</button>
-                </div>
-              </SectionCard>
-            )}
-
-            {tab === 'beitraege' && (
-              <SectionCard title="Meine Beiträge" desc="Deine Beiträge in der LAEMU Community.">
-                <div className="space-y-3">
-                  {myPosts.map((p) => (
-                    <div key={p.id} className="border border-border p-4">
-                      <p className="font-sans text-sm text-dark leading-relaxed mb-3">{p.text}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 font-sans text-xs text-text-secondary">
-                          <span>♥ {p.likes}</span>
-                          <span>💬 {p.comments}</span>
-                          <span>{p.time}</span>
-                        </div>
-                        <button className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors">Löschen</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Link href="/member/community" className="mt-4 inline-block font-sans text-sm text-accent-gold hover:text-dark transition-colors">Zur Community →</Link>
               </SectionCard>
             )}
 
