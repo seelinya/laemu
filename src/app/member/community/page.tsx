@@ -204,6 +204,79 @@ const navItems = [
   { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
+// Andere Mitglieder, die unter «Entdecken» sichtbar sind (im echten Betrieb:
+// alle, die ihr Profil nicht verborgen haben).
+const discoverProfiles = [
+  { name: 'Maria Kälin', handle: 'maria', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', role: 'Schwyzerörgeli · Schwyz' },
+  { name: 'Hansruedi Wenger', handle: 'hansruedi', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', role: 'Lehrer · Handorgel' },
+  { name: 'Peter Gasser', handle: 'peter', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', role: 'Klarinette · Stans' },
+  { name: 'Lisa Frei', handle: 'lisa', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', role: 'Klavierbegleitung · Zug' },
+  { name: 'Anna Steiner', handle: 'anna', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', role: 'Handorgel · Appenzell' },
+]
+
+function DiscoverView() {
+  const [query, setQuery] = useState('')
+  const results = discoverProfiles.filter(p =>
+    p.name.toLowerCase().includes(query.toLowerCase()) || p.role.toLowerCase().includes(query.toLowerCase())
+  )
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-heading font-bold text-lg mb-1">Entdecken</h3>
+        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">
+          Finde andere Mitglieder der LAEMU-Szene. Hier erscheinen nur Personen, die ihr Profil
+          nicht verborgen haben.
+        </p>
+      </div>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Mitglieder suchen — Name oder Instrument…"
+          className="w-full border border-border pl-10 pr-9 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
+        />
+        {query && (
+          <button
+            onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-dark transition-colors"
+            aria-label="Suche zurücksetzen"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        )}
+      </div>
+      <div className="space-y-3">
+        {results.map((p) => (
+          <div key={p.handle} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
+            <Link href={`/member/u/${p.handle}`} className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
+              <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
+            </Link>
+            <div className="flex-1 min-w-0">
+              <Link href={`/member/u/${p.handle}`} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
+              <p className="font-sans text-xs font-light text-text-secondary">{p.role}</p>
+            </div>
+            <Link
+              href={`/member/u/${p.handle}`}
+              className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap"
+            >
+              Profil ansehen →
+            </Link>
+          </div>
+        ))}
+        {results.length === 0 && (
+          <div className="bg-surface border border-border p-8 text-center">
+            <p className="font-sans text-sm text-text-secondary">Keine Profile gefunden.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Start: schlanke Community-Landingpage ────────────────────────────────────
 // Verlinkt die offiziellen LAEMU-Kanäle (Instagram für Eindrücke, geschlossene
 // WhatsApp-Gruppe für News). Bewusst ohne Feed, Gruppen oder Chats.
@@ -384,26 +457,42 @@ function ProfileView() {
   const [editMode, setEditMode] = useState(false)
   const [composerOpen, setComposerOpen] = useState(false)
   const [composerType, setComposerType] = useState<'photo' | 'video'>('photo')
+  const [profileTab, setProfileTab] = useState<'profile' | 'discover'>('profile')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
+  const [avatar, setAvatar] = useState<string>('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80')
   const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
+  const [wohnort, setWohnort] = useState('Luzern')
+  const [hideWohnort, setHideWohnort] = useState(false)
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
   const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
   const [openForFormation, setOpenForFormation] = useState(false)
+  const [hiddenFromDiscover, setHiddenFromDiscover] = useState(false)
   const [instagram, setInstagram] = useState('niklaus.hess')
   const [whatsapp, setWhatsapp] = useState('')
+  const [email, setEmail] = useState('')
   const [facebook, setFacebook] = useState('')
   const [tiktok, setTiktok] = useState('')
 
+  // Eigene Beiträge (löschbar) + Vergrösserungs-Ansicht (Lightbox)
+  const [posts, setPosts] = useState<ProfilePost[]>(profilePosts)
+  const [lightbox, setLightbox] = useState<ProfilePost | null>(null)
+  const deletePost = (id: number) => setPosts(prev => prev.filter(p => p.id !== id))
+
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
+  const [draftAvatar, setDraftAvatar] = useState<string>('')
   const [draftBio, setDraftBio] = useState('')
+  const [draftWohnort, setDraftWohnort] = useState('')
+  const [draftHideWohnort, setDraftHideWohnort] = useState(false)
   const [draftInstruments, setDraftInstruments] = useState('')
   const [draftVorbilder, setDraftVorbilder] = useState('')
   const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
+  const [draftHiddenFromDiscover, setDraftHiddenFromDiscover] = useState(false)
   const [draftInstagram, setDraftInstagram] = useState('')
   const [draftWhatsapp, setDraftWhatsapp] = useState('')
+  const [draftEmail, setDraftEmail] = useState('')
   const [draftFacebook, setDraftFacebook] = useState('')
   const [draftTiktok, setDraftTiktok] = useState('')
 
@@ -414,12 +503,17 @@ function ProfileView() {
 
   const startEdit = () => {
     setDraftName(name)
+    setDraftAvatar(avatar)
     setDraftBio(bio)
+    setDraftWohnort(wohnort)
+    setDraftHideWohnort(hideWohnort)
     setDraftInstruments(instruments)
     setDraftVorbilder(vorbilder)
     setDraftOpenForFormation(openForFormation)
+    setDraftHiddenFromDiscover(hiddenFromDiscover)
     setDraftInstagram(instagram)
     setDraftWhatsapp(whatsapp)
+    setDraftEmail(email)
     setDraftFacebook(facebook)
     setDraftTiktok(tiktok)
     setEditMode(true)
@@ -427,12 +521,17 @@ function ProfileView() {
 
   const saveEdit = () => {
     setName(draftName.trim() || name)
+    setAvatar(draftAvatar)
     setBio(draftBio)
+    setWohnort(draftWohnort.trim())
+    setHideWohnort(draftHideWohnort)
     setInstruments(draftInstruments)
     setVorbilder(draftVorbilder)
     setOpenForFormation(draftOpenForFormation)
+    setHiddenFromDiscover(draftHiddenFromDiscover)
     setInstagram(draftInstagram.trim())
     setWhatsapp(draftWhatsapp.trim())
+    setEmail(draftEmail.trim())
     setFacebook(draftFacebook.trim())
     setTiktok(draftTiktok.trim())
     setEditMode(false)
@@ -446,26 +545,78 @@ function ProfileView() {
         )}
       </AnimatePresence>
 
-      {/* Profile header */}
-      <div className="bg-surface border border-border overflow-hidden">
-        <div className="h-36 bg-gradient-to-r from-dark via-dark-secondary to-dark relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20"
-            style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)' }}
-          />
-          {editMode && (
-            <button className="absolute bottom-3 right-3 bg-white/20 text-white text-xs px-3 py-1.5 font-sans hover:bg-white/30 transition-colors">
-              Titelbild ändern
+      {/* Lightbox — Beitrag vergrössert anzeigen */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            key="lightbox"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setLightbox(null)}
+          >
+            <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Schliessen">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
-          )}
-        </div>
-        <div className="p-6 -mt-10">
+            <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+              <div className="relative aspect-video bg-black overflow-hidden">
+                <Image src={lightbox.img} alt={lightbox.caption} fill className="object-contain" unoptimized />
+                {lightbox.type === 'video' && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"><IconPlay /></div>
+                  </div>
+                )}
+              </div>
+              {lightbox.caption && <p className="font-sans text-sm text-white/80 mt-3 text-center">{lightbox.caption}</p>}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Tabs: Mein Profil / Entdecken */}
+      <div className="flex border-b border-border">
+        {([
+          { id: 'profile' as const, label: 'Mein Profil' },
+          { id: 'discover' as const, label: 'Entdecken' },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setProfileTab(t.id)}
+            className={`px-4 py-2.5 font-sans text-sm font-medium transition-colors border-b-2 -mb-px ${profileTab === t.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {profileTab === 'discover' ? (
+        <DiscoverView />
+      ) : (
+      <>
+      {/* Profile header — ohne Titelbild, Profilbild optional */}
+      <div className="bg-surface border border-border overflow-hidden">
+        <div className="p-6">
           <div className="flex items-end justify-between mb-5">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-surface bg-background">
-              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Profile" fill className="object-cover" unoptimized />
+            <div className="flex flex-col gap-1.5">
+              <div className="relative w-20 h-20 rounded-full overflow-hidden border border-border bg-background flex items-center justify-center text-text-secondary">
+                {(editMode ? draftAvatar : avatar) ? (
+                  <Image src={editMode ? draftAvatar : avatar} alt="Profile" fill className="object-cover" unoptimized />
+                ) : (
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                )}
+                {editMode && (
+                  <button
+                    onClick={() => setDraftAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80')}
+                    className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer"
+                    title="Profilbild auswählen"
+                  >
+                    <span className="text-white"><IconEdit /></span>
+                  </button>
+                )}
+              </div>
               {editMode && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer">
-                  <span className="text-white"><IconEdit /></span>
-                </div>
+                draftAvatar
+                  ? <button onClick={() => setDraftAvatar('')} className="font-sans text-[11px] text-text-secondary hover:text-red-500 transition-colors w-20 text-center">Bild entfernen</button>
+                  : <span className="font-sans text-[11px] text-text-secondary w-20 text-center">optional</span>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -508,6 +659,25 @@ function ProfileView() {
                   <p className="font-sans text-[11px] text-text-secondary mt-1">Tipp: Links zu deinen Kanälen kannst du hier in der Bio integrieren.</p>
                 </div>
                 <div>
+                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Wohnort</label>
+                  <input value={draftWohnort} onChange={e => setDraftWohnort(e.target.value)} placeholder="z.B. Luzern" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  <div className="flex items-center justify-between mt-3">
+                    <div>
+                      <p className="font-sans text-sm font-medium">Wohnort auf dem Profil verbergen</p>
+                      <p className="font-sans text-xs text-text-secondary mt-0.5">
+                        {draftHideWohnort ? 'Dein Wohnort ist für andere nicht sichtbar.' : 'Dein Wohnort wird auf deinem Profil angezeigt.'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setDraftHideWohnort(v => !v)}
+                      className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftHideWohnort ? 'bg-accent-gold' : 'bg-border'}`}
+                      aria-label="Wohnort auf dem Profil verbergen"
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHideWohnort ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                </div>
+                <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
                   <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                 </div>
@@ -527,6 +697,10 @@ function ProfileView() {
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">WhatsApp</label>
                       <input value={draftWhatsapp} onChange={e => setDraftWhatsapp(e.target.value)} placeholder="+41 79 …" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                    </div>
+                    <div>
+                      <label className="font-sans text-xs text-text-secondary block mb-1">E-Mail</label>
+                      <input value={draftEmail} onChange={e => setDraftEmail(e.target.value)} type="email" placeholder="name@email.ch" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
                     </div>
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">Facebook</label>
@@ -555,6 +729,25 @@ function ProfileView() {
                     <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </button>
                 </div>
+
+                {/* Mein Profil unter «Entdecken» verbergen */}
+                <div className="flex items-start justify-between gap-4 pt-4 border-t border-border">
+                  <div>
+                    <p className="font-sans text-sm font-medium">Mein Profil unter der Seite Entdecken verbergen</p>
+                    <p className="font-sans text-xs text-text-secondary mt-0.5 leading-relaxed">
+                      {draftHiddenFromDiscover
+                        ? 'Dein Profil erscheint nicht unter «Entdecken». Du bist anonym und wirst nur gefunden, wenn du aktiv unter Lernvideos kommentierst — was du nicht musst. Bei Fragen kannst du dich auch direkt ans LAEMU-Team wenden.'
+                        : 'Dein Profil ist unter «Entdecken» für andere Mitglieder sichtbar.'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setDraftHiddenFromDiscover(v => !v)}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 mt-0.5 ${draftHiddenFromDiscover ? 'bg-accent-gold' : 'bg-border'}`}
+                    aria-label="Mein Profil unter der Seite Entdecken verbergen"
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHiddenFromDiscover ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
               </motion.div>
             ) : (
               <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -563,16 +756,33 @@ function ProfileView() {
                   {openForFormation && (
                     <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide">Offen für Formationen</span>
                   )}
+                  {hiddenFromDiscover && (
+                    <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-background border border-border text-text-secondary uppercase tracking-wide inline-flex items-center gap-1">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      In Entdecken verborgen
+                    </span>
+                  )}
                 </div>
                 <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
+                {!hideWohnort && wohnort && (
+                  <p className="flex items-center gap-1 font-sans text-xs text-text-secondary mb-2">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {wohnort}
+                  </p>
+                )}
                 <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
 
                 {/* Social-media links */}
-                {(instagram || whatsapp || facebook || tiktok) && (
+                {(instagram || whatsapp || email || facebook || tiktok) && (
                   <div className="flex items-center gap-2 mb-4">
                     {instagram && (
                       <a href={`https://instagram.com/${instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer" title={`Instagram: ${instagram}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                      </a>
+                    )}
+                    {email && (
+                      <a href={`mailto:${email}`} title={`E-Mail: ${email}`} className="w-8 h-8 flex items-center justify-center border border-border hover:border-dark hover:text-accent-gold text-text-secondary transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
                       </a>
                     )}
                     {whatsapp && (
@@ -643,15 +853,26 @@ function ProfileView() {
           <h3 className="font-heading font-bold text-lg">Beiträge</h3>
         </div>
 
-        {profilePosts.length > 0 ? (
+        {posts.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
-            {profilePosts.map((post) => (
-              <div key={post.id} className="relative aspect-square overflow-hidden group cursor-pointer bg-background">
-                <Image src={post.img} alt={post.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+            {posts.map((post) => (
+              <div key={post.id} className="relative aspect-square overflow-hidden group bg-background">
+                <button onClick={() => setLightbox(post)} className="absolute inset-0 w-full h-full cursor-zoom-in" aria-label="Beitrag vergrössern">
+                  <Image src={post.img} alt={post.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
+                </button>
                 {post.type === 'video' && (
-                  <div className="absolute top-2 right-2 text-white drop-shadow"><IconVideo /></div>
+                  <div className="absolute top-2 left-2 text-white drop-shadow pointer-events-none"><IconVideo /></div>
                 )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                {/* Eigenen Beitrag löschen */}
+                <button
+                  onClick={() => deletePost(post.id)}
+                  className="absolute top-2 right-2 w-7 h-7 bg-black/50 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                  title="Beitrag löschen"
+                  aria-label="Beitrag löschen"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                </button>
+                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
                   <span className="text-white text-xs flex items-center gap-1"><IconComment16 /> {post.comments}</span>
                 </div>
@@ -664,6 +885,8 @@ function ProfileView() {
           </div>
         )}
       </div>
+      </>
+      )}
     </div>
   )
 }

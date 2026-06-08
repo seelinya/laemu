@@ -33,6 +33,7 @@ export default function RegisterPage() {
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
   const [formationChoice, setFormationChoice] = useState<'yes' | 'no' | 'open' | null>(null)
   const [ort, setOrt] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
 
   // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
@@ -96,6 +97,13 @@ export default function RegisterPage() {
 
   const periodLabel = billing === 'yearly' ? '/ Jahr' : '/ Monat'
 
+  // Formationen: Pflichtschritt — jedes Mitglied muss mindestens ein Instrument
+  // für den Zugriff zugewiesen bekommen (im Hintergrund relevant für die
+  // Freischaltung). Erst dann lässt sich die Registrierung abschliessen.
+  const formationReady =
+    accountType !== 'formation' ||
+    Array.from({ length: memberCount }).every((_, idx) => (memberInstruments[idx]?.length ?? 0) > 0)
+
   if (done) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -123,7 +131,8 @@ export default function RegisterPage() {
                   Da dein Abo bezahlt wurde, haben die anderen Mitglieder deiner Formation ein
                   Bestätigungs-E-Mail erhalten. Sobald sie ihr Login abgeschlossen (Passwort gesetzt)
                   haben, können sie sich ab sofort bei LAEMU einloggen — mit Zugriff auf die
-                  zugewiesenen Instrumente.
+                  zugewiesenen Instrumente. Die Grunddaten sind bereits hinterlegt; sie können nur
+                  optionale Profilinhalte ergänzen.
                 </p>
               </div>
             </div>
@@ -236,16 +245,26 @@ export default function RegisterPage() {
                     <input value={ort} onChange={e => setOrt(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Luzern" />
                   </div>
                 </div>
-                <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                  Mit der Registrierung stimmst du den{' '}
-                  <Link href="/agb" className="text-accent-gold hover:underline">Nutzungsbedingungen</Link>{' '}
-                  und der{' '}
-                  <Link href="/datenschutz" className="text-accent-gold hover:underline">Datenschutzerklärung</Link>{' '}
-                  von LAEMU zu.
-                </p>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 flex-shrink-0 cursor-pointer"
+                    style={{ accentColor: '#C4973A' }}
+                  />
+                  <span className="font-sans text-xs text-text-secondary leading-relaxed">
+                    Ich habe die{' '}
+                    <Link href="/agb" className="text-accent-gold hover:underline">Nutzungsbedingungen</Link>{' '}
+                    und die{' '}
+                    <Link href="/datenschutz" className="text-accent-gold hover:underline">Datenschutzerklärung</Link>{' '}
+                    von LAEMU gelesen und stimme ihnen zu. *
+                  </span>
+                </label>
                 <button
                   onClick={() => setStep(2)}
-                  className="w-full bg-dark text-white font-sans font-semibold py-4 hover:bg-accent-gold transition-colors"
+                  disabled={!acceptedTerms}
+                  className={`w-full font-sans font-semibold py-4 transition-colors ${acceptedTerms ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Weiter →
                 </button>
@@ -587,6 +606,11 @@ export default function RegisterPage() {
                         automatisch ein Bestätigungs-E-Mail. Damit schliesst es sein Login ab (Passwort setzen) und kann
                         sich anschliessend ab sofort bei LAEMU einloggen — mit Zugriff auf die hier zugewiesenen Instrumente.
                       </p>
+                      <p className="font-sans text-xs text-text-secondary leading-relaxed mt-2">
+                        Die Grunddaten (Name, E-Mail und Instrument-Zugriff) legst du hier verbindlich fest. Die Mitglieder
+                        können später nur optionale Profilangaben (Profilbild, Bio, Social Media) ergänzen — die Grunddaten
+                        lassen sich von ihnen nicht ändern.
+                      </p>
                     </div>
                   </div>
 
@@ -745,17 +769,26 @@ export default function RegisterPage() {
                 </button>
                 <button
                   onClick={() => setDone(true)}
-                  className="flex-1 bg-accent-gold text-white font-sans font-semibold py-4 hover:bg-dark transition-colors"
+                  disabled={!formationReady}
+                  className={`flex-1 font-sans font-semibold py-4 transition-colors ${formationReady ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
                   Registrierung abschliessen ✓
                 </button>
               </div>
-              <button
-                onClick={() => setDone(true)}
-                className="w-full mt-3 font-sans text-sm text-text-secondary hover:text-dark transition-colors py-2"
-              >
-                Überspringen — später im Profil ergänzen
-              </button>
+              {accountType === 'formation' ? (
+                !formationReady && (
+                  <p className="font-sans text-xs text-text-secondary text-center mt-3">
+                    Weise jedem Mitglied mindestens ein Instrument für den Zugriff zu, um die Registrierung abzuschliessen.
+                  </p>
+                )
+              ) : (
+                <button
+                  onClick={() => setDone(true)}
+                  className="w-full mt-3 font-sans text-sm text-text-secondary hover:text-dark transition-colors py-2"
+                >
+                  Überspringen — später im Profil ergänzen
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

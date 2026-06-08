@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -21,6 +21,7 @@ const profile = {
   social: {
     instagram: 'hansruedi.oergeli',
     whatsapp: '+41 79 123 45 67',
+    email: 'hansruedi@laemu.ch',
     facebook: 'hansruedi.wenger.musik',
     tiktok: 'hansruedi_oergeli',
   },
@@ -112,11 +113,17 @@ function IconTikTok() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>
   )
 }
+function IconEmail() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+  )
+}
 
 function SocialLinks({ social }: { social: typeof profile.social }) {
   const links: { key: string; href: string; icon: React.ReactNode; label: string }[] = []
   if (social.instagram) links.push({ key: 'ig', href: `https://instagram.com/${social.instagram}`, icon: <IconInstagram />, label: 'Instagram' })
   if (social.whatsapp) links.push({ key: 'wa', href: `https://wa.me/${social.whatsapp.replace(/[^0-9]/g, '')}`, icon: <IconWhatsApp />, label: 'WhatsApp' })
+  if (social.email) links.push({ key: 'em', href: `mailto:${social.email}`, icon: <IconEmail />, label: 'E-Mail' })
   if (social.facebook) links.push({ key: 'fb', href: `https://facebook.com/${social.facebook}`, icon: <IconFacebook />, label: 'Facebook' })
   if (social.tiktok) links.push({ key: 'tt', href: `https://tiktok.com/@${social.tiktok}`, icon: <IconTikTok />, label: 'TikTok' })
   if (links.length === 0) return null
@@ -138,10 +145,9 @@ function SocialLinks({ social }: { social: typeof profile.social }) {
   )
 }
 
-function PostCard({ post }: { post: ProfilePost }) {
-  const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(post.likes)
-
+// Beiträge anderer Profile lassen sich weder liken noch kommentieren — man kann
+// sie aber anklicken und vergrössert anschauen.
+function PostCard({ post, onOpen }: { post: ProfilePost; onOpen: () => void }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden">
       <div className="p-4 flex items-center gap-3">
@@ -157,8 +163,8 @@ function PostCard({ post }: { post: ProfilePost }) {
         )}
       </div>
 
-      <div className="relative aspect-video overflow-hidden">
-        <Image src={post.img} alt="" fill className="object-cover" unoptimized />
+      <button onClick={onOpen} className="relative aspect-video overflow-hidden w-full block cursor-zoom-in group" aria-label="Beitrag vergrössern">
+        <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
         {post.type === 'video' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
             <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -166,31 +172,47 @@ function PostCard({ post }: { post: ProfilePost }) {
             </div>
           </div>
         )}
-      </div>
+      </button>
 
       <div className="p-4">
-        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">{post.text}</p>
-        <div className="flex items-center gap-4 pt-3 border-t border-border">
-          <button
-            onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1) }}
-            className={`flex items-center gap-1.5 font-sans text-sm transition-colors ${liked ? 'text-red-500' : 'text-text-secondary hover:text-red-500'}`}
-          >
-            <IconHeart filled={liked} />
-            <span className="text-xs">{likeCount}</span>
-          </button>
-          <button className="flex items-center gap-1.5 font-sans text-sm text-text-secondary hover:text-dark transition-colors">
-            <IconComment />
-            <span className="text-xs">{post.comments}</span>
-          </button>
-        </div>
+        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{post.text}</p>
       </div>
     </motion.div>
   )
 }
 
+function Lightbox({ post, onClose }: { post: ProfilePost; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Schliessen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="relative aspect-video bg-black overflow-hidden">
+          <Image src={post.img} alt="" fill className="object-contain" unoptimized />
+          {post.type === 'video' && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"><IconPlay /></div>
+            </div>
+          )}
+        </div>
+        {post.text && <p className="font-sans text-sm text-white/80 mt-3 text-center">{post.text}</p>}
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export default function MemberProfilePage() {
+  const [lightbox, setLightbox] = useState<ProfilePost | null>(null)
   return (
     <div className="min-h-screen bg-background">
+      <AnimatePresence>
+        {lightbox && <Lightbox key="lightbox" post={lightbox} onClose={() => setLightbox(null)} />}
+      </AnimatePresence>
       <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between">
         <Link href="/member/academy" className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -201,18 +223,16 @@ export default function MemberProfilePage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-10">
-        {/* Profile header */}
+        {/* Profile header — ohne Titelbild */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden mb-6">
-          {/* Cover */}
-          <div className="h-28 bg-gradient-to-r from-dark to-dark/60 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20"
-              style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)' }}
-            />
-          </div>
-          <div className="px-6 pb-6 -mt-10">
+          <div className="p-6">
             <div className="mb-4">
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-surface flex-shrink-0">
-                <Image src={profile.avatar} alt={profile.name} fill className="object-cover" unoptimized />
+              <div className="relative w-20 h-20 rounded-full overflow-hidden border border-border bg-background flex items-center justify-center text-text-secondary flex-shrink-0">
+                {profile.avatar ? (
+                  <Image src={profile.avatar} alt={profile.name} fill className="object-cover" unoptimized />
+                ) : (
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                )}
               </div>
             </div>
 
@@ -258,7 +278,7 @@ export default function MemberProfilePage() {
         {/* Beiträge — nur Foto & Video */}
         <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
         <div className="space-y-4">
-          {posts.map((post) => <PostCard key={post.id} post={post} />)}
+          {posts.map((post) => <PostCard key={post.id} post={post} onOpen={() => setLightbox(post)} />)}
         </div>
       </div>
     </div>
