@@ -761,14 +761,14 @@ export default function LernvideosPage() {
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. JamPlayer und Stimmen-Videos.
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. Mixer und Stimmen-Videos.
                     </p>
                   </>
                 ) : mockUserAbo.plan === 'starter' ? (
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den JamPlayer ist ein Upgrade nötig.{' '}
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
                       <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
                     </p>
                   </>
@@ -944,11 +944,20 @@ export default function LernvideosPage() {
                   <div className="mt-3 pt-3 border-t border-border">
                     <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-2.5">Deine Stimme abgeben — Mehrfachauswahl möglich</p>
                     <div className="space-y-3">
-                      {WISH_VOTE_GROUPS.map(group => (
+                      {WISH_VOTE_GROUPS.map(group => {
+                        // Reihenfolge: abgeschlossene Wünsche (bereits vorhanden) zuerst,
+                        // danach nach Anzahl Stimmen (Likes) absteigend.
+                        const sortedOptions = [...group.options].sort((a, b) => {
+                          const aDone = w.available.includes(a)
+                          const bDone = w.available.includes(b)
+                          if (aDone !== bDone) return aDone ? -1 : 1
+                          return wishOptVotes(w, b) - wishOptVotes(w, a)
+                        })
+                        return (
                         <div key={group.label}>
                           <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-1.5">{group.label}</p>
                           <div className="flex flex-wrap gap-2">
-                            {group.options.map(opt => {
+                            {sortedOptions.map(opt => {
                               if (w.available.includes(opt)) {
                                 return (
                                   <span key={opt} className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border border-green-200 bg-green-50 text-green-700">
@@ -972,7 +981,8 @@ export default function LernvideosPage() {
                             })}
                           </div>
                         </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
