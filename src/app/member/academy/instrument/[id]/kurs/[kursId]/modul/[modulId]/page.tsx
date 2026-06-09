@@ -249,7 +249,7 @@ export default function ModulPage({
   searchParams: { lektion?: string }
 }) {
   const router = useRouter()
-  const course = getCourse(params.kursId)
+  const course = getCourse(params.id, params.kursId)
   const modules = course?.modules ?? []
   const courseTitle = course?.title ?? params.kursId
   const instrumentLabel = course?.instrumentLabel ?? instrumentLabels[params.id] ?? params.id
