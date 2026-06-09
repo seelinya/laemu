@@ -43,7 +43,7 @@ function TypeBadge({ type }: { type: Lesson['type'] }) {
 // ─── Page component ───────────────────────────────────────────────────────────
 
 export default function KursPage({ params }: { params: { id: string; kursId: string } }) {
-  const course = getCourse(params.kursId)
+  const course = getCourse(params.id, params.kursId)
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
 
   const toggleModule = (moduleId: string) => {

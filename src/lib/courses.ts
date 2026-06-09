@@ -78,6 +78,53 @@ const grundlagenModules: CourseModule[] = [
   },
 ]
 
+// ─── Schwyzerörgeli — Grundlagenkurs ──────────────────────────────────────────
+
+const schwyzerGrundlagenModules: CourseModule[] = [
+  {
+    id: 'einfuehrung', title: 'Einführung ins Schwyzerörgeli', status: 'completed',
+    lessons: [
+      { id: 'kennenlernen', title: 'Das Schwyzerörgeli kennenlernen', duration: '6 min', type: 'video', completed: true },
+      { id: 'stimmung-pflege', title: 'Stimmung & Pflege im Überblick', duration: '9 min', type: 'video', completed: true },
+      { id: 'haltung', title: 'Die richtige Haltung', duration: '10 min', type: 'video', completed: true },
+      { id: 'knoepfe-register', title: 'Knöpfe & Register kennenlernen', duration: '12 min', type: 'video', completed: true },
+      { id: 'erster-ton', title: 'Dein erster Ton', duration: '7 min', type: 'video', completed: true },
+    ],
+  },
+  {
+    id: 'erste-schritte', title: 'Erste Schritte mit dem Örgeli', status: 'in-progress',
+    lessons: [
+      { id: 'bassseite', title: 'Die Bassseite — die Begleitung', duration: '10 min', type: 'video', completed: true },
+      { id: 'diskantseite', title: 'Die Diskantseite — die Melodie', duration: '12 min', type: 'video', completed: false },
+      { id: 'balgfuehrung', title: 'Zugrichtung & Balgführung', duration: '14 min', type: 'video+text', completed: false },
+      { id: 'erste-tonleiter', title: 'Erste Tonleiter — ziehend & stossend', duration: '16 min', type: 'video', completed: false },
+    ],
+  },
+  {
+    id: 'diatonik', title: 'Das diatonische System verstehen', status: 'not-started',
+    lessons: [
+      { id: 'system', title: 'Wie das diatonische System funktioniert', duration: '11 min', type: 'video+text', completed: false },
+      { id: 'grundakkorde', title: 'Grundakkorde auf der Bassseite', duration: '13 min', type: 'video', completed: false },
+      { id: 'reihenwechsel', title: 'Wechsel zwischen den Reihen', duration: '15 min', type: 'video', completed: false },
+    ],
+  },
+  {
+    id: 'erste-laendler', title: 'Erste Ländler & Walzer', status: 'not-started',
+    lessons: [
+      { id: 'walzer1', title: 'Einfacher Walzer — Schritt 1', duration: '20 min', type: 'video', completed: false },
+      { id: 'walzer2', title: 'Einfacher Walzer — Schritt 2', duration: '20 min', type: 'video', completed: false },
+      { id: 'erste-polka', title: 'Erste Appenzeller Polka', duration: '22 min', type: 'video', completed: false },
+    ],
+  },
+  {
+    id: 'feedback', title: 'Feedback & Weiterentwicklung', status: 'not-started',
+    lessons: [
+      { id: 'selbstbewertung', title: 'Selbstbewertung — wo stehst du?', duration: '10 min', type: 'text', completed: false },
+      { id: 'tipps', title: 'Tipps von Cyrill', duration: '15 min', type: 'video', completed: false },
+    ],
+  },
+]
+
 // ─── Allgemeiner Lehrgang — für alle freigeschaltet ───────────────────────────
 
 const harmonielehreModules: CourseModule[] = [
@@ -151,11 +198,21 @@ const buehnenpraesenzModules: CourseModule[] = [
 
 // ─── Kurs-Katalog ─────────────────────────────────────────────────────────────
 
-export const courses: Record<string, Course> = {
+const handorgelCourses: Record<string, Course> = {
   grundlagen: {
     id: 'grundlagen', title: 'Grundlagenkurs', instrumentId: 'handorgel', instrumentLabel: 'Handorgel',
     emoji: '🪗', level: 'Starter', teacher: 'Hansruedi Wenger', modules: grundlagenModules,
   },
+}
+
+const schwyzerCourses: Record<string, Course> = {
+  grundlagen: {
+    id: 'grundlagen', title: 'Grundlagenkurs Schwyzerörgeli', instrumentId: 'schwyzer', instrumentLabel: 'Schwyzerörgeli',
+    emoji: '🎶', level: 'Starter', teacher: 'Cyrill Rusch', modules: schwyzerGrundlagenModules,
+  },
+}
+
+const allgemeinCourses: Record<string, Course> = {
   harmonielehre: {
     id: 'harmonielehre', title: 'Harmonielehre', instrumentId: 'allgemein', instrumentLabel: 'Allgemein',
     emoji: '🎼', level: 'Allgemein', teacher: 'Franz Hess', modules: harmonielehreModules,
@@ -170,6 +227,17 @@ export const courses: Record<string, Course> = {
   },
 }
 
+// Kurskatalog nach Instrument verschachtelt — ein Kurs-Slug (z. B. "grundlagen")
+// kann je Instrument einen eigenen Kurs haben.
+const courseRegistry: Record<string, Record<string, Course>> = {
+  handorgel: handorgelCourses,
+  schwyzer: schwyzerCourses,
+  allgemein: allgemeinCourses,
+}
+
+// Flacher Katalog für Lookups per Kurs-ID (Allgemeiner Lehrgang & Handorgel).
+export const courses: Record<string, Course> = { ...handorgelCourses, ...allgemeinCourses }
+
 // Reihenfolge der Kurse im allgemeinen Lehrgang.
 export const ALLGEMEIN_COURSES = ['harmonielehre', 'taktarten', 'buehnenpraesenz'] as const
 
@@ -182,8 +250,8 @@ export const instrumentLabels: Record<string, string> = {
   allgemein: 'Allgemein',
 }
 
-export function getCourse(kursId: string): Course | undefined {
-  return courses[kursId]
+export function getCourse(instrumentId: string, kursId: string): Course | undefined {
+  return courseRegistry[instrumentId]?.[kursId]
 }
 
 export function courseStats(course: Course) {
