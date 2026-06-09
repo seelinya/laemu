@@ -30,7 +30,6 @@ const activeCourses = [
     progress: 65,
     completedLessons: 13,
     totalLessons: 20,
-    lastActivity: 'Heute',
     href: '/member/academy/instrument/handorgel/kurs/grundlagen',
   },
   {
@@ -46,7 +45,6 @@ const activeCourses = [
     progress: 30,
     completedLessons: 6,
     totalLessons: 20,
-    lastActivity: 'Gestern',
     href: '/member/academy/instrument/schwyzer/kurs/grundlagen',
   },
   {
@@ -62,16 +60,8 @@ const activeCourses = [
     progress: 10,
     completedLessons: 2,
     totalLessons: 18,
-    lastActivity: 'vor 3 Tagen',
     href: '/member/academy/instrument/handorgel/kurs/uebungen',
   },
-]
-
-const recentLessons = [
-  { id: 'rl1', title: 'Koordination beider Hände', course: 'Grundlagenkurs', instrument: 'Handorgel', duration: '15 min', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-schritte?lektion=koordination' },
-  { id: 'rl2', title: 'Die Diskantseite', course: 'Grundlagenkurs', instrument: 'Handorgel', duration: '12 min', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-schritte?lektion=diskantseite' },
-  { id: 'rl3', title: 'Stimmen & Intonation', course: 'Grundlagenkurs', instrument: 'Handorgel', duration: '8 min', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/einfuehrung?lektion=saitenstimmen' },
-  { id: 'rl4', title: 'Erste Melodieläufe', course: 'Grundlagenkurs Schwyzerörgeli', instrument: 'Schwyzerörgeli', duration: '10 min', href: '/member/academy/instrument/schwyzer/kurs/grundlagen/modul/einfuehrung?lektion=erste' },
 ]
 
 type MockSearchResult = {
@@ -237,9 +227,6 @@ function CourseCard({ course }: { course: typeof activeCourses[0] }) {
             <Image src={course.instructorImg} alt={course.instructor} fill className="object-cover" unoptimized />
           </div>
           <p className="font-sans text-xs text-text-secondary">mit {course.instructor}</p>
-        </div>
-        <div className="bg-accent-gold/5 border border-accent-gold/20 px-3 py-1.5 mb-3">
-          <p className="font-sans text-xs text-accent-gold font-medium">Zuletzt aktiv: {course.lastActivity}</p>
         </div>
         <div className="flex justify-between text-xs font-sans mb-1.5">
           <span className="text-text-secondary">{course.completedLessons}/{course.totalLessons} Lektionen</span>
@@ -506,27 +493,6 @@ export default function MemberAcademyPage() {
                         </motion.div>
                       )
                     })}
-                  </div>
-                </section>
-
-                {/* Recently viewed */}
-                <section>
-                  <h3 className="font-heading font-bold text-xl mb-4">Zuletzt angesehen</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {recentLessons.map((lesson, i) => (
-                      <motion.div key={lesson.id} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 + 0.1 }}>
-                        <Link href={lesson.href} className="flex items-center gap-3 bg-surface border border-border p-4 hover:border-dark transition-colors group">
-                          <div className="w-9 h-9 bg-accent-gold/10 flex items-center justify-center flex-shrink-0">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-accent-gold"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor" /></svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-sans text-sm font-medium group-hover:text-accent-gold transition-colors truncate">{lesson.title}</p>
-                            <p className="font-sans text-xs text-text-secondary truncate">{lesson.instrument} · {lesson.course}</p>
-                          </div>
-                          <span className="font-sans text-xs text-text-secondary flex-shrink-0">{lesson.duration}</span>
-                        </Link>
-                      </motion.div>
-                    ))}
                   </div>
                 </section>
 
