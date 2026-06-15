@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/PasswordInput'
 import {
-  ACADEMY_INSTRUMENTS,
   individualPricing,
   individualPlanMeta,
   INDIVIDUAL_PLAN_ORDER,
@@ -16,9 +15,16 @@ import {
   type Scope,
   type IndividualPlanId,
   type FormationPlanId,
+  type Instrument,
+  type UserAbo,
 } from '@/lib/academy'
+import { setStoredAbo } from '@/lib/userPlan'
 
-const PROFILE_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+// Im Profil wählbare Instrumente (inkl. Klavier & Klarinette).
+const PROFILE_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavier', 'Klarinette']
+
+// In der Mitgliedschaft (Musikschule) wählbare Instrumente.
+const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
 
 const steps = [
   { number: 1, label: 'Angaben' },
@@ -61,7 +67,7 @@ export default function RegisterPage() {
     })
   }
 
-  const scopeCount = (s: Scope) => (s === 'all' ? ACADEMY_INSTRUMENTS.length : Number(s))
+  const scopeCount = (s: Scope) => (s === 'all' ? ABO_INSTRUMENTS.length : Number(s))
 
   const toggleAboInstrument = (inst: string) => {
     setAboInstruments(prev => {
@@ -75,7 +81,7 @@ export default function RegisterPage() {
   const selectScope = (s: Scope) => {
     setScope(s)
     if (s === 'all') {
-      setAboInstruments([...ACADEMY_INSTRUMENTS])
+      setAboInstruments([...ABO_INSTRUMENTS])
     } else {
       setAboInstruments(prev => prev.slice(0, Number(s)))
     }
@@ -112,6 +118,29 @@ export default function RegisterPage() {
   const formationReady =
     accountType !== 'formation' ||
     Array.from({ length: memberCount }).every((_, idx) => (memberInstruments[idx]?.length ?? 0) > 0)
+
+  // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
+  // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
+  const finishRegistration = () => {
+    let abo: UserAbo
+    if (isFree) {
+      abo = { plan: 'none', instruments: [] }
+    } else if (accountType === 'formation') {
+      abo = {
+        plan: formationPlan,
+        instruments: (memberInstruments[0] ?? []) as Instrument[],
+        allInstruments: formationPlan === 'lernvideo',
+      }
+    } else {
+      abo = {
+        plan: individualPlan,
+        instruments: (scope === 'all' ? [...ABO_INSTRUMENTS] : aboInstruments) as Instrument[],
+        allInstruments: scope === 'all' || individualPlan === 'lernvideo',
+      }
+    }
+    setStoredAbo(abo)
+    setDone(true)
+  }
 
   if (done) {
     return (
@@ -163,16 +192,16 @@ export default function RegisterPage() {
 
           <div className="space-y-3">
             <Link
-              href="/member/community"
+              href="/member/academy"
               className="block w-full bg-dark text-white text-center font-sans font-semibold py-4 hover:bg-accent-gold transition-colors"
             >
-              Zur Community →
+              Zur Musikschule →
             </Link>
             <Link
               href="/member/academy"
               className="block w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
-              Musikschule entdecken
+              Zur Musikschule
             </Link>
           </div>
         </motion.div>
@@ -316,7 +345,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {([
                   { id: 'individual', label: 'Einzelperson', desc: 'Für dich allein' },
-                  { id: 'formation', label: 'Formation', desc: 'Für deine Kapelle' },
+                  { id: 'formation', label: 'Formation', desc: 'Für deine Gruppe' },
                 ] as const).map(opt => (
                   <button
                     key={opt.id}
@@ -411,8 +440,8 @@ export default function RegisterPage() {
                   {!isFree && individualPlanMeta[individualPlan].hasScope && (
                     <div className="bg-surface border border-border p-5 mb-6">
                       <h3 className="font-heading font-bold text-sm mb-3">Umfang wählen</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-                        {(['1', '2', '3', 'all'] as Scope[]).map(s => (
+                      <div className="grid grid-cols-3 gap-2 mb-5">
+                        {(['1', '2', '3'] as Scope[]).map(s => (
                           <button
                             key={s}
                             onClick={() => selectScope(s)}
@@ -423,31 +452,23 @@ export default function RegisterPage() {
                         ))}
                       </div>
 
-                      {scope !== 'all' ? (
-                        <>
-                          <p className="font-sans text-xs text-text-secondary mb-2">
-                            Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({aboInstruments.length}/{scopeCount(scope)})
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {ACADEMY_INSTRUMENTS.map(inst => {
-                              const selected = aboInstruments.includes(inst)
-                              return (
-                                <button
-                                  key={inst}
-                                  onClick={() => toggleAboInstrument(inst)}
-                                  className={`font-sans text-sm px-3 py-2 border transition-all ${selected ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
-                                >
-                                  {inst}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </>
-                      ) : (
-                        <p className="font-sans text-xs text-text-secondary">
-                          All-in-One — alle Instrumente inklusive: {ACADEMY_INSTRUMENTS.join(' · ')}.
-                        </p>
-                      )}
+                      <p className="font-sans text-xs text-text-secondary mb-2">
+                        Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({aboInstruments.length}/{scopeCount(scope)})
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {ABO_INSTRUMENTS.map(inst => {
+                          const selected = aboInstruments.includes(inst)
+                          return (
+                            <button
+                              key={inst}
+                              onClick={() => toggleAboInstrument(inst)}
+                              className={`font-sans text-sm px-3 py-2 border transition-all ${selected ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
+                            >
+                              {inst}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
 
@@ -459,7 +480,6 @@ export default function RegisterPage() {
                         {[
                           'Vollständiger Einblick in alle Kurse, Instrumente & Lernvideos',
                           'Gratis-Stücke direkt spielbar',
-                          'LAEMU Membership & Community inklusive',
                         ].map((f, i) => (
                           <div key={i} className="flex items-center gap-2 font-sans text-sm">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
@@ -637,9 +657,6 @@ export default function RegisterPage() {
                     { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                     )},
-                    { id: 'vorkasse', label: 'Vorkasse', sub: 'Zahlung per Banküberweisung im Voraus', icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
-                    )},
                   ].map((method) => (
                     <button
                       key={method.id}
@@ -742,7 +759,7 @@ export default function RegisterPage() {
                             Wähle, für welche(s) Instrument(e) dieses Mitglied innerhalb des Formationsabos Zugriff auf die Lehrgänge und Lernvideos erhält.
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            {ACADEMY_INSTRUMENTS.map(inst => {
+                            {ABO_INSTRUMENTS.map(inst => {
                               const sel = (memberInstruments[idx] ?? []).includes(inst)
                               return (
                                 <button key={inst} onClick={() => toggleMemberInstrument(idx, inst)} className={`font-sans text-xs px-3 py-1.5 border transition-all ${sel ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}>{inst}</button>
@@ -866,7 +883,7 @@ export default function RegisterPage() {
                   ← Zurück
                 </button>
                 <button
-                  onClick={() => setDone(true)}
+                  onClick={finishRegistration}
                   disabled={!formationReady}
                   className={`flex-1 font-sans font-semibold py-4 transition-colors ${formationReady ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
@@ -881,7 +898,7 @@ export default function RegisterPage() {
                 )
               ) : (
                 <button
-                  onClick={() => setDone(true)}
+                  onClick={finishRegistration}
                   className="w-full mt-3 font-sans text-sm text-text-secondary hover:text-dark transition-colors py-2"
                 >
                   Überspringen — später im Profil ergänzen

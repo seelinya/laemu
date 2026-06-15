@@ -4,7 +4,8 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { mockUserAbo, isPieceUnlocked, individualPlanMeta } from '@/lib/academy'
+import { isDbVideoUnlocked, individualPlanMeta, FREE_TRIAL_DB_COUNT } from '@/lib/academy'
+import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -127,6 +128,7 @@ type ArtFilter = 'volkstuemlich' | 'bekannte_melodie'
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function LernvideosPage() {
+  const userAbo = useUserAbo()
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
   const [filterArt, setFilterArt] = useState<ArtFilter | null>(null)
@@ -234,7 +236,7 @@ export default function LernvideosPage() {
 
   // Ergebnis-Karte (Stück) — geteilt von Datenbank- und Merkliste-Tab.
   const renderResultCard = (v: typeof videos[0], i: number) => {
-    const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument })
+    const unlocked = isDbVideoUnlocked({ id: v.id, plan: v.difficultyPlan, instrument: v.instrument }, userAbo)
     const isSaved = saved.has(v.id)
     const isLearned = learned.has(v.id)
     return (
@@ -757,18 +759,18 @@ export default function LernvideosPage() {
 
               {/* Abo / Freischalt-Hinweis */}
               <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                {mockUserAbo.plan === 'pro' || mockUserAbo.plan === 'lernvideo' ? (
+                {userAbo.plan === 'pro' || userAbo.plan === 'lernvideo' ? (
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. Mixer und Stimmen-Videos.
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}{userAbo.instruments.length > 0 ? ` · ${userAbo.instruments.join(', ')}` : ''}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. Mixer und Stimmen-Videos.
                     </p>
                   </>
-                ) : mockUserAbo.plan === 'starter' ? (
+                ) : userAbo.plan === 'starter' ? (
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[mockUserAbo.plan].label}{mockUserAbo.instruments.length > 0 ? ` · ${mockUserAbo.instruments.join(', ')}` : ''}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
+                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}{userAbo.instruments.length > 0 ? ` · ${userAbo.instruments.join(', ')}` : ''}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
                       <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
                     </p>
                   </>
@@ -776,8 +778,8 @@ export default function LernvideosPage() {
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Aktuell sind nur Free-Stücke verfügbar. Sobald du Zugang zu einem Lehrgang hast, ist die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> freigeschaltet.{' '}
-                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Lehrgang freischalten →</Link>
+                      <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind die ersten {FREE_TRIAL_DB_COUNT} Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
+                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
                     </p>
                   </>
                 )}

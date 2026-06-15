@@ -4,7 +4,8 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getCourse, instrumentLabels, type LessonType } from '@/lib/courses'
+import { getCourse, instrumentLabels, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type LessonType } from '@/lib/courses'
+import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -250,6 +251,9 @@ export default function ModulPage({
 }) {
   const router = useRouter()
   const course = getCourse(params.id, params.kursId)
+  const userAbo = useUserAbo()
+  const isFreeTier = userAbo.plan === 'none'
+  const trialKeys = course ? freeTrialLessonKeys(course) : new Set<string>()
   const modules = course?.modules ?? []
   const courseTitle = course?.title ?? params.kursId
   const instrumentLabel = course?.instrumentLabel ?? instrumentLabels[params.id] ?? params.id
@@ -279,6 +283,8 @@ export default function ModulPage({
   const prevLesson = activeModuleData && activeLessonIndex > 0 ? activeModuleData.lessons[activeLessonIndex - 1] : null
   const nextLesson = activeModuleData && activeLessonIndex < activeModuleData.lessons.length - 1 ? activeModuleData.lessons[activeLessonIndex + 1] : null
   const activeLessonDone = !!(activeModuleData && activeLesson && isLessonDone(activeModuleData.id, activeLesson.id))
+  // Free-Account: Lektion ausserhalb der Schnupper-Freischaltung ist gesperrt.
+  const activeLessonLocked = isFreeTier && !!activeModuleData && !!activeLesson && !trialKeys.has(`${activeModuleData.id}:${activeLesson.id}`)
 
   const totalLessons = modules.flatMap((m) => m.lessons).length
   const courseProgress = totalLessons > 0 ? Math.round((completedLessons.size / totalLessons) * 100) : 0
@@ -466,6 +472,7 @@ export default function ModulPage({
                             {mod.lessons.map((lesson) => {
                               const isActiveLesson = mod.id === params.modulId && lesson.id === activeLessonId
                               const lessonDone = isLessonDone(mod.id, lesson.id)
+                              const lessonLocked = isFreeTier && !trialKeys.has(`${mod.id}:${lesson.id}`)
                               return (
                                 <button
                                   key={lesson.id}
@@ -476,7 +483,7 @@ export default function ModulPage({
                                       router.push(`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${mod.id}?lektion=${lesson.id}`)
                                     }
                                   }}
-                                  className={`w-full flex items-center gap-2.5 pl-8 pr-4 py-2.5 text-left transition-colors ${isActiveLesson ? 'bg-accent-gold/10 border-l-2 border-accent-gold' : 'hover:bg-background border-l-2 border-transparent'}`}
+                                  className={`w-full flex items-center gap-2.5 pl-8 pr-4 py-2.5 text-left transition-colors ${isActiveLesson ? 'bg-accent-gold/10 border-l-2 border-accent-gold' : 'hover:bg-background border-l-2 border-transparent'} ${lessonLocked ? 'opacity-60' : ''}`}
                                 >
                                   <div className={`w-4 h-4 flex items-center justify-center flex-shrink-0 border ${lessonDone ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
                                     {lessonDone && (
@@ -485,9 +492,12 @@ export default function ModulPage({
                                       </svg>
                                     )}
                                   </div>
-                                  <span className={`font-sans text-xs truncate ${isActiveLesson ? 'text-accent-gold font-medium' : lessonDone ? 'text-text-secondary' : ''}`}>
+                                  <span className={`font-sans text-xs truncate flex-1 ${isActiveLesson ? 'text-accent-gold font-medium' : lessonDone ? 'text-text-secondary' : ''}`}>
                                     {lesson.title}
                                   </span>
+                                  {lessonLocked && (
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                                  )}
                                 </button>
                               )
                             })}
@@ -541,6 +551,26 @@ export default function ModulPage({
               </div>
             </div>
 
+            {/* ── Free-Account: Lektion gesperrt ── */}
+            {activeLessonLocked ? (
+              <motion.div key={`${activeLessonId}-locked`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                <div className="aspect-video bg-dark flex flex-col items-center justify-center text-center px-6 gap-4">
+                  <div className="w-14 h-14 bg-accent-gold/15 flex items-center justify-center">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                  </div>
+                  <div>
+                    <p className="font-heading font-bold text-white text-lg mb-1">Diese Lektion ist gesperrt</p>
+                    <p className="font-sans text-sm text-white/60 max-w-md">
+                      Im Free-Account sind die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen frei. Für diese Lektion und den ganzen Kurs brauchst du einen kostenpflichtigen Plan.
+                    </p>
+                  </div>
+                  <Link href="/member/academy" className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-warm transition-colors">
+                    Plan upgraden →
+                  </Link>
+                </div>
+              </motion.div>
+            ) : (
+            <>
             {/* ── Content blocks ── */}
             <motion.div key={activeLessonId} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-6">
 
@@ -642,6 +672,8 @@ export default function ModulPage({
                 )}
               </div>
             </motion.div>
+            </>
+            )}
 
             {/* ── Comments section ── */}
             <section className="border-t border-border pt-8 space-y-6">

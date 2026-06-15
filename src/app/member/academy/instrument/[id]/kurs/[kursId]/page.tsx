@@ -4,7 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
-import { getCourse, courseStats, flatLessons, type Lesson } from '@/lib/courses'
+import { getCourse, courseStats, flatLessons, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type Lesson } from '@/lib/courses'
+import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
@@ -44,6 +45,9 @@ function TypeBadge({ type }: { type: Lesson['type'] }) {
 
 export default function KursPage({ params }: { params: { id: string; kursId: string } }) {
   const course = getCourse(params.id, params.kursId)
+  const userAbo = useUserAbo()
+  const isFreeTier = userAbo.plan === 'none'
+  const trialKeys = course ? freeTrialLessonKeys(course) : new Set<string>()
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
 
   const toggleModule = (moduleId: string) => {
@@ -177,6 +181,17 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
           </motion.div>
         )}
 
+        {/* ── Free-Account: Schnupper-Hinweis ── */}
+        {isFreeTier && (
+          <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+            <p className="font-sans text-xs text-text-secondary leading-relaxed">
+              <strong className="text-dark font-semibold">Free-Account.</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs brauchst du einen kostenpflichtigen Plan.{' '}
+              <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
+            </p>
+          </div>
+        )}
+
         {/* ── Module list ── */}
         <section>
           <h2 className="font-heading text-xl font-bold mb-4">Kursinhalt</h2>
@@ -260,7 +275,29 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                         className="overflow-hidden"
                       >
                         <div className="border-t border-border divide-y divide-border">
-                          {mod.lessons.map((lesson) => (
+                          {mod.lessons.map((lesson) => {
+                            const lessonLocked = isFreeTier && !trialKeys.has(`${mod.id}:${lesson.id}`)
+                            if (lessonLocked) {
+                              return (
+                                <div
+                                  key={lesson.id}
+                                  className="flex items-center gap-4 px-5 py-3 bg-background opacity-70 cursor-not-allowed"
+                                  title="Im Free-Account gesperrt — Plan upgraden"
+                                >
+                                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 border border-border text-text-secondary">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-sans text-sm text-text-secondary">{lesson.title}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3 flex-shrink-0">
+                                    <span className="font-sans text-[10px] px-1.5 py-0.5 bg-border text-text-secondary uppercase tracking-wide">Upgrade</span>
+                                    <span className="font-sans text-xs text-text-secondary">{lesson.duration}</span>
+                                  </div>
+                                </div>
+                              )
+                            }
+                            return (
                             <Link
                               key={lesson.id}
                               href={`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${mod.id}?lektion=${lesson.id}`}
@@ -289,7 +326,8 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                                 </svg>
                               </div>
                             </Link>
-                          ))}
+                            )
+                          })}
                         </div>
                       </motion.div>
                     )}
