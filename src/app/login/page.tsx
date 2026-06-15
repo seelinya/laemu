@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { PasswordInput } from '@/components/PasswordInput'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -35,13 +36,6 @@ export default function LoginPage() {
           <p className="font-sans text-sm text-text-secondary mt-2 italic">Am Puls der Ländlermusik.</p>
         </div>
 
-        {/* Demo notice */}
-        <div className="bg-accent-gold/10 border border-accent-gold/30 rounded-sm px-4 py-3 mb-6">
-          <p className="font-sans text-xs text-accent-gold font-medium">
-            Demo-Zugangsdaten sind bereits eingetragen — einfach anmelden.
-          </p>
-        </div>
-
         {/* Card */}
         <div className="bg-white border border-border p-8">
           <h1 className="font-heading text-2xl font-black text-dark mb-6">Anmelden</h1>
@@ -61,11 +55,18 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block font-sans text-xs font-medium text-text-secondary uppercase tracking-widest mb-2">
-                Passwort
-              </label>
-              <input
-                type="password"
+              <div className="flex items-center justify-between mb-2">
+                <label className="block font-sans text-xs font-medium text-text-secondary uppercase tracking-widest">
+                  Passwort
+                </label>
+                <Link
+                  href="/passwort-vergessen"
+                  className="font-sans text-xs text-text-secondary hover:text-accent-gold transition-colors"
+                >
+                  Passwort vergessen?
+                </Link>
+              </div>
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
