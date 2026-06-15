@@ -345,7 +345,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-3 mb-6">
                 {([
                   { id: 'individual', label: 'Einzelperson', desc: 'Für dich allein' },
-                  { id: 'formation', label: 'Formation', desc: 'Für deine Kapelle' },
+                  { id: 'formation', label: 'Formation', desc: 'Für deine Gruppe' },
                 ] as const).map(opt => (
                   <button
                     key={opt.id}
@@ -440,8 +440,8 @@ export default function RegisterPage() {
                   {!isFree && individualPlanMeta[individualPlan].hasScope && (
                     <div className="bg-surface border border-border p-5 mb-6">
                       <h3 className="font-heading font-bold text-sm mb-3">Umfang wählen</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-                        {(['1', '2', '3', 'all'] as Scope[]).map(s => (
+                      <div className="grid grid-cols-3 gap-2 mb-5">
+                        {(['1', '2', '3'] as Scope[]).map(s => (
                           <button
                             key={s}
                             onClick={() => selectScope(s)}
@@ -452,31 +452,23 @@ export default function RegisterPage() {
                         ))}
                       </div>
 
-                      {scope !== 'all' ? (
-                        <>
-                          <p className="font-sans text-xs text-text-secondary mb-2">
-                            Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({aboInstruments.length}/{scopeCount(scope)})
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {ABO_INSTRUMENTS.map(inst => {
-                              const selected = aboInstruments.includes(inst)
-                              return (
-                                <button
-                                  key={inst}
-                                  onClick={() => toggleAboInstrument(inst)}
-                                  className={`font-sans text-sm px-3 py-2 border transition-all ${selected ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
-                                >
-                                  {inst}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </>
-                      ) : (
-                        <p className="font-sans text-xs text-text-secondary">
-                          All-in-One — alle Instrumente inklusive: {ABO_INSTRUMENTS.join(' · ')}.
-                        </p>
-                      )}
+                      <p className="font-sans text-xs text-text-secondary mb-2">
+                        Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({aboInstruments.length}/{scopeCount(scope)})
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {ABO_INSTRUMENTS.map(inst => {
+                          const selected = aboInstruments.includes(inst)
+                          return (
+                            <button
+                              key={inst}
+                              onClick={() => toggleAboInstrument(inst)}
+                              className={`font-sans text-sm px-3 py-2 border transition-all ${selected ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
+                            >
+                              {inst}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
 

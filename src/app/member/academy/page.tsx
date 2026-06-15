@@ -5,7 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
-import { courses, ALLGEMEIN_COURSES, courseStats } from '@/lib/courses'
+import { courses, ALLGEMEIN_COURSES, courseStats, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
+import { FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 
 // Allgemeiner Lehrgang — für alle Mitglieder freigeschaltet.
@@ -401,7 +402,7 @@ export default function MemberAcademyPage() {
                   <p className="font-sans text-xs text-text-secondary leading-relaxed">
                     {isFreeTier ? (
                       <>
-                        <strong className="text-dark font-semibold">Free-Account.</strong> Du siehst die ganze Musikschule, hast aber noch keine Kurs- und Video-Zugänge. Für Kurse und Lernvideos brauchst du einen kostenpflichtigen Plan.{' '}
+                        <strong className="text-dark font-semibold">Free-Account.</strong> Du siehst die ganze Musikschule und kannst kostenlos reinschnuppern — die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und {FREE_TRIAL_DB_COUNT} Videos der Lernvideo-Datenbank sind frei. Für vollen Zugang brauchst du einen kostenpflichtigen Plan.{' '}
                         <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Jetzt upgraden →</button>
                       </>
                     ) : isProTier ? (
@@ -462,22 +463,26 @@ export default function MemberAcademyPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Free-Account: noch keine Kurse gestartet — nur Upgrade-Hinweis */}
+                {/* Free-Account: kostenlos reinschnuppern */}
                 {isFreeTier && (
                   <section>
                     <div className="bg-surface border border-border p-8 sm:p-10 text-center">
                       <div className="w-14 h-14 bg-accent-gold/10 flex items-center justify-center mx-auto mb-5">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><polygon points="5 3 19 12 5 21 5 3" /></svg>
                       </div>
-                      <h3 className="font-heading font-bold text-xl mb-2">Du hast noch keinen Kurs gestartet</h3>
+                      <h3 className="font-heading font-bold text-xl mb-2">Kostenlos reinschnuppern</h3>
                       <p className="font-sans text-sm text-text-secondary leading-relaxed max-w-md mx-auto mb-6">
-                        Mit dem Free-Account kannst du die ganze Musikschule erkunden. Um Kurse zu starten und
-                        Lernvideos anzusehen, benötigst du einen kostenpflichtigen Plan. Upgrade jederzeit — dann
-                        sind deine Zugänge sofort freigeschaltet.
+                        Mit dem Free-Account sind die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und {FREE_TRIAL_DB_COUNT} Videos
+                        der Lernvideo-Datenbank frei. Probier es aus — für den vollen Zugang upgradest du jederzeit.
                       </p>
-                      <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-earth transition-colors">
-                        Plan upgraden →
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Link href="/member/academy/instrument/handorgel/kurs/grundlagen" className="bg-dark text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-gold transition-colors">
+                          Schnupperkurs starten →
+                        </Link>
+                        <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-earth transition-colors">
+                          Plan upgraden
+                        </button>
+                      </div>
                     </div>
                   </section>
                 )}

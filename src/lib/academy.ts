@@ -190,6 +190,21 @@ export function isPieceUnlocked(
   return false
 }
 
+// ─── Free-Account: Schnupper-Videos der Lernvideo-Datenbank ───────────────────
+// Im Free-Account sind die ersten beiden Stücke der Datenbank zum Reinschnuppern
+// freigeschaltet — zusätzlich zu den ohnehin freien Free-Stücken.
+export const FREE_TRIAL_DB_COUNT = 2
+export const FREE_TRIAL_DB_IDS: number[] = [1, 2]
+
+export function isDbVideoUnlocked(
+  piece: { id: number; plan: Plan; instrument: string },
+  abo: UserAbo = mockUserAbo,
+): boolean {
+  if (isPieceUnlocked(piece, abo)) return true
+  if (abo.plan === 'none' && FREE_TRIAL_DB_IDS.includes(piece.id)) return true
+  return false
+}
+
 // ─── Katalog (für die Detailseite, um Titel/Plan/Instrument je ID zu kennen) ──
 
 export type CatalogEntry = {

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pieceCatalog, isPieceUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
+import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { ShareMenu } from '@/components/ShareMenu'
 
@@ -809,7 +809,7 @@ export default function LernvideoDetailPage() {
   const params = useParams()
   const idNum = Number(Array.isArray(params?.id) ? params.id[0] : params?.id)
   const catalogEntry = pieceCatalog[idNum]
-  const unlocked = catalogEntry ? isPieceUnlocked({ plan: catalogEntry.plan, instrument: catalogEntry.instrument }, userAbo) : true
+  const unlocked = catalogEntry ? isDbVideoUnlocked({ id: catalogEntry.id, plan: catalogEntry.plan, instrument: catalogEntry.instrument }, userAbo) : true
 
   const v = videoData
   // Szenario „keine Noten verfügbar" (z.B. Innerschwizer Schottisch).

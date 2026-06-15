@@ -268,3 +268,16 @@ export function flatLessons(course: Course) {
     m.lessons.map((lesson, lessonIndex) => ({ moduleId: m.id, moduleTitle: m.title, lesson, moduleIndex, lessonIndex })),
   )
 }
+
+// ─── Free-Account: Schnupper-Lektionen ────────────────────────────────────────
+// Im Free-Account sind die ersten Lektionen jedes Kurses zum Reinschnuppern frei.
+export const FREE_TRIAL_LESSON_COUNT = 5
+
+// Set der im Free-Account freigeschalteten Lektions-Keys (`moduleId:lessonId`).
+export function freeTrialLessonKeys(course: Course): Set<string> {
+  return new Set(
+    flatLessons(course)
+      .slice(0, FREE_TRIAL_LESSON_COUNT)
+      .map((x) => `${x.moduleId}:${x.lesson.id}`),
+  )
+}

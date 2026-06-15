@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { isPieceUnlocked, individualPlanMeta } from '@/lib/academy'
+import { isDbVideoUnlocked, individualPlanMeta, FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -236,7 +236,7 @@ export default function LernvideosPage() {
 
   // Ergebnis-Karte (Stück) — geteilt von Datenbank- und Merkliste-Tab.
   const renderResultCard = (v: typeof videos[0], i: number) => {
-    const unlocked = isPieceUnlocked({ plan: v.difficultyPlan, instrument: v.instrument }, userAbo)
+    const unlocked = isDbVideoUnlocked({ id: v.id, plan: v.difficultyPlan, instrument: v.instrument }, userAbo)
     const isSaved = saved.has(v.id)
     const isLearned = learned.has(v.id)
     return (
@@ -778,8 +778,8 @@ export default function LernvideosPage() {
                   <>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Aktuell sind nur Free-Stücke verfügbar. Sobald du Zugang zu einem Lehrgang hast, ist die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> freigeschaltet.{' '}
-                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Lehrgang freischalten →</Link>
+                      <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind die ersten {FREE_TRIAL_DB_COUNT} Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
+                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
                     </p>
                   </>
                 )}
