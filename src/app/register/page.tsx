@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { PasswordInput } from '@/components/PasswordInput'
 import {
   ACADEMY_INSTRUMENTS,
   individualPricing,
@@ -38,7 +39,7 @@ export default function RegisterPage() {
 
   // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
   const [accountType, setAccountType] = useState<'individual' | 'formation'>('individual')
-  const [billing, setBilling] = useState<'yearly' | 'monthly'>('yearly')
+  const [billing, setBilling] = useState<'yearly' | 'monthly' | 'free'>('yearly')
   const [individualPlan, setIndividualPlan] = useState<IndividualPlanId>('starter')
   const [scope, setScope] = useState<Scope>('1')
   const [aboInstruments, setAboInstruments] = useState<string[]>(['Handorgel'])
@@ -80,22 +81,30 @@ export default function RegisterPage() {
     }
   }
 
+  // Free-Account: Einzelperson ohne Zahlungsmittel — alle Funktionen sichtbar,
+  // aber zur Nutzung ist ein Upgrade auf einen kostenpflichtigen Plan nötig.
+  const isFree = accountType === 'individual' && billing === 'free'
+
+  // Für die Preisanzeige im Free-Modus referenzieren wir den Jahrespreis
+  // (zeigt, was ein späteres Upgrade kosten würde).
+  const priceBilling: 'yearly' | 'monthly' = billing === 'free' ? 'yearly' : billing
+
   // Preis des aktuell gewählten Einzel-Abos
   const individualPrice = (() => {
-    if (individualPlan === 'lernvideo') return individualPricing.lernvideo[billing]
-    return individualPricing[individualPlan][scope][billing]
+    if (individualPlan === 'lernvideo') return individualPricing.lernvideo[priceBilling]
+    return individualPricing[individualPlan][scope][priceBilling]
   })()
 
   // Preis pro Plan-Karte (für die aktuelle Auswahl)
   const planCardPrice = (plan: IndividualPlanId) => {
-    if (plan === 'lernvideo') return individualPricing.lernvideo[billing]
-    return individualPricing[plan][scope][billing]
+    if (plan === 'lernvideo') return individualPricing.lernvideo[priceBilling]
+    return individualPricing[plan][scope][priceBilling]
   }
 
   const formationPrice = formationYearlyPrice(formationPlan, memberCount)
   const formationExtra = Math.max(0, memberCount - FORMATION_INCLUDED_MEMBERS)
 
-  const periodLabel = billing === 'yearly' ? '/ Jahr' : '/ Monat'
+  const periodLabel = priceBilling === 'yearly' ? '/ Jahr' : '/ Monat'
 
   // Formationen: Pflichtschritt — jedes Mitglied muss mindestens ein Instrument
   // für den Zugriff zugewiesen bekommen (im Hintergrund relevant für die
@@ -121,6 +130,20 @@ export default function RegisterPage() {
           <p className="font-sans text-text-secondary leading-relaxed mb-6">
             Dein Konto wurde erfolgreich erstellt. Du bist jetzt Teil der Schweizer Volksmusik-Community.
           </p>
+
+          {isFree && (
+            <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 text-left flex gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+              <div>
+                <p className="font-sans text-sm font-semibold mb-1">Dein Free-Account ist bereit</p>
+                <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                  Du kannst die ganze Musikschule erkunden und alle Gratis-Inhalte nutzen. Möchtest du die Lehrgänge
+                  oder die vollständige Lernvideo-Datenbank verwenden, upgradest du jederzeit in deinem Konto auf einen
+                  passenden Plan.
+                </p>
+              </div>
+            </div>
+          )}
 
           {accountType === 'formation' && (
             <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 text-left flex gap-3">
@@ -219,7 +242,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Passwort *</label>
-                  <input type="password" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Mindestens 8 Zeichen" />
+                  <PasswordInput className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Mindestens 8 Zeichen" />
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label>
@@ -312,6 +335,7 @@ export default function RegisterPage() {
                   {([
                     { id: 'yearly', label: 'Jährlich', hint: '2 Monate gratis' },
                     { id: 'monthly', label: 'Monatlich', hint: null },
+                    { id: 'free', label: 'Free', hint: 'Gratis' },
                   ] as const).map(opt => (
                     <button
                       key={opt.id}
@@ -328,15 +352,32 @@ export default function RegisterPage() {
               {/* ── INDIVIDUAL OFFERING ── */}
               {accountType === 'individual' && (
                 <>
+                  {isFree && (
+                    <div className="bg-accent-gold/5 border border-accent-gold/30 p-5 mb-6 flex gap-3">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                      <div>
+                        <p className="font-sans text-sm font-semibold mb-1">Free-Account — ohne Zahlungsmittel starten</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                          Als interessierte:r Lernende:r erkundest du die ganze Musikschule kostenlos: Du siehst alle
+                          Kurse, Instrumente und Lernvideos und kannst die Gratis-Stücke direkt nutzen. Zum Freischalten
+                          der Lehrgänge und der vollständigen Lernvideo-Datenbank upgradest du jederzeit auf einen
+                          kostenpflichtigen Plan — ganz ohne Eile.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-3 mb-6">
+                    {isFree && (
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-1">Das schaltest du mit einem Upgrade frei</p>
+                    )}
                     {INDIVIDUAL_PLAN_ORDER.map(planId => {
                       const meta = individualPlanMeta[planId]
-                      const active = individualPlan === planId
+                      const active = !isFree && individualPlan === planId
                       return (
                         <button
                           key={planId}
-                          onClick={() => setIndividualPlan(planId)}
-                          className={`w-full text-left p-5 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border hover:border-dark bg-surface'}`}
+                          onClick={() => { if (!isFree) setIndividualPlan(planId) }}
+                          className={`w-full text-left p-5 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border bg-surface'} ${isFree ? 'opacity-80 cursor-default' : 'hover:border-dark'}`}
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
@@ -346,6 +387,12 @@ export default function RegisterPage() {
                                 <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                                 {meta.badge && (
                                   <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
+                                )}
+                                {isFree && (
+                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary inline-flex items-center gap-1">
+                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                                    Upgrade
+                                  </span>
                                 )}
                               </div>
                               <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
@@ -361,7 +408,7 @@ export default function RegisterPage() {
                   </div>
 
                   {/* Scope + instrument selection */}
-                  {individualPlanMeta[individualPlan].hasScope && (
+                  {!isFree && individualPlanMeta[individualPlan].hasScope && (
                     <div className="bg-surface border border-border p-5 mb-6">
                       <h3 className="font-heading font-bold text-sm mb-3">Umfang wählen</h3>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
@@ -404,7 +451,44 @@ export default function RegisterPage() {
                     </div>
                   )}
 
+                  {/* Free-Account: Zusammenfassung statt Preis-/Umfangsauswahl */}
+                  {isFree && (
+                    <div className="bg-background border border-border p-5 mb-8">
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Dein Free-Account</p>
+                      <div className="space-y-2">
+                        {[
+                          'Vollständiger Einblick in alle Kurse, Instrumente & Lernvideos',
+                          'Gratis-Stücke direkt spielbar',
+                          'LAEMU Membership & Community inklusive',
+                        ].map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 font-sans text-sm">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-border space-y-2">
+                        <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-1">Erst mit Upgrade nutzbar</p>
+                        {[
+                          'Strukturierte Lehrgänge (Grund- & Erweiterungskurse)',
+                          'Vollständige Lernvideo-Datenbank',
+                          'Persönlicher Support & Video-Feedback',
+                        ].map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 font-sans text-sm text-text-secondary">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary/60 flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between border-t border-border mt-4 pt-4">
+                        <span className="font-sans text-sm text-text-secondary">Dein Preis</span>
+                        <span className="font-heading font-bold text-2xl text-accent-gold">Gratis</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Feature list of selected plan */}
+                  {!isFree && (
                   <div className="bg-background border border-border p-5 mb-8">
                     <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Enthalten</p>
                     <div className="space-y-2">
@@ -437,6 +521,7 @@ export default function RegisterPage() {
                       <span className="font-heading font-bold text-2xl text-accent-gold">{chf(individualPrice)}<span className="font-sans text-sm font-normal text-text-secondary">{periodLabel}</span></span>
                     </div>
                   </div>
+                  )}
                 </>
               )}
 
@@ -529,7 +614,19 @@ export default function RegisterPage() {
                 </>
               )}
 
-              {/* Payment */}
+              {/* Payment — im Free-Account nicht nötig */}
+              {isFree ? (
+                <div className="bg-surface border border-border p-5 mb-8 flex gap-3">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" /></svg>
+                  <div>
+                    <p className="font-sans font-semibold text-sm mb-1">Kein Zahlungsmittel nötig</p>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Für den Free-Account hinterlegst du keine Zahlungsdaten. Sobald du eine Funktion nutzen möchtest,
+                      kannst du jederzeit in deinem Konto auf einen kostenpflichtigen Plan upgraden.
+                    </p>
+                  </div>
+                </div>
+              ) : (
               <div className="mb-8">
                 <h3 className="font-heading font-bold text-lg mb-4">Zahlungsmittel</h3>
                 <div className="grid grid-cols-1 gap-3">
@@ -563,6 +660,7 @@ export default function RegisterPage() {
                   ))}
                 </div>
               </div>
+              )}
 
               <div className="flex gap-3">
                 <button
@@ -627,7 +725,7 @@ export default function RegisterPage() {
                         </div>
                         <div><label className="label text-text-secondary block mb-1.5">E-Mail-Adresse *</label><input type="email" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
                         <div className="grid grid-cols-2 gap-3">
-                          <div><label className="label text-text-secondary block mb-1.5">Passwort *</label><input type="password" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
+                          <div><label className="label text-text-secondary block mb-1.5">Passwort *</label><PasswordInput className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
                           <div><label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label><input type="date" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" /></div>
                         </div>
                         <div className="grid grid-cols-3 gap-3">
