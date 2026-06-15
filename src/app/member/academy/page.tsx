@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { courses, ALLGEMEIN_COURSES, courseStats } from '@/lib/courses'
+import { useUserAbo } from '@/lib/userPlan'
 
 // Allgemeiner Lehrgang — für alle Mitglieder freigeschaltet.
 const allgemeinCardMeta: Record<string, string> = {
@@ -312,6 +313,11 @@ export default function MemberAcademyPage() {
   const [isUpgraded, setIsUpgraded] = useState(false)
   const [courseFilter, setCourseFilter] = useState('Alle')
 
+  // Zugänge je nach gewähltem Abo: Free (kein Lehrgang), Starter, Pro.
+  const userAbo = useUserAbo()
+  const isFreeTier = userAbo.plan === 'none'
+  const isProTier = userAbo.plan === 'pro' || userAbo.plan === 'lernvideo' || isUpgraded
+
   // Instrumente, zu denen der/die Lernende Kurse hat — als Filter-Tabs.
   const courseInstruments = Array.from(new Set(activeCourses.map((c) => c.instrument)))
   const courseTabs = courseInstruments.length > 1 ? ['Alle', ...courseInstruments] : courseInstruments
@@ -345,10 +351,12 @@ export default function MemberAcademyPage() {
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
         <h1 className="font-heading font-bold text-lg">LAEMU Musikschule</h1>
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-            <span className="font-sans font-bold text-sm">7 Tage Streak!</span>
-          </div>
+          {!isFreeTier && (
+            <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+              <span className="font-sans font-bold text-sm">7 Tage Streak!</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -366,16 +374,48 @@ export default function MemberAcademyPage() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-dark p-8">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen zurück</p>
+                      <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen{isFreeTier ? '' : ' zurück'}</p>
                       <h2 className="font-heading text-3xl font-bold text-white mb-2">Guten Tag, Niklaus</h2>
-                      <p className="font-sans text-white/60">Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!</p>
+                      <p className="font-sans text-white/60">
+                        {isFreeTier
+                          ? 'Schön, dass du da bist! Entdecke die ganze Musikschule — für vollen Zugang einfach upgraden.'
+                          : 'Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!'}
+                      </p>
                     </div>
-                    <div className="bg-accent-gold/20 border border-accent-gold/30 px-4 py-3 text-center">
-                      <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
-                      <p className="font-sans text-xs text-white/50">Tage Streak</p>
-                    </div>
+                    {!isFreeTier && (
+                      <div className="bg-accent-gold/20 border border-accent-gold/30 px-4 py-3 text-center">
+                        <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
+                        <p className="font-sans text-xs text-white/50">Tage Streak</p>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
+
+                {/* Zugangs-Hinweis je nach Abo */}
+                <div className={`border px-4 py-3 flex items-start gap-3 ${isProTier ? 'bg-accent-gold/5 border-accent-gold/30' : 'bg-surface border-border'}`}>
+                  {isProTier ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                  )}
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                    {isFreeTier ? (
+                      <>
+                        <strong className="text-dark font-semibold">Free-Account.</strong> Du siehst die ganze Musikschule, hast aber noch keine Kurs- und Video-Zugänge. Für Kurse und Lernvideos brauchst du einen kostenpflichtigen Plan.{' '}
+                        <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Jetzt upgraden →</button>
+                      </>
+                    ) : isProTier ? (
+                      <>
+                        <strong className="text-dark font-semibold">Pro-Zugang.</strong> Alle Grund- und Erweiterungskurse sowie die komplette Lernvideo-Datenbank sind freigeschaltet.
+                      </>
+                    ) : (
+                      <>
+                        <strong className="text-dark font-semibold">Starter-Zugang.</strong> Grundkurse und Starter-Lernvideos sind freigeschaltet. Pro-Inhalte (Erweiterungskurse, gesperrte Stücke) erfordern ein Upgrade.{' '}
+                        <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</button>
+                      </>
+                    )}
+                  </p>
+                </div>
 
                 {/* Search */}
                 <div className="relative">
@@ -422,6 +462,27 @@ export default function MemberAcademyPage() {
                   </AnimatePresence>
                 </div>
 
+                {/* Free-Account: noch keine Kurse gestartet — nur Upgrade-Hinweis */}
+                {isFreeTier && (
+                  <section>
+                    <div className="bg-surface border border-border p-8 sm:p-10 text-center">
+                      <div className="w-14 h-14 bg-accent-gold/10 flex items-center justify-center mx-auto mb-5">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                      </div>
+                      <h3 className="font-heading font-bold text-xl mb-2">Du hast noch keinen Kurs gestartet</h3>
+                      <p className="font-sans text-sm text-text-secondary leading-relaxed max-w-md mx-auto mb-6">
+                        Mit dem Free-Account kannst du die ganze Musikschule erkunden. Um Kurse zu starten und
+                        Lernvideos anzusehen, benötigst du einen kostenpflichtigen Plan. Upgrade jederzeit — dann
+                        sind deine Zugänge sofort freigeschaltet.
+                      </p>
+                      <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-earth transition-colors">
+                        Plan upgraden →
+                      </button>
+                    </div>
+                  </section>
+                )}
+
+                {!isFreeTier && (<>
                 {/* Meine Kurse — Journey-Design, filterbar nach Instrument */}
                 <section>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
@@ -495,8 +556,9 @@ export default function MemberAcademyPage() {
                     })}
                   </div>
                 </section>
+                </>)}
 
-                {!isUpgraded && (
+                {!isProTier && (
                   <section>
                     <h3 className="font-heading font-bold text-xl mb-4">Weitere Angebote</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -5,7 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pieceCatalog, isPieceUnlocked, mockUserAbo, type CatalogEntry } from '@/lib/academy'
+import { pieceCatalog, isPieceUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
+import { useUserAbo } from '@/lib/userPlan'
 import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Noten ───────────────────────────────────────────────────────────────────
@@ -719,10 +720,10 @@ function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist }: { lv: { id: string
 
 // ─── Locked view (Stück nicht im Abo enthalten) ──────────────────────────────
 
-function LockedDetailView({ piece }: { piece: CatalogEntry }) {
+function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo }) {
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
   // Starter-Mitglied bei einem Pro-Stück: Upgrade auf Pro nötig.
-  const needsProUpgrade = piece.plan === 'pro' && mockUserAbo.plan === 'starter'
+  const needsProUpgrade = piece.plan === 'pro' && abo.plan === 'starter'
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
@@ -749,7 +750,7 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
           <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} variant="standard" />
           <p className="font-sans text-xs text-text-secondary mt-2">
             Die Masteraufnahme ist frei verfügbar. Der Mixer sowie die einzelnen Stimmen-Videos
-            (1. Stimme, 2. Stimme & Begleitvorschläge) sind in deinem {planLabel[mockUserAbo.plan] ?? 'aktuellen'}-Abo nicht enthalten.
+            (1. Stimme, 2. Stimme & Begleitvorschläge) sind in deinem {planLabel[abo.plan] ?? 'aktuellen'}-Abo nicht enthalten.
           </p>
         </motion.div>
 
@@ -804,10 +805,11 @@ function LockedDetailView({ piece }: { piece: CatalogEntry }) {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function LernvideoDetailPage() {
+  const userAbo = useUserAbo()
   const params = useParams()
   const idNum = Number(Array.isArray(params?.id) ? params.id[0] : params?.id)
   const catalogEntry = pieceCatalog[idNum]
-  const unlocked = catalogEntry ? isPieceUnlocked({ plan: catalogEntry.plan, instrument: catalogEntry.instrument }) : true
+  const unlocked = catalogEntry ? isPieceUnlocked({ plan: catalogEntry.plan, instrument: catalogEntry.instrument }, userAbo) : true
 
   const v = videoData
   // Szenario „keine Noten verfügbar" (z.B. Innerschwizer Schottisch).
@@ -883,7 +885,7 @@ export default function LernvideoDetailPage() {
 
   // Gesperrte Stücke: nur Masteraufnahme (Standard-Player, ohne Mixer).
   if (catalogEntry && !unlocked) {
-    return <LockedDetailView piece={catalogEntry} />
+    return <LockedDetailView piece={catalogEntry} abo={userAbo} />
   }
 
   return (

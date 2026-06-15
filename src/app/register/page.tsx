@@ -15,7 +15,10 @@ import {
   type Scope,
   type IndividualPlanId,
   type FormationPlanId,
+  type Instrument,
+  type UserAbo,
 } from '@/lib/academy'
+import { setStoredAbo } from '@/lib/userPlan'
 
 // Im Profil wählbare Instrumente (inkl. Klavier & Klarinette).
 const PROFILE_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavier', 'Klarinette']
@@ -115,6 +118,29 @@ export default function RegisterPage() {
   const formationReady =
     accountType !== 'formation' ||
     Array.from({ length: memberCount }).every((_, idx) => (memberInstruments[idx]?.length ?? 0) > 0)
+
+  // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
+  // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
+  const finishRegistration = () => {
+    let abo: UserAbo
+    if (isFree) {
+      abo = { plan: 'none', instruments: [] }
+    } else if (accountType === 'formation') {
+      abo = {
+        plan: formationPlan,
+        instruments: (memberInstruments[0] ?? []) as Instrument[],
+        allInstruments: formationPlan === 'lernvideo',
+      }
+    } else {
+      abo = {
+        plan: individualPlan,
+        instruments: (scope === 'all' ? [...ABO_INSTRUMENTS] : aboInstruments) as Instrument[],
+        allInstruments: scope === 'all' || individualPlan === 'lernvideo',
+      }
+    }
+    setStoredAbo(abo)
+    setDone(true)
+  }
 
   if (done) {
     return (
@@ -462,7 +488,6 @@ export default function RegisterPage() {
                         {[
                           'Vollständiger Einblick in alle Kurse, Instrumente & Lernvideos',
                           'Gratis-Stücke direkt spielbar',
-                          'LAEMU Membership & Community inklusive',
                         ].map((f, i) => (
                           <div key={i} className="flex items-center gap-2 font-sans text-sm">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
@@ -866,7 +891,7 @@ export default function RegisterPage() {
                   ← Zurück
                 </button>
                 <button
-                  onClick={() => setDone(true)}
+                  onClick={finishRegistration}
                   disabled={!formationReady}
                   className={`flex-1 font-sans font-semibold py-4 transition-colors ${formationReady ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                 >
@@ -881,7 +906,7 @@ export default function RegisterPage() {
                 )
               ) : (
                 <button
-                  onClick={() => setDone(true)}
+                  onClick={finishRegistration}
                   className="w-full mt-3 font-sans text-sm text-text-secondary hover:text-dark transition-colors py-2"
                 >
                   Überspringen — später im Profil ergänzen
