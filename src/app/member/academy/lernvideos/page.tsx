@@ -102,7 +102,6 @@ const initialWishes: Wish[] = [
 
 const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Marsch', 'Lied']
-const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Bündner Stil']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
 
 // Optionen für Stimmen bei Stückwünschen — gruppiert nach 1. Stimme, 2. Stimme
@@ -500,14 +499,6 @@ export default function LernvideosPage() {
                                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                                       <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
                                         <div>
-                                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stil</p>
-                                          <div className="flex flex-wrap gap-1">
-                                            {VOLKSTUEMLICH_TAGS.map(t => (
-                                              <button key={t} onClick={() => setFilterStyleTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
-                                            ))}
-                                          </div>
-                                        </div>
-                                        <div>
                                           <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
                                           <div className="flex flex-wrap gap-1">
                                             {TAKTARTEN_FILTER.map(t => (
@@ -643,20 +634,6 @@ export default function LernvideosPage() {
                           {active && val === 'volkstuemlich' && (
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                               <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
-                                <div>
-                                  <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stil</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {VOLKSTUEMLICH_TAGS.map(t => (
-                                      <button
-                                        key={t}
-                                        onClick={() => setFilterStyleTag(prev => prev === t ? null : t)}
-                                        className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                                      >
-                                        {t}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
                                 <div>
                                   <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
                                   <div className="flex flex-wrap gap-1">
