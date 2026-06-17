@@ -890,6 +890,59 @@ export default function RegisterPage() {
                     ))}
                   </div>
 
+                  {/* Kreditkarte — Kartendetails eingeben (via Stripe) */}
+                  {selectedPayment === 'card' && (
+                    <div className="mt-4 border border-border bg-surface p-4 space-y-3">
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Kartendetails</p>
+                      <div>
+                        <label className="label text-text-secondary block mb-1.5">Kartennummer</label>
+                        <div className="relative">
+                          <input type="text" inputMode="numeric" placeholder="1234 5678 9012 3456" className="w-full border border-border px-4 py-3 pr-12 font-sans text-sm focus:outline-none focus:border-dark bg-background" />
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="label text-text-secondary block mb-1.5">Ablaufdatum</label>
+                          <input type="text" inputMode="numeric" placeholder="MM / JJ" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background" />
+                        </div>
+                        <div>
+                          <label className="label text-text-secondary block mb-1.5">CVC</label>
+                          <input type="text" inputMode="numeric" placeholder="123" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="label text-text-secondary block mb-1.5">Karteninhaber:in</label>
+                        <input type="text" placeholder="Name auf der Karte" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background" />
+                      </div>
+                      <p className="font-sans text-[11px] text-text-secondary leading-relaxed flex items-start gap-1.5">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                        Die Kartendaten werden direkt und verschlüsselt von Stripe verarbeitet. LAEMU sieht oder speichert deine vollständigen Kartendaten nie.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* TWINT — Ablauf der Zahlung */}
+                  {selectedPayment === 'twint' && (
+                    <div className="mt-4 border border-border bg-surface p-4">
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">So bezahlst du mit TWINT</p>
+                      <div className="flex gap-4">
+                        <div className="w-24 h-24 bg-background border border-border flex items-center justify-center flex-shrink-0">
+                          <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor" className="text-dark"><path d="M3 3h6v6H3V3zm2 2v2h2V5H5zm10-2h6v6h-6V3zm2 2v2h2V5h-2zM3 15h6v6H3v-6zm2 2v2h2v-2H5zm10-2h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 2h2v2h-2v-2z"/></svg>
+                        </div>
+                        <ol className="space-y-1.5 font-sans text-sm text-text-secondary">
+                          <li><span className="font-semibold text-dark">1.</span> Öffne die TWINT-App auf deinem Smartphone.</li>
+                          <li><span className="font-semibold text-dark">2.</span> Scanne den QR-Code oder bestätige die Zahlungsanfrage.</li>
+                          <li><span className="font-semibold text-dark">3.</span> Bestätige den Betrag in der App — fertig.</li>
+                        </ol>
+                      </div>
+                      <p className="font-sans text-[11px] text-text-secondary leading-relaxed mt-3 flex items-start gap-1.5">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        Nach dem Abschluss wirst du sicher über Stripe an TWINT übergeben; der QR-Code wird dann mit dem effektiven Betrag erzeugt.
+                      </p>
+                    </div>
+                  )}
+
                   {/* Gutscheincode — nur bei Jahresabos einlösbar */}
                   <div className="mt-5">
                     <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Gutscheincode</label>
