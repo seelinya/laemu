@@ -27,6 +27,7 @@ const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
 const steps = [
   { number: 1, label: 'Mitgliedschaft' },
   { number: 2, label: 'Angaben' },
+  { number: 3, label: 'Zahlung' },
 ]
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
@@ -115,6 +116,30 @@ export default function RegisterPage() {
   // Gutscheincodes sind nur bei Jahresabos einlösbar. Formationen sind immer
   // Jahresabos, Einzelpersonen nur im «Jährlich»-Modus.
   const isYearlyAbo = accountType === 'formation' || (accountType === 'individual' && billing === 'yearly')
+
+  // Übersicht der getroffenen Auswahl (für die Zusammenfassung im Zahlungsschritt).
+  const summary = (() => {
+    if (isFree) {
+      return { title: 'Free-Account', sub: 'Ohne Zahlung — du kannst jederzeit upgraden.', price: 'Gratis', period: '' }
+    }
+    if (accountType === 'formation') {
+      return {
+        title: `Formation ${formationPlanMeta[formationPlan].label}`,
+        sub: `${memberCount} Mitglied${memberCount !== 1 ? 'er' : ''}${formationExtra > 0 ? ` · inkl. ${formationExtra} × 10 % Zuschlag` : ''}`,
+        price: chf(formationPrice),
+        period: '/ Jahr',
+      }
+    }
+    const scopeText = individualPlanMeta[individualPlan].hasScope
+      ? `${scopeLabels[scope]} · ${(scope === 'all' ? [...ABO_INSTRUMENTS] : aboInstruments).join(', ')}`
+      : 'Alle Instrumente'
+    return {
+      title: individualPlanMeta[individualPlan].label,
+      sub: `${scopeText} · ${billing === 'yearly' ? 'Jährlich' : 'Monatlich'}`,
+      price: chf(individualPrice),
+      period: periodLabel,
+    }
+  })()
 
   // Angaben-Schritt: erst weiter, wenn alle Pflichtfelder ausgefüllt sind und
   // die Nutzungsbedingungen akzeptiert wurden.
@@ -397,119 +422,6 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {/* ── Zahlungsmittel — im Free-Account nicht nötig ── */}
-                {isFree ? (
-                  <div className="bg-accent-gold/10 border border-accent-gold/40 p-5 flex gap-3">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" /></svg>
-                    <div>
-                      <p className="font-sans font-semibold text-sm mb-1">Kein Zahlungsmittel nötig</p>
-                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                        Für den Free-Account hinterlegst du keine Zahlungsdaten. Sobald du eine Funktion nutzen möchtest,
-                        kannst du jederzeit in deinem Konto auf einen kostenpflichtigen Plan upgraden.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <h3 className="font-heading font-bold text-lg mb-1">Zahlungsmittel</h3>
-                    <p className="font-sans text-xs text-text-secondary mb-4">
-                      Dein Zahlungsmittel wird anschliessend sicher mit Stripe verbunden.
-                    </p>
-                    <div className="grid grid-cols-1 gap-3">
-                      {[
-                        { id: 'card', label: 'Kredit- / Debitkarte', sub: 'Visa, Mastercard', icon: (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                        )},
-                        { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                        )},
-                      ].map((method) => (
-                        <button
-                          key={method.id}
-                          onClick={() => setSelectedPayment(method.id)}
-                          className={`flex items-center gap-4 p-4 border-2 text-left transition-all ${
-                            selectedPayment === method.id ? 'border-dark bg-dark/5' : 'border-border bg-surface hover:border-dark'
-                          }`}
-                        >
-                          <span className={selectedPayment === method.id ? 'text-dark' : 'text-text-secondary'}>{method.icon}</span>
-                          <div>
-                            <p className="font-sans font-semibold text-sm">{method.label}</p>
-                            <p className="font-sans text-xs text-text-secondary">{method.sub}</p>
-                          </div>
-                          <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selectedPayment === method.id ? 'border-dark bg-dark' : 'border-border'}`}>
-                            {selectedPayment === method.id && <div className="w-2 h-2 rounded-full bg-white" />}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Gutscheincode — nur bei Jahresabos einlösbar */}
-                    <div className="mt-5">
-                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Gutscheincode</label>
-                      {isYearlyAbo ? (
-                        voucherApplied ? (
-                          <div className="flex items-center justify-between gap-2 border border-accent-gold bg-accent-gold/10 px-4 py-3">
-                            <span className="font-sans text-sm text-dark inline-flex items-center gap-2">
-                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-                              Code <strong>{voucher.trim().toUpperCase()}</strong> eingelöst
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => { setVoucherApplied(false); setVoucher('') }}
-                              className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
-                            >
-                              Entfernen
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex gap-2">
-                              <input
-                                value={voucher}
-                                onChange={e => setVoucher(e.target.value)}
-                                type="text"
-                                placeholder="z.B. LAEMU2026"
-                                className="flex-1 border border-border px-4 py-3 font-sans text-sm uppercase placeholder:normal-case placeholder:text-text-secondary/60 focus:outline-none focus:border-dark bg-surface"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => { if (voucher.trim()) setVoucherApplied(true) }}
-                                disabled={!voucher.trim()}
-                                className={`px-5 font-sans text-sm font-semibold transition-colors ${voucher.trim() ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
-                              >
-                                Einlösen
-                              </button>
-                            </div>
-                            <p className="font-sans text-xs text-text-secondary mt-2">Gutscheincodes sind nur bei Jahresabos einlösbar.</p>
-                          </>
-                        )
-                      ) : (
-                        <div className="border border-border bg-surface px-4 py-3">
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="Gutscheincode eingeben"
-                            className="w-full bg-transparent font-sans text-sm text-text-secondary/60 cursor-not-allowed outline-none"
-                          />
-                          <p className="font-sans text-xs text-text-secondary mt-2 flex items-start gap-1.5">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                            Gutscheincodes können nur bei Jahresabos eingelöst werden. Wechsle im vorherigen Schritt zu «Jährlich», um einen Code einzulösen.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Stripe — sichere Abwicklung der Zahlung (golden hint) */}
-                    <div className="mt-4 flex items-center gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                        Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
-                        wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -534,23 +446,20 @@ export default function RegisterPage() {
                     ← Zurück
                   </button>
                   <button
-                    onClick={finishRegistration}
+                    onClick={() => setStep(3)}
                     disabled={!(angabenComplete && formationReady)}
-                    className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                    className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
-                    Registrierung abschliessen ✓
+                    Weiter zur Zahlung →
                   </button>
                 </div>
                 {!(angabenComplete && formationReady) && (
                   <p className="font-sans text-xs text-text-secondary text-center">
                     {!angabenComplete
                       ? 'Bitte fülle alle Pflichtfelder (*) aus und akzeptiere die Nutzungsbedingungen, um fortzufahren.'
-                      : 'Bitte hinterlege für jedes weitere Formationsmitglied eine E-Mail-Adresse, um die Registrierung abzuschliessen.'}
+                      : 'Bitte hinterlege für jedes weitere Formationsmitglied eine E-Mail-Adresse, um fortzufahren.'}
                   </p>
                 )}
-                <p className="font-sans text-xs text-text-secondary text-center">
-                  Dein persönliches Profil (Bild, Bio, Instrumente …) ergänzt du jederzeit später im Mitgliederbereich.
-                </p>
               </div>
             </motion.div>
           )}
@@ -613,11 +522,11 @@ export default function RegisterPage() {
               {accountType === 'individual' && (
                 <>
                   {isFree && (
-                    <div className="bg-accent-gold border border-accent-gold p-5 mb-6 flex gap-3 shadow-lg shadow-accent-gold/20">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white flex-shrink-0 mt-0.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                    <div className="bg-accent-gold/10 border border-accent-gold/40 p-5 mb-6 flex gap-3">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                       <div>
-                        <p className="font-heading text-base font-bold mb-1 text-white">Free-Account — ohne Zahlung starten</p>
-                        <p className="font-sans text-xs text-white/90 leading-relaxed">
+                        <p className="font-heading text-base font-bold mb-1 text-dark">Free-Account — ohne Zahlung starten</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
                           Als interessierte:r Lernende:r erkundest du die ganze Musikschule kostenlos: Du siehst alle
                           Kurse, Instrumente und Lernvideos und kannst die Gratis-Stücke direkt nutzen. Zum Freischalten
                           der Lehrgänge und der vollständigen Lernvideo-Datenbank upgradest du jederzeit auf einen
@@ -738,6 +647,19 @@ export default function RegisterPage() {
                     </div>
                   )}
 
+                  {!isFree && individualPlan === 'lernvideo' && (
+                    <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-6 flex gap-3">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                      <div>
+                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zur ganzen Lernvideo-Datenbank</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                          Du erhältst direkten Zugang zur kompletten Lernvideo-Datenbank — sämtliche Instrumente, ohne
+                          Lehrgänge oder einen Umfang auszuwählen.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Feature list of selected plan */}
                   {!isFree && (
                   <div className="bg-accent-gold/5 border-2 border-accent-gold/40 p-5 mb-8">
@@ -806,7 +728,7 @@ export default function RegisterPage() {
                       <div className="mt-3 flex items-start gap-2 bg-accent-gold/10 border border-accent-gold/40 p-3">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                         <span className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Du selbst bist bereits als 1. Mitglied erfasst. Die weiteren {inviteCount} {inviteCount === 1 ? 'Mitglied erfasst du' : 'Mitglieder erfasst du'} im nächsten Schritt direkt unterhalb deiner eigenen Kontaktdaten.
+                          Du bist das 1. Mitglied. Die weiteren {inviteCount} {inviteCount === 1 ? 'Mitglied erfasst du' : 'Mitglieder erfasst du'} im nächsten Schritt direkt unter deinen Kontaktdaten.
                         </span>
                       </div>
                     )}
@@ -845,6 +767,19 @@ export default function RegisterPage() {
                     })}
                   </div>
 
+                  {formationPlan === 'lernvideo' && (
+                    <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-6 flex gap-3">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                      <div>
+                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zur ganzen Lernvideo-Datenbank</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                          Alle Mitglieder erhalten direkten Zugang zur kompletten Lernvideo-Datenbank — sämtliche
+                          Instrumente, ohne Lehrgänge oder einen Umfang auszuwählen.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Enthalten (Formation) */}
                   <div className="bg-accent-gold/5 border-2 border-accent-gold/40 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
@@ -874,7 +809,6 @@ export default function RegisterPage() {
                         ))}
                       </div>
                     )}
-                    <p className="font-sans text-xs text-text-secondary border-t border-border mt-4 pt-4">Gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder · {memberCount} Mitglied{memberCount !== 1 ? 'er' : ''} gewählt</p>
                   </div>
                 </>
               )}
@@ -885,6 +819,177 @@ export default function RegisterPage() {
               >
                 Weiter →
               </button>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <h1 className="font-heading text-3xl font-bold mb-2">Zahlung</h1>
+              <p className="font-sans text-text-secondary text-sm mb-8">
+                {isFree
+                  ? 'Für deinen Free-Account ist keine Zahlung nötig — überprüfe kurz deine Auswahl und schliess ab.'
+                  : 'Überprüfe deine Auswahl und schliesse die Zahlung ab.'}
+              </p>
+
+              {/* Übersicht der gewählten Auswahl */}
+              <div className="bg-accent-gold/10 border border-accent-gold/40 p-5 mb-6">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Deine Auswahl</p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-sans font-semibold text-sm">{summary.title}</p>
+                    <p className="font-sans text-xs text-text-secondary">{summary.sub}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <span className="font-heading font-bold text-2xl text-accent-gold">{summary.price}</span>
+                    {summary.period && <span className="font-sans text-xs text-text-secondary block">{summary.period}</span>}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Zahlungsmittel — im Free-Account nicht nötig ── */}
+              {isFree ? (
+                <div className="bg-accent-gold/10 border border-accent-gold/40 p-5 flex gap-3 mb-6">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" /></svg>
+                  <div>
+                    <p className="font-sans font-semibold text-sm mb-1">Kein Zahlungsmittel nötig</p>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Für den Free-Account hinterlegst du keine Zahlungsdaten. Sobald du eine Funktion nutzen möchtest,
+                      kannst du jederzeit in deinem Konto auf einen kostenpflichtigen Plan upgraden.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-6">
+                  <h3 className="font-heading font-bold text-lg mb-1">Zahlungsmittel</h3>
+                  <p className="font-sans text-xs text-text-secondary mb-4">
+                    Dein Zahlungsmittel wird anschliessend sicher mit Stripe verbunden.
+                  </p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {[
+                      { id: 'card', label: 'Kredit- / Debitkarte', sub: 'Visa, Mastercard', icon: (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                      )},
+                      { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                      )},
+                    ].map((method) => (
+                      <button
+                        key={method.id}
+                        onClick={() => setSelectedPayment(method.id)}
+                        className={`flex items-center gap-4 p-4 border-2 text-left transition-all ${
+                          selectedPayment === method.id ? 'border-dark bg-dark/5' : 'border-border bg-surface hover:border-dark'
+                        }`}
+                      >
+                        <span className={selectedPayment === method.id ? 'text-dark' : 'text-text-secondary'}>{method.icon}</span>
+                        <div>
+                          <p className="font-sans font-semibold text-sm">{method.label}</p>
+                          <p className="font-sans text-xs text-text-secondary">{method.sub}</p>
+                        </div>
+                        <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selectedPayment === method.id ? 'border-dark bg-dark' : 'border-border'}`}>
+                          {selectedPayment === method.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Gutscheincode — nur bei Jahresabos einlösbar */}
+                  <div className="mt-5">
+                    <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Gutscheincode</label>
+                    {isYearlyAbo ? (
+                      voucherApplied ? (
+                        <div className="flex items-center justify-between gap-2 border border-accent-gold bg-accent-gold/10 px-4 py-3">
+                          <span className="font-sans text-sm text-dark inline-flex items-center gap-2">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                            Code <strong>{voucher.trim().toUpperCase()}</strong> eingelöst
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => { setVoucherApplied(false); setVoucher('') }}
+                            className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                          >
+                            Entfernen
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex gap-2">
+                            <input
+                              value={voucher}
+                              onChange={e => setVoucher(e.target.value)}
+                              type="text"
+                              placeholder="z.B. LAEMU2026"
+                              className="flex-1 border border-border px-4 py-3 font-sans text-sm uppercase placeholder:normal-case placeholder:text-text-secondary/60 focus:outline-none focus:border-dark bg-surface"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { if (voucher.trim()) setVoucherApplied(true) }}
+                              disabled={!voucher.trim()}
+                              className={`px-5 font-sans text-sm font-semibold transition-colors ${voucher.trim() ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                            >
+                              Einlösen
+                            </button>
+                          </div>
+                          <p className="font-sans text-xs text-text-secondary mt-2">Gutscheincodes sind nur bei Jahresabos einlösbar.</p>
+                        </>
+                      )
+                    ) : (
+                      <div className="border border-border bg-surface px-4 py-3">
+                        <input
+                          type="text"
+                          disabled
+                          placeholder="Gutscheincode eingeben"
+                          className="w-full bg-transparent font-sans text-sm text-text-secondary/60 cursor-not-allowed outline-none"
+                        />
+                        <p className="font-sans text-xs text-text-secondary mt-2 flex items-start gap-1.5">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                          Gutscheincodes können nur bei Jahresabos eingelöst werden. Wechsle in Schritt 1 zu «Jährlich», um einen Code einzulösen.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stripe — sichere Abwicklung der Zahlung (golden hint) */}
+                  <div className="mt-4 flex items-center gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
+                      wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
+                    </p>
+                  </div>
+
+                  {/* Abo- & Kündigungshinweis */}
+                  <div className="mt-4 flex items-start gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Du löst ein kostenpflichtiges Abonnement zu <span className="font-semibold text-dark">{summary.price} {summary.period}</span> — es ist {isYearlyAbo ? 'jährlich' : 'monatlich'} kündbar.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setStep(2)}
+                  className="px-6 py-4 border border-border font-sans text-sm hover:border-dark transition-colors"
+                >
+                  ← Zurück
+                </button>
+                <button
+                  onClick={finishRegistration}
+                  className="flex-1 bg-accent-gold text-white font-sans font-semibold py-4 hover:bg-dark transition-colors"
+                >
+                  {isFree ? 'Kostenlos abschliessen ✓' : 'Zahlungspflichtig abschliessen ✓'}
+                </button>
+              </div>
+              <p className="font-sans text-xs text-text-secondary text-center mt-3">
+                Dein persönliches Profil (Bild, Bio, Instrumente …) ergänzt du jederzeit später im Mitgliederbereich.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
