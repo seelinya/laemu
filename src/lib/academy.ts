@@ -91,11 +91,12 @@ export const individualPlanMeta: Record<
   lernvideo: {
     label: 'Lernvideodatenbank',
     emoji: '📹',
-    badge: null,
+    badge: 'Alle Instrumente',
     audience: 'Für Profis',
-    desc: 'Zugang zur gesamten Lernvideo-Datenbank für alle Instrumente der Ländlermusik.',
+    desc: 'Ein Zugang für ALLE Instrumente der Ländlermusik — die komplette Lernvideo-Datenbank ohne Einschränkung auf einzelne Instrumente.',
     features: [
-      'Lernvideo-Datenbank (alle Instrumente)',
+      'Komplette Lernvideo-Datenbank — alle Instrumente inklusive',
+      'Kein Instrument ausgeschlossen — Schwyzerörgeli, Handorgel, Bassgeige, Klavier, Klarinette u. v. m.',
       'Ständig wachsendes Angebot',
       'LAEMU Membership inklusive',
     ],

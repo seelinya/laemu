@@ -18,7 +18,7 @@ export default function DatenschutzPage() {
           body: (
             <p>
               Verantwortlich für die Datenbearbeitung ist LAEMU. Bei Fragen zum Datenschutz erreichst du uns unter{' '}
-              <a href="mailto:datenschutz@laemu.ch" className="text-accent-gold hover:underline">datenschutz@laemu.ch</a>.
+              <a href="mailto:info@laemu.ch" className="text-accent-gold hover:underline">info@laemu.ch</a>.
             </p>
           ),
         },
@@ -82,7 +82,7 @@ export default function DatenschutzPage() {
             <p>
               Dir stehen die Rechte auf Auskunft, Berichtigung, Löschung und Datenübertragbarkeit sowie das Recht auf
               Widerspruch gegen bestimmte Bearbeitungen zu. Wende dich dazu jederzeit an{' '}
-              <a href="mailto:datenschutz@laemu.ch" className="text-accent-gold hover:underline">datenschutz@laemu.ch</a>.
+              <a href="mailto:info@laemu.ch" className="text-accent-gold hover:underline">info@laemu.ch</a>.
             </p>
           ),
         },
