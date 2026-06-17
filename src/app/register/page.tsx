@@ -724,14 +724,6 @@ export default function RegisterPage() {
                         <span className="font-sans text-xs text-accent-gold ml-2">+{formationExtra} × 10 % Zuschlag</span>
                       )}
                     </div>
-                    {memberCount > 1 && (
-                      <div className="mt-3 flex items-start gap-2 bg-accent-gold/10 border border-accent-gold/40 p-3">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        <span className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Du bist das 1. Mitglied. Die weiteren {inviteCount} {inviteCount === 1 ? 'Mitglied erfasst du' : 'Mitglieder erfasst du'} im nächsten Schritt direkt unter deinen Kontaktdaten.
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   <div className="space-y-3 mb-8">
