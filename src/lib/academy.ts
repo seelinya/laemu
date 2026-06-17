@@ -108,9 +108,9 @@ export const individualPlanMeta: Record<
 export const INDIVIDUAL_PLAN_ORDER: IndividualPlanId[] = ['starter', 'pro', 'lernvideo']
 
 // ─── Formationen ────────────────────────────────────────────────────────────
-// Gilt für bis zu 4 Mitglieder. Ab dem 5. Mitglied: +10 % Zuschlag pro Mitglied.
+// Gilt für bis zu 3 Mitglieder. Ab dem 4. Mitglied: +10 % Zuschlag pro Mitglied.
 
-export const FORMATION_INCLUDED_MEMBERS = 4
+export const FORMATION_INCLUDED_MEMBERS = 3
 export const FORMATION_SURCHARGE_PER_MEMBER = 0.1
 
 export type FormationPlanId = 'pro' | 'lernvideo'
@@ -122,16 +122,15 @@ export const formationPlanMeta: Record<
   pro: {
     label: 'Pro',
     emoji: '🏆',
-    basePrice: 1999,
+    basePrice: 2499,
     audience: 'Für Aufsteiger',
-    desc: 'Ein Pro-Lehrgang zu einem Instrument pro Mitglied — mit Grund- & Erweiterungskursen.',
+    desc: 'Alle Pro-Lehrgänge und die komplette Lernvideo-Datenbank — für ALLE Mitglieder der Formation.',
     features: [
-      'Pro-Lehrgang (ein Instrument pro Mitglied)',
+      'Alle Pro-Lehrgänge (sämtliche Instrumente) für jedes Mitglied',
       'Grund- und Erweiterungskurse',
-      'Komplette Lernvideo-Datenbank — alle Instrumente',
+      'Komplette Lernvideo-Datenbank — alle Instrumente, für alle Mitglieder',
       'Persönlicher Support durch zertifizierte LAEMU-Musiklehrpersonen',
     ],
-    notIncluded: ['Pro Mitglied nur ein Instrument-Lehrgang (weitere Instrumente nur als Lernvideos)'],
   },
   lernvideo: {
     label: 'Lernvideodatenbank',
