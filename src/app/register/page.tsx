@@ -34,6 +34,8 @@ const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
   const [selectedPayment, setSelectedPayment] = useState('card')
+  const [voucher, setVoucher] = useState('')
+  const [voucherApplied, setVoucherApplied] = useState(false)
   const [ort, setOrt] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
@@ -109,6 +111,10 @@ export default function RegisterPage() {
   const formationExtra = Math.max(0, memberCount - FORMATION_INCLUDED_MEMBERS)
 
   const periodLabel = priceBilling === 'yearly' ? '/ Jahr' : '/ Monat'
+
+  // Gutscheincodes sind nur bei Jahresabos einlösbar. Formationen sind immer
+  // Jahresabos, Einzelpersonen nur im «Jährlich»-Modus.
+  const isYearlyAbo = accountType === 'formation' || (accountType === 'individual' && billing === 'yearly')
 
   // Angaben-Schritt: erst weiter, wenn alle Pflichtfelder ausgefüllt sind und
   // die Nutzungsbedingungen akzeptiert wurden.
@@ -436,6 +442,63 @@ export default function RegisterPage() {
                         </button>
                       ))}
                     </div>
+
+                    {/* Gutscheincode — nur bei Jahresabos einlösbar */}
+                    <div className="mt-5">
+                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Gutscheincode</label>
+                      {isYearlyAbo ? (
+                        voucherApplied ? (
+                          <div className="flex items-center justify-between gap-2 border border-accent-gold bg-accent-gold/10 px-4 py-3">
+                            <span className="font-sans text-sm text-dark inline-flex items-center gap-2">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                              Code <strong>{voucher.trim().toUpperCase()}</strong> eingelöst
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => { setVoucherApplied(false); setVoucher('') }}
+                              className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                            >
+                              Entfernen
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex gap-2">
+                              <input
+                                value={voucher}
+                                onChange={e => setVoucher(e.target.value)}
+                                type="text"
+                                placeholder="z.B. LAEMU2026"
+                                className="flex-1 border border-border px-4 py-3 font-sans text-sm uppercase placeholder:normal-case placeholder:text-text-secondary/60 focus:outline-none focus:border-dark bg-surface"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => { if (voucher.trim()) setVoucherApplied(true) }}
+                                disabled={!voucher.trim()}
+                                className={`px-5 font-sans text-sm font-semibold transition-colors ${voucher.trim() ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                              >
+                                Einlösen
+                              </button>
+                            </div>
+                            <p className="font-sans text-xs text-text-secondary mt-2">Gutscheincodes sind nur bei Jahresabos einlösbar.</p>
+                          </>
+                        )
+                      ) : (
+                        <div className="border border-border bg-surface px-4 py-3">
+                          <input
+                            type="text"
+                            disabled
+                            placeholder="Gutscheincode eingeben"
+                            className="w-full bg-transparent font-sans text-sm text-text-secondary/60 cursor-not-allowed outline-none"
+                          />
+                          <p className="font-sans text-xs text-text-secondary mt-2 flex items-start gap-1.5">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            Gutscheincodes können nur bei Jahresabos eingelöst werden. Wechsle im vorherigen Schritt zu «Jährlich», um einen Code einzulösen.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
                     {/* Stripe — sichere Abwicklung der Zahlung (golden hint) */}
                     <div className="mt-4 flex items-center gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
