@@ -71,7 +71,7 @@ export default function RegisterPage() {
   const [scope, setScope] = useState<Scope>('1')
   const [aboInstruments, setAboInstruments] = useState<string[]>(['Handorgel'])
   const [formationPlan, setFormationPlan] = useState<FormationPlanId>('pro')
-  const [memberCount, setMemberCount] = useState(4)
+  const [memberCount, setMemberCount] = useState(3)
 
   const toggleInstrument = (inst: string) => {
     setSelectedInstruments(prev =>
@@ -79,13 +79,12 @@ export default function RegisterPage() {
     )
   }
 
-  // Instrumente pro Formationsmitglied (Mehrfachauswahl je Mitglied).
-  const [memberInstruments, setMemberInstruments] = useState<Record<number, string[]>>({})
-  const toggleMemberInstrument = (idx: number, inst: string) => {
-    setMemberInstruments(prev => {
-      const cur = prev[idx] ?? []
-      return { ...prev, [idx]: cur.includes(inst) ? cur.filter(i => i !== inst) : [...cur, inst] }
-    })
+  // E-Mail-Adressen der weiteren Formationsmitglieder (Index 1 … N-1; Mitglied 0
+  // ist die anmeldende Person selbst). Über diese E-Mails werden die anderen
+  // eingeladen — sie registrieren sich anschliessend selbst über den Link.
+  const [memberEmails, setMemberEmails] = useState<Record<number, string>>({})
+  const setMemberEmail = (idx: number, value: string) => {
+    setMemberEmails(prev => ({ ...prev, [idx]: value }))
   }
 
   const scopeCount = (s: Scope) => (s === 'all' ? ABO_INSTRUMENTS.length : Number(s))
@@ -133,12 +132,15 @@ export default function RegisterPage() {
 
   const periodLabel = priceBilling === 'yearly' ? '/ Jahr' : '/ Monat'
 
-  // Formationen: Pflichtschritt — jedes Mitglied muss mindestens ein Instrument
-  // für den Zugriff zugewiesen bekommen (im Hintergrund relevant für die
-  // Freischaltung). Erst dann lässt sich die Registrierung abschliessen.
+  // Anzahl einzuladender Mitglieder (alle ausser der anmeldenden Person selbst).
+  const inviteCount = Math.max(0, memberCount - 1)
+
+  // Formationen: Pflichtschritt — für jedes weitere Mitglied muss eine E-Mail-
+  // Adresse hinterlegt werden, damit sie zur Selbst-Registrierung eingeladen
+  // werden können. Erst dann lässt sich die Registrierung abschliessen.
   const formationReady =
     accountType !== 'formation' ||
-    Array.from({ length: memberCount }).every((_, idx) => (memberInstruments[idx]?.length ?? 0) > 0)
+    Array.from({ length: inviteCount }).every((_, i) => (memberEmails[i + 1] ?? '').trim().length > 0)
 
   // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
   // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
@@ -147,10 +149,12 @@ export default function RegisterPage() {
     if (isFree) {
       abo = { plan: 'none', instruments: [] }
     } else if (accountType === 'formation') {
+      // Beide Formations-Pläne geben allen Mitgliedern Zugriff auf alle
+      // Instrumente (Pro: alle Pro-Lehrgänge + ganze Datenbank, Lernvideo: ganze Datenbank).
       abo = {
         plan: formationPlan,
-        instruments: (memberInstruments[0] ?? []) as Instrument[],
-        allInstruments: formationPlan === 'lernvideo',
+        instruments: [...ABO_INSTRUMENTS] as Instrument[],
+        allInstruments: true,
       }
     } else {
       abo = {
@@ -162,28 +166,137 @@ export default function RegisterPage() {
     setStoredAbo(abo)
 
     // Eingegebene Angaben ins Profil übernehmen, damit Name & Infos im
-    // Mitgliederbereich gleich stimmen (nur für Einzelpersonen — bei Formationen
-    // legt jedes Mitglied sein eigenes Profil an).
-    if (accountType !== 'formation') {
-      const fullName = [vorname.trim(), nachname.trim()].filter(Boolean).join(' ')
-      const instrumentList = [...selectedInstruments, instrumentFreetext.trim()]
-        .filter(Boolean)
-        .join(', ')
-      setStoredProfile({
-        ...(fullName ? { name: fullName } : {}),
-        email: email.trim(),
-        wohnort: ort.trim(),
-        bio: bio.trim(),
-        ...(instrumentList ? { instruments: instrumentList } : {}),
-        avatar,
-        openForFormation: formationChoice === 'open',
-        inFormation: formationChoice === 'yes',
-        formationName: formationChoice === 'yes' ? formationName.trim() : '',
-      })
-    }
+    // Mitgliederbereich gleich stimmen. Bei einer Formation legt die anmeldende
+    // Person (Mitglied 1) hier ihr eigenes Profil an; die weiteren Mitglieder
+    // registrieren sich später selbst.
+    const fullName = [vorname.trim(), nachname.trim()].filter(Boolean).join(' ')
+    const instrumentList = [...selectedInstruments, instrumentFreetext.trim()]
+      .filter(Boolean)
+      .join(', ')
+    const isFormation = accountType === 'formation'
+    setStoredProfile({
+      ...(fullName ? { name: fullName } : {}),
+      email: email.trim(),
+      wohnort: ort.trim(),
+      bio: bio.trim(),
+      ...(instrumentList ? { instruments: instrumentList } : {}),
+      avatar,
+      openForFormation: isFormation ? false : formationChoice === 'open',
+      inFormation: isFormation ? true : formationChoice === 'yes',
+      formationName: isFormation
+        ? formationName.trim()
+        : formationChoice === 'yes'
+          ? formationName.trim()
+          : '',
+    })
 
     setDone(true)
   }
+
+  // Gemeinsame Profil-Felder (Bild, Bio, Wohnort, Instrumente) — werden im
+  // letzten Schritt sowohl von Einzelpersonen als auch von der anmeldenden
+  // Person einer Formation ausgefüllt.
+  const profileFieldsBlock = (
+    <>
+      {/* Profile photo */}
+      <div>
+        <label className="label text-text-secondary block mb-3">Profilbild</label>
+        <div className="flex items-center gap-5">
+          <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatar} alt="Profilbild" className="w-full h-full object-cover" />
+            ) : (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {/* Datei-Upload vom Computer oder Handy */}
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarFile}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors inline-flex items-center gap-2"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              {avatar ? 'Anderes Bild wählen' : 'Bild hochladen'}
+            </button>
+            {avatar ? (
+              <button
+                type="button"
+                onClick={() => { setAvatar(''); if (avatarInputRef.current) avatarInputRef.current.value = '' }}
+                className="font-sans text-xs text-text-secondary hover:text-red-500 transition-colors text-left"
+              >
+                Bild entfernen
+              </button>
+            ) : (
+              <p className="font-sans text-xs text-text-secondary">Vom Computer oder Handy · JPG, PNG</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bio */}
+      <div>
+        <label className="label text-text-secondary block mb-1.5">Bio</label>
+        <textarea
+          value={bio}
+          onChange={e => setBio(e.target.value)}
+          rows={3}
+          className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none"
+          placeholder="Erzähl der Community etwas über dich — deine Musik, deine Heimat, deine Geschichte."
+        />
+      </div>
+
+      {/* Wohnort (automatisch aus den Angaben) */}
+      <div>
+        <label className="label text-text-secondary block mb-1.5">Wohnort</label>
+        <input
+          value={ort}
+          onChange={e => setOrt(e.target.value)}
+          type="text"
+          placeholder="Luzern"
+          className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+        />
+        <p className="font-sans text-xs text-text-secondary mt-1.5">Automatisch aus deinen Angaben übernommen — du kannst ihn hier anpassen.</p>
+      </div>
+
+      {/* Instruments */}
+      <div>
+        <label className="label text-text-secondary block mb-3">Instrumente</label>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {PROFILE_INSTRUMENTS.map((inst) => (
+            <button
+              key={inst}
+              onClick={() => toggleInstrument(inst)}
+              className={`font-sans text-sm px-3 py-2 border transition-all ${
+                selectedInstruments.includes(inst)
+                  ? 'border-dark bg-dark text-white'
+                  : 'border-border bg-surface text-text-secondary hover:border-dark'
+              }`}
+            >
+              {inst}
+            </button>
+          ))}
+        </div>
+        <input
+          value={instrumentFreetext}
+          onChange={e => setInstrumentFreetext(e.target.value)}
+          type="text"
+          placeholder="Weiteres Instrument (freitext)"
+          className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+        />
+      </div>
+    </>
+  )
 
   if (done) {
     return (
@@ -222,13 +335,12 @@ export default function RegisterPage() {
             <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 text-left flex gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
               <div>
-                <p className="font-sans text-sm font-semibold mb-1">Die weiteren Mitglieder sind informiert</p>
+                <p className="font-sans text-sm font-semibold mb-1">Die weiteren Mitglieder sind eingeladen</p>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                  Da dein Abo bezahlt wurde, haben die anderen Mitglieder deiner Formation ein
-                  Bestätigungs-E-Mail erhalten. Sobald sie ihr Login abgeschlossen (Passwort gesetzt)
-                  haben, können sie sich ab sofort bei LAEMU einloggen — mit Zugriff auf die
-                  zugewiesenen Instrumente. Die Grunddaten sind bereits hinterlegt; sie können nur
-                  optionale Profilinhalte ergänzen.
+                  Da dein Abo bezahlt wurde, haben die anderen Mitglieder deiner Formation eine
+                  Einladung per E-Mail erhalten. Über den Link darin registriert sich jedes Mitglied
+                  selbst und legt sein eigenes Login und Profil an — mit vollem Zugriff auf alle
+                  Pro-Lehrgänge und die komplette Lernvideo-Datenbank für alle Instrumente.
                 </p>
               </div>
             </div>
@@ -613,6 +725,12 @@ export default function RegisterPage() {
                         <span className="font-sans text-xs text-accent-gold ml-2">+{formationExtra} × 10 % Zuschlag</span>
                       )}
                     </div>
+                    {memberCount > 1 && (
+                      <p className="font-sans text-xs text-text-secondary mt-3 flex items-start gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        Du selbst bist bereits als 1. Mitglied erfasst. Die weiteren {inviteCount} {inviteCount === 1 ? 'Mitglied lädst du' : 'Mitglieder lädst du'} im nächsten Schritt per E-Mail ein.
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-3 mb-8">
@@ -762,69 +880,75 @@ export default function RegisterPage() {
             >
               {accountType === 'formation' ? (
                 <>
-                  <h1 className="font-heading text-3xl font-bold mb-2">Profile der Formationsmitglieder</h1>
+                  <h1 className="font-heading text-3xl font-bold mb-2">Dein Profil &amp; Formation einrichten</h1>
                   <p className="font-sans text-text-secondary text-sm mb-6">
-                    Für jedes der {memberCount} Mitglieder wird ein eigenes Konto mit eigenem Login und eigenem LAEMU-Profil erstellt.
+                    Richte zuerst dein eigenes Profil ein — du bist als 1. Mitglied bereits erfasst. Anschliessend
+                    lädst du die weiteren Mitglieder deiner Formation per E-Mail ein.
                   </p>
 
-                  {/* Info: Bestätigungs-E-Mail & Login-Abschluss der weiteren Mitglieder */}
+                  {/* Info: Selbst-Registrierung der weiteren Mitglieder + voller Zugang */}
                   <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 flex gap-3">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
                     <div>
-                      <p className="font-sans text-sm font-semibold mb-1">So erhalten die anderen Mitglieder Zugang</p>
+                      <p className="font-sans text-sm font-semibold mb-1">So erhalten die weiteren Mitglieder Zugang</p>
                       <p className="font-sans text-xs text-text-secondary leading-relaxed">
                         Sobald du die Registrierung abgeschlossen und das Abo bezahlt hast, erhält jedes weitere Mitglied
-                        automatisch ein Bestätigungs-E-Mail. Damit schliesst es sein Login ab (Passwort setzen) und kann
-                        sich anschliessend ab sofort bei LAEMU einloggen — mit Zugriff auf die hier zugewiesenen Instrumente.
+                        an die unten hinterlegte E-Mail-Adresse eine Einladung. Über den Link darin registriert sich
+                        jedes Mitglied selbst und legt sein eigenes Login und Profil an.
                       </p>
                       <p className="font-sans text-xs text-text-secondary leading-relaxed mt-2">
-                        Die Grunddaten (Name, E-Mail und Instrument-Zugriff) legst du hier verbindlich fest. Die Mitglieder
-                        können später nur optionale Profilangaben (Profilbild, Bio, Social Media) ergänzen — die Grunddaten
-                        lassen sich von ihnen nicht ändern.
+                        Alle Mitglieder erhalten vollen Zugriff auf sämtliche Pro-Lehrgänge und die komplette
+                        Lernvideo-Datenbank — für alle Instrumente.
                       </p>
                     </div>
                   </div>
 
-                  <div className="space-y-6">
-                    {Array.from({ length: memberCount }).map((_, idx) => (
-                      <div key={idx} className="border border-border bg-surface p-5 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-heading font-bold text-base">Mitglied {idx + 1}{idx === 0 ? ' (du)' : ''}</h3>
-                          <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5">Eigenes Konto &amp; Login</span>
+                  <div className="space-y-7">
+                    {profileFieldsBlock}
+
+                    {/* Name der Formation */}
+                    <div>
+                      <label className="label text-text-secondary block mb-1.5">Name der Formation</label>
+                      <input
+                        value={formationName}
+                        onChange={e => setFormationName(e.target.value)}
+                        type="text"
+                        placeholder="z.B. Kapelle Bergblick"
+                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                      />
+                    </div>
+
+                    {/* Weitere Mitglieder einladen */}
+                    <div className="pt-2 border-t border-border">
+                      <label className="label text-text-secondary block mb-1.5">Weitere Mitglieder einladen</label>
+                      <p className="font-sans text-xs text-text-secondary mb-3 leading-relaxed">
+                        Mitglied 1 bist du selbst. Hinterlege für die weiteren Mitglieder je eine E-Mail-Adresse — sie
+                        erhalten eine Einladung und registrieren sich anschliessend selbst.
+                      </p>
+                      {inviteCount === 0 ? (
+                        <p className="font-sans text-sm text-text-secondary bg-surface border border-border px-4 py-3">
+                          Du hast nur dich selbst (1 Mitglied) gewählt — es sind keine Einladungen nötig.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {Array.from({ length: inviteCount }).map((_, i) => {
+                            const idx = i + 1
+                            return (
+                              <div key={idx}>
+                                <label className="label text-text-secondary block mb-1.5">E-Mail Mitglied {idx + 1} *</label>
+                                <input
+                                  type="email"
+                                  value={memberEmails[idx] ?? ''}
+                                  onChange={e => setMemberEmail(idx, e.target.value)}
+                                  placeholder="mitglied@email.ch"
+                                  className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                                />
+                              </div>
+                            )
+                          })}
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div><label className="label text-text-secondary block mb-1.5">Vorname *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                          <div><label className="label text-text-secondary block mb-1.5">Nachname *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                        </div>
-                        <div><label className="label text-text-secondary block mb-1.5">E-Mail-Adresse *</label><input type="email" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div><label className="label text-text-secondary block mb-1.5">Passwort *</label><PasswordInput className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                          <div><label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label><input type="date" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" /></div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="col-span-2"><label className="label text-text-secondary block mb-1.5">Strasse *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                          <div><label className="label text-text-secondary block mb-1.5">Hausnummer *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div><label className="label text-text-secondary block mb-1.5">PLZ *</label><input type="text" className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                          <div className="col-span-2"><label className="label text-text-secondary block mb-1.5">Ort *</label><input type="text" defaultValue={idx === 0 ? ort : ''} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" /></div>
-                        </div>
-                        <div>
-                          <label className="label text-text-secondary block mb-1.5">Zugriff: Für welches Instrument? *</label>
-                          <p className="font-sans text-xs text-text-secondary mb-2.5 leading-relaxed">
-                            Wähle, für welche(s) Instrument(e) dieses Mitglied innerhalb des Formationsabos Zugriff auf die Lehrgänge und Lernvideos erhält.
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {ABO_INSTRUMENTS.map(inst => {
-                              const sel = (memberInstruments[idx] ?? []).includes(inst)
-                              return (
-                                <button key={inst} onClick={() => toggleMemberInstrument(idx, inst)} className={`font-sans text-xs px-3 py-1.5 border transition-all ${sel ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}>{inst}</button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      )}
+                    </div>
                   </div>
                 </>
               ) : (
@@ -835,103 +959,7 @@ export default function RegisterPage() {
                   </p>
 
                   <div className="space-y-7">
-                    {/* Profile photo */}
-                    <div>
-                      <label className="label text-text-secondary block mb-3">Profilbild</label>
-                      <div className="flex items-center gap-5">
-                        <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          {avatar ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={avatar} alt="Profilbild" className="w-full h-full object-cover" />
-                          ) : (
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
-                              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                            </svg>
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          {/* Datei-Upload vom Computer oder Handy */}
-                          <input
-                            ref={avatarInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAvatarFile}
-                            className="hidden"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => avatarInputRef.current?.click()}
-                            className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors inline-flex items-center gap-2"
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            {avatar ? 'Anderes Bild wählen' : 'Bild hochladen'}
-                          </button>
-                          {avatar ? (
-                            <button
-                              type="button"
-                              onClick={() => { setAvatar(''); if (avatarInputRef.current) avatarInputRef.current.value = '' }}
-                              className="font-sans text-xs text-text-secondary hover:text-red-500 transition-colors text-left"
-                            >
-                              Bild entfernen
-                            </button>
-                          ) : (
-                            <p className="font-sans text-xs text-text-secondary">Vom Computer oder Handy · JPG, PNG</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bio */}
-                    <div>
-                      <label className="label text-text-secondary block mb-1.5">Bio</label>
-                      <textarea
-                        value={bio}
-                        onChange={e => setBio(e.target.value)}
-                        rows={3}
-                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none"
-                        placeholder="Erzähl der Community etwas über dich — deine Musik, deine Heimat, deine Geschichte."
-                      />
-                    </div>
-
-                    {/* Wohnort (automatisch aus den Angaben) */}
-                    <div>
-                      <label className="label text-text-secondary block mb-1.5">Wohnort</label>
-                      <input
-                        value={ort}
-                        onChange={e => setOrt(e.target.value)}
-                        type="text"
-                        placeholder="Luzern"
-                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                      />
-                      <p className="font-sans text-xs text-text-secondary mt-1.5">Automatisch aus deinen Angaben übernommen — du kannst ihn hier anpassen.</p>
-                    </div>
-
-                    {/* Instruments */}
-                    <div>
-                      <label className="label text-text-secondary block mb-3">Instrumente</label>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {PROFILE_INSTRUMENTS.map((inst) => (
-                          <button
-                            key={inst}
-                            onClick={() => toggleInstrument(inst)}
-                            className={`font-sans text-sm px-3 py-2 border transition-all ${
-                              selectedInstruments.includes(inst)
-                                ? 'border-dark bg-dark text-white'
-                                : 'border-border bg-surface text-text-secondary hover:border-dark'
-                            }`}
-                          >
-                            {inst}
-                          </button>
-                        ))}
-                      </div>
-                      <input
-                        value={instrumentFreetext}
-                        onChange={e => setInstrumentFreetext(e.target.value)}
-                        type="text"
-                        placeholder="Weiteres Instrument (freitext)"
-                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                      />
-                    </div>
+                    {profileFieldsBlock}
 
                     {/* Formation */}
                     <div>
@@ -987,7 +1015,7 @@ export default function RegisterPage() {
               {accountType === 'formation' ? (
                 !formationReady && (
                   <p className="font-sans text-xs text-text-secondary text-center mt-3">
-                    Weise jedem Mitglied mindestens ein Instrument für den Zugriff zu, um die Registrierung abzuschliessen.
+                    Hinterlege für jedes weitere Mitglied eine E-Mail-Adresse, um die Einladungen zu versenden und die Registrierung abzuschliessen.
                   </p>
                 )
               ) : (
