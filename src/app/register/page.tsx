@@ -500,7 +500,7 @@ export default function RegisterPage() {
 
               {/* Billing toggle (individual only) */}
               {accountType === 'individual' && (
-                <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-fit mx-auto">
+                <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
                   {([
                     { id: 'yearly', label: 'Jährlich', hint: '−16 %' },
                     { id: 'monthly', label: 'Monatlich', hint: null },
@@ -509,10 +509,10 @@ export default function RegisterPage() {
                     <button
                       key={opt.id}
                       onClick={() => setBilling(opt.id)}
-                      className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-2 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 font-sans text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                     >
                       {opt.label}
-                      {opt.hint && <span className={`font-sans text-[10px] px-1.5 py-0.5 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 shrink-0 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
                     </button>
                   ))}
                 </div>
@@ -614,8 +614,11 @@ export default function RegisterPage() {
 
                   {/* Free-Account: Zusammenfassung statt Preis-/Umfangsauswahl */}
                   {isFree && (
-                    <div className="bg-background border border-border p-5 mb-8">
-                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Dein Free-Account</p>
+                    <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
+                      <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                        Dein Free-Account
+                      </p>
                       <div className="space-y-2">
                         {[
                           'Vollständiger Einblick in alle Kurse, Instrumente & Lernvideos',
@@ -662,7 +665,7 @@ export default function RegisterPage() {
 
                   {/* Feature list of selected plan */}
                   {!isFree && (
-                  <div className="bg-accent-gold/5 border-2 border-accent-gold/40 p-5 mb-8">
+                  <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
                       <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                       Enthalten
@@ -773,7 +776,7 @@ export default function RegisterPage() {
                   )}
 
                   {/* Enthalten (Formation) */}
-                  <div className="bg-accent-gold/5 border-2 border-accent-gold/40 p-5 mb-8">
+                  <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
                       <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                       Enthalten — Formation {formationPlanMeta[formationPlan].label}
