@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
@@ -213,27 +214,80 @@ const navItems = [
 ]
 
 // Andere Mitglieder, die unter «Entdecken» sichtbar sind (im echten Betrieb:
-// alle, die ihr Profil nicht verborgen haben).
-const discoverProfiles = [
-  { name: 'Maria Kälin', handle: 'maria', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', role: 'Schwyzerörgeli · Schwyz' },
-  { name: 'Hansruedi Wenger', handle: 'hansruedi', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', role: 'Lehrer · Handorgel' },
-  { name: 'Peter Gasser', handle: 'peter', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', role: 'Klarinette · Stans' },
-  { name: 'Lisa Frei', handle: 'lisa', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', role: 'Klavierbegleitung · Zug' },
-  { name: 'Anna Steiner', handle: 'anna', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', role: 'Handorgel · Appenzell' },
+// alle, die ihr Profil nicht verborgen haben). Die strukturierten Felder
+// (Instrument, Region, Lehrperson …) speisen die Filter — Personen geben diese
+// Infos frei, indem sie sie in ihrem Profil öffentlich teilen.
+type DiscoverProfile = {
+  name: string
+  handle: string
+  img: string
+  instruments: string[]
+  region: string
+  isTeacher: boolean
+  inFormation: boolean
+  openForFormation: boolean
+}
+
+const discoverProfiles: DiscoverProfile[] = [
+  { name: 'Maria Kälin', handle: 'maria', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', instruments: ['Schwyzerörgeli'], region: 'Schwyz', isTeacher: false, inFormation: true, openForFormation: false },
+  { name: 'Hansruedi Wenger', handle: 'hansruedi', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', instruments: ['Handorgel'], region: 'Luzern', isTeacher: true, inFormation: true, openForFormation: false },
+  { name: 'Peter Gasser', handle: 'peter', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', instruments: ['Klarinette'], region: 'Nidwalden', isTeacher: false, inFormation: false, openForFormation: true },
+  { name: 'Lisa Frei', handle: 'lisa', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', instruments: ['Klavierbegleitung'], region: 'Zug', isTeacher: true, inFormation: false, openForFormation: true },
+  { name: 'Anna Steiner', handle: 'anna', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', instruments: ['Handorgel', 'Schwyzerörgeli'], region: 'Appenzell', isTeacher: false, inFormation: true, openForFormation: true },
 ]
+
+// Anzeigetext (Instrument · Region) für eine Karte.
+const profileRole = (p: DiscoverProfile) => `${p.instruments.join(', ')} · ${p.region}`
+
+// Auswahllisten für die Filter (aus den Profilen abgeleitet, alphabetisch).
+const ALL_INSTRUMENTS = Array.from(new Set(discoverProfiles.flatMap(p => p.instruments))).sort()
+const ALL_REGIONS = Array.from(new Set(discoverProfiles.map(p => p.region))).sort()
 
 function DiscoverView() {
   const [query, setQuery] = useState('')
-  const results = discoverProfiles.filter(p =>
-    p.name.toLowerCase().includes(query.toLowerCase()) || p.role.toLowerCase().includes(query.toLowerCase())
-  )
+  // Filter (nur sichtbar für Personen, die ihre Infos öffentlich teilen).
+  const [openForFormation, setOpenForFormation] = useState(false)
+  const [teacherOnly, setTeacherOnly] = useState(false)
+  const [inFormationOnly, setInFormationOnly] = useState(false)
+  const [instrument, setInstrument] = useState('')
+  const [region, setRegion] = useState('')
+
+  const activeFilters =
+    Number(openForFormation) + Number(teacherOnly) + Number(inFormationOnly) +
+    Number(Boolean(instrument)) + Number(Boolean(region))
+
+  const resetFilters = () => {
+    setOpenForFormation(false)
+    setTeacherOnly(false)
+    setInFormationOnly(false)
+    setInstrument('')
+    setRegion('')
+  }
+
+  const q = query.trim().toLowerCase()
+  const results = discoverProfiles.filter(p => {
+    if (q && !p.name.toLowerCase().includes(q) && !profileRole(p).toLowerCase().includes(q)) return false
+    if (openForFormation && !p.openForFormation) return false
+    if (teacherOnly && !p.isTeacher) return false
+    if (inFormationOnly && !p.inFormation) return false
+    if (instrument && !p.instruments.includes(instrument)) return false
+    if (region && p.region !== region) return false
+    return true
+  })
+
+  const chip = (active: boolean) =>
+    `font-sans text-xs font-medium px-3 py-1.5 border transition-colors ${
+      active ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'
+    }`
+
   return (
     <div className="space-y-4">
       <div>
         <h3 className="font-heading font-bold text-lg mb-1">Entdecken</h3>
         <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">
           Finde andere Mitglieder der LAEMU-Szene. Hier erscheinen nur Personen, die ihr Profil
-          nicht verborgen haben.
+          nicht verborgen haben. Filtern kannst du nach Angaben, die diese Personen in ihrem Profil
+          öffentlich teilen.
         </p>
       </div>
       <div className="relative">
@@ -257,6 +311,48 @@ function DiscoverView() {
           </button>
         )}
       </div>
+
+      {/* Filter — basierend auf öffentlich geteilten Profilangaben */}
+      <div className="bg-surface border border-border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="font-sans text-xs uppercase tracking-[0.15em] text-text-secondary">Filtern nach</p>
+          {activeFilters > 0 && (
+            <button onClick={resetFilters} className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">
+              Filter zurücksetzen ({activeFilters})
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => setOpenForFormation(v => !v)} className={chip(openForFormation)}>Offen für Formation</button>
+          <button onClick={() => setTeacherOnly(v => !v)} className={chip(teacherOnly)}>Musiklehrer</button>
+          <button onClick={() => setInFormationOnly(v => !v)} className={chip(inFormationOnly)}>Spielt in einer Formation</button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="font-sans text-xs text-text-secondary block mb-1">Instrument</label>
+            <select
+              value={instrument}
+              onChange={e => setInstrument(e.target.value)}
+              className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            >
+              <option value="">Alle Instrumente</option>
+              {ALL_INSTRUMENTS.map(i => <option key={i} value={i}>{i}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="font-sans text-xs text-text-secondary block mb-1">Region</label>
+            <select
+              value={region}
+              onChange={e => setRegion(e.target.value)}
+              className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            >
+              <option value="">Alle Regionen</option>
+              {ALL_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-3">
         {results.map((p) => (
           <div key={p.handle} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
@@ -265,11 +361,16 @@ function DiscoverView() {
             </Link>
             <div className="flex-1 min-w-0">
               <Link href={`/member/u/${p.handle}`} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
-              <p className="font-sans text-xs font-light text-text-secondary">{p.role}</p>
+              <p className="font-sans text-xs font-light text-text-secondary">{profileRole(p)}</p>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {p.isTeacher && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">Musiklehrer</span>}
+                {p.inFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">In Formation</span>}
+                {p.openForFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Offen für Formation</span>}
+              </div>
             </div>
             <Link
               href={`/member/u/${p.handle}`}
-              className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap"
+              className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap self-start"
             >
               Profil ansehen →
             </Link>
@@ -367,6 +468,8 @@ function StartView() {
 function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'video'; onClose: () => void }) {
   const [type, setType] = useState<'photo' | 'video'>(initialType)
   const [caption, setCaption] = useState('')
+  const profile = useUserProfile()
+  const avatarSrc = profile.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'
 
   const types = [
     { id: 'photo' as const, label: 'Foto', icon: <IconCamera /> },
@@ -389,11 +492,11 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-              <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="You" fill className="object-cover" unoptimized />
+              <Image src={avatarSrc} alt="You" fill className="object-cover" unoptimized />
             </div>
             <div>
-              <p className="font-heading font-bold text-sm">Niklaus Hess</p>
-              <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
+              <p className="font-heading font-bold text-sm">{profile.name}</p>
+              <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary hover:text-dark">
@@ -481,6 +584,22 @@ function ProfileView() {
   const [email, setEmail] = useState('')
   const [facebook, setFacebook] = useState('')
   const [tiktok, setTiktok] = useState('')
+
+  // Bei der Registrierung eingegebene Angaben ins Profil übernehmen, sobald die
+  // Komponente im Browser eingehängt ist (vermeidet SSR-Hydration-Mismatch).
+  useEffect(() => {
+    const stored = readStoredProfile()
+    setName(stored.name)
+    setAvatar(stored.avatar)
+    setBio(stored.bio)
+    setWohnort(stored.wohnort)
+    setInstruments(stored.instruments)
+    setOpenForFormation(stored.openForFormation)
+    setEmail(stored.email)
+  }, [])
+
+  // @handle aus dem Namen ableiten, damit er zum übernommenen Namen passt.
+  const handle = handleFromName(name)
 
   // Eigene Beiträge (löschbar) + Vergrösserungs-Ansicht (Lightbox)
   const [posts, setPosts] = useState<ProfilePost[]>(profilePosts)
@@ -750,7 +869,7 @@ function ProfileView() {
                     </span>
                   )}
                 </div>
-                <p className="font-sans text-sm text-accent-gold mb-2">@niklaus_hess</p>
+                <p className="font-sans text-sm text-accent-gold mb-2">@{handle}</p>
                 {!hideWohnort && wohnort && (
                   <p className="flex items-center gap-1 font-sans text-xs text-text-secondary mb-2">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -1084,6 +1203,8 @@ function SettingsView() {
 
 export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('start')
+  const profile = useUserProfile()
+  const avatarSrc = profile.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'
 
   return (
     <div className="min-h-screen bg-background">
@@ -1105,11 +1226,11 @@ export default function MemberCommunityPage() {
               <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                    <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Profile" fill className="object-cover" unoptimized />
+                    <Image src={avatarSrc} alt="Profile" fill className="object-cover" unoptimized />
                   </div>
                   <div>
-                    <p className="font-heading font-bold text-sm">Niklaus Hess</p>
-                    <p className="font-sans text-xs text-accent-gold">@niklaus_hess</p>
+                    <p className="font-heading font-bold text-sm">{profile.name}</p>
+                    <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
                   </div>
                 </div>
               </button>

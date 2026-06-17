@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/PasswordInput'
@@ -19,6 +19,7 @@ import {
   type UserAbo,
 } from '@/lib/academy'
 import { setStoredAbo } from '@/lib/userPlan'
+import { setStoredProfile } from '@/lib/userProfile'
 
 // Im Profil wählbare Instrumente (inkl. Klavier & Klarinette).
 const PROFILE_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavier', 'Klarinette']
@@ -38,10 +39,30 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1)
   const [selectedPayment, setSelectedPayment] = useState('card')
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
+  const [instrumentFreetext, setInstrumentFreetext] = useState('')
   const [formationChoice, setFormationChoice] = useState<'yes' | 'no' | 'open' | null>(null)
+  const [formationName, setFormationName] = useState('')
   const [ort, setOrt] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
+
+  // ── Angaben (Step 1) für die Übernahme ins Profil ────────────────────────────
+  const [vorname, setVorname] = useState('')
+  const [nachname, setNachname] = useState('')
+  const [email, setEmail] = useState('')
+
+  // ── Profil (Step 3) ──────────────────────────────────────────────────────────
+  const [bio, setBio] = useState('')
+  const [avatar, setAvatar] = useState('')
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setAvatar(typeof reader.result === 'string' ? reader.result : '')
+    reader.readAsDataURL(file)
+  }
 
   // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
   const [accountType, setAccountType] = useState<'individual' | 'formation'>('individual')
@@ -139,6 +160,28 @@ export default function RegisterPage() {
       }
     }
     setStoredAbo(abo)
+
+    // Eingegebene Angaben ins Profil übernehmen, damit Name & Infos im
+    // Mitgliederbereich gleich stimmen (nur für Einzelpersonen — bei Formationen
+    // legt jedes Mitglied sein eigenes Profil an).
+    if (accountType !== 'formation') {
+      const fullName = [vorname.trim(), nachname.trim()].filter(Boolean).join(' ')
+      const instrumentList = [...selectedInstruments, instrumentFreetext.trim()]
+        .filter(Boolean)
+        .join(', ')
+      setStoredProfile({
+        ...(fullName ? { name: fullName } : {}),
+        email: email.trim(),
+        wohnort: ort.trim(),
+        bio: bio.trim(),
+        ...(instrumentList ? { instruments: instrumentList } : {}),
+        avatar,
+        openForFormation: formationChoice === 'open',
+        inFormation: formationChoice === 'yes',
+        formationName: formationChoice === 'yes' ? formationName.trim() : '',
+      })
+    }
+
     setDone(true)
   }
 
@@ -155,9 +198,10 @@ export default function RegisterPage() {
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h1 className="font-heading text-4xl font-bold mb-4">Willkommen bei LAEMU!</h1>
+          <h1 className="font-heading text-4xl font-bold mb-4">Herzlich Willkommen in der LAEMU-Musikschule</h1>
           <p className="font-sans text-text-secondary leading-relaxed mb-6">
-            Dein Konto wurde erfolgreich erstellt. Du bist jetzt Teil der Schweizer Volksmusik-Community.
+            Dein Konto wurde erfolgreich erstellt. Du bleibst am Puls der Ländlerszene und bist Teil der
+            LAEMU-Community.
           </p>
 
           {isFree && (
@@ -199,9 +243,10 @@ export default function RegisterPage() {
             </Link>
             <Link
               href="/member/academy"
-              className="block w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
+              className="flex items-center justify-center gap-2 w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
-              Zur Musikschule
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Einführungsvideo anschauen
             </Link>
           </div>
         </motion.div>
@@ -258,16 +303,16 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="label text-text-secondary block mb-1.5">Vorname *</label>
-                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Niklaus" />
+                    <input value={vorname} onChange={e => setVorname(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Niklaus" />
                   </div>
                   <div>
                     <label className="label text-text-secondary block mb-1.5">Nachname *</label>
-                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Hess" />
+                    <input value={nachname} onChange={e => setNachname(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Hess" />
                   </div>
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">E-Mail-Adresse *</label>
-                  <input type="email" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="deine@email.ch" />
+                  <input value={email} onChange={e => setEmail(e.target.value)} type="email" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="deine@email.ch" />
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Passwort *</label>
@@ -362,7 +407,7 @@ export default function RegisterPage() {
               {accountType === 'individual' && (
                 <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-fit mx-auto">
                   {([
-                    { id: 'yearly', label: 'Jährlich', hint: '2 Monate gratis' },
+                    { id: 'yearly', label: 'Jährlich', hint: '−16 %' },
                     { id: 'monthly', label: 'Monatlich', hint: null },
                     { id: 'free', label: 'Free', hint: 'Gratis' },
                   ] as const).map(opt => (
@@ -382,11 +427,11 @@ export default function RegisterPage() {
               {accountType === 'individual' && (
                 <>
                   {isFree && (
-                    <div className="bg-accent-gold/5 border border-accent-gold/30 p-5 mb-6 flex gap-3">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                    <div className="bg-accent-gold border border-accent-gold p-5 mb-6 flex gap-3 shadow-lg shadow-accent-gold/20">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white flex-shrink-0 mt-0.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                       <div>
-                        <p className="font-sans text-sm font-semibold mb-1">Free-Account — ohne Zahlungsmittel starten</p>
-                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                        <p className="font-heading text-base font-bold mb-1 text-white">Free-Account — ohne Zahlung starten</p>
+                        <p className="font-sans text-xs text-white/90 leading-relaxed">
                           Als interessierte:r Lernende:r erkundest du die ganze Musikschule kostenlos: Du siehst alle
                           Kurse, Instrumente und Lernvideos und kannst die Gratis-Stücke direkt nutzen. Zum Freischalten
                           der Lehrgänge und der vollständigen Lernvideo-Datenbank upgradest du jederzeit auf einen
@@ -648,7 +693,10 @@ export default function RegisterPage() {
                 </div>
               ) : (
               <div className="mb-8">
-                <h3 className="font-heading font-bold text-lg mb-4">Zahlungsmittel</h3>
+                <h3 className="font-heading font-bold text-lg mb-1">Zahlungsmittel</h3>
+                <p className="font-sans text-xs text-text-secondary mb-4">
+                  Im nächsten Schritt verbindest du dein Zahlungsmittel sicher mit Stripe.
+                </p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
                     { id: 'card', label: 'Kredit- / Debitkarte', sub: 'Visa, Mastercard', icon: (
@@ -675,6 +723,14 @@ export default function RegisterPage() {
                       </div>
                     </button>
                   ))}
+                </div>
+                {/* Stripe — sichere Abwicklung der Zahlung */}
+                <div className="mt-4 flex items-center gap-2.5 bg-surface border border-border px-4 py-3">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                    Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
+                    wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
+                  </p>
                 </div>
               </div>
               )}
@@ -783,14 +839,45 @@ export default function RegisterPage() {
                     <div>
                       <label className="label text-text-secondary block mb-3">Profilbild</label>
                       <div className="flex items-center gap-5">
-                        <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                          </svg>
+                        <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          {avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={avatar} alt="Profilbild" className="w-full h-full object-cover" />
+                          ) : (
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
+                              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                            </svg>
+                          )}
                         </div>
-                        <button className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors">
-                          Bild hochladen
-                        </button>
+                        <div className="flex flex-col gap-1.5">
+                          {/* Datei-Upload vom Computer oder Handy */}
+                          <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarFile}
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors inline-flex items-center gap-2"
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            {avatar ? 'Anderes Bild wählen' : 'Bild hochladen'}
+                          </button>
+                          {avatar ? (
+                            <button
+                              type="button"
+                              onClick={() => { setAvatar(''); if (avatarInputRef.current) avatarInputRef.current.value = '' }}
+                              className="font-sans text-xs text-text-secondary hover:text-red-500 transition-colors text-left"
+                            >
+                              Bild entfernen
+                            </button>
+                          ) : (
+                            <p className="font-sans text-xs text-text-secondary">Vom Computer oder Handy · JPG, PNG</p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -798,6 +885,8 @@ export default function RegisterPage() {
                     <div>
                       <label className="label text-text-secondary block mb-1.5">Bio</label>
                       <textarea
+                        value={bio}
+                        onChange={e => setBio(e.target.value)}
                         rows={3}
                         className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none"
                         placeholder="Erzähl der Community etwas über dich — deine Musik, deine Heimat, deine Geschichte."
@@ -808,7 +897,8 @@ export default function RegisterPage() {
                     <div>
                       <label className="label text-text-secondary block mb-1.5">Wohnort</label>
                       <input
-                        defaultValue={ort}
+                        value={ort}
+                        onChange={e => setOrt(e.target.value)}
                         type="text"
                         placeholder="Luzern"
                         className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
@@ -835,6 +925,8 @@ export default function RegisterPage() {
                         ))}
                       </div>
                       <input
+                        value={instrumentFreetext}
+                        onChange={e => setInstrumentFreetext(e.target.value)}
                         type="text"
                         placeholder="Weiteres Instrument (freitext)"
                         className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
@@ -864,6 +956,8 @@ export default function RegisterPage() {
                       {formationChoice === 'yes' && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
                           <input
+                            value={formationName}
+                            onChange={e => setFormationName(e.target.value)}
                             type="text"
                             placeholder="Name der Formation"
                             className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"

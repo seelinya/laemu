@@ -48,7 +48,7 @@ export function LegalPage({
           <p className="font-sans text-xs text-text-secondary leading-relaxed">
             Dies ist eine vereinfachte, informative Zusammenfassung für die LAEMU-Plattform und ersetzt keine
             individuelle Rechtsberatung. Bei Fragen erreichst du uns unter{' '}
-            <a href="mailto:hallo@laemu.ch" className="text-accent-gold hover:underline">hallo@laemu.ch</a>.
+            <a href="mailto:info@laemu.ch" className="text-accent-gold hover:underline">info@laemu.ch</a>.
           </p>
         </div>
       </div>
