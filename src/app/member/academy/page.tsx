@@ -25,6 +25,7 @@ const activeCourses = [
     kursId: 'grundlagen',
     emoji: '🪗',
     instrument: 'Handorgel',
+    plan: 'starter' as const,
     title: 'Grundlagenkurs',
     instructor: 'Cécile Schmidig',
     instructorImg: '/images/cecile-schmidig.jpg',
@@ -40,6 +41,7 @@ const activeCourses = [
     kursId: 'grundlagen',
     emoji: '🎶',
     instrument: 'Schwyzerörgeli',
+    plan: 'starter' as const,
     title: 'Grundlagenkurs Schwyzerörgeli',
     instructor: 'Cyrill Rusch',
     instructorImg: '/images/cyrill-rusch.jpg',
@@ -55,6 +57,7 @@ const activeCourses = [
     kursId: 'uebungen',
     emoji: '🪗',
     instrument: 'Handorgel',
+    plan: 'pro' as const,
     title: 'Übungskurse',
     instructor: 'Seebi Diener',
     instructorImg: '/images/seebi-diener.jpg',
@@ -320,10 +323,23 @@ export default function MemberAcademyPage() {
   const isProTier = userAbo.plan === 'pro' || userAbo.plan === 'lernvideo' || isUpgraded
 
   // Instrumente, zu denen der/die Lernende Kurse hat — als Filter-Tabs.
-  const courseInstruments = Array.from(new Set(activeCourses.map((c) => c.instrument)))
+  // Es werden nur Kurse angezeigt, die zum gewählten Abo passen: die belegten
+  // Instrumente (oder alle bei All-in-One / Formation) und das Level (Starter
+  // sieht Grundkurse, Pro sieht zusätzlich die Pro-/Erweiterungskurse). Das
+  // Lernvideo-Abo enthält keine Lehrgänge.
+  const effectivePlan = isUpgraded ? 'pro' : userAbo.plan
+  const hasCourseAccess = effectivePlan === 'starter' || effectivePlan === 'pro'
+  const myCourses = hasCourseAccess
+    ? activeCourses.filter((c) => {
+        const instrumentOk = userAbo.allInstruments || (userAbo.instruments as string[]).includes(c.instrument)
+        const levelOk = effectivePlan === 'pro' || c.plan === 'starter'
+        return instrumentOk && levelOk
+      })
+    : []
+  const courseInstruments = Array.from(new Set(myCourses.map((c) => c.instrument)))
   const courseTabs = courseInstruments.length > 1 ? ['Alle', ...courseInstruments] : courseInstruments
-  const filteredCourses = courseFilter === 'Alle' ? activeCourses : activeCourses.filter((c) => c.instrument === courseFilter)
-  const filterInstrumentId = courseFilter === 'Alle' ? null : activeCourses.find((c) => c.instrument === courseFilter)?.instrumentId ?? null
+  const filteredCourses = courseFilter === 'Alle' ? myCourses : myCourses.filter((c) => c.instrument === courseFilter)
+  const filterInstrumentId = courseFilter === 'Alle' ? null : myCourses.find((c) => c.instrument === courseFilter)?.instrumentId ?? null
 
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
@@ -513,6 +529,15 @@ export default function MemberAcademyPage() {
                       </motion.div>
                     ))}
                   </div>
+                  {filteredCourses.length === 0 && (
+                    <div className="bg-surface border border-border p-8 text-center">
+                      <p className="font-sans text-sm text-text-secondary">
+                        {userAbo.plan === 'lernvideo'
+                          ? 'Dein Abo umfasst die Lernvideo-Datenbank — Lehrgänge sind darin nicht enthalten.'
+                          : 'Für die in deinem Abo gewählten Instrumente sind aktuell keine Lehrgänge verfügbar.'}
+                      </p>
+                    </div>
+                  )}
                   {filterInstrumentId && (
                     <Link href={`/member/academy/instrument/${filterInstrumentId}`} className="mt-4 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-accent-gold hover:text-dark transition-colors">
                       Ganzen {courseFilter}-Lehrgang ansehen

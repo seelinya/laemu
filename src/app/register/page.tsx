@@ -39,6 +39,7 @@ export default function RegisterPage() {
   const [voucherApplied, setVoucherApplied] = useState(false)
   const [ort, setOrt] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [triedNext, setTriedNext] = useState(false)
   const [done, setDone] = useState(false)
 
   // ── Angaben (Konto) — Pflichtfelder, auch zur Übernahme ins Profil ───────────
@@ -164,6 +165,22 @@ export default function RegisterPage() {
   const formationReady =
     accountType !== 'formation' ||
     Array.from({ length: inviteCount }).every((_, i) => (memberEmails[i + 1] ?? '').trim().length > 0)
+
+  // Eingabe-Klasse mit roter Markierung, sobald «Weiter» trotz fehlender
+  // Pflichtfelder geklickt wurde.
+  const fieldClass = (filled: boolean) =>
+    `w-full border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface ${triedNext && !filled ? 'border-red-400 bg-red-50/40' : 'border-border'}`
+
+  // «Weiter zur Zahlung»: nur weiter, wenn alle Pflichtfelder ausgefüllt sind —
+  // sonst Fehlermeldung anzeigen.
+  const goToPayment = () => {
+    if (angabenComplete && formationReady) {
+      setTriedNext(false)
+      setStep(3)
+    } else {
+      setTriedNext(true)
+    }
+  }
 
   // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
   // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
@@ -330,43 +347,43 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="label text-text-secondary block mb-1.5">Vorname *</label>
-                    <input value={vorname} onChange={e => setVorname(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Niklaus" />
+                    <input value={vorname} onChange={e => setVorname(e.target.value)} type="text" className={fieldClass(vorname.trim() !== '')} placeholder="Niklaus" />
                   </div>
                   <div>
                     <label className="label text-text-secondary block mb-1.5">Nachname *</label>
-                    <input value={nachname} onChange={e => setNachname(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Hess" />
+                    <input value={nachname} onChange={e => setNachname(e.target.value)} type="text" className={fieldClass(nachname.trim() !== '')} placeholder="Hess" />
                   </div>
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">E-Mail-Adresse *</label>
-                  <input value={email} onChange={e => setEmail(e.target.value)} type="email" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="deine@email.ch" />
+                  <input value={email} onChange={e => setEmail(e.target.value)} type="email" className={fieldClass(email.trim() !== '')} placeholder="deine@email.ch" />
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Passwort *</label>
-                  <PasswordInput value={passwort} onChange={e => setPasswort(e.target.value)} className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Mindestens 8 Zeichen" />
+                  <PasswordInput value={passwort} onChange={e => setPasswort(e.target.value)} className={fieldClass(passwort.trim() !== '')} placeholder="Mindestens 8 Zeichen" />
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label>
-                  <input value={geburtsdatum} onChange={e => setGeburtsdatum(e.target.value)} type="date" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" />
+                  <input value={geburtsdatum} onChange={e => setGeburtsdatum(e.target.value)} type="date" className={`${fieldClass(geburtsdatum.trim() !== '')} text-text-secondary`} />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
                     <label className="label text-text-secondary block mb-1.5">Strasse *</label>
-                    <input value={strasse} onChange={e => setStrasse(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Musterstrasse" />
+                    <input value={strasse} onChange={e => setStrasse(e.target.value)} type="text" className={fieldClass(strasse.trim() !== '')} placeholder="Musterstrasse" />
                   </div>
                   <div>
                     <label className="label text-text-secondary block mb-1.5">Nr. *</label>
-                    <input value={hausnummer} onChange={e => setHausnummer(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="12" />
+                    <input value={hausnummer} onChange={e => setHausnummer(e.target.value)} type="text" className={fieldClass(hausnummer.trim() !== '')} placeholder="12" />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="label text-text-secondary block mb-1.5">PLZ *</label>
-                    <input value={plz} onChange={e => setPlz(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="6000" />
+                    <input value={plz} onChange={e => setPlz(e.target.value)} type="text" className={fieldClass(plz.trim() !== '')} placeholder="6000" />
                   </div>
                   <div className="col-span-2">
                     <label className="label text-text-secondary block mb-1.5">Ort *</label>
-                    <input value={ort} onChange={e => setOrt(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Luzern" />
+                    <input value={ort} onChange={e => setOrt(e.target.value)} type="text" className={fieldClass(ort.trim() !== '')} placeholder="Luzern" />
                   </div>
                 </div>
 
@@ -411,7 +428,7 @@ export default function RegisterPage() {
                                   value={memberEmails[idx] ?? ''}
                                   onChange={e => setMemberEmail(idx, e.target.value)}
                                   placeholder="mitglied@email.ch"
-                                  className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background"
+                                  className={`w-full border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background ${triedNext && (memberEmails[idx] ?? '').trim() === '' ? 'border-red-400 bg-red-50/40' : 'border-border'}`}
                                 />
                               </div>
                             )
@@ -430,7 +447,7 @@ export default function RegisterPage() {
                     className="mt-0.5 w-4 h-4 flex-shrink-0 cursor-pointer"
                     style={{ accentColor: '#C4973A' }}
                   />
-                  <span className="font-sans text-xs text-text-secondary leading-relaxed">
+                  <span className={`font-sans text-xs leading-relaxed ${triedNext && !acceptedTerms ? 'text-red-600' : 'text-text-secondary'}`}>
                     Ich habe die{' '}
                     <Link href="/agb" className="text-accent-gold hover:underline">Nutzungsbedingungen</Link>{' '}
                     und die{' '}
@@ -438,6 +455,16 @@ export default function RegisterPage() {
                     von LAEMU gelesen und stimme ihnen zu. *
                   </span>
                 </label>
+                {triedNext && !(angabenComplete && formationReady) && (
+                  <div className="flex items-start gap-2.5 border border-red-300 bg-red-50 text-red-700 px-4 py-3">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <p className="font-sans text-xs leading-relaxed">
+                      {!angabenComplete
+                        ? 'Bitte fülle alle markierten Pflichtfelder (*) aus und akzeptiere die Nutzungsbedingungen, bevor du weitergehst.'
+                        : 'Bitte hinterlege für jedes weitere Formationsmitglied eine E-Mail-Adresse, bevor du weitergehst.'}
+                    </p>
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <button
                     onClick={() => setStep(1)}
@@ -446,20 +473,12 @@ export default function RegisterPage() {
                     ← Zurück
                   </button>
                   <button
-                    onClick={() => setStep(3)}
-                    disabled={!(angabenComplete && formationReady)}
-                    className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                    onClick={goToPayment}
+                    className="flex-1 font-sans font-semibold py-4 transition-colors bg-dark text-white hover:bg-accent-gold"
                   >
                     Weiter zur Zahlung →
                   </button>
                 </div>
-                {!(angabenComplete && formationReady) && (
-                  <p className="font-sans text-xs text-text-secondary text-center">
-                    {!angabenComplete
-                      ? 'Bitte fülle alle Pflichtfelder (*) aus und akzeptiere die Nutzungsbedingungen, um fortzufahren.'
-                      : 'Bitte hinterlege für jedes weitere Formationsmitglied eine E-Mail-Adresse, um fortzufahren.'}
-                  </p>
-                )}
               </div>
             </motion.div>
           )}
