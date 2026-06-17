@@ -102,7 +102,6 @@ const initialWishes: Wish[] = [
 
 const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Marsch', 'Lied']
-const VOLKSTUEMLICH_TAGS = ['Urchig', 'Modern', 'Konzertant', 'Illgauer Stil', 'Innerschwyzer Stil', 'Berner Stil', 'Bündner Stil']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
 
 // Optionen für Stimmen bei Stückwünschen — gruppiert nach 1. Stimme, 2. Stimme
@@ -138,6 +137,7 @@ export default function LernvideosPage() {
   const [filterNotenV, setFilterNotenV] = useState(false)
   const [filterNotenG, setFilterNotenG] = useState(false)
   const [filterLearned, setFilterLearned] = useState<'all' | 'learned' | 'unlearned'>('all')
+  const [filterLevel, setFilterLevel] = useState<'free' | 'starter' | 'pro' | null>(null)
   const [saved, setSaved] = useState<Set<number>>(new Set([1, 5, 7]))
   // Welche Stücke man bereits gelernt hat — markierbar & filterbar.
   const [learned, setLearned] = useState<Set<number>>(new Set([1, 2]))
@@ -198,6 +198,7 @@ export default function LernvideosPage() {
     setSearch(''); setFilterInst('Alle'); setFilterArt(null); setFilterTakt(null)
     setFilterStyleTag(null); setFilterGenreTag(null)
     setFilterNotenV(false); setFilterNotenG(false); setFilterLearned('all')
+    setFilterLevel(null)
   }
 
   const filtered = videos.filter(v => {
@@ -212,6 +213,7 @@ export default function LernvideosPage() {
     if (filterNotenG && !v.notesAvailable.griffschrift) return false
     if (filterLearned === 'learned' && !learned.has(v.id)) return false
     if (filterLearned === 'unlearned' && learned.has(v.id)) return false
+    if (filterLevel && v.difficultyPlan !== filterLevel) return false
     return true
   })
 
@@ -231,7 +233,7 @@ export default function LernvideosPage() {
   const activeFilterCount = [
     filterInst !== 'Alle', filterArt !== null, filterTakt !== null,
     filterStyleTag !== null, filterGenreTag !== null,
-    filterNotenV, filterNotenG, filterLearned !== 'all',
+    filterNotenV, filterNotenG, filterLearned !== 'all', filterLevel !== null,
   ].filter(Boolean).length
 
   // Ergebnis-Karte (Stück) — geteilt von Datenbank- und Merkliste-Tab.
@@ -500,14 +502,6 @@ export default function LernvideosPage() {
                                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                                       <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
                                         <div>
-                                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stil</p>
-                                          <div className="flex flex-wrap gap-1">
-                                            {VOLKSTUEMLICH_TAGS.map(t => (
-                                              <button key={t} onClick={() => setFilterStyleTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
-                                            ))}
-                                          </div>
-                                        </div>
-                                        <div>
                                           <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
                                           <div className="flex flex-wrap gap-1">
                                             {TAKTARTEN_FILTER.map(t => (
@@ -558,6 +552,15 @@ export default function LernvideosPage() {
                         <div className="grid grid-cols-3 gap-1.5">
                           {([['all', 'Alle'], ['learned', 'Gelernt'], ['unlearned', 'Offen']] as const).map(([val, lbl]) => (
                             <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border text-text-secondary hover:border-dark'}`}>{lbl}</button>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Level */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Level</label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {(['free', 'starter', 'pro'] as const).map(lvl => (
+                            <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{planLabels[lvl]}</button>
                           ))}
                         </div>
                       </div>
@@ -644,20 +647,6 @@ export default function LernvideosPage() {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                               <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
                                 <div>
-                                  <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stil</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {VOLKSTUEMLICH_TAGS.map(t => (
-                                      <button
-                                        key={t}
-                                        onClick={() => setFilterStyleTag(prev => prev === t ? null : t)}
-                                        className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterStyleTag === t ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark'}`}
-                                      >
-                                        {t}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                                <div>
                                   <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
                                   <div className="flex flex-wrap gap-1">
                                     {TAKTARTEN_FILTER.map(t => (
@@ -727,6 +716,15 @@ export default function LernvideosPage() {
                   ))}
                 </div>
               </div>
+              {/* Level */}
+              <div>
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Level</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {(['free', 'starter', 'pro'] as const).map(lvl => (
+                    <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{planLabels[lvl]}</button>
+                  ))}
+                </div>
+              </div>
                     </div>
                   </motion.div>
                 )}
@@ -753,6 +751,7 @@ export default function LernvideosPage() {
                     {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Violinschlüssel</span>}
                     {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Griffschrift</span>}
                     {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 ${filterLearned === 'learned' ? 'bg-green-600 text-white' : 'bg-dark text-white'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
+                    {filterLevel && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{planLabels[filterLevel]}</span>}
                   </div>
                 )}
               </div>
