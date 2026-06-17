@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/PasswordInput'
@@ -21,16 +21,12 @@ import {
 import { setStoredAbo } from '@/lib/userPlan'
 import { setStoredProfile } from '@/lib/userProfile'
 
-// Im Profil wählbare Instrumente (inkl. Klavier & Klarinette).
-const PROFILE_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavier', 'Klarinette']
-
 // In der Mitgliedschaft (Musikschule) wählbare Instrumente.
 const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
 
 const steps = [
-  { number: 1, label: 'Angaben' },
-  { number: 2, label: 'Mitgliedschaft' },
-  { number: 3, label: 'Profil' },
+  { number: 1, label: 'Mitgliedschaft' },
+  { number: 2, label: 'Angaben' },
 ]
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
@@ -38,33 +34,21 @@ const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
   const [selectedPayment, setSelectedPayment] = useState('card')
-  const [selectedInstruments, setSelectedInstruments] = useState<string[]>([])
-  const [instrumentFreetext, setInstrumentFreetext] = useState('')
-  const [formationChoice, setFormationChoice] = useState<'yes' | 'no' | 'open' | null>(null)
-  const [formationName, setFormationName] = useState('')
   const [ort, setOrt] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
 
-  // ── Angaben (Step 1) für die Übernahme ins Profil ────────────────────────────
+  // ── Angaben (Konto) — Pflichtfelder, auch zur Übernahme ins Profil ───────────
   const [vorname, setVorname] = useState('')
   const [nachname, setNachname] = useState('')
   const [email, setEmail] = useState('')
+  const [passwort, setPasswort] = useState('')
+  const [geburtsdatum, setGeburtsdatum] = useState('')
+  const [strasse, setStrasse] = useState('')
+  const [hausnummer, setHausnummer] = useState('')
+  const [plz, setPlz] = useState('')
 
-  // ── Profil (Step 3) ──────────────────────────────────────────────────────────
-  const [bio, setBio] = useState('')
-  const [avatar, setAvatar] = useState('')
-  const avatarInputRef = useRef<HTMLInputElement>(null)
-
-  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setAvatar(typeof reader.result === 'string' ? reader.result : '')
-    reader.readAsDataURL(file)
-  }
-
-  // ── Mitgliedschaft (Step 2) ──────────────────────────────────────────────
+  // ── Mitgliedschaft (Step 1) ──────────────────────────────────────────────
   const [accountType, setAccountType] = useState<'individual' | 'formation'>('individual')
   const [billing, setBilling] = useState<'yearly' | 'monthly' | 'free'>('yearly')
   const [individualPlan, setIndividualPlan] = useState<IndividualPlanId>('starter')
@@ -72,12 +56,6 @@ export default function RegisterPage() {
   const [aboInstruments, setAboInstruments] = useState<string[]>(['Handorgel'])
   const [formationPlan, setFormationPlan] = useState<FormationPlanId>('pro')
   const [memberCount, setMemberCount] = useState(3)
-
-  const toggleInstrument = (inst: string) => {
-    setSelectedInstruments(prev =>
-      prev.includes(inst) ? prev.filter(i => i !== inst) : [...prev, inst]
-    )
-  }
 
   // E-Mail-Adressen der weiteren Formationsmitglieder (Index 1 … N-1; Mitglied 0
   // ist die anmeldende Person selbst). Über diese E-Mails werden die anderen
@@ -132,6 +110,20 @@ export default function RegisterPage() {
 
   const periodLabel = priceBilling === 'yearly' ? '/ Jahr' : '/ Monat'
 
+  // Angaben-Schritt: erst weiter, wenn alle Pflichtfelder ausgefüllt sind und
+  // die Nutzungsbedingungen akzeptiert wurden.
+  const angabenComplete =
+    vorname.trim() !== '' &&
+    nachname.trim() !== '' &&
+    email.trim() !== '' &&
+    passwort.trim() !== '' &&
+    geburtsdatum.trim() !== '' &&
+    strasse.trim() !== '' &&
+    hausnummer.trim() !== '' &&
+    plz.trim() !== '' &&
+    ort.trim() !== '' &&
+    acceptedTerms
+
   // Anzahl einzuladender Mitglieder (alle ausser der anmeldenden Person selbst).
   const inviteCount = Math.max(0, memberCount - 1)
 
@@ -166,137 +158,18 @@ export default function RegisterPage() {
     setStoredAbo(abo)
 
     // Eingegebene Angaben ins Profil übernehmen, damit Name & Infos im
-    // Mitgliederbereich gleich stimmen. Bei einer Formation legt die anmeldende
-    // Person (Mitglied 1) hier ihr eigenes Profil an; die weiteren Mitglieder
-    // registrieren sich später selbst.
+    // Mitgliederbereich gleich stimmen. Das Profil (Bild, Bio, Instrumente …)
+    // kann später jederzeit im Mitgliederbereich ergänzt werden.
     const fullName = [vorname.trim(), nachname.trim()].filter(Boolean).join(' ')
-    const instrumentList = [...selectedInstruments, instrumentFreetext.trim()]
-      .filter(Boolean)
-      .join(', ')
-    const isFormation = accountType === 'formation'
     setStoredProfile({
       ...(fullName ? { name: fullName } : {}),
       email: email.trim(),
       wohnort: ort.trim(),
-      bio: bio.trim(),
-      ...(instrumentList ? { instruments: instrumentList } : {}),
-      avatar,
-      openForFormation: isFormation ? false : formationChoice === 'open',
-      inFormation: isFormation ? true : formationChoice === 'yes',
-      formationName: isFormation
-        ? formationName.trim()
-        : formationChoice === 'yes'
-          ? formationName.trim()
-          : '',
+      inFormation: accountType === 'formation',
     })
 
     setDone(true)
   }
-
-  // Gemeinsame Profil-Felder (Bild, Bio, Wohnort, Instrumente) — werden im
-  // letzten Schritt sowohl von Einzelpersonen als auch von der anmeldenden
-  // Person einer Formation ausgefüllt.
-  const profileFieldsBlock = (
-    <>
-      {/* Profile photo */}
-      <div>
-        <label className="label text-text-secondary block mb-3">Profilbild</label>
-        <div className="flex items-center gap-5">
-          <div className="w-20 h-20 bg-border flex items-center justify-center flex-shrink-0 overflow-hidden">
-            {avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatar} alt="Profilbild" className="w-full h-full object-cover" />
-            ) : (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-              </svg>
-            )}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {/* Datei-Upload vom Computer oder Handy */}
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarFile}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => avatarInputRef.current?.click()}
-              className="font-sans text-sm border border-border px-4 py-2.5 hover:border-dark transition-colors inline-flex items-center gap-2"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              {avatar ? 'Anderes Bild wählen' : 'Bild hochladen'}
-            </button>
-            {avatar ? (
-              <button
-                type="button"
-                onClick={() => { setAvatar(''); if (avatarInputRef.current) avatarInputRef.current.value = '' }}
-                className="font-sans text-xs text-text-secondary hover:text-red-500 transition-colors text-left"
-              >
-                Bild entfernen
-              </button>
-            ) : (
-              <p className="font-sans text-xs text-text-secondary">Vom Computer oder Handy · JPG, PNG</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bio */}
-      <div>
-        <label className="label text-text-secondary block mb-1.5">Bio</label>
-        <textarea
-          value={bio}
-          onChange={e => setBio(e.target.value)}
-          rows={3}
-          className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none"
-          placeholder="Erzähl der Community etwas über dich — deine Musik, deine Heimat, deine Geschichte."
-        />
-      </div>
-
-      {/* Wohnort (automatisch aus den Angaben) */}
-      <div>
-        <label className="label text-text-secondary block mb-1.5">Wohnort</label>
-        <input
-          value={ort}
-          onChange={e => setOrt(e.target.value)}
-          type="text"
-          placeholder="Luzern"
-          className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-        />
-        <p className="font-sans text-xs text-text-secondary mt-1.5">Automatisch aus deinen Angaben übernommen — du kannst ihn hier anpassen.</p>
-      </div>
-
-      {/* Instruments */}
-      <div>
-        <label className="label text-text-secondary block mb-3">Instrumente</label>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {PROFILE_INSTRUMENTS.map((inst) => (
-            <button
-              key={inst}
-              onClick={() => toggleInstrument(inst)}
-              className={`font-sans text-sm px-3 py-2 border transition-all ${
-                selectedInstruments.includes(inst)
-                  ? 'border-dark bg-dark text-white'
-                  : 'border-border bg-surface text-text-secondary hover:border-dark'
-              }`}
-            >
-              {inst}
-            </button>
-          ))}
-        </div>
-        <input
-          value={instrumentFreetext}
-          onChange={e => setInstrumentFreetext(e.target.value)}
-          type="text"
-          placeholder="Weiteres Instrument (freitext)"
-          className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-        />
-      </div>
-    </>
-  )
 
   if (done) {
     return (
@@ -332,7 +205,7 @@ export default function RegisterPage() {
           )}
 
           {accountType === 'formation' && (
-            <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 text-left flex gap-3">
+            <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-8 text-left flex gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
               <div>
                 <p className="font-sans text-sm font-semibold mb-1">Die weiteren Mitglieder sind eingeladen</p>
@@ -353,13 +226,15 @@ export default function RegisterPage() {
             >
               Zur Musikschule →
             </Link>
-            <Link
-              href="/member/academy"
+            <a
+              href="https://www.youtube.com/watch?v=GC2ifQu8bOk&list=PLQT3QakLxJRzL_7g7D6xHSerTYxqRuHO3&index=6"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               Einführungsvideo anschauen
-            </Link>
+            </a>
           </div>
         </motion.div>
       </div>
@@ -399,17 +274,26 @@ export default function RegisterPage() {
         </div>
 
         <AnimatePresence mode="wait">
-          {step === 1 && (
+          {step === 2 && (
             <motion.div
-              key="step1"
+              key="step2"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <h1 className="font-heading text-3xl font-bold mb-2">Konto erstellen</h1>
+              <div className="flex items-start gap-2 flex-wrap mb-2">
+                <h1 className="font-heading text-3xl font-bold">Konto erstellen</h1>
+                {accountType === 'formation' && (
+                  <span className="font-sans text-[11px] font-semibold px-2 py-1 bg-accent-gold/15 border border-accent-gold/40 text-accent-gold mt-1.5">
+                    Du = 1. Mitglied &amp; zahlende Person
+                  </span>
+                )}
+              </div>
               <p className="font-sans text-text-secondary text-sm mb-8">
-                Nur für natürliche Personen — keine Firmen oder Organisationen.
+                {accountType === 'formation'
+                  ? 'Du legst dein eigenes Konto an — du bist damit gleichzeitig das 1. Mitglied der Formation und zahlst das Abonnement. Unterhalb deiner Daten lädst du die weiteren Mitglieder ein.'
+                  : 'Nur für natürliche Personen — keine Firmen oder Organisationen.'}
               </p>
               <div className="space-y-5">
                 <div className="grid grid-cols-2 gap-4">
@@ -428,32 +312,141 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Passwort *</label>
-                  <PasswordInput className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Mindestens 8 Zeichen" />
+                  <PasswordInput value={passwort} onChange={e => setPasswort(e.target.value)} className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Mindestens 8 Zeichen" />
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label>
-                  <input type="date" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" />
+                  <input value={geburtsdatum} onChange={e => setGeburtsdatum(e.target.value)} type="date" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
                     <label className="label text-text-secondary block mb-1.5">Strasse *</label>
-                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Musterstrasse" />
+                    <input value={strasse} onChange={e => setStrasse(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Musterstrasse" />
                   </div>
                   <div>
                     <label className="label text-text-secondary block mb-1.5">Hausnummer *</label>
-                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="12" />
+                    <input value={hausnummer} onChange={e => setHausnummer(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="12" />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="label text-text-secondary block mb-1.5">PLZ *</label>
-                    <input type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="6000" />
+                    <input value={plz} onChange={e => setPlz(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="6000" />
                   </div>
                   <div className="col-span-2">
                     <label className="label text-text-secondary block mb-1.5">Ort *</label>
                     <input value={ort} onChange={e => setOrt(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Luzern" />
                   </div>
                 </div>
+
+                {/* ── Weitere Formationsmitglieder (direkt unter den eigenen Kontaktdaten) ── */}
+                {accountType === 'formation' && (
+                  <div className="space-y-4">
+                    {/* Golden hint: Selbst-Registrierung & voller Zugang */}
+                    <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 flex gap-3">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+                      <div>
+                        <p className="font-sans text-sm font-semibold mb-1">So erhalten die weiteren Mitglieder Zugang</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                          Jedes weitere Mitglied erhält an die unten hinterlegte E-Mail-Adresse eine Einladung. Über den
+                          Link darin registriert sich jedes Mitglied selbst und legt sein eigenes Login und Profil an —
+                          mit vollem Zugriff auf alle Pro-Lehrgänge und die komplette Lernvideo-Datenbank.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Wichtige Aktion: weitere Mitglieder erfassen — prominent auf hellem Grund */}
+                    <div className="bg-surface border-2 border-accent-gold p-5">
+                      <div className="flex items-center gap-2 mb-1">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-dark flex-shrink-0"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                        <h3 className="font-heading font-bold text-base">Weitere Formationsmitglieder einladen</h3>
+                      </div>
+                      <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
+                        Mitglied 1 bist du selbst (oben erfasst). Hinterlege für jedes weitere Mitglied eine E-Mail-Adresse.
+                      </p>
+                      {inviteCount === 0 ? (
+                        <p className="font-sans text-sm text-text-secondary bg-background border border-border px-4 py-3">
+                          Du hast nur dich selbst (1 Mitglied) gewählt — es sind keine Einladungen nötig.
+                        </p>
+                      ) : (
+                        <div className="space-y-3">
+                          {Array.from({ length: inviteCount }).map((_, i) => {
+                            const idx = i + 1
+                            return (
+                              <div key={idx}>
+                                <label className="label text-text-secondary block mb-1.5">E-Mail Mitglied {idx + 1} *</label>
+                                <input
+                                  type="email"
+                                  value={memberEmails[idx] ?? ''}
+                                  onChange={e => setMemberEmail(idx, e.target.value)}
+                                  placeholder="mitglied@email.ch"
+                                  className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background"
+                                />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Zahlungsmittel — im Free-Account nicht nötig ── */}
+                {isFree ? (
+                  <div className="bg-accent-gold/10 border border-accent-gold/40 p-5 flex gap-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" /></svg>
+                    <div>
+                      <p className="font-sans font-semibold text-sm mb-1">Kein Zahlungsmittel nötig</p>
+                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                        Für den Free-Account hinterlegst du keine Zahlungsdaten. Sobald du eine Funktion nutzen möchtest,
+                        kannst du jederzeit in deinem Konto auf einen kostenpflichtigen Plan upgraden.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="font-heading font-bold text-lg mb-1">Zahlungsmittel</h3>
+                    <p className="font-sans text-xs text-text-secondary mb-4">
+                      Dein Zahlungsmittel wird anschliessend sicher mit Stripe verbunden.
+                    </p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {[
+                        { id: 'card', label: 'Kredit- / Debitkarte', sub: 'Visa, Mastercard', icon: (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        )},
+                        { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                        )},
+                      ].map((method) => (
+                        <button
+                          key={method.id}
+                          onClick={() => setSelectedPayment(method.id)}
+                          className={`flex items-center gap-4 p-4 border-2 text-left transition-all ${
+                            selectedPayment === method.id ? 'border-dark bg-dark/5' : 'border-border bg-surface hover:border-dark'
+                          }`}
+                        >
+                          <span className={selectedPayment === method.id ? 'text-dark' : 'text-text-secondary'}>{method.icon}</span>
+                          <div>
+                            <p className="font-sans font-semibold text-sm">{method.label}</p>
+                            <p className="font-sans text-xs text-text-secondary">{method.sub}</p>
+                          </div>
+                          <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selectedPayment === method.id ? 'border-dark bg-dark' : 'border-border'}`}>
+                            {selectedPayment === method.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    {/* Stripe — sichere Abwicklung der Zahlung (golden hint) */}
+                    <div className="mt-4 flex items-center gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                        Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
+                        wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -470,20 +463,38 @@ export default function RegisterPage() {
                     von LAEMU gelesen und stimme ihnen zu. *
                   </span>
                 </label>
-                <button
-                  onClick={() => setStep(2)}
-                  disabled={!acceptedTerms}
-                  className={`w-full font-sans font-semibold py-4 transition-colors ${acceptedTerms ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
-                >
-                  Weiter →
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="px-6 py-4 border border-border font-sans text-sm hover:border-dark transition-colors"
+                  >
+                    ← Zurück
+                  </button>
+                  <button
+                    onClick={finishRegistration}
+                    disabled={!(angabenComplete && formationReady)}
+                    className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                  >
+                    Registrierung abschliessen ✓
+                  </button>
+                </div>
+                {!(angabenComplete && formationReady) && (
+                  <p className="font-sans text-xs text-text-secondary text-center">
+                    {!angabenComplete
+                      ? 'Bitte fülle alle Pflichtfelder (*) aus und akzeptiere die Nutzungsbedingungen, um fortzufahren.'
+                      : 'Bitte hinterlege für jedes weitere Formationsmitglied eine E-Mail-Adresse, um die Registrierung abzuschliessen.'}
+                  </p>
+                )}
+                <p className="font-sans text-xs text-text-secondary text-center">
+                  Dein persönliches Profil (Bild, Bio, Instrumente …) ergänzt du jederzeit später im Mitgliederbereich.
+                </p>
               </div>
             </motion.div>
           )}
 
-          {step === 2 && (
+          {step === 1 && (
             <motion.div
-              key="step2"
+              key="step1"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -666,8 +677,11 @@ export default function RegisterPage() {
 
                   {/* Feature list of selected plan */}
                   {!isFree && (
-                  <div className="bg-background border border-border p-5 mb-8">
-                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Enthalten</p>
+                  <div className="bg-accent-gold/5 border-2 border-accent-gold/40 p-5 mb-8">
+                    <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                      Enthalten
+                    </p>
                     <div className="space-y-2">
                       {individualPlanMeta[individualPlan].features.map((f, i) => (
                         <div key={i} className="flex items-center gap-2 font-sans text-sm">
@@ -726,10 +740,12 @@ export default function RegisterPage() {
                       )}
                     </div>
                     {memberCount > 1 && (
-                      <p className="font-sans text-xs text-text-secondary mt-3 flex items-start gap-2">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        Du selbst bist bereits als 1. Mitglied erfasst. Die weiteren {inviteCount} {inviteCount === 1 ? 'Mitglied lädst du' : 'Mitglieder lädst du'} im nächsten Schritt per E-Mail ein.
-                      </p>
+                      <div className="mt-3 flex items-start gap-2 bg-accent-gold/10 border border-accent-gold/40 p-3">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <span className="font-sans text-xs text-text-secondary leading-relaxed">
+                          Du selbst bist bereits als 1. Mitglied erfasst. Die weiteren {inviteCount} {inviteCount === 1 ? 'Mitglied erfasst du' : 'Mitglieder erfasst du'} im nächsten Schritt direkt unterhalb deiner eigenen Kontaktdaten.
+                        </span>
+                      </div>
                     )}
                   </div>
 
@@ -767,8 +783,11 @@ export default function RegisterPage() {
                   </div>
 
                   {/* Enthalten (Formation) */}
-                  <div className="bg-background border border-border p-5 mb-8">
-                    <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Enthalten — Formation {formationPlanMeta[formationPlan].label}</p>
+                  <div className="bg-accent-gold/5 border-2 border-accent-gold/40 p-5 mb-8">
+                    <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                      Enthalten — Formation {formationPlanMeta[formationPlan].label}
+                    </p>
                     <div className="space-y-2">
                       {formationPlanMeta[formationPlan].features.map((f, i) => (
                         <div key={i} className="flex items-center gap-2 font-sans text-sm">
@@ -797,235 +816,12 @@ export default function RegisterPage() {
                 </>
               )}
 
-              {/* Payment — im Free-Account nicht nötig */}
-              {isFree ? (
-                <div className="bg-surface border border-border p-5 mb-8 flex gap-3">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M20 6L9 17l-5-5" /></svg>
-                  <div>
-                    <p className="font-sans font-semibold text-sm mb-1">Kein Zahlungsmittel nötig</p>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Für den Free-Account hinterlegst du keine Zahlungsdaten. Sobald du eine Funktion nutzen möchtest,
-                      kannst du jederzeit in deinem Konto auf einen kostenpflichtigen Plan upgraden.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-              <div className="mb-8">
-                <h3 className="font-heading font-bold text-lg mb-1">Zahlungsmittel</h3>
-                <p className="font-sans text-xs text-text-secondary mb-4">
-                  Im nächsten Schritt verbindest du dein Zahlungsmittel sicher mit Stripe.
-                </p>
-                <div className="grid grid-cols-1 gap-3">
-                  {[
-                    { id: 'card', label: 'Kredit- / Debitkarte', sub: 'Visa, Mastercard', icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    )},
-                    { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                    )},
-                  ].map((method) => (
-                    <button
-                      key={method.id}
-                      onClick={() => setSelectedPayment(method.id)}
-                      className={`flex items-center gap-4 p-4 border-2 text-left transition-all ${
-                        selectedPayment === method.id ? 'border-dark bg-dark/5' : 'border-border bg-surface hover:border-dark'
-                      }`}
-                    >
-                      <span className={selectedPayment === method.id ? 'text-dark' : 'text-text-secondary'}>{method.icon}</span>
-                      <div>
-                        <p className="font-sans font-semibold text-sm">{method.label}</p>
-                        <p className="font-sans text-xs text-text-secondary">{method.sub}</p>
-                      </div>
-                      <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selectedPayment === method.id ? 'border-dark bg-dark' : 'border-border'}`}>
-                        {selectedPayment === method.id && <div className="w-2 h-2 rounded-full bg-white" />}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                {/* Stripe — sichere Abwicklung der Zahlung */}
-                <div className="mt-4 flex items-center gap-2.5 bg-surface border border-border px-4 py-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                    Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
-                    wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
-                  </p>
-                </div>
-              </div>
-              )}
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-6 py-4 border border-border font-sans text-sm hover:border-dark transition-colors"
-                >
-                  ← Zurück
-                </button>
-                <button
-                  onClick={() => setStep(3)}
-                  className="flex-1 bg-dark text-white font-sans font-semibold py-4 hover:bg-accent-gold transition-colors"
-                >
-                  Weiter →
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div
-              key="step3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-            >
-              {accountType === 'formation' ? (
-                <>
-                  <h1 className="font-heading text-3xl font-bold mb-2">Dein Profil &amp; Formation einrichten</h1>
-                  <p className="font-sans text-text-secondary text-sm mb-6">
-                    Richte zuerst dein eigenes Profil ein — du bist als 1. Mitglied bereits erfasst. Anschliessend
-                    lädst du die weiteren Mitglieder deiner Formation per E-Mail ein.
-                  </p>
-
-                  {/* Info: Selbst-Registrierung der weiteren Mitglieder + voller Zugang */}
-                  <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 flex gap-3">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
-                    <div>
-                      <p className="font-sans text-sm font-semibold mb-1">So erhalten die weiteren Mitglieder Zugang</p>
-                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                        Sobald du die Registrierung abgeschlossen und das Abo bezahlt hast, erhält jedes weitere Mitglied
-                        an die unten hinterlegte E-Mail-Adresse eine Einladung. Über den Link darin registriert sich
-                        jedes Mitglied selbst und legt sein eigenes Login und Profil an.
-                      </p>
-                      <p className="font-sans text-xs text-text-secondary leading-relaxed mt-2">
-                        Alle Mitglieder erhalten vollen Zugriff auf sämtliche Pro-Lehrgänge und die komplette
-                        Lernvideo-Datenbank — für alle Instrumente.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-7">
-                    {profileFieldsBlock}
-
-                    {/* Name der Formation */}
-                    <div>
-                      <label className="label text-text-secondary block mb-1.5">Name der Formation</label>
-                      <input
-                        value={formationName}
-                        onChange={e => setFormationName(e.target.value)}
-                        type="text"
-                        placeholder="z.B. Kapelle Bergblick"
-                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                      />
-                    </div>
-
-                    {/* Weitere Mitglieder einladen */}
-                    <div className="pt-2 border-t border-border">
-                      <label className="label text-text-secondary block mb-1.5">Weitere Mitglieder einladen</label>
-                      <p className="font-sans text-xs text-text-secondary mb-3 leading-relaxed">
-                        Mitglied 1 bist du selbst. Hinterlege für die weiteren Mitglieder je eine E-Mail-Adresse — sie
-                        erhalten eine Einladung und registrieren sich anschliessend selbst.
-                      </p>
-                      {inviteCount === 0 ? (
-                        <p className="font-sans text-sm text-text-secondary bg-surface border border-border px-4 py-3">
-                          Du hast nur dich selbst (1 Mitglied) gewählt — es sind keine Einladungen nötig.
-                        </p>
-                      ) : (
-                        <div className="space-y-3">
-                          {Array.from({ length: inviteCount }).map((_, i) => {
-                            const idx = i + 1
-                            return (
-                              <div key={idx}>
-                                <label className="label text-text-secondary block mb-1.5">E-Mail Mitglied {idx + 1} *</label>
-                                <input
-                                  type="email"
-                                  value={memberEmails[idx] ?? ''}
-                                  onChange={e => setMemberEmail(idx, e.target.value)}
-                                  placeholder="mitglied@email.ch"
-                                  className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                                />
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h1 className="font-heading text-3xl font-bold mb-2">Profil einrichten</h1>
-                  <p className="font-sans text-text-secondary text-sm mb-8">
-                    Alle Angaben hier sind optional — du kannst sie jederzeit in deinem Profil ergänzen.
-                  </p>
-
-                  <div className="space-y-7">
-                    {profileFieldsBlock}
-
-                    {/* Formation */}
-                    <div>
-                      <label className="label text-text-secondary block mb-3">Formation</label>
-                      <div className="flex gap-2 mb-4">
-                        {[
-                          { id: 'yes', label: 'Ja, ich spiele in einer Formation' },
-                          { id: 'no', label: 'Nein' },
-                          { id: 'open', label: 'Offen für Formationen' },
-                        ].map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => setFormationChoice(opt.id as 'yes' | 'no' | 'open')}
-                            className={`font-sans text-sm px-4 py-2.5 border transition-all ${
-                              formationChoice === opt.id ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                      {formationChoice === 'yes' && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                          <input
-                            value={formationName}
-                            onChange={e => setFormationName(e.target.value)}
-                            type="text"
-                            placeholder="Name der Formation"
-                            className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                          />
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div className="flex gap-3 mt-8">
-                <button
-                  onClick={() => setStep(2)}
-                  className="px-6 py-4 border border-border font-sans text-sm hover:border-dark transition-colors"
-                >
-                  ← Zurück
-                </button>
-                <button
-                  onClick={finishRegistration}
-                  disabled={!formationReady}
-                  className={`flex-1 font-sans font-semibold py-4 transition-colors ${formationReady ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
-                >
-                  Registrierung abschliessen ✓
-                </button>
-              </div>
-              {accountType === 'formation' ? (
-                !formationReady && (
-                  <p className="font-sans text-xs text-text-secondary text-center mt-3">
-                    Hinterlege für jedes weitere Mitglied eine E-Mail-Adresse, um die Einladungen zu versenden und die Registrierung abzuschliessen.
-                  </p>
-                )
-              ) : (
-                <button
-                  onClick={finishRegistration}
-                  className="w-full mt-3 font-sans text-sm text-text-secondary hover:text-dark transition-colors py-2"
-                >
-                  Überspringen — später im Profil ergänzen
-                </button>
-              )}
+              <button
+                onClick={() => setStep(2)}
+                className="w-full bg-dark text-white font-sans font-semibold py-4 hover:bg-accent-gold transition-colors"
+              >
+                Weiter →
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
