@@ -355,7 +355,7 @@ export default function MemberAcademyPage() {
           {!isFreeTier && (
             <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-              <span className="font-sans font-bold text-sm">7 Tage Streak!</span>
+              <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
             </div>
           )}
         </div>
@@ -386,7 +386,7 @@ export default function MemberAcademyPage() {
                     {!isFreeTier && (
                       <div className="bg-accent-gold/20 border border-accent-gold/30 px-4 py-3 text-center">
                         <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
-                        <p className="font-sans text-xs text-white/50">Tage Streak</p>
+                        <p className="font-sans text-xs text-white/50">Wochen Streak</p>
                       </div>
                     )}
                   </div>

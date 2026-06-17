@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/PasswordInput'
@@ -249,12 +249,12 @@ export default function RegisterPage() {
         <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        {/* Step indicator */}
-        <div className="flex items-center justify-between mb-12">
+      <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
+        {/* Step indicator — gleichmässiger Abstand, mobil-tauglich */}
+        <div className="flex items-start mb-10">
           {steps.map((s, i) => (
-            <div key={s.number} className="flex items-center flex-1">
-              <div className="flex flex-col items-center">
+            <Fragment key={s.number}>
+              <div className="flex flex-col items-center gap-2 w-20 sm:w-24 shrink-0">
                 <div className={`w-10 h-10 flex items-center justify-center font-heading font-bold text-sm transition-all ${
                   step > s.number ? 'bg-accent-gold text-white' :
                   step === s.number ? 'bg-dark text-white' :
@@ -264,12 +264,12 @@ export default function RegisterPage() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                   ) : s.number}
                 </div>
-                <span className={`font-sans text-xs mt-2 ${step === s.number ? 'text-dark font-medium' : 'text-text-secondary'}`}>{s.label}</span>
+                <span className={`font-sans text-xs text-center leading-tight ${step === s.number ? 'text-dark font-medium' : 'text-text-secondary'}`}>{s.label}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`flex-1 h-px mx-4 mb-5 transition-colors ${step > s.number ? 'bg-accent-gold' : 'bg-border'}`} />
+                <div className={`flex-1 h-px mt-5 transition-colors ${step > s.number ? 'bg-accent-gold' : 'bg-border'}`} />
               )}
-            </div>
+            </Fragment>
           ))}
         </div>
 
@@ -324,7 +324,7 @@ export default function RegisterPage() {
                     <input value={strasse} onChange={e => setStrasse(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="Musterstrasse" />
                   </div>
                   <div>
-                    <label className="label text-text-secondary block mb-1.5">Hausnummer *</label>
+                    <label className="label text-text-secondary block mb-1.5">Nr. *</label>
                     <input value={hausnummer} onChange={e => setHausnummer(e.target.value)} type="text" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface" placeholder="12" />
                   </div>
                 </div>
