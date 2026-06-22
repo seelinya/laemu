@@ -965,7 +965,7 @@ export default function LernvideoDetailPage() {
                   </div>
                 </motion.div>
 
-                {/* 3 — LIEDTEXT (Akkordeon, standardmässig geschlossen) */}
+                {/* 3 — LIEDTEXT (einklappbar, standardmässig geschlossen) */}
                 {v.lyrics && (
                   <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} className="bg-surface border border-border">
                     <button onClick={() => setShowLyrics(s => !s)} className="w-full flex items-center justify-between gap-2 px-6 py-4 hover:bg-background transition-colors" aria-expanded={showLyrics}>

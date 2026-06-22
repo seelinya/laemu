@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { InstrumentTagPicker } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
@@ -848,7 +849,8 @@ function ProfileView() {
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
-                  <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  <p className="font-sans text-[11px] text-text-secondary mb-2">Wähle deine Instrumente — sie erscheinen nur auf deinem Profil. Eigene über «Sonstiges» ergänzen.</p>
+                  <InstrumentTagPicker value={draftInstruments} onChange={setDraftInstruments} />
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
@@ -1107,21 +1109,6 @@ function SettingsView() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-4 border border-border">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">🌐</span>
-                    <div>
-                      <p className="font-sans text-sm font-semibold">LAEMU Community – Mitgliedschaft</p>
-                      <p className="font-sans text-xs text-text-secondary">Monatlich · nächste Verlängerung 1. Mär 2026</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-sans text-sm font-semibold">CHF 5.00 / Monat</p>
-                    <div className="mt-1">
-                      <button className="font-sans text-xs text-red-500 hover:text-red-700 transition-colors">Kündigen</button>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
             {/* Invoice history */}
@@ -1129,9 +1116,7 @@ function SettingsView() {
             <div className="space-y-3">
               {[
                 { date: 'Feb 2026', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
-                { date: 'Feb 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
-                { date: 'Jan 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
-                { date: 'Dez 2025', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
+                { date: 'Feb 2025', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
               ].map((r, i) => (
                 <div key={i} className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors">
                   <div>

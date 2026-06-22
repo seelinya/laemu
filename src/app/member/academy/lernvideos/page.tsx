@@ -164,7 +164,7 @@ export default function LernvideosPage() {
   const [wishComposer, setWishComposer] = useState('')
   const [wishVoteSel, setWishVoteSel] = useState<string[]>([])
   const [wishSearch, setWishSearch] = useState('')
-  // Aufgeklappte Stückwünsche (Akkordeon) — mehrere gleichzeitig möglich.
+  // Aufgeklappte Stückwünsche (einklappbar) — mehrere gleichzeitig möglich.
   const [expandedWishes, setExpandedWishes] = useState<Set<number>>(new Set())
   const toggleWishExpand = (id: number) =>
     setExpandedWishes(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -984,7 +984,7 @@ export default function LernvideosPage() {
                 const isOpen = expandedWishes.has(w.id)
                 return (
                 <div key={w.id} className="bg-surface border border-border">
-                  {/* Kopfzeile — klappt per Klick (Abstimmen / Chevron) das Akkordeon auf */}
+                  {/* Kopfzeile — klappt per Klick (Abstimmen / Chevron) die Liste auf */}
                   <button
                     onClick={() => toggleWishExpand(w.id)}
                     className="w-full flex items-center justify-between gap-4 p-5 text-left"
