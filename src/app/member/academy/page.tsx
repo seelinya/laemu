@@ -347,10 +347,6 @@ export default function MemberAcademyPage() {
                       })}
                     </div>
                   </div>
-                  <p className="font-sans text-sm text-text-secondary mb-5">
-                    Alle Kurse aller Instrumente — nach Instrument filterbar. Je nach Abo sind sie freigeschaltet
-                    oder als Vorschau (Schnupper-Lektionen) zugänglich.
-                  </p>
 
                   {/* Aktive: bereits begonnene Kurse */}
                   {activeCourseTab === 'aktive' && (

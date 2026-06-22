@@ -296,7 +296,6 @@ function IconVolOn() { return <svg width="14" height="14" viewBox="0 0 24 24" fi
 function IconMixer() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg> }
 function IconDisc() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> }
 function IconBack() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg> }
-function IconHeadphones() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg> }
 // Tempo: Geschwindigkeitsanzeige (Tacho) — wie bei YouTube/Vimeo
 function IconSpeed() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 14l3.5-3.5"/><path d="M4.6 18a9 9 0 1114.8 0"/><circle cx="12" cy="14" r="1" fill="currentColor"/></svg> }
 // Tonhöhe: Stimmgabel
@@ -655,7 +654,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
 
 // ─── Stimme-/Begleitvideo mit aufklappbarem Player (Auto-Loop) ────────────────
 
-function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist, defaultOpen = false }: { lv: { id: string; label: string; duration: string; done: boolean }; img: string; inPlaylist: boolean; onPlaylist: () => void; defaultOpen?: boolean }) {
+function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; label: string; duration: string; done: boolean }; img: string; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
     <div>
@@ -670,7 +669,6 @@ function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist, defaultOpen = false 
           </div>
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0 pl-10 sm:pl-0">
-          <button onClick={onPlaylist} className={`border px-2 py-1.5 text-xs flex items-center gap-1 transition-colors ${inPlaylist ? 'border-dark text-dark' : 'border-border text-text-secondary hover:border-dark'}`} title="Zur Audio-Playlist (z.B. fürs Auto)"><IconHeadphones /> <span className="hidden sm:inline">Playlist</span></button>
           <button onClick={() => setOpen(o => !o)} title={open ? 'Schliessen' : 'Abspielen'} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
             {open
               ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span className="hidden sm:inline">Schliessen</span></>
@@ -793,7 +791,6 @@ export default function LernvideoDetailPage() {
   const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
-  const [audioPlaylist, setAudioPlaylist] = useState<Set<string>>(new Set())
   // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
   // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
   const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
@@ -813,8 +810,6 @@ export default function LernvideoDetailPage() {
     return () => { clearTimeout(scrollTimer); clearTimeout(clearTimer) }
   }, [])
 
-  const toggleAudioPlaylist = (id: string) => setAudioPlaylist(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
-
   // Stimmen nach Tab: 1./2. Stimme = Melodie-Instrumente, Begleitung = alle Begleitstimmen
   const MELODIC = ['Handorgel', 'Schwyzerörgeli', 'Klarinette']
   const stimme1Sections = v.stimmenSections.filter(s => s.label.startsWith('1. Stimme') && MELODIC.includes(s.instrument))
@@ -833,7 +828,7 @@ export default function LernvideoDetailPage() {
         {stimme.lernvideos.length > 0 && (
           <div className="divide-y divide-border">
             {stimme.lernvideos.map((lv, idx) => (
-              <StimmeVideoItem key={lv.id} lv={lv} img={v.img} inPlaylist={audioPlaylist.has(lv.id)} onPlaylist={() => toggleAudioPlaylist(lv.id)} defaultOpen={idx === 0} />
+              <StimmeVideoItem key={lv.id} lv={lv} img={v.img} defaultOpen={idx === 0} />
             ))}
           </div>
         )}
@@ -1377,20 +1372,6 @@ export default function LernvideoDetailPage() {
 
         </div>
       </div>
-
-      {/* FLOATING AUDIO PLAYLIST BAR — verweist in die zentrale Playlist-Verwaltung */}
-      {audioPlaylist.size > 0 && (
-        <div className="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 bg-dark text-white px-4 py-3 shadow-2xl flex items-center gap-3">
-          <span className="text-accent-gold flex-shrink-0"><IconHeadphones /></span>
-          <div className="flex-1 min-w-0">
-            <p className="font-sans text-sm leading-tight">{audioPlaylist.size} {audioPlaylist.size === 1 ? 'Video' : 'Videos'} zur Playlist hinzugefügt</p>
-            <p className="font-sans text-[11px] text-white/50 leading-tight hidden sm:block">In „Meine Playlists“ anhören & ordnen — z.B. fürs Auto.</p>
-          </div>
-          <Link href="/member/academy/playlists" className="font-sans text-xs px-3 py-1.5 bg-accent-gold hover:bg-accent-warm transition-colors flex-shrink-0 whitespace-nowrap">
-            Zur Playlist →
-          </Link>
-        </div>
-      )}
     </div>
   )
 }

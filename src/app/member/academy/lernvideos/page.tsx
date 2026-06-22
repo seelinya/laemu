@@ -86,14 +86,6 @@ const videos = [
   },
 ]
 
-const mockPlaylist = [
-  { id: 'p1', title: '1. Stimme — Einführung & Takt 1–8', piece: 'Dr Alperose', duration: '12 Min.' },
-  { id: 'p2', title: '1. Stimme — Takt 9–16 mit Übergängen', piece: 'Dr Alperose', duration: '14 Min.' },
-  { id: 'p3', title: '1. Stimme SÖ — Einführung', piece: 'Ländler im Dreivierteltakt', duration: '13 Min.' },
-  { id: 'p4', title: 'Bassbegleitung — Grundrhythmus', piece: 'Walzer am See', duration: '9 Min.' },
-  { id: 'p5', title: 'Vorspielen — ganzes Stück', piece: 'Stille Nacht', duration: '3:42' },
-]
-
 type Wish = { id: number; title: string; composer?: string; votes: Record<string, number>; available: string[] }
 
 const initialWishes: Wish[] = [
@@ -148,7 +140,6 @@ export default function LernvideosPage() {
   // Welche Stücke man bereits gelernt hat — markierbar & filterbar.
   const [learned, setLearned] = useState<Set<number>>(new Set([1, 2]))
   const [tab, setTab] = useState<'datenbank' | 'merkliste' | 'wuensche'>('datenbank')
-  const [showPlaylist, setShowPlaylist] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [showAdvancedDesktop, setShowAdvancedDesktop] = useState(true)
   const [showWishForm, setShowWishForm] = useState(false)
@@ -371,69 +362,12 @@ export default function LernvideosPage() {
               <span className="hidden sm:inline">Merkliste </span>
               <span className="tabular-nums">({saved.size})</span>
             </button>
-            <button
-              onClick={() => setShowPlaylist(!showPlaylist)}
-              title={`Meine Playlist (${mockPlaylist.length})`}
-              aria-label={`Meine Playlist (${mockPlaylist.length})`}
-              className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-accent-gold bg-accent-gold/15 text-accent-gold' : 'border-white/20 text-white/70 hover:border-white hover:text-white'}`}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-              <span className="hidden sm:inline">Meine Playlist </span>
-              <span className="tabular-nums">({mockPlaylist.length})</span>
-            </button>
           </>
         }
       />
 
       {/* AREA TABS */}
       <MemberTabs active="lerndatenbank" />
-
-      {/* Playlist panel */}
-      <AnimatePresence>
-        {showPlaylist && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b border-border bg-dark text-white"
-          >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-              <div className="flex items-center justify-between gap-3 mb-3">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                  <p className="font-sans text-xs uppercase tracking-widest text-white/40 flex-shrink-0">Meine Playlist</p>
-                  <Link href="/member/academy/playlists" className="font-sans text-xs px-3 py-1 bg-accent-gold text-white hover:bg-accent-warm transition-colors flex items-center gap-1.5 flex-shrink-0">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    Alle abspielen
-                  </Link>
-                </div>
-                <button onClick={() => setShowPlaylist(false)} className="text-white/30 hover:text-white transition-colors flex-shrink-0">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              </div>
-              <div className="flex gap-3 overflow-x-auto pb-1">
-                {mockPlaylist.map((item, i) => (
-                  <Link href="/member/academy/playlists" key={item.id} className="flex-shrink-0 bg-white/5 border border-white/10 p-3 w-44 sm:w-52 hover:border-accent-gold/40 transition-colors group cursor-pointer">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <span className="font-sans text-[10px] text-white/30 tabular-nums">{i + 1}</span>
-                      <span className="font-sans text-[10px] text-white/30">{item.duration}</span>
-                    </div>
-                    <p className="font-sans text-xs text-white leading-snug mb-0.5 group-hover:text-accent-gold transition-colors">{item.title}</p>
-                    <p className="font-sans text-[10px] text-white/40">{item.piece}</p>
-                  </Link>
-                ))}
-                {/* Verweis in die zentrale Playlist-Verwaltung */}
-                <Link href="/member/academy/playlists" className="flex-shrink-0 w-44 sm:w-52 border border-dashed border-white/20 hover:border-accent-gold/60 transition-colors flex flex-col items-center justify-center gap-1.5 text-white/50 hover:text-white p-3">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                  <span className="font-sans text-xs text-center leading-tight">Alle Playlists<br/>öffnen & verwalten →</span>
-                </Link>
-              </div>
-              <p className="font-sans text-[11px] text-white/40 mt-3">
-                Tipp: Tippe bei einem Lernvideo auf <span className="text-white/70">Playlist</span>, um Audios zu sammeln — z.B. zum Üben unterwegs oder im Auto.
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs — gerahmt, einzeilig, horizontal scrollbar auf Mobile */}
