@@ -108,13 +108,6 @@ function IconLaptop() {
     </svg>
   )
 }
-function IconBlock() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-    </svg>
-  )
-}
 function IconEdit() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1059,7 +1052,6 @@ function SettingsView() {
     { id: 'address', label: 'Adresse', icon: <IconLocation /> },
     { id: 'password', label: 'Passwort', icon: <IconKey /> },
     { id: 'devices', label: 'Geräte', icon: <IconPhone /> },
-    { id: 'blocked', label: 'Blockiert', icon: <IconBlock /> },
   ]
 
   return (
@@ -1208,28 +1200,6 @@ function SettingsView() {
             <p className="font-sans text-xs font-light text-text-secondary mt-4">
               Möchtest du ein drittes Gerät hinzufügen? Entferne zuerst ein bestehendes.
             </p>
-          </div>
-        )}
-        {activeSection === 'blocked' && (
-          <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Blockierte Profile</h3>
-            <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">
-              Blockierte Profile sehen deine Beiträge nicht.
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 border border-border">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-border flex items-center justify-center text-text-secondary">
-                    <IconUser />
-                  </div>
-                  <div>
-                    <p className="font-sans text-sm font-medium">Gesperrtes Profil</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">@gesperrtes_profil</p>
-                  </div>
-                </div>
-                <button className="font-sans text-xs text-text-secondary border border-border px-2 py-1 hover:border-dark hover:text-dark transition-colors">Entsperren</button>
-              </div>
-            </div>
           </div>
         )}
       </div>
