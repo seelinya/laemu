@@ -1310,10 +1310,10 @@ export default function LernvideoDetailPage() {
                   <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den Mixer steuerbar.</p>
                 </div>
 
-                {/* Zuerst die verschiedenen Stimmen (Mixer), das Video darunter */}
+                {/* Mitspielvideo, der Mixer (Stimmen) darunter */}
                 <div>
-                  {v.hasMixer && <MixerFaders musicians={v.mixerMusicians} />}
                   <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
+                  {v.hasMixer && <MixerFaders musicians={v.mixerMusicians} />}
                 </div>
               </motion.div>
             )}
