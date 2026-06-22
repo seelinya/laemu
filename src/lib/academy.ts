@@ -181,10 +181,12 @@ export function isPieceUnlocked(
 ): boolean {
   if (piece.plan === 'free') return true
   if (abo.plan === 'none') return false
-  // Pro & Lernvideodatenbank: komplette Datenbank, alle Instrumente.
+  // Die Lernvideo-Datenbank ist NUR nach Stufe (free/starter/pro) gegliedert,
+  // nicht nach Instrument.
+  // - Pro & Lernvideodatenbank: ganze Datenbank.
+  // - Starter: Free- & Starter-Stücke (alle Instrumente); Pro-Stücke gesperrt.
   if (abo.plan === 'pro' || abo.plan === 'lernvideo') return true
-  // Starter: Free- überall; Starter-Stücke nur für die GEWÄHLTEN Instrumente.
-  if (abo.plan === 'starter') return piece.plan === 'starter' && isInstrumentInAbo(piece.instrument, abo)
+  if (abo.plan === 'starter') return piece.plan !== 'pro'
   return false
 }
 
