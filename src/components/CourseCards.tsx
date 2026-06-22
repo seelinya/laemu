@@ -127,7 +127,15 @@ export function ProCourseRow({ title, level, modules, duration }: { title: strin
 // onUpgrade öffnet das Upgrade-Modal (Startseite); ohne Handler wird zur
 // Abo-Verwaltung verlinkt (Instrument-Übersicht).
 
-export function ProUpgradeBanner({ onUpgrade }: { onUpgrade?: () => void }) {
+export function ProUpgradeBanner({
+  onUpgrade,
+  monthlyLabel = 'CHF 99',
+  yearlyLabel = 'CHF 999',
+}: {
+  onUpgrade?: () => void
+  monthlyLabel?: string
+  yearlyLabel?: string
+}) {
   return (
     <div className="mt-6 bg-dark text-white p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
@@ -141,8 +149,8 @@ export function ProUpgradeBanner({ onUpgrade }: { onUpgrade?: () => void }) {
       </div>
       <div className="flex items-center gap-6 flex-shrink-0">
         <div className="text-right">
-          <p className="font-heading font-bold text-2xl text-accent-gold">CHF 119<span className="text-base font-sans font-normal text-white/50">/Mt.</span></p>
-          <p className="font-sans text-xs text-white/40">oder CHF 1&apos;199/Jahr</p>
+          <p className="font-heading font-bold text-2xl text-accent-gold">{monthlyLabel}<span className="text-base font-sans font-normal text-white/50">/Mt.</span></p>
+          <p className="font-sans text-xs text-white/40">oder {yearlyLabel}/Jahr</p>
         </div>
         {onUpgrade ? (
           <button onClick={onUpgrade} className="bg-accent-gold text-white px-4 py-2.5 font-sans text-sm font-medium hover:bg-accent-earth transition-colors whitespace-nowrap">

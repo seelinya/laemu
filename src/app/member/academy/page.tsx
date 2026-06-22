@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
 import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT, getCourse } from '@/lib/courses'
-import { isCourseUnlocked } from '@/lib/academy'
+import { isCourseUnlocked, individualPricing, aboScope, aboPlanLabel, aboMonthlyPrice, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
@@ -50,24 +50,26 @@ const mockSearchResults: MockSearchResult[] = [
 
 // ─── Abo data ────────────────────────────────────────────────────────────────
 
-const currentPlan = {
-  name: 'Starterkurs',
-  price: 'CHF 79',
-  period: '/Monat',
-  features: ['Unbegrenzte Lehrvideos', 'Community Zugang', 'Monatliche Live-Calls'],
+const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
+
+// Pro-Plan: statische Leistungen (Preise werden aus dem aktuellen Abo des
+// Nutzers abgeleitet, damit beim Upgrade die korrekten Beträge erscheinen).
+const proPlan = {
+  name: 'Pro-Lehrgang',
+  features: [
+    'Alles aus dem Starter',
+    'Grund- & Erweiterungskurse',
+    'Komplette Lernvideo-Datenbank — alle Instrumente',
+    'Persönliches Video-Feedback',
+    'Monatliche Live-Calls',
+  ],
 }
 
-const proPlan = {
-  name: 'Pro-Kurs',
-  price: 'CHF 149',
-  period: '/Monat',
-  features: [
-    'Alles aus dem Starterkurs',
-    'Persönliches Lehrerfeedback',
-    'Lern-Camps & Wochenenden',
-    'Exklusiver Pro-Content',
-    'Direkt-Nachrichten an Lehrpersonen',
-  ],
+// Pro-Preis (mtl. & jährl.) passend zum Umfang des aktuellen Abos.
+// Free-Konten (ohne Instrument) gehen vom kleinsten Umfang (1 Instrument) aus.
+function proPriceFor(abo: UserAbo): { monthly: number; yearly: number } {
+  const scope: Scope = abo.plan === 'none' ? '1' : aboScope(abo)
+  return individualPricing.pro[scope]
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -81,7 +83,7 @@ const categoryColors: Record<string, string> = {
 
 // ─── Upgrade modals ───────────────────────────────────────────────────────────
 
-function UpgradeModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+function UpgradeModal({ onConfirm, onCancel, currentLabel, currentPrice, proPrice, period }: { onConfirm: () => void; onCancel: () => void; currentLabel: string; currentPrice: string; proPrice: string; period: string }) {
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
@@ -104,9 +106,9 @@ function UpgradeModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <p className="font-sans text-xs text-text-secondary uppercase tracking-wider mb-1">Aktuell</p>
-                <span className="font-sans text-xs text-text-secondary line-through">{currentPlan.price}<span className="text-text-secondary/60">{currentPlan.period}</span></span>
+                <span className="font-sans text-xs text-text-secondary line-through">{currentPrice}{currentPrice !== 'Gratis' && <span className="text-text-secondary/60">{period}</span>}</span>
               </div>
-              <p className="font-heading font-bold">{currentPlan.name}</p>
+              <p className="font-heading font-bold">{currentLabel}</p>
             </div>
           </div>
           <div className="flex justify-center text-accent-gold text-xl">↓</div>
@@ -115,7 +117,7 @@ function UpgradeModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <p className="font-sans text-xs text-accent-gold uppercase tracking-wider mb-1">Neu</p>
-                <span className="font-heading font-bold text-accent-gold">{proPlan.price}<span className="font-sans text-sm font-normal text-text-secondary">{proPlan.period}</span></span>
+                <span className="font-heading font-bold text-accent-gold">{proPrice}<span className="font-sans text-sm font-normal text-text-secondary">{period}</span></span>
               </div>
               <p className="font-heading font-bold">{proPlan.name}</p>
             </div>
@@ -130,7 +132,7 @@ function UpgradeModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel
             ))}
           </div>
           <p className="font-sans text-xs text-text-secondary border-t border-border pt-4">
-            Das Upgrade wird sofort aktiv. Du wirst ab dem nächsten Abrechnungsdatum mit CHF 149/Monat belastet. Jederzeit kündbar.
+            Das Upgrade wird sofort aktiv. Du wirst ab dem nächsten Abrechnungsdatum mit {proPrice}{period} belastet. Jederzeit kündbar.
           </p>
         </div>
         <div className="px-6 pb-6 flex gap-3">
@@ -195,6 +197,11 @@ export default function MemberAcademyPage() {
   const userAbo = useUserAbo()
   const isLernvideoOnly = userAbo.plan === 'lernvideo' && !isUpgraded
   const hasCourseAccess = userAbo.plan === 'starter' || userAbo.plan === 'pro' || isUpgraded
+
+  // Korrekte Upgrade-Preise — abgeleitet aus dem tatsächlichen Abo & Umfang.
+  const proPrice = proPriceFor(userAbo)
+  const currentPriceLabel = userAbo.plan === 'none' ? 'Gratis' : chf(aboMonthlyPrice(userAbo))
+  const proPriceLabel = chf(proPrice.monthly)
 
   // Bei der Registrierung gewählter Name & Instrumente.
   const profile = useUserProfile()
@@ -314,7 +321,13 @@ export default function MemberAcademyPage() {
               </motion.div>
             ))}
           </div>
-          {!proUnlocked && <ProUpgradeBanner onUpgrade={openUpgrade} />}
+          {!proUnlocked && (
+            <ProUpgradeBanner
+              onUpgrade={openUpgrade}
+              monthlyLabel={proPriceLabel}
+              yearlyLabel={chf(proPrice.yearly)}
+            />
+          )}
         </section>
       </div>
     )
@@ -324,7 +337,16 @@ export default function MemberAcademyPage() {
     <div className="min-h-screen bg-background">
 
       <AnimatePresence>
-        {showUpgradeModal && <UpgradeModal onConfirm={handleUpgradeConfirm} onCancel={() => setShowUpgradeModal(false)} />}
+        {showUpgradeModal && (
+          <UpgradeModal
+            onConfirm={handleUpgradeConfirm}
+            onCancel={() => setShowUpgradeModal(false)}
+            currentLabel={aboPlanLabel(userAbo)}
+            currentPrice={currentPriceLabel}
+            proPrice={proPriceLabel}
+            period="/Monat"
+          />
+        )}
       </AnimatePresence>
       <AnimatePresence>
         {showSuccessModal && <UpgradeSuccessModal onClose={() => setShowSuccessModal(false)} />}
