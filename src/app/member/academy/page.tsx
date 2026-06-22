@@ -5,11 +5,11 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
-import { FREE_TRIAL_DB_COUNT } from '@/lib/academy'
+import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
-import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, overviewIdsFromLabels, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
-import { StarterCourseCard, ProCourseRow, ProUpgradeBanner } from '@/components/CourseCards'
+import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
+import { StarterCourseCard, ProUpgradeBanner } from '@/components/CourseCards'
 
 // Allgemeine Grundlagen-Kurse (für alle Abos) — aus den geteilten Kursdaten.
 const allgemeinKurse: (StarterKurs & { emoji: string })[] = ALLGEMEIN_COURSES.map((cid) => {
@@ -192,36 +192,31 @@ export default function MemberAcademyPage() {
   // - Lernvideo: nur die Lernvideo-Datenbank; in der Musikschule wie Free.
   // - Starter/Pro: voller Musikschul-Zugang.
   const userAbo = useUserAbo()
-  const isFreeTier = userAbo.plan === 'none'
   const isLernvideoOnly = userAbo.plan === 'lernvideo' && !isUpgraded
   const hasCourseAccess = userAbo.plan === 'starter' || userAbo.plan === 'pro' || isUpgraded
-  const isProTier = userAbo.plan === 'pro' || isUpgraded
 
   // Bei der Registrierung gewählter Name & Instrumente.
   const profile = useUserProfile()
   const firstName = profile.name.trim().split(/\s+/)[0] || 'zusammen'
 
-  // Welche Instrument-Lehrgänge anzeigen? Bezahlte Abos: die gewählten
-  // Instrumente. Free/Lernvideo: Einblick in ALLE Instrumente.
-  const selectedInstrumentIds = overviewIdsFromLabels(userAbo.instruments)
-  const userInstrumentIds: InstrumentId[] =
-    hasCourseAccess && !userAbo.allInstruments && selectedInstrumentIds.length > 0
-      ? selectedInstrumentIds
-      : SUBSCRIBED_INSTRUMENTS
+  // Gleicher Grundrahmen für ALLE: jede:r sieht alle Instrumente und Kurse.
+  // Was freigeschaltet ist, hängt vom Abo + den gewählten Instrumenten ab.
+  const courseUnlocked = (level: string, instrumentLabel: string) =>
+    isUpgraded || isCourseUnlocked(level, instrumentLabel, userAbo)
 
-  // Begonnene Kurse (für «Weiterlernen») über die angezeigten Instrumente.
-  const startedCourses = userInstrumentIds.flatMap((iid) => {
+  // Begonnene Kurse (für «Weiterlernen») — nur freigeschaltete Kurse.
+  const startedCourses = SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
     const ov = INSTRUMENT_OVERVIEWS[iid]
+    if (!courseUnlocked('Starter', ov.label)) return []
     return ov.starterKurse
       .filter((k) => k.completedModules > 0)
       .map((k) => ({ ...k, instrumentId: ov.id, instrumentLabel: ov.label, emoji: ov.emoji }))
   })
 
-  // Filter-Tabs: bezahlt → «Alle» + Instrumente + Allgemein; Free/Lernvideo →
-  // direkt die Instrumente (Einblick) + Allgemein.
-  const instrumentTabs = userInstrumentIds.map((iid) => ({ id: iid, label: INSTRUMENT_OVERVIEWS[iid].label, instrument: iid }))
+  // Filter-Tabs: «Alle» + alle Instrumente + Allgemein — für jedes Abo gleich.
+  const instrumentTabs = SUBSCRIBED_INSTRUMENTS.map((iid) => ({ id: iid as string, label: INSTRUMENT_OVERVIEWS[iid].label, instrument: iid }))
   const kursTabs: { id: string; label: string; instrument?: InstrumentId }[] = [
-    ...(hasCourseAccess ? [{ id: 'alle', label: 'Alle' }] : []),
+    { id: 'alle', label: 'Alle' },
     ...instrumentTabs,
     { id: 'allgemein', label: 'Allgemeine Grundlagen' },
   ]
@@ -262,50 +257,56 @@ export default function MemberAcademyPage() {
     </section>
   )
 
-  // Integrierter Instrument-Lehrgang (Starter + gesperrter Pro) auf der Startseite.
-  const renderLehrgang = (ov: InstrumentOverview) => (
-    <div className="space-y-10">
-      <section>
-        <div className="flex items-center gap-3 mb-1">
-          <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
-          <h3 className="font-heading text-xl font-bold">{ov.label} — dein Starter-Lehrgang</h3>
-        </div>
-        <p className="font-sans text-sm text-text-secondary mb-4">Strukturierter Einstieg in die {ov.label} — von den Basics bis zu deinen ersten Stücken.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {ov.starterKurse.map((kurs, i) => (
-            <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-              <StarterCourseCard
-                href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
-                title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-                desc={kurs.desc} completedModules={kurs.completedModules} emoji={ov.emoji} variant={ov.id}
-              />
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {!isProTier && (
+  // Instrument-Lehrgang: alle sehen Starter- & Pro-Kurse; je nach Abo sind sie
+  // freigeschaltet oder nur als Vorschau (Schnupper-Lektionen) zugänglich.
+  const renderLehrgang = (ov: InstrumentOverview) => {
+    const starterUnlocked = courseUnlocked('Starter', ov.label)
+    const proUnlocked = courseUnlocked('Pro', ov.label)
+    return (
+      <div className="space-y-10">
         <section>
           <div className="flex items-center gap-3 mb-1">
-            <span className="font-sans text-xs bg-border text-text-secondary px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-              Pro
-            </span>
-            <h3 className="font-heading text-xl font-bold text-text-secondary">Pro-Lehrgang</h3>
+            <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
+            <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
           </div>
-          <p className="font-sans text-sm text-text-secondary mb-4">Volle Techniken, Harmonielehre, Improvisation und Ensemble-Spiel. Upgrade erforderlich.</p>
+          <p className="font-sans text-sm text-text-secondary mb-4">Strukturierter Einstieg in die {ov.label} — von den Basics bis zu deinen ersten Stücken.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {ov.proKurse.map((kurs, i) => (
+            {ov.starterKurse.map((kurs, i) => (
               <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                <ProCourseRow title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration} />
+                <StarterCourseCard
+                  href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
+                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                  desc={kurs.desc} completedModules={kurs.completedModules} emoji={ov.emoji} variant={ov.id}
+                  locked={!starterUnlocked} lockLabel="Starter"
+                />
               </motion.div>
             ))}
           </div>
-          <ProUpgradeBanner onUpgrade={openUpgrade} />
         </section>
-      )}
-    </div>
-  )
+
+        <section>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 uppercase tracking-wide">Pro</span>
+            <h3 className="font-heading text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
+          </div>
+          <p className="font-sans text-sm text-text-secondary mb-4">Volle Techniken, Harmonielehre, Improvisation und Ensemble-Spiel.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ov.proKurse.map((kurs, i) => (
+              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <StarterCourseCard
+                  href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
+                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                  desc={kurs.desc} completedModules={0} emoji={ov.emoji} variant={ov.id}
+                  locked={!proUnlocked} lockLabel="Pro"
+                />
+              </motion.div>
+            ))}
+          </div>
+          {!proUnlocked && <ProUpgradeBanner onUpgrade={openUpgrade} />}
+        </section>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -319,7 +320,7 @@ export default function MemberAcademyPage() {
 
       {/* TOP BAR */}
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
-        <h1 className="font-heading font-bold text-lg">LAEMU Musikschule</h1>
+        <h1 className="font-heading font-bold text-lg">Hallo {firstName}</h1>
         <div className="flex items-center gap-4">
           {hasCourseAccess && (
             <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
@@ -347,62 +348,9 @@ export default function MemberAcademyPage() {
           {/* MAIN CONTENT */}
           <div className="space-y-10">
 
-            {/* ── MEINE KURSE ── */}
+            {/* ── KURSE ── */}
             {(
               <>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-dark p-8">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen{hasCourseAccess ? ' zurück' : ''}</p>
-                      <h2 className="font-heading text-3xl font-bold text-white mb-2">Guten Tag, {firstName}</h2>
-                      <p className="font-sans text-white/60">
-                        {hasCourseAccess
-                          ? 'Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!'
-                          : isLernvideoOnly
-                            ? 'Dein Lernvideo-Abo gibt dir die komplette Datenbank. Für die Lehrgänge der Musikschule kannst du jederzeit auf Pro upgraden.'
-                            : 'Schön, dass du da bist! Entdecke die ganze Musikschule — für vollen Zugang einfach upgraden.'}
-                      </p>
-                    </div>
-                    {hasCourseAccess && (
-                      <div className="bg-accent-gold/20 border border-accent-gold/30 px-4 py-3 text-center">
-                        <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
-                        <p className="font-sans text-xs text-white/50">Wochen Streak</p>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-
-                {/* Zugangs-Hinweis je nach Abo */}
-                <div className={`border px-4 py-3 flex items-start gap-3 ${isProTier ? 'bg-accent-gold/5 border-accent-gold/30' : 'bg-surface border-border'}`}>
-                  {isProTier ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                  )}
-                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                    {isLernvideoOnly ? (
-                      <>
-                        <strong className="text-dark font-semibold">Lernvideo-Abo.</strong> Du hast Zugang zur kompletten Lernvideo-Datenbank. Die Lehrgänge der Musikschule sind nicht enthalten — hier siehst du dieselben Schnupper-Inhalte wie im Free-Account. Für vollen Musikschul-Zugang upgrade auf Pro.{' '}
-                        <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</button>
-                      </>
-                    ) : isFreeTier ? (
-                      <>
-                        <strong className="text-dark font-semibold">Free-Account.</strong> Du siehst die ganze Musikschule und kannst kostenlos reinschnuppern — die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und {FREE_TRIAL_DB_COUNT} Videos der Lernvideo-Datenbank sind frei. Für vollen Zugang brauchst du einen kostenpflichtigen Plan.{' '}
-                        <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Jetzt upgraden →</button>
-                      </>
-                    ) : isProTier ? (
-                      <>
-                        <strong className="text-dark font-semibold">Pro-Zugang.</strong> Alle Grund- und Erweiterungskurse sowie die komplette Lernvideo-Datenbank sind freigeschaltet.
-                      </>
-                    ) : (
-                      <>
-                        <strong className="text-dark font-semibold">Starter-Zugang.</strong> Grundkurse und Starter-Lernvideos sind freigeschaltet. Pro-Inhalte (Erweiterungskurse, gesperrte Stücke) erfordern ein Upgrade.{' '}
-                        <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</button>
-                      </>
-                    )}
-                  </p>
-                </div>
-
                 {/* Search */}
                 <div className="relative">
                   <div className={`flex items-center border transition-colors ${searchFocused ? 'border-accent-gold' : 'border-border'} bg-surface`}>
@@ -457,9 +405,8 @@ export default function MemberAcademyPage() {
                       </div>
                       <h3 className="font-heading font-bold text-xl mb-2">Kostenlos reinschnuppern</h3>
                       <p className="font-sans text-sm text-text-secondary leading-relaxed max-w-md mx-auto mb-6">
-                        {isLernvideoOnly
-                          ? `In der Musikschule kannst du die ersten ${FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses ansehen. Deine Lernvideo-Datenbank ist vollständig freigeschaltet — für die kompletten Lehrgänge upgrade auf Pro.`
-                          : `Mit dem Free-Account sind die ersten ${FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und ${FREE_TRIAL_DB_COUNT} Videos der Lernvideo-Datenbank frei. Probier es aus — für den vollen Zugang upgradest du jederzeit.`}
+                        Du siehst alle Kurse aller Instrumente. Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses
+                        sind gratis — probier es aus. Für die kompletten Lehrgänge deiner Instrumente upgradest du jederzeit.
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Link href="/member/academy/instrument/handorgel/kurs/grundlagen" className="bg-dark text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-gold transition-colors">
@@ -478,7 +425,7 @@ export default function MemberAcademyPage() {
                     Free/Lernvideo: «Einblick in die Lehrgänge» (alle Instrumente). */}
                 <section>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
-                    <h3 className="font-heading font-bold text-xl">{hasCourseAccess ? 'Meine Kurse' : 'Einblick in die Lehrgänge'}</h3>
+                    <h3 className="font-heading font-bold text-xl">Kurse</h3>
                     <div className="flex flex-wrap gap-2">
                       {kursTabs.map((f) => (
                         <button
@@ -491,13 +438,10 @@ export default function MemberAcademyPage() {
                       ))}
                     </div>
                   </div>
-                  {!hasCourseAccess && (
-                    <p className="font-sans text-sm text-text-secondary mb-5">
-                      Erkunde die Lehrgänge aller Instrumente — die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses
-                      sind gratis. Zum Freischalten der kompletten Lehrgänge upgradest du jederzeit.
-                    </p>
-                  )}
-                  {hasCourseAccess && <div className="mb-5" />}
+                  <p className="font-sans text-sm text-text-secondary mb-5">
+                    Alle Kurse aller Instrumente — nach Instrument filterbar. Je nach Abo sind sie freigeschaltet
+                    oder als Vorschau (Schnupper-Lektionen) zugänglich.
+                  </p>
 
                   {/* Alle: Weiterlernen + Allgemeine Grundlagen (nur bei Musikschul-Zugang) */}
                   {activeCourseTab === 'alle' && (
@@ -535,62 +479,6 @@ export default function MemberAcademyPage() {
                   {/* Allgemeine Grundlagen */}
                   {activeCourseTab === 'allgemein' && renderAllgemein()}
                 </section>
-
-                {!isProTier && (
-                  <section>
-                    <h3 className="font-heading font-bold text-xl mb-4">Weitere Angebote</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-dark text-white p-6 flex flex-col gap-4">
-                        <div>
-                          <span className="font-sans text-[10px] uppercase tracking-widest text-accent-gold">Pro-Lehrgang</span>
-                          <h4 className="font-heading font-bold text-lg mt-1 mb-2">Schalte den Pro-Kurs frei</h4>
-                          <ul className="space-y-1.5">
-                            {['Persönliches Feedback vom Lehrer', 'Monatliche Live-Calls', 'Volle Lernvideodatenbank', 'Fortgeschrittene Techniken & Improvisation'].map((item) => (
-                              <li key={item} className="flex items-center gap-2 font-sans text-sm text-white/70">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex items-end justify-between mt-auto">
-                          <div>
-                            <span className="font-sans text-xs text-white/40">ab</span>
-                            <p className="font-heading font-bold text-2xl text-accent-gold">CHF 149<span className="text-base font-sans font-normal text-white/50">/Mt.</span></p>
-                          </div>
-                          <button onClick={openUpgrade} className="bg-accent-gold text-white px-4 py-2 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">
-                            Auf Pro upgraden
-                          </button>
-                        </div>
-                      </motion.div>
-                      {!isLernvideoOnly && (
-                      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="bg-surface border border-border p-6 flex flex-col gap-4">
-                        <div>
-                          <span className="font-sans text-[10px] uppercase tracking-widest text-accent-gold">Lernvideo-Datenbank</span>
-                          <h4 className="font-heading font-bold text-lg mt-1 mb-2">Entdecke die Lernvideo-Datenbank</h4>
-                          <ul className="space-y-1.5">
-                            {['200+ Stücke für alle Instrumente', 'Noten, Tabs & Playalongs', 'Täglich neue Inhalte', 'Suchbar nach Schwierigkeit & Stil'].map((item) => (
-                              <li key={item} className="flex items-center gap-2 font-sans text-sm text-text-secondary">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex items-end justify-between mt-auto">
-                          <div>
-                            <span className="font-sans text-xs text-text-secondary">inklusive im</span>
-                            <p className="font-heading font-bold text-2xl">Pro-Kurs</p>
-                          </div>
-                          <button onClick={openUpgrade} className="bg-dark text-white px-4 py-2 font-sans text-sm font-medium hover:bg-accent-gold transition-colors">
-                            Jetzt freischalten
-                          </button>
-                        </div>
-                      </motion.div>
-                      )}
-                    </div>
-                  </section>
-                )}
               </>
             )}
 

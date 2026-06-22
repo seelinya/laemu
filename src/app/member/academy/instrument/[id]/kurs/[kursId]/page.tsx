@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { getCourse, courseStats, flatLessons, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type Lesson } from '@/lib/courses'
+import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Helper components ────────────────────────────────────────────────────────
@@ -46,11 +47,10 @@ function TypeBadge({ type }: { type: Lesson['type'] }) {
 export default function KursPage({ params }: { params: { id: string; kursId: string } }) {
   const course = getCourse(params.id, params.kursId)
   const userAbo = useUserAbo()
-  const isFreeTier = userAbo.plan === 'none'
-  // Das Lernvideo-Abo gibt nur Zugang zur Lernvideo-Datenbank — in der
-  // Musikschule sieht man dieselben Schnupper-Lektionen wie im Free-Account.
-  const isLernvideoOnly = userAbo.plan === 'lernvideo'
-  const noCourseAccess = isFreeTier || isLernvideoOnly
+  // Voller Zugang hängt von Level + gewählten Instrumenten ab. Sonst nur
+  // Schnupper-Lektionen (Vorschau) — egal welches Abo.
+  const fullyUnlocked = course ? isCourseUnlocked(course.level, course.instrumentLabel, userAbo) : false
+  const previewOnly = !fullyUnlocked
   const trialKeys = course ? freeTrialLessonKeys(course) : new Set<string>()
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
 
@@ -76,9 +76,9 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
     return (
       <div className="min-h-screen bg-background">
         <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
-          <Link href={`/member/academy/instrument/${params.id}`} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
+          <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-            Zurück
+            Musikschule
           </Link>
         </div>
         <div className="max-w-2xl mx-auto px-4 py-20 text-center">
@@ -106,10 +106,6 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
             <polyline points="15 18 9 12 15 6" />
           </svg>
           Musikschule
-        </Link>
-        <span className="text-white/30">/</span>
-        <Link href={`/member/academy/instrument/${params.id}`} className="font-sans text-sm text-white/60 hover:text-white transition-colors">
-          {instrumentLabel}
         </Link>
         <span className="text-white/30">/</span>
         <span className="font-sans text-sm font-medium">{course.title}</span>
@@ -185,22 +181,13 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
           </motion.div>
         )}
 
-        {/* ── Schnupper-Hinweis (Free & Lernvideo-Abo ohne Musikschul-Zugang) ── */}
-        {noCourseAccess && (
+        {/* ── Schnupper-Hinweis (Kurs nicht im Abo / Instrument freigeschaltet) ── */}
+        {previewOnly && (
           <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
             <p className="font-sans text-xs text-text-secondary leading-relaxed">
-              {isLernvideoOnly ? (
-                <>
-                  <strong className="text-dark font-semibold">Lernvideo-Abo.</strong> Dein Abo umfasst die komplette Lernvideo-Datenbank — die Lehrgänge der Musikschule sind nicht enthalten. Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses kannst du zum Reinschnuppern ansehen. Für den ganzen Kurs upgrade auf Pro.{' '}
-                  <Link href="/member/account?tab=abo" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
-                </>
-              ) : (
-                <>
-                  <strong className="text-dark font-semibold">Free-Account.</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs brauchst du einen kostenpflichtigen Plan.{' '}
-                  <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
-                </>
-              )}
+              <strong className="text-dark font-semibold">Vorschau.</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs schaltest du mit dem passenden Abo {course.level === 'Pro' ? 'Pro' : `Starter für ${course.instrumentLabel}`} frei.{' '}
+              <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Zur Übersicht →</Link>
             </p>
           </div>
         )}
@@ -289,7 +276,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                       >
                         <div className="border-t border-border divide-y divide-border">
                           {mod.lessons.map((lesson) => {
-                            const lessonLocked = noCourseAccess && !trialKeys.has(`${mod.id}:${lesson.id}`)
+                            const lessonLocked = previewOnly && !trialKeys.has(`${mod.id}:${lesson.id}`)
                             if (lessonLocked) {
                               return (
                                 <div

@@ -181,9 +181,27 @@ export function isPieceUnlocked(
 ): boolean {
   if (piece.plan === 'free') return true
   if (abo.plan === 'none') return false
+  // Pro & Lernvideodatenbank: komplette Datenbank, alle Instrumente.
   if (abo.plan === 'pro' || abo.plan === 'lernvideo') return true
-  // Starter: Free- & Starter-Stücke; Pro-Stücke erfordern ein Upgrade.
-  if (abo.plan === 'starter') return piece.plan !== 'pro'
+  // Starter: Free- überall; Starter-Stücke nur für die GEWÄHLTEN Instrumente.
+  if (abo.plan === 'starter') return piece.plan === 'starter' && isInstrumentInAbo(piece.instrument, abo)
+  return false
+}
+
+// Ist ein Instrument im Abo enthalten (oder All-in-One)?
+export function isInstrumentInAbo(instrument: string, abo: UserAbo): boolean {
+  return !!abo.allInstruments || abo.instruments.includes(instrument as Instrument)
+}
+
+// Voller Zugang zu einem Kurs (alle Lektionen) je nach Level/Instrument/Abo.
+// - Allgemeine Kurse: für alle frei.
+// - Starter-Kurse: Starter- & Pro-Abo, aber nur für die gewählten Instrumente.
+// - Pro-Kurse: Pro-Abo, nur für die gewählten Instrumente.
+// Andernfalls nur Schnupper-Lektionen.
+export function isCourseUnlocked(level: string, instrumentLabel: string, abo: UserAbo = mockUserAbo): boolean {
+  if (level === 'Allgemein') return true
+  if (abo.plan === 'pro') return isInstrumentInAbo(instrumentLabel, abo)
+  if (abo.plan === 'starter') return level === 'Starter' && isInstrumentInAbo(instrumentLabel, abo)
   return false
 }
 

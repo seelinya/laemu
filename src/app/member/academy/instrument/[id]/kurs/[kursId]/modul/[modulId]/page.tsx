@@ -4,7 +4,8 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getCourse, instrumentLabels, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type LessonType } from '@/lib/courses'
+import { getCourse, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type LessonType } from '@/lib/courses'
+import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -252,14 +253,11 @@ export default function ModulPage({
   const router = useRouter()
   const course = getCourse(params.id, params.kursId)
   const userAbo = useUserAbo()
-  const isFreeTier = userAbo.plan === 'none'
-  // Lernvideo-Abo: nur Datenbank-Zugang — Lehrgänge wie im Free-Account gesperrt.
-  const isLernvideoOnly = userAbo.plan === 'lernvideo'
-  const noCourseAccess = isFreeTier || isLernvideoOnly
+  // Voller Zugang nach Level + gewählten Instrumenten; sonst Schnupper-Vorschau.
+  const previewOnly = course ? !isCourseUnlocked(course.level, course.instrumentLabel, userAbo) : true
   const trialKeys = course ? freeTrialLessonKeys(course) : new Set<string>()
   const modules = course?.modules ?? []
   const courseTitle = course?.title ?? params.kursId
-  const instrumentLabel = course?.instrumentLabel ?? instrumentLabels[params.id] ?? params.id
 
   const activeModuleData = modules.find((m) => m.id === params.modulId) ?? modules[0]
   const defaultLessonId = searchParams.lektion ?? activeModuleData?.lessons[0]?.id ?? ''
@@ -287,7 +285,7 @@ export default function ModulPage({
   const nextLesson = activeModuleData && activeLessonIndex < activeModuleData.lessons.length - 1 ? activeModuleData.lessons[activeLessonIndex + 1] : null
   const activeLessonDone = !!(activeModuleData && activeLesson && isLessonDone(activeModuleData.id, activeLesson.id))
   // Free- & Lernvideo-Abo: Lektion ausserhalb der Schnupper-Freischaltung gesperrt.
-  const activeLessonLocked = noCourseAccess && !!activeModuleData && !!activeLesson && !trialKeys.has(`${activeModuleData.id}:${activeLesson.id}`)
+  const activeLessonLocked = previewOnly && !!activeModuleData && !!activeLesson && !trialKeys.has(`${activeModuleData.id}:${activeLesson.id}`)
 
   const totalLessons = modules.flatMap((m) => m.lessons).length
   const courseProgress = totalLessons > 0 ? Math.round((completedLessons.size / totalLessons) * 100) : 0
@@ -393,10 +391,6 @@ export default function ModulPage({
           Musikschule
         </Link>
         <span className="text-white/30 hidden md:block">/</span>
-        <Link href={`/member/academy/instrument/${params.id}`} className="font-sans text-sm text-white/60 hover:text-white transition-colors hidden md:block">
-          {instrumentLabel}
-        </Link>
-        <span className="text-white/30 hidden md:block">/</span>
         <Link href={kursPath} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5 md:gap-0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:hidden">
             <polyline points="15 18 9 12 15 6" />
@@ -475,7 +469,7 @@ export default function ModulPage({
                             {mod.lessons.map((lesson) => {
                               const isActiveLesson = mod.id === params.modulId && lesson.id === activeLessonId
                               const lessonDone = isLessonDone(mod.id, lesson.id)
-                              const lessonLocked = noCourseAccess && !trialKeys.has(`${mod.id}:${lesson.id}`)
+                              const lessonLocked = previewOnly && !trialKeys.has(`${mod.id}:${lesson.id}`)
                               return (
                                 <button
                                   key={lesson.id}
@@ -554,7 +548,7 @@ export default function ModulPage({
               </div>
             </div>
 
-            {/* ── Free-Account: Lektion gesperrt ── */}
+            {/* ── Lektion gesperrt (nur Schnupper-Vorschau) ── */}
             {activeLessonLocked ? (
               <motion.div key={`${activeLessonId}-locked`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                 <div className="aspect-video bg-dark flex flex-col items-center justify-center text-center px-6 gap-4">
@@ -564,13 +558,11 @@ export default function ModulPage({
                   <div>
                     <p className="font-heading font-bold text-white text-lg mb-1">Diese Lektion ist gesperrt</p>
                     <p className="font-sans text-sm text-white/60 max-w-md">
-                      {isLernvideoOnly
-                        ? `Dein Lernvideo-Abo umfasst die Datenbank, nicht die Lehrgänge. Die ersten ${FREE_TRIAL_LESSON_COUNT} Lektionen sind zum Reinschnuppern frei — für den ganzen Kurs upgrade auf Pro.`
-                        : `Im Free-Account sind die ersten ${FREE_TRIAL_LESSON_COUNT} Lektionen frei. Für diese Lektion und den ganzen Kurs brauchst du einen kostenpflichtigen Plan.`}
+                      Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für diese Lektion und den ganzen Kurs schaltest du den Kurs mit dem passenden Abo frei.
                     </p>
                   </div>
-                  <Link href={isLernvideoOnly ? '/member/account?tab=abo' : '/member/academy'} className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-warm transition-colors">
-                    {isLernvideoOnly ? 'Auf Pro upgraden →' : 'Plan upgraden →'}
+                  <Link href="/member/academy" className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-warm transition-colors">
+                    Zur Übersicht →
                   </Link>
                 </div>
               </motion.div>
