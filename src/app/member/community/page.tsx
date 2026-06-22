@@ -1254,11 +1254,12 @@ export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('start')
   const profile = useUserProfile()
   const avatarSrc = profile.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'
+  const firstName = profile.name.trim().split(/\s+/)[0] || 'zusammen'
 
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <MemberTopBar title="Community" />
+      <MemberTopBar title={`Hallo ${firstName}`} />
 
       {/* ── AREA TABS ── */}
       <MemberTabs active="community" />

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { isDbVideoUnlocked, individualPlanMeta, FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { useUserProfile } from '@/lib/userProfile'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
 
@@ -132,6 +133,7 @@ type ArtFilter = 'volkstuemlich' | 'bekannte_melodie'
 export default function LernvideosPage() {
   const router = useRouter()
   const userAbo = useUserAbo()
+  const firstName = useUserProfile().name.trim().split(/\s+/)[0] || 'zusammen'
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
   const [filterArt, setFilterArt] = useState<ArtFilter | null>(null)
@@ -356,7 +358,7 @@ export default function LernvideosPage() {
 
       {/* TOP BAR (schwarz) — konsistent mit Musikschule & Community */}
       <MemberTopBar
-        title="Lernvideo-Datenbank"
+        title={`Hallo ${firstName}`}
         right={
           <>
             <button
