@@ -599,7 +599,6 @@ function ProfileView() {
   const [wohnort, setWohnort] = useState('Luzern')
   const [hideWohnort, setHideWohnort] = useState(false)
   const [instruments, setInstruments] = useState('Handorgel, Schwyzerörgeli')
-  const [vorbilder, setVorbilder] = useState('Ruedi Rymann, Kapelle Hess-Ruedi-Hegner')
   const [openForFormation, setOpenForFormation] = useState(false)
   const [hiddenFromDiscover, setHiddenFromDiscover] = useState(false)
   const [instagram, setInstagram] = useState('niklaus.hess')
@@ -636,7 +635,6 @@ function ProfileView() {
   const [draftWohnort, setDraftWohnort] = useState('')
   const [draftHideWohnort, setDraftHideWohnort] = useState(false)
   const [draftInstruments, setDraftInstruments] = useState('')
-  const [draftVorbilder, setDraftVorbilder] = useState('')
   const [draftOpenForFormation, setDraftOpenForFormation] = useState(false)
   const [draftHiddenFromDiscover, setDraftHiddenFromDiscover] = useState(false)
   const [draftInstagram, setDraftInstagram] = useState('')
@@ -657,7 +655,6 @@ function ProfileView() {
     setDraftWohnort(wohnort)
     setDraftHideWohnort(hideWohnort)
     setDraftInstruments(instruments)
-    setDraftVorbilder(vorbilder)
     setDraftOpenForFormation(openForFormation)
     setDraftHiddenFromDiscover(hiddenFromDiscover)
     setDraftInstagram(instagram)
@@ -676,7 +673,6 @@ function ProfileView() {
     setWohnort(draftWohnort.trim())
     setHideWohnort(draftHideWohnort)
     setInstruments(draftInstruments)
-    setVorbilder(draftVorbilder)
     setOpenForFormation(draftOpenForFormation)
     setHiddenFromDiscover(draftHiddenFromDiscover)
     setInstagram(draftInstagram.trim())
@@ -835,10 +831,6 @@ function ProfileView() {
                   <p className="font-sans text-[11px] text-text-secondary mb-2">Wähle deine Instrumente — sie erscheinen nur auf deinem Profil. Eigene über «Sonstiges» ergänzen.</p>
                   <InstrumentTagPicker value={draftInstruments} onChange={setDraftInstruments} />
                 </div>
-                <div>
-                  <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
-                  <input value={draftVorbilder} onChange={e => setDraftVorbilder(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                </div>
 
                 {/* Social-media links (managed outside the post stream) */}
                 <div className="pt-4 border-t border-border">
@@ -961,11 +953,6 @@ function ProfileView() {
                     <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
                   ))}
                 </div>
-                {vorbilder && (
-                  <p className="font-sans text-xs text-text-secondary">
-                    <span className="font-medium text-dark">Vorbilder:</span> {vorbilder}
-                  </p>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
