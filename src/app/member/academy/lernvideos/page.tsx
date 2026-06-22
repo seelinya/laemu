@@ -98,22 +98,22 @@ type Wish = { id: number; title: string; composer?: string; votes: Record<string
 
 const initialWishes: Wish[] = [
   { id: 1, title: 'S Röseli', composer: 'Trad.', votes: { 'Handorgel (1. Stimme)': 14, 'Schwyzerörgeli (1. Stimme)': 9, 'Bassgeige': 4, 'Handorgel (2. Stimme)': 6 }, available: ['Schwyzerörgeli (1. Stimme)'] },
-  { id: 2, title: 'Märzenschnee-Ländler', votes: { 'Schwyzerörgeli (1. Stimme)': 17, 'Klarinette (1. Stimme)': 5 }, available: [] },
-  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', votes: { 'Klarinette (1. Stimme)': 28, 'Handorgel (1. Stimme)': 13, 'Bassgeige': 7 }, available: [] },
+  { id: 2, title: 'Märzenschnee-Ländler', votes: { 'Schwyzerörgeli (1. Stimme)': 17, 'Handorgel (2. Stimme)': 5 }, available: [] },
+  { id: 3, title: 'Luzerner Polka', composer: 'R. Suter', votes: { 'Handorgel (1. Stimme)': 28, 'Schwyzerörgeli (1. Stimme)': 13, 'Bassgeige': 7 }, available: [] },
 ]
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige', 'Klavierbegleitung', 'Klarinette']
+const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Marsch', 'Lied']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
 
 // Optionen für Stimmen bei Stückwünschen — gruppiert nach 1. Stimme, 2. Stimme
-// und Begleitstimmvorschlägen (Bassgeige & Klavierbegleitung gehören zu Letzteren).
+// und Begleitstimmvorschlägen.
 const WISH_VOTE_GROUPS: { label: string; options: string[] }[] = [
-  { label: '1. Stimme', options: ['Handorgel (1. Stimme)', 'Schwyzerörgeli (1. Stimme)', 'Klarinette (1. Stimme)'] },
-  { label: '2. Stimme', options: ['Handorgel (2. Stimme)', 'Schwyzerörgeli (2. Stimme)', 'Klarinette (2. Stimme)'] },
-  { label: 'Begleitstimmvorschläge', options: ['Bassgeige', 'Klavierbegleitung'] },
+  { label: '1. Stimme', options: ['Handorgel (1. Stimme)', 'Schwyzerörgeli (1. Stimme)'] },
+  { label: '2. Stimme', options: ['Handorgel (2. Stimme)', 'Schwyzerörgeli (2. Stimme)'] },
+  { label: 'Begleitstimmvorschläge', options: ['Bassgeige'] },
 ]
 const WISH_VOTE_OPTIONS = WISH_VOTE_GROUPS.flatMap(g => g.options)
 
