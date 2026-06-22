@@ -3,11 +3,11 @@ import Link from 'next/link'
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
 const SOCIAL_LINKS = {
-  youtube: 'https://www.youtube.com/@laemu',
-  instagram: 'https://www.instagram.com/laemu.ch',
-  facebook: 'https://www.facebook.com/laemu',
-  tiktok: 'https://www.tiktok.com/@laemu',
-  linkedin: 'https://www.linkedin.com/company/laemu',
+  youtube: 'https://www.youtube.com/@laemu_ch',
+  instagram: 'https://www.instagram.com/laemu.ch/',
+  facebook: 'https://www.facebook.com/profile.php?id=61589800834530',
+  tiktok: 'https://www.tiktok.com/@laemu.ch',
+  linkedin: 'https://www.linkedin.com/company/laemu/',
   whatsapp: 'https://whatsapp.com/channel/',
 }
 

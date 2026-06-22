@@ -247,26 +247,6 @@ export default function PublicProfilePage({ params }: { params: { handle: string
           </div>
         </motion.div>
 
-        {/* Beiträge — nur Foto & Video */}
-        <div>
-          <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
-          <div className="space-y-4">
-            {posts.length > 0 ? (
-              posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} onOpen={() => setLightbox(post)} />)
-            ) : (
-              <div className="bg-surface border border-dashed border-border p-10 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-background border border-border text-text-secondary">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                </div>
-                <p className="font-sans text-sm font-semibold text-dark mb-1">Noch keine Beiträge</p>
-                <p className="font-sans text-sm text-text-secondary leading-relaxed">
-                  {profile.name.split(' ')[0]} hat noch keine Fotos oder Videos hochgeladen.<br className="hidden sm:block" /> Schau später wieder vorbei.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Shared info */}
         {hasShares ? (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-surface border border-border p-6">
@@ -312,6 +292,26 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Kontaktinfos öffentlich geteilt.</p>
           </div>
         )}
+
+        {/* Beiträge — nur Foto & Video */}
+        <div>
+          <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
+          <div className="space-y-4">
+            {posts.length > 0 ? (
+              posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} onOpen={() => setLightbox(post)} />)
+            ) : (
+              <div className="bg-surface border border-dashed border-border p-10 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-background border border-border text-text-secondary">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                </div>
+                <p className="font-sans text-sm font-semibold text-dark mb-1">Noch keine Beiträge</p>
+                <p className="font-sans text-sm text-text-secondary leading-relaxed">
+                  {profile.name.split(' ')[0]} hat noch keine Fotos oder Videos hochgeladen.<br className="hidden sm:block" /> Schau später wieder vorbei.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

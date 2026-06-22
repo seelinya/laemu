@@ -4,39 +4,13 @@ import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
-  individualPlanMeta,
-  individualPricing,
-  type Scope,
+  aboPlanLabel,
+  aboMonthlyPrice,
+  aboInstrumentsLabel,
   type UserAbo,
 } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
-
-// ─── Abo-Helfer ───────────────────────────────────────────────────────────────
-// Leiten Anzeige (Label, Instrumente, Preis) aus dem tatsächlich gewählten Abo
-// ab, damit Profil und Abo-Verwaltung mit der Registrierung übereinstimmen.
-function aboPlanLabel(abo: UserAbo): string {
-  return abo.plan === 'none' ? 'Free' : individualPlanMeta[abo.plan].label
-}
-
-function aboScope(abo: UserAbo): Scope {
-  if (abo.allInstruments) return 'all'
-  const n = abo.instruments.length
-  if (n >= 3) return '3'
-  if (n === 2) return '2'
-  return '1'
-}
-
-function aboMonthlyPrice(abo: UserAbo): number {
-  if (abo.plan === 'none') return 0
-  if (abo.plan === 'lernvideo') return individualPricing.lernvideo.monthly
-  return individualPricing[abo.plan][aboScope(abo)].monthly
-}
-
-function aboInstrumentsLabel(abo: UserAbo): string {
-  if (abo.plan === 'none') return ''
-  if (abo.plan === 'lernvideo' || abo.allInstruments) return 'Alle Instrumente'
-  return abo.instruments.join(', ')
-}
+import { UpgradeDialog } from '@/components/UpgradeDialog'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
@@ -123,6 +97,9 @@ function AboTab() {
     setCancelled(false)
   }
 
+  // Upgrade/Abo ändern läuft über ein Popup (kein Registrationsprozess).
+  const [showUpgrade, setShowUpgrade] = useState(false)
+
   return (
     <>
       <SectionCard title="Mein Abo" desc="Übersicht deines aktuellen Plans.">
@@ -170,12 +147,12 @@ function AboTab() {
         )}
 
         <div className="flex flex-wrap gap-3">
-          <Link
-            href="/register"
+          <button
+            onClick={() => setShowUpgrade(true)}
             className="inline-flex items-center bg-accent-gold text-white font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
           >
             {isFree ? 'Auf einen kostenpflichtigen Plan upgraden' : 'Abo ändern'}
-          </Link>
+          </button>
           {!isFree && !cancelled && (
             <button
               onClick={() => setShowCancelModal(true)}
@@ -214,6 +191,15 @@ function AboTab() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Upgrade / Abo ändern — Popup mit Abo-Auswahl & Zahlungsmittel */}
+      {showUpgrade && (
+        <UpgradeDialog
+          abo={abo}
+          onClose={() => setShowUpgrade(false)}
+          onUpgraded={(next) => { setAbo(next); setCancelled(false) }}
+        />
       )}
     </>
   )

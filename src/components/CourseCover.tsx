@@ -5,6 +5,7 @@
 const COVER_GRADIENTS: Record<string, string> = {
   handorgel: 'linear-gradient(135deg, #2a2622 0%, #3c352a 100%)',
   schwyzer: 'linear-gradient(135deg, #232722 0%, #343a30 100%)',
+  bassgeige: 'linear-gradient(135deg, #26221f 0%, #3a322c 100%)',
   allgemein: 'linear-gradient(135deg, #232326 0%, #3a3a40 100%)',
   default: 'linear-gradient(135deg, #232323 0%, #3a3a3a 100%)',
 }

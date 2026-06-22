@@ -164,6 +164,41 @@ export const mockUserAbo: UserAbo = {
   instruments: ['Handorgel'],
 }
 
+// ─── Abo-Anzeige-Helfer ───────────────────────────────────────────────────────
+// Leiten Label, Umfang und Preis konsistent aus dem tatsächlich gewählten Abo
+// ab — damit Profil, Abo-Verwaltung und Upgrade-Dialoge dieselben (korrekten)
+// Werte zeigen wie die Registrierung.
+
+export function aboScope(abo: UserAbo): Scope {
+  if (abo.allInstruments) return 'all'
+  const n = abo.instruments.length
+  if (n >= 3) return '3'
+  if (n === 2) return '2'
+  return '1'
+}
+
+export function aboPlanLabel(abo: UserAbo): string {
+  return abo.plan === 'none' ? 'Free' : individualPlanMeta[abo.plan].label
+}
+
+export function aboMonthlyPrice(abo: UserAbo): number {
+  if (abo.plan === 'none') return 0
+  if (abo.plan === 'lernvideo') return individualPricing.lernvideo.monthly
+  return individualPricing[abo.plan][aboScope(abo)].monthly
+}
+
+export function aboYearlyPrice(abo: UserAbo): number {
+  if (abo.plan === 'none') return 0
+  if (abo.plan === 'lernvideo') return individualPricing.lernvideo.yearly
+  return individualPricing[abo.plan][aboScope(abo)].yearly
+}
+
+export function aboInstrumentsLabel(abo: UserAbo): string {
+  if (abo.plan === 'none') return ''
+  if (abo.plan === 'lernvideo' || abo.allInstruments) return 'Alle Instrumente'
+  return abo.instruments.join(', ')
+}
+
 /**
  * Ist ein Stück freigeschaltet (Lern-/Stimmen-Videos + Mixer)?
  *
