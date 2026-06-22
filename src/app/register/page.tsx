@@ -527,10 +527,10 @@ export default function RegisterPage() {
                       <div>
                         <p className="font-heading text-base font-bold mb-1 text-dark">Free-Account — ohne Zahlung starten</p>
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Als interessierte:r Lernende:r erkundest du die ganze Musikschule kostenlos: Du siehst alle
-                          Kurse, Instrumente und Lernvideos und kannst die Gratis-Stücke direkt nutzen. Zum Freischalten
-                          der Lehrgänge und der vollständigen Lernvideo-Datenbank upgradest du jederzeit auf einen
-                          kostenpflichtigen Plan — ganz ohne Eile.
+                          Als interessierte:r Lernende:r erkundest du die ganze Musikschule kostenlos: Du siehst einen
+                          Kurseinblick, Instrumente und Lernvideos und kannst die Gratis-Stücke direkt nutzen. Zum
+                          Freischalten der Lehrgänge und der vollständigen Lernvideo-Datenbank upgradest du jederzeit auf
+                          einen kostenpflichtigen Plan — ganz ohne Eile.
                         </p>
                       </div>
                     </div>
@@ -621,7 +621,7 @@ export default function RegisterPage() {
                       </p>
                       <div className="space-y-2">
                         {[
-                          'Vollständiger Einblick in alle Kurse, Instrumente & Lernvideos',
+                          'Einblick in die Lehrgänge, Instrumente & Lernvideos',
                           'Gratis-Stücke direkt spielbar',
                         ].map((f, i) => (
                           <div key={i} className="flex items-center gap-2 font-sans text-sm">

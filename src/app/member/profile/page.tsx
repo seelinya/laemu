@@ -9,12 +9,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const profile = {
   name: 'Hansruedi Wenger',
-  handle: '@hansruedi_akkordeon',
+  handle: '@hansruedi_handorgel',
   avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
   tagline: 'Schweizer Örgeli-Kurslehrer',
-  bio: 'Handorgelist und Akkordeonlehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Musikschule und spiele in mehreren Formationen der Innerschweiz.',
+  bio: 'Handorgelist und Handorgellehrer aus Luzern. Leidenschaft für Ländlermusik seit über 20 Jahren. Unterrichte auf LAEMU Musikschule und spiele in mehreren Formationen der Innerschweiz.',
   location: 'Luzern LU',
-  instruments: ['Handorgel', 'Akkordeon', 'Steirische Harmonika'],
+  instruments: ['Handorgel', 'Schwyzerörgeli', 'Hackbrett'],
   formations: ['Hess-Rusch-Hegner', 'Ländlertrio Freiamt'],
   roles: ['Lehrperson', 'Musiker'],
   openForFormation: true,

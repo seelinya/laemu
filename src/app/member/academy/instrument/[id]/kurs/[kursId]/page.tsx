@@ -47,6 +47,10 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   const course = getCourse(params.id, params.kursId)
   const userAbo = useUserAbo()
   const isFreeTier = userAbo.plan === 'none'
+  // Das Lernvideo-Abo gibt nur Zugang zur Lernvideo-Datenbank — in der
+  // Musikschule sieht man dieselben Schnupper-Lektionen wie im Free-Account.
+  const isLernvideoOnly = userAbo.plan === 'lernvideo'
+  const noCourseAccess = isFreeTier || isLernvideoOnly
   const trialKeys = course ? freeTrialLessonKeys(course) : new Set<string>()
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
 
@@ -181,13 +185,22 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
           </motion.div>
         )}
 
-        {/* ── Free-Account: Schnupper-Hinweis ── */}
-        {isFreeTier && (
+        {/* ── Schnupper-Hinweis (Free & Lernvideo-Abo ohne Musikschul-Zugang) ── */}
+        {noCourseAccess && (
           <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
             <p className="font-sans text-xs text-text-secondary leading-relaxed">
-              <strong className="text-dark font-semibold">Free-Account.</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs brauchst du einen kostenpflichtigen Plan.{' '}
-              <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
+              {isLernvideoOnly ? (
+                <>
+                  <strong className="text-dark font-semibold">Lernvideo-Abo.</strong> Dein Abo umfasst die komplette Lernvideo-Datenbank — die Lehrgänge der Musikschule sind nicht enthalten. Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses kannst du zum Reinschnuppern ansehen. Für den ganzen Kurs upgrade auf Pro.{' '}
+                  <Link href="/member/account?tab=abo" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
+                </>
+              ) : (
+                <>
+                  <strong className="text-dark font-semibold">Free-Account.</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs brauchst du einen kostenpflichtigen Plan.{' '}
+                  <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
+                </>
+              )}
             </p>
           </div>
         )}
@@ -276,7 +289,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                       >
                         <div className="border-t border-border divide-y divide-border">
                           {mod.lessons.map((lesson) => {
-                            const lessonLocked = isFreeTier && !trialKeys.has(`${mod.id}:${lesson.id}`)
+                            const lessonLocked = noCourseAccess && !trialKeys.has(`${mod.id}:${lesson.id}`)
                             if (lessonLocked) {
                               return (
                                 <div

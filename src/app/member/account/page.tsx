@@ -1,8 +1,46 @@
 'use client'
 
-import { Suspense, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import {
+  ACADEMY_INSTRUMENTS,
+  INDIVIDUAL_PLAN_ORDER,
+  individualPlanMeta,
+  individualPricing,
+  type IndividualPlanId,
+  type Instrument,
+  type Scope,
+  type UserAbo,
+} from '@/lib/academy'
+import { setStoredAbo, useUserAbo } from '@/lib/userPlan'
+
+// ─── Abo-Helfer ───────────────────────────────────────────────────────────────
+// Leiten Anzeige (Label, Instrumente, Preis) aus dem tatsächlich gewählten Abo
+// ab, damit Profil und Abo-Verwaltung mit der Registrierung übereinstimmen.
+function aboPlanLabel(abo: UserAbo): string {
+  return abo.plan === 'none' ? 'Free' : individualPlanMeta[abo.plan].label
+}
+
+function aboScope(abo: UserAbo): Scope {
+  if (abo.allInstruments) return 'all'
+  const n = abo.instruments.length
+  if (n >= 3) return '3'
+  if (n === 2) return '2'
+  return '1'
+}
+
+function aboMonthlyPrice(abo: UserAbo): number {
+  if (abo.plan === 'none') return 0
+  if (abo.plan === 'lernvideo') return individualPricing.lernvideo.monthly
+  return individualPricing[abo.plan][aboScope(abo)].monthly
+}
+
+function aboInstrumentsLabel(abo: UserAbo): string {
+  if (abo.plan === 'none') return ''
+  if (abo.plan === 'lernvideo' || abo.allInstruments) return 'Alle Instrumente'
+  return abo.instruments.join(', ')
+}
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
@@ -13,12 +51,6 @@ const SECTIONS = [
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
-
-const invoices = [
-  { date: '26. Mai 2026', desc: 'Starterkurs — Monatsabo', amount: 'CHF 79.00', status: 'Bezahlt' },
-  { date: '26. Apr 2026', desc: 'Starterkurs — Monatsabo', amount: 'CHF 79.00', status: 'Bezahlt' },
-  { date: '26. Mär 2026', desc: 'Starterkurs — Monatsabo', amount: 'CHF 79.00', status: 'Bezahlt' },
-]
 
 type PaymentMethod = {
   id: string
@@ -46,11 +78,6 @@ const SEED_DEVICES: Device[] = [
   { id: 'd2', name: 'MacBook Pro — Chrome', location: 'Luzern, CH', last: 'vor 2 Stunden', current: false },
 ]
 
-const PLANS = [
-  { id: 'starter', name: 'Starterkurs', price: 79, desc: 'Grundlagen, Community-Zugang' },
-  { id: 'pro', name: 'Pro', price: 149, desc: 'Alle Kurse, Livecoaching, Downloads' },
-]
-
 function Field({ label, value, type = 'text' }: { label: string; value: string; type?: string }) {
   return (
     <div>
@@ -75,29 +102,49 @@ function SectionCard({ title, desc, children }: { title: string; desc?: string; 
 // Abo Tab
 // ---------------------------------------------------------------------------
 function AboTab() {
-  const [activePlanId, setActivePlanId] = useState<string>('starter')
+  // Tatsächlich gewähltes Abo (aus der Registrierung) — Quelle der Wahrheit.
+  const storedAbo = useUserAbo()
+  const [abo, setAbo] = useState<UserAbo>(storedAbo)
+  // useUserAbo liefert erst nach dem Mount den gespeicherten Wert — übernehmen.
+  useEffect(() => { setAbo(storedAbo) }, [storedAbo])
+
   const [cancelled, setCancelled] = useState(false)
 
   // Modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('starter')
+  const [selectedPlanId, setSelectedPlanId] = useState<IndividualPlanId>('pro')
   const [upgradeSuccess, setUpgradeSuccess] = useState(false)
 
   const [showCancelModal, setShowCancelModal] = useState(false)
 
-  const activePlan = PLANS.find((p) => p.id === activePlanId) ?? PLANS[0]
+  const isFree = abo.plan === 'none'
+  const monthly = aboMonthlyPrice(abo)
+  const instrumentsLabel = aboInstrumentsLabel(abo)
 
   // End of current month (today = 2026-06-05, so end = 30. Juni 2026)
   const cancelDateLabel = '30. Juni 2026'
 
+  // Monatspreis eines Plans im aktuell gewählten Umfang (für die Auswahl).
+  const planMonthly = (planId: IndividualPlanId): number =>
+    planId === 'lernvideo' ? individualPricing.lernvideo.monthly : individualPricing[planId][aboScope(abo)].monthly
+
   function openUpgrade() {
-    setSelectedPlanId(activePlanId)
+    setSelectedPlanId(isFree ? 'pro' : abo.plan as IndividualPlanId)
     setUpgradeSuccess(false)
     setShowUpgradeModal(true)
   }
 
   function confirmUpgrade() {
-    setActivePlanId(selectedPlanId)
+    // Beim Wechsel den Instrumenten-Umfang beibehalten; aus dem Free-Account
+    // heraus wird der volle Umfang (alle Instrumente) freigeschaltet.
+    const base = isFree
+      ? { instruments: [...ACADEMY_INSTRUMENTS] as Instrument[], allInstruments: true }
+      : { instruments: abo.instruments, allInstruments: abo.allInstruments }
+    const next: UserAbo = selectedPlanId === 'lernvideo'
+      ? { plan: 'lernvideo', instruments: base.instruments, allInstruments: true }
+      : { plan: selectedPlanId, instruments: base.instruments, allInstruments: base.allInstruments }
+    setAbo(next)
+    setStoredAbo(next)
     setCancelled(false)
     setUpgradeSuccess(true)
   }
@@ -122,20 +169,40 @@ function AboTab() {
         <div className="border border-border p-5 flex items-start justify-between mb-4">
           <div>
             <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Aktiver Plan</p>
-            <h3 className="font-heading text-xl font-bold">{activePlan.name}</h3>
-            {cancelled ? (
+            <h3 className="font-heading text-xl font-bold">{aboPlanLabel(abo)}</h3>
+            {instrumentsLabel && (
+              <p className="font-sans text-xs text-text-secondary mt-0.5">{instrumentsLabel}</p>
+            )}
+            {isFree ? (
+              <p className="font-sans text-xs text-text-secondary mt-1">Kostenloser Zugang — keine Abrechnung.</p>
+            ) : cancelled ? (
               <p className="font-sans text-xs text-red-600 mt-1 font-medium">Gekündigt — Zugang bis {cancelDateLabel}</p>
             ) : (
               <p className="font-sans text-xs text-text-secondary mt-1">Nächste Abrechnung: 26. Juni 2026</p>
             )}
           </div>
           <div className="text-right">
-            <p className="font-heading text-2xl font-bold text-accent-gold">CHF {activePlan.price}</p>
-            <p className="font-sans text-xs text-text-secondary">/ Monat</p>
+            {isFree ? (
+              <p className="font-heading text-2xl font-bold text-accent-gold">Gratis</p>
+            ) : (
+              <>
+                <p className="font-heading text-2xl font-bold text-accent-gold">CHF {monthly}</p>
+                <p className="font-sans text-xs text-text-secondary">/ Monat</p>
+              </>
+            )}
           </div>
         </div>
 
-        {cancelled && (
+        {isFree && (
+          <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 mb-4">
+            <p className="font-sans text-sm text-text-secondary">
+              Du nutzt den kostenlosen Free-Account. Schalte mit einem Upgrade die Lehrgänge und die
+              vollständige Lernvideo-Datenbank frei.
+            </p>
+          </div>
+        )}
+
+        {!isFree && cancelled && (
           <div className="bg-red-50 border border-red-200 px-4 py-3 mb-4 flex items-center justify-between">
             <p className="font-sans text-sm text-red-700">Dein Abo wurde gekündigt. Du hast noch Zugang bis zum {cancelDateLabel}.</p>
             <button onClick={undoCancel} className="font-sans text-xs text-red-700 underline hover:no-underline ml-4 whitespace-nowrap">Kündigung rückgängig machen</button>
@@ -147,9 +214,9 @@ function AboTab() {
             onClick={openUpgrade}
             className="bg-accent-gold text-white font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
           >
-            Abo ändern
+            {isFree ? 'Auf einen kostenpflichtigen Plan upgraden' : 'Abo ändern'}
           </button>
-          {!cancelled && (
+          {!isFree && !cancelled && (
             <button
               onClick={() => setShowCancelModal(true)}
               className="border border-border font-sans text-sm px-5 py-2.5 hover:border-dark transition-colors"
@@ -173,48 +240,51 @@ function AboTab() {
                   </div>
                   <h3 className="font-heading font-bold text-xl mb-1">Abo aktualisiert!</h3>
                   <p className="font-sans text-sm text-text-secondary mb-5">
-                    Dein Plan wurde auf <strong>{PLANS.find((p) => p.id === activePlanId)?.name}</strong> geändert.
+                    Dein Plan wurde auf <strong>{aboPlanLabel(abo)}</strong> geändert.
                   </p>
                   <button onClick={closeUpgradeModal} className="bg-dark text-white font-sans text-sm px-6 py-2.5 hover:bg-accent-gold transition-colors">Schliessen</button>
                 </div>
               </>
             ) : (
               <>
-                <h3 className="font-heading font-bold text-xl mb-1">Abo ändern</h3>
-                <p className="font-sans text-sm text-text-secondary mb-5">Wähle deinen neuen Plan.</p>
+                <h3 className="font-heading font-bold text-xl mb-1">{isFree ? 'Plan wählen' : 'Abo ändern'}</h3>
+                <p className="font-sans text-sm text-text-secondary mb-5">Wähle deinen {isFree ? '' : 'neuen '}Plan.</p>
 
                 <div className="space-y-3 mb-6">
-                  {PLANS.map((plan) => (
-                    <button
-                      key={plan.id}
-                      onClick={() => setSelectedPlanId(plan.id)}
-                      className={`w-full flex items-start justify-between border p-4 text-left transition-colors ${selectedPlanId === plan.id ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-sans font-medium text-sm">{plan.name}</span>
-                          {plan.id === activePlanId && (
-                            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-1.5 py-0.5">Aktuell</span>
-                          )}
+                  {INDIVIDUAL_PLAN_ORDER.map((planId) => {
+                    const meta = individualPlanMeta[planId]
+                    return (
+                      <button
+                        key={planId}
+                        onClick={() => setSelectedPlanId(planId)}
+                        className={`w-full flex items-start justify-between border p-4 text-left transition-colors ${selectedPlanId === planId ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-sans font-medium text-sm">{meta.label}</span>
+                            {!isFree && planId === abo.plan && (
+                              <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-1.5 py-0.5">Aktuell</span>
+                            )}
+                          </div>
+                          <p className="font-sans text-xs text-text-secondary mt-0.5">{meta.audience}</p>
                         </div>
-                        <p className="font-sans text-xs text-text-secondary mt-0.5">{plan.desc}</p>
-                      </div>
-                      <div className="text-right ml-4 flex-shrink-0">
-                        <span className="font-heading font-bold text-lg">CHF {plan.price}</span>
-                        <span className="font-sans text-xs text-text-secondary block">/ Monat</span>
-                      </div>
-                    </button>
-                  ))}
+                        <div className="text-right ml-4 flex-shrink-0">
+                          <span className="font-heading font-bold text-lg">CHF {planMonthly(planId)}</span>
+                          <span className="font-sans text-xs text-text-secondary block">/ Monat</span>
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
 
                 <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
                   <button onClick={closeUpgradeModal} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
                   <button
                     onClick={confirmUpgrade}
-                    disabled={selectedPlanId === activePlanId}
+                    disabled={!isFree && selectedPlanId === abo.plan}
                     className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Abo aktualisieren
+                    {isFree ? 'Upgrade abschliessen' : 'Abo aktualisieren'}
                   </button>
                 </div>
               </>
@@ -508,6 +578,18 @@ function AccountInner() {
   const initial = (params.get('tab') as SectionId) ?? 'konto'
   const [tab, setTab] = useState<SectionId>(SECTIONS.some((s) => s.id === initial) ? initial : 'konto')
 
+  // Rechnungen aus dem tatsächlich gewählten Abo ableiten (Free hat keine).
+  const abo = useUserAbo()
+  const monthlyLabel = `CHF ${aboMonthlyPrice(abo).toFixed(2)}`
+  const invoiceDesc = `${aboPlanLabel(abo)} — Monatsabo`
+  const invoices = abo.plan === 'none'
+    ? []
+    : [
+        { date: '26. Mai 2026', desc: invoiceDesc, amount: monthlyLabel, status: 'Bezahlt' },
+        { date: '26. Apr 2026', desc: invoiceDesc, amount: monthlyLabel, status: 'Bezahlt' },
+        { date: '26. Mär 2026', desc: invoiceDesc, amount: monthlyLabel, status: 'Bezahlt' },
+      ]
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
@@ -561,6 +643,11 @@ function AccountInner() {
 
             {tab === 'rechnungen' && (
               <SectionCard title="Rechnungen & Zahlungen" desc="Deine Zahlungshistorie.">
+                {invoices.length === 0 ? (
+                  <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
+                    Mit deinem Free-Account fallen keine Rechnungen an.
+                  </p>
+                ) : (
                 <div className="divide-y divide-border border border-border">
                   {invoices.map((inv, i) => (
                     <div key={i} className="flex items-center justify-between p-4">
@@ -576,6 +663,7 @@ function AccountInner() {
                     </div>
                   ))}
                 </div>
+                )}
               </SectionCard>
             )}
 

@@ -82,6 +82,17 @@ const videos = [
   },
 ]
 
+// Das erste Video je Instrument — diese sind in der Liste standardmässig
+// aufgeklappt, damit sofort sichtbar ist, dass sich Stücke direkt öffnen lassen.
+const FIRST_VIDEO_PER_INSTRUMENT: number[] = (() => {
+  const seen = new Set<string>()
+  const ids: number[] = []
+  for (const v of videos) {
+    if (!seen.has(v.instrument)) { seen.add(v.instrument); ids.push(v.id) }
+  }
+  return ids
+})()
+
 const mockPlaylist = [
   { id: 'p1', title: '1. Stimme — Einführung & Takt 1–8', piece: 'Dr Alperose', duration: '12 Min.' },
   { id: 'p2', title: '1. Stimme — Takt 9–16 mit Übergängen', piece: 'Dr Alperose', duration: '14 Min.' },
@@ -153,6 +164,14 @@ export default function LernvideosPage() {
   const [wishComposer, setWishComposer] = useState('')
   const [wishVoteSel, setWishVoteSel] = useState<string[]>([])
   const [wishSearch, setWishSearch] = useState('')
+  // Aufgeklappte Stückwünsche (einklappbar) — mehrere gleichzeitig möglich.
+  const [expandedWishes, setExpandedWishes] = useState<Set<number>>(new Set())
+  const toggleWishExpand = (id: number) =>
+    setExpandedWishes(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  // Direkt aufklappbare Lernvideos — erstes Video je Instrument ist offen.
+  const [expandedVideos, setExpandedVideos] = useState<Set<number>>(new Set(FIRST_VIDEO_PER_INSTRUMENT))
+  const toggleVideoExpand = (id: number) =>
+    setExpandedVideos(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
 
   const toggleSaved = (id: number) => setSaved(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   const toggleLearned = (id: number) => setLearned(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -170,11 +189,12 @@ export default function LernvideosPage() {
   const submitWish = () => {
     if (!wishTitle.trim() || wishVoteSel.length === 0) return
     const id = Date.now()
-    const votes: Record<string, number> = {}
-    wishVoteSel.forEach(o => { votes[o] = 1 })
-    const newWish: Wish = { id, title: wishTitle.trim(), composer: wishComposer.trim() || undefined, votes, available: [] }
+    // Kein Basis-Wert: das eigene Like (wishVotes) zählt als die eine Stimme,
+    // damit ein selbst gelikter Wunsch nicht doppelt zählt.
+    const newWish: Wish = { id, title: wishTitle.trim(), composer: wishComposer.trim() || undefined, votes: {}, available: [] }
     setWishes(prev => [newWish, ...prev])
     setWishVotes(prev => { const n = { ...prev }; wishVoteSel.forEach(o => { n[voteKey(id, o)] = true }); return n })
+    setExpandedWishes(prev => { const n = new Set(prev); n.add(id); return n })
     setWishTitle(''); setWishComposer(''); setWishVoteSel([]); setShowWishForm(false)
   }
 
@@ -241,98 +261,121 @@ export default function LernvideosPage() {
     const unlocked = isDbVideoUnlocked({ id: v.id, plan: v.difficultyPlan, instrument: v.instrument }, userAbo)
     const isSaved = saved.has(v.id)
     const isLearned = learned.has(v.id)
+    const isExpanded = expandedVideos.has(v.id)
     return (
       <motion.div
         key={v.id}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.03 }}
-        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row"
+        className={`bg-surface border overflow-hidden transition-colors ${isExpanded ? 'border-accent-gold/50' : 'border-border hover:border-dark'}`}
       >
-        {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
-        <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
-          <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
-          </div>
-          <div className="absolute bottom-2 left-2">
-            <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
-          </div>
-          {isLearned && (
-            <div className="absolute top-2 left-2">
-              <span className="font-sans text-[10px] bg-green-600 text-white px-1.5 py-0.5 flex items-center gap-1">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                Gelernt
-              </span>
+        {/* Kopfbereich — die ganze Fläche klappt das Video auf/zu (ausser «Playlist») */}
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => toggleVideoExpand(v.id)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVideoExpand(v.id) } }}
+          aria-expanded={isExpanded}
+          className="flex flex-col sm:flex-row cursor-pointer group"
+        >
+          {/* Thumbnail */}
+          <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
+            <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity">
+              <div className="w-10 h-10 bg-accent-gold flex items-center justify-center shadow-lg">
+                <span className="text-white ml-0.5 text-base">{isExpanded ? '❚❚' : '▶'}</span>
+              </div>
             </div>
-          )}
-          {!unlocked && (
-            <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              <span className="font-sans text-[10px] uppercase tracking-wide">Gesperrt</span>
+            <div className="absolute bottom-2 left-2">
+              <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
             </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-2 mb-1">
-              <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
-              {v.taktart && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
-              )}
-            </div>
-            <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
-            <div className="flex flex-wrap gap-1">
-              {v.styleTags.slice(0, 3).map(t => (
-                <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/8 border border-accent-gold/20 text-accent-gold">{t}</span>
-              ))}
-              {v.melodieTags.slice(0, 2).map(t => (
-                <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
-              ))}
-              {v.notesAvailable.violinschluessel && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Violin</span>
-              )}
-              {v.notesAvailable.griffschrift && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Griff</span>
-              )}
-            </div>
-          </div>
-
-          {/* Aktionen — auf Mobile als Reihe unter dem Text, auf Desktop als Spalte rechts */}
-          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 flex-shrink-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0 mt-1 sm:mt-0">
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => toggleLearned(v.id)}
-                title={isLearned ? 'Als nicht gelernt markieren' : 'Als gelernt markieren'}
-                aria-label={isLearned ? 'Als nicht gelernt markieren' : 'Als gelernt markieren'}
-                className={`p-1.5 border transition-colors flex-shrink-0 ${isLearned ? 'border-green-600 bg-green-600 text-white' : 'border-border text-text-secondary hover:border-green-600 hover:text-green-600'}`}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </button>
-              <button
-                onClick={() => toggleSaved(v.id)}
-                title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
-                className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-              </button>
-            </div>
-            <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:my-2">
-              <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
-              {!unlocked && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                  Gesperrt
+            {isLearned && (
+              <div className="absolute top-2 left-2">
+                <span className="font-sans text-[10px] bg-green-600 text-white px-1.5 py-0.5 flex items-center gap-1">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  Gelernt
                 </span>
-              )}
+              </div>
+            )}
+            {!unlocked && (
+              <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <span className="font-sans text-[10px] uppercase tracking-wide">Gesperrt</span>
+              </div>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 p-4 flex items-start justify-between gap-3 min-w-0">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-2 mb-1">
+                <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
+                {v.taktart && (
+                  <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
+                )}
+                <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold flex-shrink-0 mt-0.5 ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
+              </div>
+              <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
+              <div className="flex flex-wrap gap-1">
+                {v.styleTags.slice(0, 3).map(t => (
+                  <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/8 border border-accent-gold/20 text-accent-gold">{t}</span>
+                ))}
+                {v.melodieTags.slice(0, 2).map(t => (
+                  <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
+                ))}
+              </div>
             </div>
-            <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
-              {unlocked ? 'Öffnen →' : 'Master-Video →'}
-            </Link>
+
+            {/* Playlist-Button (Ausnahme — klappt nicht auf) + Chevron */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleSaved(v.id) }}
+                title={isSaved ? 'Aus Playlist entfernen' : 'Zur Playlist hinzufügen'}
+                className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${isSaved ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                <span className="hidden sm:inline">Playlist</span>
+              </button>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-text-secondary transition-transform ${isExpanded ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+            </div>
           </div>
         </div>
+
+        {/* Inline-Player (aufgeklappt) */}
+        <AnimatePresence initial={false}>
+          {isExpanded && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <div className="border-t border-border p-4 space-y-4">
+                <div className="relative aspect-video bg-dark flex items-center justify-center">
+                  {unlocked ? (
+                    <button className="w-16 h-16 rounded-full bg-accent-gold/90 flex items-center justify-center hover:bg-accent-gold transition-colors" aria-label="Video abspielen">
+                      <span className="text-white text-2xl ml-1">▶</span>
+                    </button>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-white/80 px-6 text-center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                      <p className="font-sans text-sm">Nur die Masteraufnahme ist verfügbar — für Stimmen-Videos & Mixer ist ein Upgrade nötig.</p>
+                    </div>
+                  )}
+                  <span className="absolute bottom-2 left-2 font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.title}</span>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <button
+                    onClick={() => toggleLearned(v.id)}
+                    className={`flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 border transition-colors ${isLearned ? 'border-green-600 bg-green-600 text-white' : 'border-border text-text-secondary hover:border-green-600 hover:text-green-600'}`}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    {isLearned ? 'Gelernt' : 'Als gelernt markieren'}
+                  </button>
+                  <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-4 py-1.5 transition-colors whitespace-nowrap text-center ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
+                    {unlocked ? 'Ganze Seite öffnen → (Mitspielen, Noten, Mixer)' : 'Master-Video öffnen →'}
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     )
   }
@@ -784,6 +827,12 @@ export default function LernvideosPage() {
                 )}
               </div>
 
+              {/* Hinweis: Karten klappen direkt auf */}
+              <p className="font-sans text-xs text-text-secondary mb-3 flex items-center gap-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><polyline points="6 9 12 15 18 9" /></svg>
+                Tipp: Klicke auf ein Stück, um das Video direkt aufzuklappen.
+              </p>
+
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
                 {filtered.map((v, i) => renderResultCard(v, i))}
@@ -861,7 +910,7 @@ export default function LernvideosPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="font-heading font-bold text-xl">Stückwünsche</h2>
-                <p className="font-sans text-sm text-text-secondary mt-1">Stimme für Stücke, die du als Lernvideo wünschst. Sobald ein Stück produziert wird, erhältst du eine Benachrichtigung.</p>
+                <p className="font-sans text-sm text-text-secondary mt-1">Like Stücke, die du dir als Lernvideo wünschst. Sobald ein Stück produziert wird, erhältst du eine Benachrichtigung.</p>
               </div>
               <button onClick={() => setShowWishForm(!showWishForm)} className="bg-accent-gold text-white font-sans text-sm px-4 py-2 hover:bg-accent-warm transition-colors flex-shrink-0">
                 + Neuer Wunsch
@@ -884,7 +933,7 @@ export default function LernvideosPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Deine Stimme für * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
+                      <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Dein Like für * <span className="normal-case tracking-normal text-text-secondary/70">(mehrere möglich)</span></label>
                       <div className="space-y-3">
                         {WISH_VOTE_GROUPS.map(group => (
                           <div key={group.label}>
@@ -929,21 +978,40 @@ export default function LernvideosPage() {
               />
             </div>
 
-            <p className="font-sans text-xs text-text-secondary mb-3">Sortiert nach Anzahl Stimmen pro Stück (Gesamttotal aller Optionen).</p>
+            <p className="font-sans text-xs text-text-secondary mb-3">Sortiert nach Anzahl Likes pro Stück (Gesamttotal aller Optionen).</p>
             <div className="space-y-3">
-              {filteredWishes.map(w => (
-                <div key={w.id} className="bg-surface border border-border p-5">
-                  <div className="flex items-start justify-between gap-4">
+              {filteredWishes.map(w => {
+                const isOpen = expandedWishes.has(w.id)
+                return (
+                <div key={w.id} className="bg-surface border border-border">
+                  {/* Kopfzeile — klappt per Klick (Abstimmen / Chevron) die Liste auf */}
+                  <button
+                    onClick={() => toggleWishExpand(w.id)}
+                    className="w-full flex items-center justify-between gap-4 p-5 text-left"
+                    aria-expanded={isOpen}
+                  >
                     <div className="flex-1 min-w-0">
                       <h4 className="font-heading font-bold text-sm">{w.title}</h4>
                       {w.composer && <p className="font-sans text-xs text-text-secondary">Komponist / Interpret: {w.composer}</p>}
                     </div>
-                    <span className="font-sans text-xs px-2.5 py-1 border border-border bg-background text-text-secondary flex-shrink-0 whitespace-nowrap">{wishTotal(w)} Stimmen</span>
-                  </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border border-border bg-background text-text-secondary whitespace-nowrap">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-gold"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
+                        <span className="font-bold tabular-nums">{wishTotal(w)}</span>
+                      </span>
+                      <span className="flex items-center gap-1 font-sans text-xs font-medium text-accent-gold">
+                        Abstimmen
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+                      </span>
+                    </div>
+                  </button>
 
-                  {/* Stimme abgeben — gruppiert nach Stimmen, Mehrfachauswahl */}
-                  <div className="mt-3 pt-3 border-t border-border">
-                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-2.5">Deine Stimme abgeben — Mehrfachauswahl möglich</p>
+                  {/* Like vergeben — gruppiert nach Stimmen, Mehrfachauswahl */}
+                  <AnimatePresence initial={false}>
+                  {isOpen && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                  <div className="px-5 pb-5 pt-3 border-t border-border">
+                    <p className="font-sans text-[10px] uppercase tracking-wider text-text-secondary mb-2.5">Like vergeben — Mehrfachauswahl möglich</p>
                     <div className="space-y-3">
                       {WISH_VOTE_GROUPS.map(group => {
                         // Reihenfolge: abgeschlossene Wünsche (bereits vorhanden) zuerst,
@@ -986,8 +1054,12 @@ export default function LernvideosPage() {
                       })}
                     </div>
                   </div>
+                  </motion.div>
+                  )}
+                  </AnimatePresence>
                 </div>
-              ))}
+                )
+              })}
               {filteredWishes.length === 0 && (
                 <p className="font-sans text-sm text-text-secondary text-center py-10">Keine Stückwünsche gefunden.</p>
               )}

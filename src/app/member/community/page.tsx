@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { InstrumentTagPicker } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
@@ -12,6 +13,10 @@ import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userPro
 const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
 const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
 const LAEMU_WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/'
+// WhatsApp-Channels (einseitige Broadcast-Kanäle zum Beitreten) — echte Links
+// hier eintragen, sobald verfügbar.
+const LAEMU_WHATSAPP_INFO_CHANNEL_URL = 'https://whatsapp.com/channel/'
+const LAEMU_WHATSAPP_SPAM_CHANNEL_URL = 'https://whatsapp.com/channel/'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -246,20 +251,20 @@ const ALL_REGIONS = Array.from(new Set(discoverProfiles.map(p => p.region))).sor
 function DiscoverView() {
   const [query, setQuery] = useState('')
   // Filter (nur sichtbar für Personen, die ihre Infos öffentlich teilen).
-  const [openForFormation, setOpenForFormation] = useState(false)
-  const [teacherOnly, setTeacherOnly] = useState(false)
-  const [inFormationOnly, setInFormationOnly] = useState(false)
+  // Formations-Status ist eine Einfachauswahl: entweder «offen», «spielt in
+  // einer Formation» oder keines von beiden.
+  const [formationFilter, setFormationFilter] = useState<'' | 'open' | 'inFormation'>('')
   const [instrument, setInstrument] = useState('')
   const [region, setRegion] = useState('')
 
+  const pickFormation = (val: 'open' | 'inFormation') =>
+    setFormationFilter(prev => (prev === val ? '' : val))
+
   const activeFilters =
-    Number(openForFormation) + Number(teacherOnly) + Number(inFormationOnly) +
-    Number(Boolean(instrument)) + Number(Boolean(region))
+    Number(Boolean(formationFilter)) + Number(Boolean(instrument)) + Number(Boolean(region))
 
   const resetFilters = () => {
-    setOpenForFormation(false)
-    setTeacherOnly(false)
-    setInFormationOnly(false)
+    setFormationFilter('')
     setInstrument('')
     setRegion('')
   }
@@ -267,9 +272,8 @@ function DiscoverView() {
   const q = query.trim().toLowerCase()
   const results = discoverProfiles.filter(p => {
     if (q && !p.name.toLowerCase().includes(q) && !profileRole(p).toLowerCase().includes(q)) return false
-    if (openForFormation && !p.openForFormation) return false
-    if (teacherOnly && !p.isTeacher) return false
-    if (inFormationOnly && !p.inFormation) return false
+    if (formationFilter === 'open' && !p.openForFormation) return false
+    if (formationFilter === 'inFormation' && !p.inFormation) return false
     if (instrument && !p.instruments.includes(instrument)) return false
     if (region && p.region !== region) return false
     return true
@@ -323,9 +327,8 @@ function DiscoverView() {
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setOpenForFormation(v => !v)} className={chip(openForFormation)}>Offen für Formation</button>
-          <button onClick={() => setTeacherOnly(v => !v)} className={chip(teacherOnly)}>Musiklehrer</button>
-          <button onClick={() => setInFormationOnly(v => !v)} className={chip(inFormationOnly)}>Spielt in einer Formation</button>
+          <button onClick={() => pickFormation('open')} className={chip(formationFilter === 'open')}>Offen für Formation</button>
+          <button onClick={() => pickFormation('inFormation')} className={chip(formationFilter === 'inFormation')}>Spielt in einer Formation</button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -458,6 +461,67 @@ function StartView() {
         >
           <IconWhatsApp size={16} /> Der News-Gruppe beitreten
         </a>
+      </div>
+
+      {/* WhatsApp-Channels zum Beitreten */}
+      <div>
+        <h3 className="font-heading font-bold text-lg mb-1">WhatsApp-Channels</h3>
+        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">
+          Tritt unseren WhatsApp-Channels bei und bleib auf dem Laufenden. Channels sind einseitige
+          Kanäle — nur das LAEMU-Team postet, deine Nummer bleibt für andere verborgen.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Info-Channel */}
+          <div className="bg-surface border border-border p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="w-11 h-11 flex items-center justify-center bg-dark text-white flex-shrink-0">
+                <IconWhatsApp />
+              </span>
+              <div className="min-w-0">
+                <h4 className="font-heading font-bold text-base leading-tight">Info-Channel</h4>
+                <p className="font-sans text-xs text-text-secondary">Offizielle Infos &amp; News</p>
+              </div>
+            </div>
+            <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
+              Wichtige Ankündigungen, Termine und Neuigkeiten rund um LAEMU — kompakt und ohne
+              Geplauder.
+            </p>
+            <a
+              href={LAEMU_WHATSAPP_INFO_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold transition-colors"
+            >
+              <IconWhatsApp size={16} /> Info-Channel beitreten
+            </a>
+          </div>
+
+          {/* Spam-Channel */}
+          <div className="bg-surface border border-border p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
+                <IconWhatsApp />
+              </span>
+              <div className="min-w-0">
+                <h4 className="font-heading font-bold text-base leading-tight">Spam-Channel</h4>
+                <p className="font-sans text-xs text-text-secondary">Bilder, Videos &amp; mehr</p>
+              </div>
+            </div>
+            <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
+              Eindrücke aus dem LAEMU-Leben — Bilder und Videos von Auftritten, Musikhöcks und
+              spontanen Momenten. Einfach zum Geniessen.
+            </p>
+            <a
+              href={LAEMU_WHATSAPP_SPAM_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-5 py-2.5 hover:bg-dark hover:text-white transition-colors"
+            >
+              <IconWhatsApp size={16} /> Spam-Channel beitreten
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -785,7 +849,8 @@ function ProfileView() {
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Instrumente</label>
-                  <input value={draftInstruments} onChange={e => setDraftInstruments(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  <p className="font-sans text-[11px] text-text-secondary mb-2">Wähle deine Instrumente — sie erscheinen nur auf deinem Profil. Eigene über «Sonstiges» ergänzen.</p>
+                  <InstrumentTagPicker value={draftInstruments} onChange={setDraftInstruments} />
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Musikalische Vorbilder</label>
@@ -1044,21 +1109,6 @@ function SettingsView() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-4 border border-border">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">🌐</span>
-                    <div>
-                      <p className="font-sans text-sm font-semibold">LAEMU Community – Mitgliedschaft</p>
-                      <p className="font-sans text-xs text-text-secondary">Monatlich · nächste Verlängerung 1. Mär 2026</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-sans text-sm font-semibold">CHF 5.00 / Monat</p>
-                    <div className="mt-1">
-                      <button className="font-sans text-xs text-red-500 hover:text-red-700 transition-colors">Kündigen</button>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
             {/* Invoice history */}
@@ -1066,9 +1116,7 @@ function SettingsView() {
             <div className="space-y-3">
               {[
                 { date: 'Feb 2026', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
-                { date: 'Feb 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
-                { date: 'Jan 2026', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
-                { date: 'Dez 2025', desc: 'LAEMU Community – Monatsmitgliedschaft', amount: 'CHF 5.00' },
+                { date: 'Feb 2025', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
               ].map((r, i) => (
                 <div key={i} className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors">
                   <div>
