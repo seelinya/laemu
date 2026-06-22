@@ -12,6 +12,8 @@ import { ShareMenu } from '@/components/ShareMenu'
 // ─── Noten ───────────────────────────────────────────────────────────────────
 // Bei Lernvideos sind generell nur Violinschlüssel- und Griffschrift-Noten
 // (Schwyzerörgeli) ersichtlich.
+// Käufliche Notenblätter verweisen vorerst beispielhaft auf den LAEMU-Shop.
+const SHOP_NOTEN_URL = 'https://www.laemu.ch/product-page/hier-beginnt-musik'
 const ALLOWED_NOTEN_KEYS = ['violin', 'griff-soe']
 const STANDARD_NOTEN: { label: string; key: string; price: number }[] = [
   { label: 'Violinschlüssel', key: 'violin', price: 5 },
@@ -839,9 +841,9 @@ export default function LernvideoDetailPage() {
           <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
             <span className="font-sans text-xs text-text-secondary">Noten (PDF):</span>
             {noten.map(n => (
-              <button key={n.key} title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+              <a key={n.key} href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
                 {n.label}{n.price ? ` · CHF ${n.price}` : ''} <IconArrowRight />
-              </button>
+              </a>
             ))}
           </div>
         )}
@@ -1025,9 +1027,9 @@ export default function LernvideoDetailPage() {
                             </div>
                             <div className="flex items-center justify-between mt-auto">
                               <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
-                              <button title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                              <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
                                 Im Shop kaufen <IconArrowRight />
-                              </button>
+                              </a>
                             </div>
                           </div>
                         ))}
@@ -1038,9 +1040,9 @@ export default function LernvideoDetailPage() {
                             <p className="font-heading font-bold text-sm">Komplettes Notenheft</p>
                             <p className="font-sans text-xs text-text-secondary">Violinschlüssel & Griffschrift (Schwyzerörgeli) · alle Stimmen</p>
                           </div>
-                          <Link href={v.notenheftUrl} className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
+                          <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
                             Zum Notenheft →
-                          </Link>
+                          </a>
                         </div>
                       )}
                     </>

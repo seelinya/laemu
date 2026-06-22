@@ -8,7 +8,7 @@ import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
 import { Avatar } from '@/components/Avatar'
 import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
-import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
+import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
@@ -676,7 +676,8 @@ function ProfileView() {
   }
 
   const saveEdit = () => {
-    setName(draftName.trim() || name)
+    const nextName = draftName.trim() || name
+    setName(nextName)
     setAvatar(draftAvatar)
     setBio(draftBio)
     setWohnort(draftWohnort.trim())
@@ -690,6 +691,16 @@ function ProfileView() {
     setEmail(draftEmail.trim())
     setFacebook(draftFacebook.trim())
     setTiktok(draftTiktok.trim())
+    // Ins gemeinsame Profil übernehmen, damit das (neue) Profilbild & die Angaben
+    // überall erscheinen: Header, Community-Sidebar und das eigene Profil.
+    setStoredProfile({
+      name: nextName,
+      avatar: draftAvatar,
+      bio: draftBio,
+      wohnort: draftWohnort.trim(),
+      instruments: draftInstruments,
+      openForFormation: draftOpenForFormation,
+    })
     setEditMode(false)
   }
 
@@ -740,13 +751,26 @@ function ProfileView() {
                   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 )}
                 {editMode && (
-                  <button
-                    onClick={() => setDraftAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80')}
+                  <label
                     className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer"
-                    title="Profilbild auswählen"
+                    title="Profilbild hochladen"
                   >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        const reader = new FileReader()
+                        reader.onload = () => setDraftAvatar(typeof reader.result === 'string' ? reader.result : '')
+                        reader.readAsDataURL(file)
+                        // Erneutes Hochladen derselben Datei wieder ermöglichen.
+                        e.target.value = ''
+                      }}
+                    />
                     <span className="text-white"><IconEdit /></span>
-                  </button>
+                  </label>
                 )}
               </div>
               {editMode && (
