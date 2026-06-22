@@ -180,13 +180,6 @@ export function MemberTabs({ active }: { active: Area }) {
         <div className="flex items-center justify-between gap-4">
 
           <div className="flex items-center overflow-x-auto">
-            <div className="flex items-center gap-1.5 pr-5 border-r border-border flex-shrink-0">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-gold flex-shrink-0">
-                <path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z" />
-              </svg>
-              <span className="font-sans text-xs font-semibold text-accent-gold whitespace-nowrap">Mitgliederbereich</span>
-            </div>
-
             {tabs.map((tab) => (
               <Link
                 key={tab.id}
