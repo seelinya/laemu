@@ -171,62 +171,23 @@ function UpgradeSuccessModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── Persönlicher Support / Live-Chat (floating) ──────────────────────────────
+// ─── Persönlicher Support — Verweis auf das LAEMU WhatsApp (floating) ──────────
 
 function SupportWidget() {
-  const [open, setOpen] = useState(false)
   return (
-    <>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className="fixed bottom-24 right-6 z-50 w-80 max-w-[calc(100vw-3rem)] bg-surface border border-border shadow-2xl overflow-hidden"
-          >
-            <div className="bg-dark p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-accent-gold flex items-center justify-center flex-shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6" /><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" /></svg>
-                </div>
-                <div>
-                  <p className="font-heading font-bold text-sm text-white">Persönlicher Support</p>
-                  <p className="font-sans text-[10px] text-white/50 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-gold inline-block" /> Antwort meist in wenigen Minuten
-                  </p>
-                </div>
-              </div>
-              <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors text-xl leading-none">×</button>
-            </div>
-            <div className="p-4 bg-background">
-              <div className="bg-surface border border-border px-3 py-2.5">
-                <p className="font-sans text-[10px] uppercase tracking-wider text-accent-gold mb-0.5">LAEMU Team</p>
-                <p className="font-sans text-sm text-text-primary">Hallo Niklaus! 👋 Wie können wir dir mit deinen Kursen helfen? Schreib uns — wir antworten persönlich.</p>
-              </div>
-            </div>
-            <div className="p-3 border-t border-border flex gap-2">
-              <input placeholder="Nachricht schreiben…" className="flex-1 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
-              <button className="bg-accent-gold text-white px-3 py-2 font-sans text-sm font-medium hover:bg-accent-warm transition-colors">Senden</button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-accent-gold text-white pl-4 pr-5 py-3.5 shadow-lg hover:bg-accent-warm transition-colors"
-        aria-label="Persönlicher Support"
-      >
-        {open ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-        ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
-        )}
-        <span className="font-sans text-sm font-semibold">{open ? 'Schliessen' : 'Persönlicher Support'}</span>
-      </button>
-    </>
+    <a
+      href="https://wa.me/41774083057"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Persönlicher Support via WhatsApp: +41 77 408 30 57"
+      aria-label="Persönlicher Support via WhatsApp"
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-accent-gold text-white pl-4 pr-5 py-3.5 shadow-lg hover:bg-accent-warm transition-colors"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
+      </svg>
+      <span className="font-sans text-sm font-semibold">Support via WhatsApp</span>
+    </a>
   )
 }
 
