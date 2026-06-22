@@ -3,7 +3,7 @@
 // Lehrgang-Ansicht auf der Musikschule-Startseite. So sehen beide Stellen
 // garantiert identisch aus.
 
-export type InstrumentId = 'handorgel' | 'schwyzer'
+export type InstrumentId = 'handorgel' | 'schwyzer' | 'bassgeige'
 
 export type StarterKurs = {
   id: string
@@ -63,6 +63,20 @@ const schwyzerProKurse: ProKurs[] = [
   { id: 'improvisation', title: 'Improvisation & Zäuerli', desc: 'Freies Spiel und Zäuerli-Stilistik.', modules: 4, duration: '5h', level: 'Profi' },
 ]
 
+const bassgeigeStarterKurse: StarterKurs[] = [
+  { id: 'grundlagen', title: 'Grundlagenkurs Bassgeige', desc: 'Der Einstieg in die Bassgeige — Haltung, Bogen und erste Töne.', modules: 5, completedModules: 0, duration: '7h', level: 'Einsteiger' },
+  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Bogenführung, Rhythmus und Intonation.', modules: 4, completedModules: 0, duration: '5h', level: 'Einsteiger' },
+  { id: 'pflege', title: 'Hege & Pflege', desc: 'Saiten, Steg und Wartung deiner Bassgeige.', modules: 3, completedModules: 0, duration: '2h', level: 'Einsteiger' },
+  { id: 'repertoire', title: 'Erstes Repertoire', desc: 'Deine ersten Ländler-Basslinien Schritt für Schritt erlernt.', modules: 5, completedModules: 0, duration: '8h', level: 'Einsteiger' },
+]
+
+const bassgeigeProKurse: ProKurs[] = [
+  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Basslinien, Tonarten und Stimmführung für die Bassgeige.', modules: 4, duration: '6h', level: 'Fortgeschritten' },
+  { id: 'fortgeschritten', title: 'Fortgeschrittene Bogentechnik', desc: 'Präzise Bogenführung, Läufe und Dynamik.', modules: 5, duration: '8h', level: 'Fortgeschritten' },
+  { id: 'ensemble', title: 'Ensemble-Spiel', desc: 'Das rhythmische Fundament in der Formation.', modules: 3, duration: '4h', level: 'Fortgeschritten' },
+  { id: 'improvisation', title: 'Improvisation', desc: 'Freie Basslinien im Ländlerstil gestalten.', modules: 4, duration: '5h', level: 'Profi' },
+]
+
 export const INSTRUMENT_OVERVIEWS: Record<InstrumentId, InstrumentOverview> = {
   handorgel: {
     id: 'handorgel', label: 'Handorgel', emoji: '🪗', desc: 'Das Herzstück der Ländlermusik',
@@ -72,10 +86,14 @@ export const INSTRUMENT_OVERVIEWS: Record<InstrumentId, InstrumentOverview> = {
     id: 'schwyzer', label: 'Schwyzerörgeli', emoji: '🎵', desc: 'Diatonisch und voller Seele',
     plan: 'starter', overallProgress: 18, starterKurse: schwyzerStarterKurse, proKurse: schwyzerProKurse,
   },
+  bassgeige: {
+    id: 'bassgeige', label: 'Bassgeige', emoji: '🎻', desc: 'Das rhythmische Fundament der Ländlermusik',
+    plan: 'starter', overallProgress: 0, starterKurse: bassgeigeStarterKurse, proKurse: bassgeigeProKurse,
+  },
 }
 
 // Instrumente, zu denen der/die Lernende einen Lehrgang abonniert hat.
-export const SUBSCRIBED_INSTRUMENTS: InstrumentId[] = ['handorgel', 'schwyzer']
+export const SUBSCRIBED_INSTRUMENTS: InstrumentId[] = ['handorgel', 'schwyzer', 'bassgeige']
 
 export function getInstrumentOverview(id: string): InstrumentOverview | undefined {
   return INSTRUMENT_OVERVIEWS[id as InstrumentId]
@@ -85,6 +103,7 @@ export function getInstrumentOverview(id: string): InstrumentOverview | undefine
 const LABEL_TO_ID: Record<string, InstrumentId> = {
   Handorgel: 'handorgel',
   Schwyzerörgeli: 'schwyzer',
+  Bassgeige: 'bassgeige',
 }
 
 export function instrumentIdFromLabel(label: string): InstrumentId | undefined {
