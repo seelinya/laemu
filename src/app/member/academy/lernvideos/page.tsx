@@ -133,7 +133,7 @@ type ArtFilter = 'volkstuemlich' | 'bekannte_melodie'
 export default function LernvideosPage() {
   const router = useRouter()
   const userAbo = useUserAbo()
-  const firstName = useUserProfile().name.trim().split(/\s+/)[0] || 'zusammen'
+  const greetingName = useUserProfile().name.trim() || 'zusammen'
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
   const [filterArt, setFilterArt] = useState<ArtFilter | null>(null)
@@ -358,7 +358,7 @@ export default function LernvideosPage() {
 
       {/* TOP BAR (schwarz) — konsistent mit Musikschule & Community */}
       <MemberTopBar
-        title={`Hallo ${firstName}`}
+        title={`Hallo ${greetingName}`}
         right={
           <>
             <button

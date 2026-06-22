@@ -4,46 +4,13 @@ import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
-  INDIVIDUAL_PLAN_ORDER,
-  individualPlanMeta,
-  individualPricing,
-  scopeLabels,
-  formationPlanMeta,
-  formationYearlyPrice,
-  FORMATION_INCLUDED_MEMBERS,
-  aboScope,
   aboPlanLabel,
   aboMonthlyPrice,
   aboInstrumentsLabel,
-  type FormationPlanId,
-  type IndividualPlanId,
-  type Instrument,
-  type Scope,
   type UserAbo,
 } from '@/lib/academy'
-import { setStoredAbo, useUserAbo } from '@/lib/userPlan'
-
-const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
-
-// In der Mitgliedschaft (Musikschule) wählbare Instrumente — identisch zur
-// Registrierung, damit ein Upgrade im Konto dieselbe Auswahl bietet.
-const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
-
-// Welche Einzel-Pläne sind von einem bestehenden Abo aus erreichbar?
-// Free → Starter, Pro, Lernvideodatenbank · Starter → Pro (oder Instrumente
-// anpassen) · Lernvideodatenbank → Starter, Pro · Pro → Pro (Instrumente anpassen).
-function upgradeTargets(plan: UserAbo['plan']): IndividualPlanId[] {
-  switch (plan) {
-    case 'none':
-      return ['starter', 'pro', 'lernvideo']
-    case 'starter':
-      return ['starter', 'pro']
-    case 'lernvideo':
-      return ['starter', 'pro', 'lernvideo']
-    case 'pro':
-      return ['pro']
-  }
-}
+import { useUserAbo } from '@/lib/userPlan'
+import { UpgradeDialog } from '@/components/UpgradeDialog'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
@@ -130,92 +97,8 @@ function AboTab() {
     setCancelled(false)
   }
 
-  // ── Upgrade-Modal (Abo ändern, ohne zurück zur Registrierung) ──────────────
+  // Upgrade/Abo ändern läuft über ein Popup (kein Registrationsprozess).
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const [upSuccess, setUpSuccess] = useState(false)
-  const [upType, setUpType] = useState<'individual' | 'formation'>('individual')
-  const [upBilling, setUpBilling] = useState<'yearly' | 'monthly'>('yearly')
-  const [upPlan, setUpPlan] = useState<IndividualPlanId>('starter')
-  const [upScope, setUpScope] = useState<Scope>('1')
-  const [upInstr, setUpInstr] = useState<string[]>(['Handorgel'])
-  const [upFormationPlan, setUpFormationPlan] = useState<FormationPlanId>('pro')
-  const [upMembers, setUpMembers] = useState(3)
-
-  // Erreichbare Einzel-Pläne ab dem aktuellen Standpunkt.
-  const indivTargets = upgradeTargets(abo.plan)
-  const planChoices = INDIVIDUAL_PLAN_ORDER.filter((p) => indivTargets.includes(p))
-
-  const scopeCount = (s: Scope) => (s === 'all' ? ABO_INSTRUMENTS.length : Number(s))
-
-  function openUpgrade() {
-    const targets = upgradeTargets(abo.plan)
-    // Sinnvolle Vorauswahl: bei Free der Starter, sonst direkt der höhere Plan.
-    const defaultPlan: IndividualPlanId =
-      abo.plan === 'starter' || abo.plan === 'lernvideo'
-        ? 'pro'
-        : abo.plan === 'pro'
-          ? 'pro'
-          : 'starter'
-    setUpType('individual')
-    setUpBilling('yearly')
-    setUpPlan(targets.includes(defaultPlan) ? defaultPlan : targets[0])
-    // Umfang & Instrumente aus dem aktuellen Abo übernehmen.
-    const currentScope = aboScope(abo)
-    setUpScope(abo.plan === 'none' ? '1' : currentScope)
-    const seedInstr = abo.allInstruments || abo.instruments.length === 0
-      ? (abo.allInstruments ? [...ABO_INSTRUMENTS] : ['Handorgel'])
-      : abo.instruments.filter((i) => (ABO_INSTRUMENTS as readonly string[]).includes(i))
-    setUpInstr(seedInstr.length > 0 ? seedInstr : ['Handorgel'])
-    setUpFormationPlan('pro')
-    setUpMembers(3)
-    setUpSuccess(false)
-    setShowUpgrade(true)
-  }
-
-  function toggleUpInstr(inst: string) {
-    setUpInstr((prev) => {
-      if (prev.includes(inst)) return prev.filter((i) => i !== inst)
-      const max = scopeCount(upScope)
-      if (prev.length >= max) return [...prev.slice(1), inst]
-      return [...prev, inst]
-    })
-  }
-
-  function selectUpScope(s: Scope) {
-    setUpScope(s)
-    if (s === 'all') setUpInstr([...ABO_INSTRUMENTS])
-    else setUpInstr((prev) => prev.slice(0, Number(s)))
-  }
-
-  const upHasScope = upPlan !== 'lernvideo' && individualPlanMeta[upPlan].hasScope
-  const upPeriodLabel = upType === 'formation' || upBilling === 'yearly' ? '/ Jahr' : '/ Monat'
-
-  const upPrice = (() => {
-    if (upType === 'formation') return formationYearlyPrice(upFormationPlan, upMembers)
-    if (upPlan === 'lernvideo') return individualPricing.lernvideo[upBilling]
-    return individualPricing[upPlan][upScope][upBilling]
-  })()
-
-  const upFormationExtra = Math.max(0, upMembers - FORMATION_INCLUDED_MEMBERS)
-
-  function confirmUpgrade() {
-    let next: UserAbo
-    if (upType === 'formation') {
-      next = { plan: upFormationPlan, instruments: [...ABO_INSTRUMENTS] as Instrument[], allInstruments: true }
-    } else if (upPlan === 'lernvideo') {
-      next = { plan: 'lernvideo', instruments: [...ABO_INSTRUMENTS] as Instrument[], allInstruments: true }
-    } else {
-      next = {
-        plan: upPlan,
-        instruments: (upScope === 'all' ? [...ABO_INSTRUMENTS] : upInstr) as Instrument[],
-        allInstruments: upScope === 'all',
-      }
-    }
-    setAbo(next)
-    setStoredAbo(next)
-    setCancelled(false)
-    setUpSuccess(true)
-  }
 
   return (
     <>
@@ -265,7 +148,7 @@ function AboTab() {
 
         <div className="flex flex-wrap gap-3">
           <button
-            onClick={openUpgrade}
+            onClick={() => setShowUpgrade(true)}
             className="inline-flex items-center bg-accent-gold text-white font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
           >
             {isFree ? 'Auf einen kostenpflichtigen Plan upgraden' : 'Abo ändern'}
@@ -310,227 +193,13 @@ function AboTab() {
         </div>
       )}
 
-      {/* Upgrade / Abo-ändern-Modal — gleiche Auswahl wie Schritt 1 der Registrierung */}
+      {/* Upgrade / Abo ändern — Popup mit Abo-Auswahl & Zahlungsmittel */}
       {showUpgrade && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8">
-          <div className="absolute inset-0 bg-dark/70" onClick={() => setShowUpgrade(false)} />
-          <div className="relative bg-surface border border-border w-full max-w-lg mx-4 shadow-xl">
-            {upSuccess ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-accent-gold flex items-center justify-center mx-auto mb-5">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                </div>
-                <h3 className="font-heading font-bold text-2xl mb-2">Abo aktualisiert</h3>
-                <p className="font-sans text-sm text-text-secondary mb-6">
-                  Dein neuer Plan <strong className="text-dark">{aboPlanLabel(abo)}</strong>
-                  {aboInstrumentsLabel(abo) ? <> — {aboInstrumentsLabel(abo)}</> : null} ist ab sofort aktiv.
-                </p>
-                <button
-                  onClick={() => setShowUpgrade(false)}
-                  className="bg-dark text-white font-sans text-sm px-6 py-3 hover:bg-accent-gold transition-colors"
-                >
-                  Fertig
-                </button>
-              </div>
-            ) : (
-              <>
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-border px-6 py-4 sticky top-0 bg-surface">
-                  <h3 className="font-heading font-bold text-xl">Abo ändern</h3>
-                  <button onClick={() => setShowUpgrade(false)} className="text-text-secondary hover:text-dark transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                  </button>
-                </div>
-
-                <div className="p-6">
-                  <p className="font-sans text-sm text-text-secondary mb-5">
-                    Aktuell: <strong className="text-dark">{aboPlanLabel(abo)}</strong>
-                    {instrumentsLabel ? <> — {instrumentsLabel}</> : null}. Wähle deinen neuen Plan — wie bei der Registrierung.
-                  </p>
-
-                  {/* Account type toggle */}
-                  <div className="grid grid-cols-2 gap-3 mb-5">
-                    {([
-                      { id: 'individual', label: 'Einzelperson', desc: 'Für dich allein' },
-                      { id: 'formation', label: 'Formation', desc: 'Für deine Gruppe' },
-                    ] as const).map((opt) => (
-                      <button
-                        key={opt.id}
-                        onClick={() => setUpType(opt.id)}
-                        className={`p-3 border-2 text-left transition-all ${upType === opt.id ? 'border-dark bg-dark/5' : 'border-border bg-surface hover:border-dark'}`}
-                      >
-                        <p className="font-sans font-semibold text-sm">{opt.label}</p>
-                        <p className="font-sans text-xs text-text-secondary">{opt.desc}</p>
-                      </button>
-                    ))}
-                  </div>
-
-                  {upType === 'individual' ? (
-                    <>
-                      {/* Billing toggle */}
-                      <div className="flex items-center justify-center gap-1 mb-5 bg-background border border-border p-1 w-fit mx-auto">
-                        {([
-                          { id: 'yearly', label: 'Jährlich', hint: '−16 %' },
-                          { id: 'monthly', label: 'Monatlich', hint: null },
-                        ] as const).map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => setUpBilling(opt.id)}
-                            className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-1.5 ${upBilling === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
-                          >
-                            {opt.label}
-                            {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 ${upBilling === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Plan choices (nur erreichbare Upgrades) */}
-                      <div className="space-y-3 mb-5">
-                        {planChoices.map((planId) => {
-                          const meta = individualPlanMeta[planId]
-                          const active = upPlan === planId
-                          const price = planId === 'lernvideo'
-                            ? individualPricing.lernvideo[upBilling]
-                            : individualPricing[planId][upScope][upBilling]
-                          return (
-                            <button
-                              key={planId}
-                              onClick={() => setUpPlan(planId)}
-                              className={`w-full text-left p-4 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border bg-surface hover:border-dark'}`}
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span>{meta.emoji}</span>
-                                    <span className="font-sans font-semibold text-sm">{meta.label}</span>
-                                    {meta.badge && <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>}
-                                  </div>
-                                  <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
-                                </div>
-                                <div className="text-right flex-shrink-0">
-                                  <span className="font-heading font-bold text-lg text-accent-gold">{chf(price)}</span>
-                                  <span className="font-sans text-xs text-text-secondary block">{upPeriodLabel}</span>
-                                </div>
-                              </div>
-                            </button>
-                          )
-                        })}
-                      </div>
-
-                      {/* Scope + instruments */}
-                      {upHasScope && (
-                        <div className="bg-background border border-border p-4 mb-5">
-                          <h4 className="font-heading font-bold text-sm mb-3">Umfang wählen</h4>
-                          <div className="grid grid-cols-3 gap-2 mb-4">
-                            {(['1', '2', '3'] as Scope[]).map((s) => (
-                              <button
-                                key={s}
-                                onClick={() => selectUpScope(s)}
-                                className={`py-2 px-2 font-sans text-xs border transition-colors ${upScope === s ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
-                              >
-                                {scopeLabels[s]}
-                              </button>
-                            ))}
-                          </div>
-                          <p className="font-sans text-xs text-text-secondary mb-2">
-                            Wähle {scopeCount(upScope)} {scopeCount(upScope) === 1 ? 'Instrument' : 'Instrumente'} ({upInstr.length}/{scopeCount(upScope)})
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {ABO_INSTRUMENTS.map((inst) => {
-                              const selected = upInstr.includes(inst)
-                              return (
-                                <button
-                                  key={inst}
-                                  onClick={() => toggleUpInstr(inst)}
-                                  className={`font-sans text-sm px-3 py-2 border transition-all ${selected ? 'border-dark bg-dark text-white' : 'border-border bg-surface text-text-secondary hover:border-dark'}`}
-                                >
-                                  {inst}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {upPlan === 'lernvideo' && (
-                        <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-5">
-                          <p className="font-sans text-sm font-semibold mb-1">Zugang zur ganzen Lernvideo-Datenbank</p>
-                          <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                            Du erhältst direkten Zugang zur kompletten Lernvideo-Datenbank — sämtliche Instrumente, ohne Lehrgänge oder Umfang.
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {/* Formation: Anzahl Mitglieder */}
-                      <div className="bg-background border border-border p-4 mb-5">
-                        <h4 className="font-heading font-bold text-sm mb-1">Anzahl Mitglieder</h4>
-                        <p className="font-sans text-xs text-text-secondary mb-3">
-                          Gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder. Darüber: +10 % pro zusätzlichem Mitglied.
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <button onClick={() => setUpMembers((m) => Math.max(1, m - 1))} className="w-9 h-9 border border-border font-heading font-bold hover:border-dark transition-colors">−</button>
-                          <span className="font-heading font-bold text-lg w-10 text-center tabular-nums">{upMembers}</span>
-                          <button onClick={() => setUpMembers((m) => m + 1)} className="w-9 h-9 border border-border font-heading font-bold hover:border-dark transition-colors">+</button>
-                          {upFormationExtra > 0 && <span className="font-sans text-xs text-accent-gold ml-2">+{upFormationExtra} × 10 % Zuschlag</span>}
-                        </div>
-                      </div>
-
-                      {/* Formation plans */}
-                      <div className="space-y-3 mb-5">
-                        {(['pro', 'lernvideo'] as FormationPlanId[]).map((planId) => {
-                          const meta = formationPlanMeta[planId]
-                          const active = upFormationPlan === planId
-                          const price = formationYearlyPrice(planId, upMembers)
-                          return (
-                            <button
-                              key={planId}
-                              onClick={() => setUpFormationPlan(planId)}
-                              className={`w-full text-left p-4 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border bg-surface hover:border-dark'}`}
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <span>{meta.emoji}</span>
-                                    <span className="font-sans font-semibold text-sm">Formation {meta.label}</span>
-                                  </div>
-                                  <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
-                                </div>
-                                <div className="text-right flex-shrink-0">
-                                  <span className="font-heading font-bold text-lg text-accent-gold">{chf(price)}</span>
-                                  <span className="font-sans text-xs text-text-secondary block">/ Jahr</span>
-                                </div>
-                              </div>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </>
-                  )}
-
-                  {/* Preis-Zusammenfassung + Bestätigung */}
-                  <div className="flex items-center justify-between border-t border-border pt-4 mb-4">
-                    <span className="font-sans text-sm text-text-secondary">Neuer Preis</span>
-                    <span className="font-heading font-bold text-2xl text-accent-gold">
-                      {chf(upPrice)}<span className="font-sans text-sm font-normal text-text-secondary">{upPeriodLabel}</span>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 justify-end">
-                    <button onClick={() => setShowUpgrade(false)} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
-                    <button
-                      onClick={confirmUpgrade}
-                      disabled={upType === 'individual' && upHasScope && upInstr.length === 0}
-                      className={`font-sans text-sm px-5 py-2.5 transition-colors ${upType === 'individual' && upHasScope && upInstr.length === 0 ? 'bg-border text-text-secondary cursor-not-allowed' : 'bg-accent-gold text-white hover:bg-dark'}`}
-                    >
-                      Abo aktualisieren
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <UpgradeDialog
+          abo={abo}
+          onClose={() => setShowUpgrade(false)}
+          onUpgraded={(next) => { setAbo(next); setCancelled(false) }}
+        />
       )}
     </>
   )

@@ -28,10 +28,21 @@ export const defaultProfile: UserProfile = {
   wohnort: 'Luzern',
   bio: 'Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.',
   instruments: 'Handorgel, Schwyzerörgeli',
-  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+  // Kein Standard-Profilbild: Solange der/die Nutzer:in keines hochlädt, zeigen
+  // wir überall einen Initialen-Platzhalter statt eines fremden Stockfotos.
+  avatar: '',
   openForFormation: false,
   inFormation: false,
   formationName: '',
+}
+
+// Initialen aus dem Namen ableiten (z. B. «Niklaus Hess» → «NH») — als
+// Platzhalter, wenn (noch) kein Profilbild hochgeladen wurde.
+export function initialsFromName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
 }
 
 // Aus dem Namen ein @handle ableiten (z. B. «Niklaus Hess» → «niklaus_hess»).

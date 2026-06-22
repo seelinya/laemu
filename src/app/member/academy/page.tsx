@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
 import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT, getCourse } from '@/lib/courses'
-import { isCourseUnlocked, individualPricing, aboScope, aboPlanLabel, aboMonthlyPrice, type Scope, type UserAbo } from '@/lib/academy'
+import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
 import { StarterCourseCard, ProUpgradeBanner } from '@/components/CourseCards'
+import { UpgradeDialog } from '@/components/UpgradeDialog'
 
 // Allgemeine Grundlagen-Kurse (für alle Abos) — aus den geteilten Kursdaten.
 const allgemeinKurse: (StarterKurs & { emoji: string })[] = ALLGEMEIN_COURSES.map((cid) => {
@@ -52,19 +53,6 @@ const mockSearchResults: MockSearchResult[] = [
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 
-// Pro-Plan: statische Leistungen (Preise werden aus dem aktuellen Abo des
-// Nutzers abgeleitet, damit beim Upgrade die korrekten Beträge erscheinen).
-const proPlan = {
-  name: 'Pro-Lehrgang',
-  features: [
-    'Alles aus dem Starter',
-    'Grund- & Erweiterungskurse',
-    'Komplette Lernvideo-Datenbank — alle Instrumente',
-    'Persönliches Video-Feedback',
-    'Monatliche Live-Calls',
-  ],
-}
-
 // Pro-Preis (mtl. & jährl.) passend zum Umfang des aktuellen Abos.
 // Free-Konten (ohne Instrument) gehen vom kleinsten Umfang (1 Instrument) aus.
 function proPriceFor(abo: UserAbo): { monthly: number; yearly: number } {
@@ -79,84 +67,6 @@ const categoryColors: Record<string, string> = {
   Module: 'bg-dark/10 text-dark',
   Lernvideos: 'bg-blue-50 text-blue-700',
   Kurse: 'bg-green-50 text-green-700',
-}
-
-// ─── Upgrade modals ───────────────────────────────────────────────────────────
-
-function UpgradeModal({ onConfirm, onCancel, currentLabel, currentPrice, proPrice, period }: { onConfirm: () => void; onCancel: () => void; currentLabel: string; currentPrice: string; proPrice: string; period: string }) {
-  return (
-    <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
-      <motion.div
-        className="relative bg-surface border border-border w-full max-w-lg shadow-2xl"
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 24 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      >
-        <div className="bg-dark p-6 relative">
-          <button onClick={onCancel} className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors text-2xl leading-none">×</button>
-          <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-1">Abo-Upgrade</p>
-          <h3 className="font-heading text-2xl font-bold text-white">Wechsel zum Pro-Kurs</h3>
-          <p className="font-sans text-sm text-white/60 mt-1">Bitte bestätige dein Upgrade</p>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="flex items-start gap-3 bg-background border border-border p-4">
-            <div className="w-2 h-2 rounded-full bg-text-secondary mt-2 flex-shrink-0" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <p className="font-sans text-xs text-text-secondary uppercase tracking-wider mb-1">Aktuell</p>
-                <span className="font-sans text-xs text-text-secondary line-through">{currentPrice}{currentPrice !== 'Gratis' && <span className="text-text-secondary/60">{period}</span>}</span>
-              </div>
-              <p className="font-heading font-bold">{currentLabel}</p>
-            </div>
-          </div>
-          <div className="flex justify-center text-accent-gold text-xl">↓</div>
-          <div className="flex items-start gap-3 bg-accent-gold/5 border border-accent-gold/40 p-4">
-            <div className="w-2 h-2 rounded-full bg-accent-gold mt-2 flex-shrink-0" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <p className="font-sans text-xs text-accent-gold uppercase tracking-wider mb-1">Neu</p>
-                <span className="font-heading font-bold text-accent-gold">{proPrice}<span className="font-sans text-sm font-normal text-text-secondary">{period}</span></span>
-              </div>
-              <p className="font-heading font-bold">{proPlan.name}</p>
-            </div>
-          </div>
-          <div className="space-y-2 pt-1">
-            <p className="font-sans text-xs text-text-secondary uppercase tracking-wider">Neu für dich enthalten</p>
-            {proPlan.features.slice(1).map((f, i) => (
-              <div key={i} className="flex items-center gap-2 font-sans text-sm">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-accent-gold flex-shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-                <span>{f}</span>
-              </div>
-            ))}
-          </div>
-          <p className="font-sans text-xs text-text-secondary border-t border-border pt-4">
-            Das Upgrade wird sofort aktiv. Du wirst ab dem nächsten Abrechnungsdatum mit {proPrice}{period} belastet. Jederzeit kündbar.
-          </p>
-        </div>
-        <div className="px-6 pb-6 flex gap-3">
-          <button onClick={onCancel} className="flex-1 border border-border py-3 font-sans text-sm font-medium hover:bg-background transition-colors">Abbrechen</button>
-          <button onClick={onConfirm} className="flex-1 bg-accent-gold text-white py-3 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">Jetzt upgraden</button>
-        </div>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-function UpgradeSuccessModal({ onClose }: { onClose: () => void }) {
-  return (
-    <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <motion.div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <motion.div className="relative bg-surface border border-border w-full max-w-md shadow-2xl text-center p-10" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 25 }}>
-        <div className="text-5xl mb-4">🎉</div>
-        <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Upgrade erfolgreich</p>
-        <h3 className="font-heading text-2xl font-bold mb-3">Willkommen im Pro-Kurs!</h3>
-        <p className="font-sans text-sm text-text-secondary mb-6">Dein Zugang wurde sofort aktiviert. Viel Spass beim Lernen auf dem nächsten Level.</p>
-        <button onClick={onClose} className="w-full bg-accent-gold text-white py-3 font-sans text-sm font-medium hover:bg-accent-earth transition-colors">Los geht's</button>
-      </motion.div>
-    </motion.div>
-  )
 }
 
 // ─── Persönlicher Support — Verweis auf das LAEMU WhatsApp (floating) ──────────
@@ -186,7 +96,6 @@ export default function MemberAcademyPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchFocused, setSearchFocused] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isUpgraded, setIsUpgraded] = useState(false)
   const [courseFilter, setCourseFilter] = useState('aktive')
 
@@ -198,14 +107,13 @@ export default function MemberAcademyPage() {
   const isLernvideoOnly = userAbo.plan === 'lernvideo' && !isUpgraded
   const hasCourseAccess = userAbo.plan === 'starter' || userAbo.plan === 'pro' || isUpgraded
 
-  // Korrekte Upgrade-Preise — abgeleitet aus dem tatsächlichen Abo & Umfang.
+  // Korrekte Pro-Preise (Banner) — abgeleitet aus dem tatsächlichen Abo & Umfang.
   const proPrice = proPriceFor(userAbo)
-  const currentPriceLabel = userAbo.plan === 'none' ? 'Gratis' : chf(aboMonthlyPrice(userAbo))
   const proPriceLabel = chf(proPrice.monthly)
 
   // Bei der Registrierung gewählter Name & Instrumente.
   const profile = useUserProfile()
-  const firstName = profile.name.trim().split(/\s+/)[0] || 'zusammen'
+  const greetingName = profile.name.trim() || 'zusammen'
 
   // Gleicher Grundrahmen für ALLE: jede:r sieht alle Instrumente und Kurse.
   // Was freigeschaltet ist, hängt vom Abo + den gewählten Instrumenten ab.
@@ -244,12 +152,6 @@ export default function MemberAcademyPage() {
   const filteredResults = searchQuery.length >= 2
     ? mockSearchResults.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
     : searchQuery.toLowerCase().includes('polka') ? mockSearchResults : mockSearchResults.slice(0, 3)
-
-  function handleUpgradeConfirm() {
-    setShowUpgradeModal(false)
-    setIsUpgraded(true)
-    setShowSuccessModal(true)
-  }
 
   function openUpgrade() { setShowUpgradeModal(true) }
 
@@ -336,25 +238,17 @@ export default function MemberAcademyPage() {
   return (
     <div className="min-h-screen bg-background">
 
-      <AnimatePresence>
-        {showUpgradeModal && (
-          <UpgradeModal
-            onConfirm={handleUpgradeConfirm}
-            onCancel={() => setShowUpgradeModal(false)}
-            currentLabel={aboPlanLabel(userAbo)}
-            currentPrice={currentPriceLabel}
-            proPrice={proPriceLabel}
-            period="/Monat"
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showSuccessModal && <UpgradeSuccessModal onClose={() => setShowSuccessModal(false)} />}
-      </AnimatePresence>
+      {showUpgradeModal && (
+        <UpgradeDialog
+          abo={userAbo}
+          onClose={() => setShowUpgradeModal(false)}
+          onUpgraded={() => setIsUpgraded(true)}
+        />
+      )}
 
       {/* TOP BAR */}
       <MemberTopBar
-        title={`Hallo ${firstName}`}
+        title={`Hallo ${greetingName}`}
         right={
           hasCourseAccess ? (
             <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5">

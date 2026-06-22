@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
+import { Avatar } from '@/components/Avatar'
 import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
 
@@ -501,7 +502,6 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
   const [type, setType] = useState<'photo' | 'video'>(initialType)
   const [caption, setCaption] = useState('')
   const profile = useUserProfile()
-  const avatarSrc = profile.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'
 
   const types = [
     { id: 'photo' as const, label: 'Foto', icon: <IconCamera /> },
@@ -523,9 +523,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-              <Image src={avatarSrc} alt="You" fill className="object-cover" unoptimized />
-            </div>
+            <Avatar src={profile.avatar} name={profile.name} className="w-10 h-10" />
             <div>
               <p className="font-heading font-bold text-sm">{profile.name}</p>
               <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
@@ -603,7 +601,7 @@ function ProfileView() {
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
-  const [avatar, setAvatar] = useState<string>('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80')
+  const [avatar, setAvatar] = useState<string>('')
   const [bio, setBio] = useState('Handorgelist aus Luzern. Leidenschaft für Ländlermusik seit 20 Jahren.')
   const [wohnort, setWohnort] = useState('Luzern')
   const [hideWohnort, setHideWohnort] = useState(false)
@@ -811,7 +809,7 @@ function ProfileView() {
                       className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftHideWohnort ? 'bg-accent-gold' : 'bg-border'}`}
                       aria-label="Wohnort auf dem Profil verbergen"
                     >
-                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHideWohnort ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                      <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHideWohnort ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                   </div>
                 </div>
@@ -865,7 +863,7 @@ function ProfileView() {
                     className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftOpenForFormation ? 'bg-accent-gold' : 'bg-border'}`}
                     aria-label="Offen für eine Formation"
                   >
-                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
                 </div>
 
@@ -884,7 +882,7 @@ function ProfileView() {
                     className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 mt-0.5 ${draftHiddenFromDiscover ? 'bg-accent-gold' : 'bg-border'}`}
                     aria-label="Mein Profil unter der Seite Entdecken verbergen"
                   >
-                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHiddenFromDiscover ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHiddenFromDiscover ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
                 </div>
               </motion.div>
@@ -1220,13 +1218,12 @@ function SettingsView() {
 export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('start')
   const profile = useUserProfile()
-  const avatarSrc = profile.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80'
-  const firstName = profile.name.trim().split(/\s+/)[0] || 'zusammen'
+  const greetingName = profile.name.trim() || 'zusammen'
 
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <MemberTopBar title={`Hallo ${firstName}`} />
+      <MemberTopBar title={`Hallo ${greetingName}`} />
 
       {/* ── AREA TABS ── */}
       <MemberTabs active="community" />
@@ -1240,9 +1237,7 @@ export default function MemberCommunityPage() {
               {/* Own profile quick-card */}
               <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
                 <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden">
-                    <Image src={avatarSrc} alt="Profile" fill className="object-cover" unoptimized />
-                  </div>
+                  <Avatar src={profile.avatar} name={profile.name} className="w-12 h-12" textClassName="text-base" />
                   <div>
                     <p className="font-heading font-bold text-sm">{profile.name}</p>
                     <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
