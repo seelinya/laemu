@@ -809,7 +809,7 @@ function ProfileView() {
                       className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftHideWohnort ? 'bg-accent-gold' : 'bg-border'}`}
                       aria-label="Wohnort auf dem Profil verbergen"
                     >
-                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHideWohnort ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHideWohnort ? 'translate-x-0.5' : 'translate-x-5'}`} />
                     </button>
                   </div>
                 </div>
@@ -863,7 +863,7 @@ function ProfileView() {
                     className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${draftOpenForFormation ? 'bg-accent-gold' : 'bg-border'}`}
                     aria-label="Offen für eine Formation"
                   >
-                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftOpenForFormation ? 'translate-x-0.5' : 'translate-x-5'}`} />
                   </button>
                 </div>
 
@@ -882,7 +882,7 @@ function ProfileView() {
                     className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 mt-0.5 ${draftHiddenFromDiscover ? 'bg-accent-gold' : 'bg-border'}`}
                     aria-label="Mein Profil unter der Seite Entdecken verbergen"
                   >
-                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHiddenFromDiscover ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${draftHiddenFromDiscover ? 'translate-x-0.5' : 'translate-x-5'}`} />
                   </button>
                 </div>
               </motion.div>
