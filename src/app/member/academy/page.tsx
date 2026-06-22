@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
-import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
+import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT, getCourse } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
@@ -261,6 +261,7 @@ export default function MemberAcademyPage() {
               href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
               title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
               desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant="allgemein"
+              comingSoon={!getCourse('allgemein', kurs.id)}
             />
           </motion.div>
         ))}
@@ -288,7 +289,7 @@ export default function MemberAcademyPage() {
                   href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
                   title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                   desc={kurs.desc} completedModules={kurs.completedModules} emoji={ov.emoji} variant={ov.id}
-                  locked={!starterUnlocked} lockLabel="Starter"
+                  locked={!starterUnlocked} lockLabel="Starter" comingSoon={!getCourse(ov.id, kurs.id)}
                 />
               </motion.div>
             ))}
@@ -308,7 +309,7 @@ export default function MemberAcademyPage() {
                   href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
                   title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                   desc={kurs.desc} completedModules={0} emoji={ov.emoji} variant={ov.id}
-                  locked={!proUnlocked} lockLabel="Pro"
+                  locked={!proUnlocked} lockLabel="Pro" comingSoon={!getCourse(ov.id, kurs.id)}
                 />
               </motion.div>
             ))}
