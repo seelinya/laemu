@@ -128,7 +128,6 @@ export function ProfileMenu() {
       <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2.5 py-2 group">
         <div className="hidden sm:block text-right leading-tight">
           <p className="font-heading font-bold text-sm text-dark">Niklaus Hess</p>
-          <p className="font-sans text-[11px] text-accent-gold">Starter Mitglied</p>
         </div>
         <div className="relative w-9 h-9 overflow-hidden rounded-full border border-border flex-shrink-0">
           <Image src={PROFILE_IMG} alt="Niklaus Hess" fill className="object-cover" unoptimized />
