@@ -13,11 +13,9 @@ import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userPro
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
 const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
 const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
-const LAEMU_WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/'
-// WhatsApp-Channels (einseitige Broadcast-Kanäle zum Beitreten) — echte Links
-// hier eintragen, sobald verfügbar.
-const LAEMU_WHATSAPP_INFO_CHANNEL_URL = 'https://whatsapp.com/channel/'
-const LAEMU_WHATSAPP_SPAM_CHANNEL_URL = 'https://whatsapp.com/channel/'
+// Geschlossene WhatsApp-Gruppen — echte Einladungslinks hier eintragen.
+const LAEMU_WHATSAPP_INFO_GROUP_URL = 'https://chat.whatsapp.com/'
+const LAEMU_WHATSAPP_SHARE_GROUP_URL = 'https://chat.whatsapp.com/'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -428,98 +426,65 @@ function StartView() {
         </div>
       </a>
 
-      {/* WhatsApp-Newsgruppe */}
-      <div className="bg-surface border border-border p-6">
-        <div className="flex items-center gap-4 mb-4">
-          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0">
-            <IconWhatsApp />
-          </span>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-heading font-bold text-base">Geschlossene WhatsApp-News-Gruppe</h3>
-            <p className="font-sans text-sm font-light text-text-secondary leading-snug">
-              Tritt bei und erhalte die wichtigsten LAEMU-News direkt aufs Handy.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-background border border-border p-4 mb-4">
-          <p className="font-sans text-xs text-text-secondary leading-relaxed">
-            <strong className="text-dark font-semibold">Wichtig:</strong> Die Gruppe ist
-            ausschliesslich für News gedacht. Da du dort deine Telefonnummer freigibst, nutze sie
-            bitte nicht für Rückfragen. Für spezifische Fragen zu Lernvideos oder einzelnen Stücken
-            eines Lehrgangs verwendest du am besten die{' '}
-            <Link href="/member/academy/lernvideos" className="text-accent-gold hover:text-dark transition-colors font-medium">
-              Kommentarfunktion unterhalb der Videos
-            </Link>.
-          </p>
-        </div>
-
-        <a
-          href={LAEMU_WHATSAPP_GROUP_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold transition-colors"
-        >
-          <IconWhatsApp size={16} /> Der News-Gruppe beitreten
-        </a>
-      </div>
-
-      {/* WhatsApp-Channels zum Beitreten */}
+      {/* Geschlossene WhatsApp-Gruppen */}
       <div>
-        <h3 className="font-heading font-bold text-lg mb-1">WhatsApp-Channels</h3>
+        <h3 className="font-heading font-bold text-lg mb-1">WhatsApp-Gruppen</h3>
         <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">
-          Tritt unseren WhatsApp-Channels bei und bleib auf dem Laufenden. Channels sind einseitige
-          Kanäle — nur das LAEMU-Team postet, deine Nummer bleibt für andere verborgen.
+          Tritt unseren geschlossenen WhatsApp-Gruppen bei. Da du dort deine Telefonnummer freigibst,
+          behandle sie bitte vertraulich. Für Fragen zu Lernvideos nutzt du am besten die{' '}
+          <Link href="/member/academy/lernvideos" className="text-accent-gold hover:text-dark transition-colors font-medium">
+            Kommentarfunktion unterhalb der Videos
+          </Link>.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Info-Channel */}
+          {/* Info-Gruppe */}
           <div className="bg-surface border border-border p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <span className="w-11 h-11 flex items-center justify-center bg-dark text-white flex-shrink-0">
                 <IconWhatsApp />
               </span>
               <div className="min-w-0">
-                <h4 className="font-heading font-bold text-base leading-tight">Info-Channel</h4>
-                <p className="font-sans text-xs text-text-secondary">Offizielle Infos &amp; News</p>
+                <h4 className="font-heading font-bold text-base leading-tight">Info-Gruppe</h4>
+                <p className="font-sans text-xs text-text-secondary">Nur News vom LAEMU-Team</p>
               </div>
             </div>
             <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
-              Wichtige Ankündigungen, Termine und Neuigkeiten rund um LAEMU — kompakt und ohne
-              Geplauder.
+              In dieser geschlossenen Gruppe postet nur das LAEMU-Team wichtige Ankündigungen, Termine
+              und Neuigkeiten rund um LAEMU — kompakt und ohne Geplauder.
             </p>
             <a
-              href={LAEMU_WHATSAPP_INFO_CHANNEL_URL}
+              href={LAEMU_WHATSAPP_INFO_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold transition-colors"
             >
-              <IconWhatsApp size={16} /> Info-Channel beitreten
+              <IconWhatsApp size={16} /> Info-Gruppe beitreten
             </a>
           </div>
 
-          {/* Spam-Channel */}
+          {/* Austausch-Gruppe */}
           <div className="bg-surface border border-border p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
                 <IconWhatsApp />
               </span>
               <div className="min-w-0">
-                <h4 className="font-heading font-bold text-base leading-tight">Spam-Channel</h4>
-                <p className="font-sans text-xs text-text-secondary">Bilder, Videos &amp; mehr</p>
+                <h4 className="font-heading font-bold text-base leading-tight">Austausch-Gruppe</h4>
+                <p className="font-sans text-xs text-text-secondary">Inspiration &amp; Teilen</p>
               </div>
             </div>
             <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
-              Eindrücke aus dem LAEMU-Leben — Bilder und Videos von Auftritten, Musikhöcks und
-              spontanen Momenten. Einfach zum Geniessen.
+              In dieser geschlossenen Gruppe inspiriert ihr euch gegenseitig: Teilt Videos, Bilder und
+              Stücke aus dem LAEMU-Leben — von Auftritten, Musikhöcks und spontanen Momenten.
             </p>
             <a
-              href={LAEMU_WHATSAPP_SPAM_CHANNEL_URL}
+              href={LAEMU_WHATSAPP_SHARE_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-5 py-2.5 hover:bg-dark hover:text-white transition-colors"
             >
-              <IconWhatsApp size={16} /> Spam-Channel beitreten
+              <IconWhatsApp size={16} /> Austausch-Gruppe beitreten
             </a>
           </div>
         </div>

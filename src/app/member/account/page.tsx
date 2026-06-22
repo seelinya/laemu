@@ -4,16 +4,12 @@ import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import {
-  ACADEMY_INSTRUMENTS,
-  INDIVIDUAL_PLAN_ORDER,
   individualPlanMeta,
   individualPricing,
-  type IndividualPlanId,
-  type Instrument,
   type Scope,
   type UserAbo,
 } from '@/lib/academy'
-import { setStoredAbo, useUserAbo } from '@/lib/userPlan'
+import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Abo-Helfer ───────────────────────────────────────────────────────────────
 // Leiten Anzeige (Label, Instrumente, Preis) aus dem tatsächlich gewählten Abo
@@ -109,12 +105,6 @@ function AboTab() {
   useEffect(() => { setAbo(storedAbo) }, [storedAbo])
 
   const [cancelled, setCancelled] = useState(false)
-
-  // Modal states
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [selectedPlanId, setSelectedPlanId] = useState<IndividualPlanId>('pro')
-  const [upgradeSuccess, setUpgradeSuccess] = useState(false)
-
   const [showCancelModal, setShowCancelModal] = useState(false)
 
   const isFree = abo.plan === 'none'
@@ -123,36 +113,6 @@ function AboTab() {
 
   // End of current month (today = 2026-06-05, so end = 30. Juni 2026)
   const cancelDateLabel = '30. Juni 2026'
-
-  // Monatspreis eines Plans im aktuell gewählten Umfang (für die Auswahl).
-  const planMonthly = (planId: IndividualPlanId): number =>
-    planId === 'lernvideo' ? individualPricing.lernvideo.monthly : individualPricing[planId][aboScope(abo)].monthly
-
-  function openUpgrade() {
-    setSelectedPlanId(isFree ? 'pro' : abo.plan as IndividualPlanId)
-    setUpgradeSuccess(false)
-    setShowUpgradeModal(true)
-  }
-
-  function confirmUpgrade() {
-    // Beim Wechsel den Instrumenten-Umfang beibehalten; aus dem Free-Account
-    // heraus wird der volle Umfang (alle Instrumente) freigeschaltet.
-    const base = isFree
-      ? { instruments: [...ACADEMY_INSTRUMENTS] as Instrument[], allInstruments: true }
-      : { instruments: abo.instruments, allInstruments: abo.allInstruments }
-    const next: UserAbo = selectedPlanId === 'lernvideo'
-      ? { plan: 'lernvideo', instruments: base.instruments, allInstruments: true }
-      : { plan: selectedPlanId, instruments: base.instruments, allInstruments: base.allInstruments }
-    setAbo(next)
-    setStoredAbo(next)
-    setCancelled(false)
-    setUpgradeSuccess(true)
-  }
-
-  function closeUpgradeModal() {
-    setShowUpgradeModal(false)
-    setUpgradeSuccess(false)
-  }
 
   function confirmCancel() {
     setCancelled(true)
@@ -210,12 +170,12 @@ function AboTab() {
         )}
 
         <div className="flex flex-wrap gap-3">
-          <button
-            onClick={openUpgrade}
-            className="bg-accent-gold text-white font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
+          <Link
+            href="/register"
+            className="inline-flex items-center bg-accent-gold text-white font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
           >
             {isFree ? 'Auf einen kostenpflichtigen Plan upgraden' : 'Abo ändern'}
-          </button>
+          </Link>
           {!isFree && !cancelled && (
             <button
               onClick={() => setShowCancelModal(true)}
@@ -225,73 +185,11 @@ function AboTab() {
             </button>
           )}
         </div>
+        <p className="font-sans text-xs text-text-secondary mt-3">
+          Beim Ändern wählst du — wie bei der Registrierung — Mitgliedschaftsart (Einzelperson oder Formation),
+          Plan und Instrument(e).
+        </p>
       </SectionCard>
-
-      {/* Upgrade / Change plan modal */}
-      {showUpgradeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-dark/70" onClick={closeUpgradeModal} />
-          <div className="relative bg-surface border border-border w-full max-w-md mx-4 p-6 shadow-xl">
-            {upgradeSuccess ? (
-              <>
-                <div className="flex flex-col items-center text-center py-4">
-                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><polyline points="20 6 9 17 4 12" /></svg>
-                  </div>
-                  <h3 className="font-heading font-bold text-xl mb-1">Abo aktualisiert!</h3>
-                  <p className="font-sans text-sm text-text-secondary mb-5">
-                    Dein Plan wurde auf <strong>{aboPlanLabel(abo)}</strong> geändert.
-                  </p>
-                  <button onClick={closeUpgradeModal} className="bg-dark text-white font-sans text-sm px-6 py-2.5 hover:bg-accent-gold transition-colors">Schliessen</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h3 className="font-heading font-bold text-xl mb-1">{isFree ? 'Plan wählen' : 'Abo ändern'}</h3>
-                <p className="font-sans text-sm text-text-secondary mb-5">Wähle deinen {isFree ? '' : 'neuen '}Plan.</p>
-
-                <div className="space-y-3 mb-6">
-                  {INDIVIDUAL_PLAN_ORDER.map((planId) => {
-                    const meta = individualPlanMeta[planId]
-                    return (
-                      <button
-                        key={planId}
-                        onClick={() => setSelectedPlanId(planId)}
-                        className={`w-full flex items-start justify-between border p-4 text-left transition-colors ${selectedPlanId === planId ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-sans font-medium text-sm">{meta.label}</span>
-                            {!isFree && planId === abo.plan && (
-                              <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-1.5 py-0.5">Aktuell</span>
-                            )}
-                          </div>
-                          <p className="font-sans text-xs text-text-secondary mt-0.5">{meta.audience}</p>
-                        </div>
-                        <div className="text-right ml-4 flex-shrink-0">
-                          <span className="font-heading font-bold text-lg">CHF {planMonthly(planId)}</span>
-                          <span className="font-sans text-xs text-text-secondary block">/ Monat</span>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
-                  <button onClick={closeUpgradeModal} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
-                  <button
-                    onClick={confirmUpgrade}
-                    disabled={!isFree && selectedPlanId === abo.plan}
-                    className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {isFree ? 'Upgrade abschliessen' : 'Abo aktualisieren'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Cancel confirmation modal */}
       {showCancelModal && (
