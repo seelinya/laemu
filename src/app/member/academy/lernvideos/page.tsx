@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { isDbVideoUnlocked, individualPlanMeta, FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { MemberTabs } from '@/components/MemberTabs'
+import { MemberTopBar } from '@/components/MemberTopBar'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -354,31 +355,33 @@ export default function LernvideosPage() {
     <div className="min-h-screen bg-background">
 
       {/* TOP BAR (schwarz) — konsistent mit Musikschule & Community */}
-      <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-        <h1 className="font-heading font-bold text-base sm:text-lg truncate">Lernvideo-Datenbank</h1>
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <button
-            onClick={() => setTab('merkliste')}
-            title={`Merkliste (${saved.size})`}
-            aria-label={`Merkliste (${saved.size})`}
-            className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold/15 text-accent-gold' : 'border-white/20 text-white/70 hover:border-white hover:text-white'}`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            <span className="hidden sm:inline">Merkliste </span>
-            <span className="tabular-nums">({saved.size})</span>
-          </button>
-          <button
-            onClick={() => setShowPlaylist(!showPlaylist)}
-            title={`Meine Playlist (${mockPlaylist.length})`}
-            aria-label={`Meine Playlist (${mockPlaylist.length})`}
-            className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-accent-gold bg-accent-gold/15 text-accent-gold' : 'border-white/20 text-white/70 hover:border-white hover:text-white'}`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-            <span className="hidden sm:inline">Meine Playlist </span>
-            <span className="tabular-nums">({mockPlaylist.length})</span>
-          </button>
-        </div>
-      </div>
+      <MemberTopBar
+        title="Lernvideo-Datenbank"
+        right={
+          <>
+            <button
+              onClick={() => setTab('merkliste')}
+              title={`Merkliste (${saved.size})`}
+              aria-label={`Merkliste (${saved.size})`}
+              className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold/15 text-accent-gold' : 'border-white/20 text-white/70 hover:border-white hover:text-white'}`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              <span className="hidden sm:inline">Merkliste </span>
+              <span className="tabular-nums">({saved.size})</span>
+            </button>
+            <button
+              onClick={() => setShowPlaylist(!showPlaylist)}
+              title={`Meine Playlist (${mockPlaylist.length})`}
+              aria-label={`Meine Playlist (${mockPlaylist.length})`}
+              className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors flex items-center gap-1.5 ${showPlaylist ? 'border-accent-gold bg-accent-gold/15 text-accent-gold' : 'border-white/20 text-white/70 hover:border-white hover:text-white'}`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+              <span className="hidden sm:inline">Meine Playlist </span>
+              <span className="tabular-nums">({mockPlaylist.length})</span>
+            </button>
+          </>
+        }
+      />
 
       {/* AREA TABS */}
       <MemberTabs active="lerndatenbank" />

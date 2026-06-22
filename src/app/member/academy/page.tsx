@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { MemberTopBar } from '@/components/MemberTopBar'
 import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
@@ -319,26 +320,25 @@ export default function MemberAcademyPage() {
       </AnimatePresence>
 
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
-        <h1 className="font-heading font-bold text-lg">Hallo {firstName}</h1>
-        <div className="flex items-center gap-4">
-          {hasCourseAccess && (
-            <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
+      <MemberTopBar
+        title={`Hallo ${firstName}`}
+        right={
+          hasCourseAccess ? (
+            <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
               <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
             </div>
-          )}
-          {!hasCourseAccess && (
+          ) : (
             <button
               onClick={openUpgrade}
-              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-2 font-sans font-semibold text-sm hover:bg-accent-earth transition-colors"
+              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-earth transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
               {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
             </button>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
 
       {/* AREA TABS */}
       <MemberTabs active="academy" />

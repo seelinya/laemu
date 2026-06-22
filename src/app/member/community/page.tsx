@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
+import { MemberTopBar } from '@/components/MemberTopBar'
 import { InstrumentTagPicker } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
 
@@ -1256,10 +1257,8 @@ export default function MemberCommunityPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* TOP BAR — schlichte Sektion zwischen Navigation und Inhalt */}
-      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between">
-        <h1 className="font-heading font-black text-lg text-white tracking-tight">Community</h1>
-      </div>
+      {/* TOP BAR */}
+      <MemberTopBar title="Community" />
 
       {/* ── AREA TABS ── */}
       <MemberTabs active="community" />
