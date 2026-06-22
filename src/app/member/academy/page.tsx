@@ -406,28 +406,24 @@ export default function MemberAcademyPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Free & Lernvideo: kostenlos reinschnuppern (kein Musikschul-Zugang) */}
+                {/* Free & Lernvideo: kompakter Schnupper-Hinweis */}
                 {!hasCourseAccess && (
-                  <section>
-                    <div className="bg-surface border border-border p-8 sm:p-10 text-center">
-                      <div className="w-14 h-14 bg-accent-gold/10 flex items-center justify-center mx-auto mb-5">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-                      </div>
-                      <h3 className="font-heading font-bold text-xl mb-2">Kostenlos reinschnuppern</h3>
-                      <p className="font-sans text-sm text-text-secondary leading-relaxed max-w-md mx-auto mb-6">
-                        Du siehst alle Kurse aller Instrumente. Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses
-                        sind gratis — probier es aus. Für die kompletten Lehrgänge deiner Instrumente upgradest du jederzeit.
-                      </p>
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link href="/member/academy/instrument/handorgel/kurs/grundlagen" className="bg-dark text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-gold transition-colors">
-                          Schnupperkurs starten →
-                        </Link>
-                        <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-earth transition-colors">
-                          {isLernvideoOnly ? 'Auf Pro upgraden' : 'Plan upgraden'}
-                        </button>
-                      </div>
+                  <div className="bg-surface border border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span className="w-8 h-8 bg-accent-gold/10 flex items-center justify-center flex-shrink-0 text-accent-gold">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                    </span>
+                    <p className="font-sans text-xs text-text-secondary leading-snug flex-1">
+                      <strong className="text-dark font-semibold">Kostenlos reinschnuppern:</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses sind gratis. Für die kompletten Lehrgänge upgradest du jederzeit.
+                    </p>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Link href="/member/academy/instrument/handorgel/kurs/grundlagen" className="bg-dark text-white font-sans text-xs font-semibold px-3 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
+                        Schnupperkurs →
+                      </Link>
+                      <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-xs font-semibold px-3 py-1.5 hover:bg-accent-earth transition-colors whitespace-nowrap">
+                        {isLernvideoOnly ? 'Auf Pro upgraden' : 'Plan upgraden'}
+                      </button>
                     </div>
-                  </section>
+                  </div>
                 )}
 
                 {/* Kurse / Lehrgänge — mit Tabs; integriert die Instrument-Lehrgänge.
