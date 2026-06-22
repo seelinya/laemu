@@ -81,6 +81,23 @@ export function getInstrumentOverview(id: string): InstrumentOverview | undefine
   return INSTRUMENT_OVERVIEWS[id as InstrumentId]
 }
 
+// Abo-/Profil-Instrumentlabel → Overview-Id (nur Instrumente mit Lehrgang-Inhalt).
+const LABEL_TO_ID: Record<string, InstrumentId> = {
+  Handorgel: 'handorgel',
+  Schwyzerörgeli: 'schwyzer',
+}
+
+export function instrumentIdFromLabel(label: string): InstrumentId | undefined {
+  return LABEL_TO_ID[label.trim()]
+}
+
+// Aus einer Liste von Instrument-Labels die Overview-Ids ableiten (Reihenfolge
+// wie in INSTRUMENT_OVERVIEWS, ohne Duplikate).
+export function overviewIdsFromLabels(labels: string[]): InstrumentId[] {
+  const ids = new Set(labels.map(instrumentIdFromLabel).filter(Boolean) as InstrumentId[])
+  return SUBSCRIBED_INSTRUMENTS.filter(id => ids.has(id))
+}
+
 export function kursProgress(kurs: StarterKurs): number {
   if (kurs.modules === 0) return 0
   return Math.round((kurs.completedModules / kurs.modules) * 100)

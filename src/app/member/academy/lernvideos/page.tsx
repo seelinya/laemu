@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { isDbVideoUnlocked, individualPlanMeta, FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
@@ -127,6 +128,7 @@ type ArtFilter = 'volkstuemlich' | 'bekannte_melodie'
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function LernvideosPage() {
+  const router = useRouter()
   const userAbo = useUserAbo()
   const [search, setSearch] = useState('')
   const [filterInst, setFilterInst] = useState('Alle')
@@ -246,13 +248,18 @@ export default function LernvideosPage() {
     const unlocked = isDbVideoUnlocked({ id: v.id, plan: v.difficultyPlan, instrument: v.instrument }, userAbo)
     const isSaved = saved.has(v.id)
     const isLearned = learned.has(v.id)
+    const href = `/member/academy/lernvideos/${v.id}`
     return (
       <motion.div
         key={v.id}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.03 }}
-        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row"
+        role="link"
+        tabIndex={0}
+        onClick={() => router.push(href)}
+        onKeyDown={(e) => { if (e.key === 'Enter') router.push(href) }}
+        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row cursor-pointer"
       >
         {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
         <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
@@ -309,7 +316,7 @@ export default function LernvideosPage() {
           <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 flex-shrink-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0 mt-1 sm:mt-0">
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => toggleLearned(v.id)}
+                onClick={(e) => { e.stopPropagation(); toggleLearned(v.id) }}
                 title={isLearned ? 'Als nicht gelernt markieren' : 'Als gelernt markieren'}
                 aria-label={isLearned ? 'Als nicht gelernt markieren' : 'Als gelernt markieren'}
                 className={`p-1.5 border transition-colors flex-shrink-0 ${isLearned ? 'border-green-600 bg-green-600 text-white' : 'border-border text-text-secondary hover:border-green-600 hover:text-green-600'}`}
@@ -317,7 +324,7 @@ export default function LernvideosPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </button>
               <button
-                onClick={() => toggleSaved(v.id)}
+                onClick={(e) => { e.stopPropagation(); toggleSaved(v.id) }}
                 title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
                 className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
               >

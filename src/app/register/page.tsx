@@ -197,6 +197,8 @@ export default function RegisterPage() {
       email: email.trim(),
       wohnort: ort.trim(),
       inFormation: accountType === 'formation',
+      // Die bei der Mitgliedschaft gewählten Instrumente ins Profil übernehmen.
+      ...(abo.instruments.length > 0 ? { instruments: abo.instruments.join(', ') } : {}),
     })
 
     setDone(true)
