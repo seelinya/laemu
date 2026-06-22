@@ -1326,8 +1326,9 @@ export default function LernvideoDetailPage() {
                   {([
                     { label: 'Komponist', value: v.composer },
                     { label: 'Takt', value: v.meter },
-                    { label: 'Harmoniestufen', value: `Stufe ${v.level}` },
-                  ]).map(item => (
+                    ...(v.taktart ? [{ label: 'Taktart', value: v.taktart }] : []),
+                    { label: 'Harmoniestufen', value: `${v.level}` },
+                  ] as { label: string; value: string }[]).map(item => (
                     <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
                       <span className="font-sans text-xs text-text-secondary">{item.label}</span>
                       <span className="font-sans text-xs font-medium">{item.value}</span>
