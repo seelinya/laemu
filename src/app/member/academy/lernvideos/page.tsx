@@ -113,7 +113,7 @@ const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock'
 const WISH_VOTE_GROUPS: { label: string; options: string[] }[] = [
   { label: '1. Stimme', options: ['Handorgel (1. Stimme)', 'Schwyzerörgeli (1. Stimme)'] },
   { label: '2. Stimme', options: ['Handorgel (2. Stimme)', 'Schwyzerörgeli (2. Stimme)'] },
-  { label: 'Begleitstimmvorschläge', options: ['Bassgeige'] },
+  { label: 'Begleitstimmvorschläge', options: ['Handorgel (Begleitung)', 'Schwyzerörgeli (Begleitung)', 'Bassgeige'] },
 ]
 const WISH_VOTE_OPTIONS = WISH_VOTE_GROUPS.flatMap(g => g.options)
 

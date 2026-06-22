@@ -21,6 +21,7 @@ export function StarterCourseCard({
   locked = false,
   lockLabel = 'Gesperrt',
   comingSoon = false,
+  previewable = true,
 }: {
   href: string
   title: string
@@ -34,6 +35,7 @@ export function StarterCourseCard({
   locked?: boolean
   lockLabel?: string
   comingSoon?: boolean
+  previewable?: boolean
 }) {
   const progress = modules === 0 ? 0 : Math.round((completedModules / modules) * 100)
   return (
@@ -71,10 +73,17 @@ export function StarterCourseCard({
             In Vorbereitung
           </span>
         ) : locked ? (
-          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary group-hover:text-dark transition-colors">
-            {lockLabel} · Vorschau ansehen
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-          </span>
+          previewable ? (
+            <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary group-hover:text-dark transition-colors">
+              {lockLabel} · Vorschau ansehen
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            </span>
+          ) : (
+            <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+              {lockLabel} · Gesperrt
+            </span>
+          )
         ) : progress > 0 ? (
           <div className="mt-3">
             <div className="flex justify-between text-xs font-sans mb-1">

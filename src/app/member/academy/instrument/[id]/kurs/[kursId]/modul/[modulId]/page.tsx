@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getCourse, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type LessonType } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
+import { isFreePreviewCourse } from '@/lib/instruments'
 import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -260,9 +261,14 @@ export default function ModulPage({
   const router = useRouter()
   const course = getCourse(params.id, params.kursId)
   const userAbo = useUserAbo()
-  // Voller Zugang nach Level + gewählten Instrumenten; sonst Schnupper-Vorschau.
-  const previewOnly = course ? !isCourseUnlocked(course.level, course.instrumentLabel, userAbo) : true
-  const trialKeys = course ? freeTrialLessonKeys(course) : new Set<string>()
+  // Voller Zugang nach Level + gewählten Instrumenten; sonst Schnupper-Vorschau —
+  // aber nur im jeweils ersten Starter-/Pro-Kurs des Instruments. Alle übrigen
+  // gesperrten Kurse bleiben komplett gesperrt (keine Schnupper-Lektionen).
+  const fullyUnlocked = course ? isCourseUnlocked(course.level, course.instrumentLabel, userAbo) : false
+  const isPreviewCourse = course ? isFreePreviewCourse(course.instrumentId, course.id, course.level) : false
+  const previewOnly = !fullyUnlocked && isPreviewCourse
+  const fullyLocked = !fullyUnlocked && !isPreviewCourse
+  const trialKeys = previewOnly && course ? freeTrialLessonKeys(course) : new Set<string>()
   const modules = course?.modules ?? []
   const courseTitle = course?.title ?? params.kursId
 
@@ -292,7 +298,7 @@ export default function ModulPage({
   const nextLesson = activeModuleData && activeLessonIndex < activeModuleData.lessons.length - 1 ? activeModuleData.lessons[activeLessonIndex + 1] : null
   const activeLessonDone = !!(activeModuleData && activeLesson && isLessonDone(activeModuleData.id, activeLesson.id))
   // Free- & Lernvideo-Abo: Lektion ausserhalb der Schnupper-Freischaltung gesperrt.
-  const activeLessonLocked = previewOnly && !!activeModuleData && !!activeLesson && !trialKeys.has(`${activeModuleData.id}:${activeLesson.id}`)
+  const activeLessonLocked = !!activeModuleData && !!activeLesson && (fullyLocked || (previewOnly && !trialKeys.has(`${activeModuleData.id}:${activeLesson.id}`)))
 
   const totalLessons = modules.flatMap((m) => m.lessons).length
   const courseProgress = totalLessons > 0 ? Math.round((completedLessons.size / totalLessons) * 100) : 0
@@ -476,7 +482,7 @@ export default function ModulPage({
                             {mod.lessons.map((lesson) => {
                               const isActiveLesson = mod.id === params.modulId && lesson.id === activeLessonId
                               const lessonDone = isLessonDone(mod.id, lesson.id)
-                              const lessonLocked = previewOnly && !trialKeys.has(`${mod.id}:${lesson.id}`)
+                              const lessonLocked = fullyLocked || (previewOnly && !trialKeys.has(`${mod.id}:${lesson.id}`))
                               return (
                                 <button
                                   key={lesson.id}

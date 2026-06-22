@@ -198,6 +198,7 @@ export default function MemberAcademyPage() {
                   title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                   desc={kurs.desc} completedModules={kurs.completedModules} emoji={ov.emoji} variant={ov.id}
                   locked={!starterUnlocked} lockLabel="Starter" comingSoon={!getCourse(ov.id, kurs.id)}
+                  previewable={i === 0}
                 />
               </motion.div>
             ))}
@@ -218,6 +219,7 @@ export default function MemberAcademyPage() {
                   title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                   desc={kurs.desc} completedModules={0} emoji={ov.emoji} variant={ov.id}
                   locked={!proUnlocked} lockLabel="Pro" comingSoon={!getCourse(ov.id, kurs.id)}
+                  previewable={i === 0}
                 />
               </motion.div>
             ))}
