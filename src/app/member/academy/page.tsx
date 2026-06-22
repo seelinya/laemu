@@ -1,69 +1,42 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
-import { courses, ALLGEMEIN_COURSES, courseStats, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
+import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
 import { FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
+import { StarterCourseCard, ProCourseRow, ProUpgradeBanner } from '@/components/CourseCards'
 
-// Allgemeiner Lehrgang — für alle Mitglieder freigeschaltet.
-const allgemeinCardMeta: Record<string, string> = {
-  harmonielehre: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&q=80',
-  taktarten: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
-  buehnenpraesenz: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80',
-}
+// Allgemeine Grundlagen-Kurse (für alle Abos) — aus den geteilten Kursdaten.
+const allgemeinKurse: (StarterKurs & { emoji: string })[] = ALLGEMEIN_COURSES.map((cid) => {
+  const c = courses[cid]
+  const completedModules = c.modules.filter((m) => m.lessons.length > 0 && m.lessons.every((l) => l.completed)).length
+  const minutes = c.modules.flatMap((m) => m.lessons).reduce((s, l) => s + (parseInt(l.duration, 10) || 0), 0)
+  return {
+    id: c.id, title: c.title, desc: `Lehrgang mit ${c.teacher}`,
+    modules: c.modules.length, completedModules,
+    duration: minutes >= 60 ? `${Math.round(minutes / 60)}h` : `${minutes} min`,
+    level: 'Für alle', emoji: c.emoji,
+  }
+})
 
-// ─── Data ───────────────────────────────────────────────────────────────────
+// Begonnene Kurse über alle abonnierten Instrumente (für «Weiterlernen»).
+const startedCourses = SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
+  const ov = INSTRUMENT_OVERVIEWS[iid]
+  return ov.starterKurse
+    .filter((k) => k.completedModules > 0)
+    .map((k) => ({ ...k, instrumentId: ov.id, instrumentLabel: ov.label, emoji: ov.emoji }))
+})
 
-const activeCourses = [
-  {
-    id: 'handorgel-grundlagen',
-    instrumentId: 'handorgel',
-    kursId: 'grundlagen',
-    emoji: '🪗',
-    instrument: 'Handorgel',
-    title: 'Grundlagenkurs',
-    instructor: 'Cécile Schmidig',
-    instructorImg: '/images/cecile-schmidig.jpg',
-    coverImg: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
-    progress: 65,
-    completedLessons: 13,
-    totalLessons: 20,
-    href: '/member/academy/instrument/handorgel/kurs/grundlagen',
-  },
-  {
-    id: 'schwyzer-grundlagen',
-    instrumentId: 'schwyzer',
-    kursId: 'grundlagen',
-    emoji: '🎶',
-    instrument: 'Schwyzerörgeli',
-    title: 'Grundlagenkurs Schwyzerörgeli',
-    instructor: 'Cyrill Rusch',
-    instructorImg: '/images/cyrill-rusch.jpg',
-    coverImg: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
-    progress: 30,
-    completedLessons: 6,
-    totalLessons: 20,
-    href: '/member/academy/instrument/schwyzer/kurs/grundlagen',
-  },
-  {
-    id: 'handorgel-uebungen',
-    instrumentId: 'handorgel',
-    kursId: 'uebungen',
-    emoji: '🪗',
-    instrument: 'Handorgel',
-    title: 'Übungskurse',
-    instructor: 'Seebi Diener',
-    instructorImg: '/images/seebi-diener.jpg',
-    coverImg: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=800&q=80',
-    progress: 10,
-    completedLessons: 2,
-    totalLessons: 18,
-    href: '/member/academy/instrument/handorgel/kurs/uebungen',
-  },
+// Filter-Tabs der Startseite.
+const KURS_FILTERS: { id: string; label: string; instrument?: InstrumentId }[] = [
+  { id: 'alle', label: 'Alle' },
+  { id: 'handorgel', label: 'Handorgel', instrument: 'handorgel' },
+  { id: 'schwyzer', label: 'Schwyzerörgeli', instrument: 'schwyzer' },
+  { id: 'allgemein', label: 'Allgemeine Grundlagen' },
 ]
 
 type MockSearchResult = {
@@ -112,14 +85,6 @@ const proPlan = {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function ProgressBar({ value, className = '' }: { value: number; className?: string }) {
-  return (
-    <div className={`h-1.5 bg-border overflow-hidden ${className}`}>
-      <motion.div className="h-full bg-accent-gold" initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }} />
-    </div>
-  )
-}
 
 const categoryColors: Record<string, string> = {
   Lektionen: 'bg-accent-gold/10 text-accent-gold',
@@ -206,44 +171,6 @@ function UpgradeSuccessModal({ onClose }: { onClose: () => void }) {
   )
 }
 
-// ─── Course card (Journey-Design) ─────────────────────────────────────────────
-
-function CourseCard({ course }: { course: typeof activeCourses[0] }) {
-  return (
-    <Link href={course.href} className="block bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors">
-      <div className="relative h-36 overflow-hidden">
-        <Image src={course.coverImg} alt={course.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute bottom-3 left-4 right-4">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-xl">{course.emoji}</span>
-            <span className="font-sans text-xs text-white/60 uppercase tracking-wider">{course.instrument}</span>
-          </div>
-          <h4 className="font-heading text-base font-bold text-white">{course.title}</h4>
-        </div>
-        <div className="absolute top-2.5 right-2.5 bg-accent-gold/90 text-white text-xs px-2 py-0.5 font-sans font-medium">{course.progress}%</div>
-      </div>
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
-            <Image src={course.instructorImg} alt={course.instructor} fill className="object-cover" unoptimized />
-          </div>
-          <p className="font-sans text-xs text-text-secondary">mit {course.instructor}</p>
-        </div>
-        <div className="flex justify-between text-xs font-sans mb-1.5">
-          <span className="text-text-secondary">{course.completedLessons}/{course.totalLessons} Lektionen</span>
-          <span className="font-medium">{course.progress}%</span>
-        </div>
-        <ProgressBar value={course.progress} />
-        <div className="mt-4 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
-          Weiterfahren
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-        </div>
-      </div>
-    </Link>
-  )
-}
-
 // ─── Persönlicher Support / Live-Chat (floating) ──────────────────────────────
 
 function SupportWidget() {
@@ -312,18 +239,17 @@ export default function MemberAcademyPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isUpgraded, setIsUpgraded] = useState(false)
-  const [courseFilter, setCourseFilter] = useState('Alle')
+  const [courseFilter, setCourseFilter] = useState('alle')
 
-  // Zugänge je nach gewähltem Abo: Free (kein Lehrgang), Starter, Pro.
+  // Zugänge je nach gewähltem Abo:
+  // - Free: kein Lehrgang, nur Schnupper-Inhalte.
+  // - Lernvideo: nur die Lernvideo-Datenbank; in der Musikschule wie Free.
+  // - Starter/Pro: voller Musikschul-Zugang.
   const userAbo = useUserAbo()
   const isFreeTier = userAbo.plan === 'none'
-  const isProTier = userAbo.plan === 'pro' || userAbo.plan === 'lernvideo' || isUpgraded
-
-  // Instrumente, zu denen der/die Lernende Kurse hat — als Filter-Tabs.
-  const courseInstruments = Array.from(new Set(activeCourses.map((c) => c.instrument)))
-  const courseTabs = courseInstruments.length > 1 ? ['Alle', ...courseInstruments] : courseInstruments
-  const filteredCourses = courseFilter === 'Alle' ? activeCourses : activeCourses.filter((c) => c.instrument === courseFilter)
-  const filterInstrumentId = courseFilter === 'Alle' ? null : activeCourses.find((c) => c.instrument === courseFilter)?.instrumentId ?? null
+  const isLernvideoOnly = userAbo.plan === 'lernvideo' && !isUpgraded
+  const hasCourseAccess = userAbo.plan === 'starter' || userAbo.plan === 'pro' || isUpgraded
+  const isProTier = userAbo.plan === 'pro' || isUpgraded
 
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
@@ -337,6 +263,73 @@ export default function MemberAcademyPage() {
   }
 
   function openUpgrade() { setShowUpgradeModal(true) }
+
+  // Allgemeine Grundlagen — für alle Abos freigeschaltet.
+  const renderAllgemein = () => (
+    <section>
+      <div className="flex items-center gap-2 mb-1">
+        <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
+        <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 uppercase tracking-wide">Für alle</span>
+      </div>
+      <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {allgemeinKurse.map((kurs, i) => (
+          <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+            <StarterCourseCard
+              href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
+              title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+              desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant="allgemein"
+            />
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  )
+
+  // Integrierter Instrument-Lehrgang (Starter + gesperrter Pro) auf der Startseite.
+  const renderLehrgang = (ov: InstrumentOverview) => (
+    <div className="space-y-10">
+      <section>
+        <div className="flex items-center gap-3 mb-1">
+          <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
+          <h3 className="font-heading text-xl font-bold">{ov.label} — dein Starter-Lehrgang</h3>
+        </div>
+        <p className="font-sans text-sm text-text-secondary mb-4">Strukturierter Einstieg in die {ov.label} — von den Basics bis zu deinen ersten Stücken.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {ov.starterKurse.map((kurs, i) => (
+            <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+              <StarterCourseCard
+                href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
+                title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                desc={kurs.desc} completedModules={kurs.completedModules} emoji={ov.emoji} variant={ov.id}
+              />
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {!isProTier && (
+        <section>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="font-sans text-xs bg-border text-text-secondary px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+              Pro
+            </span>
+            <h3 className="font-heading text-xl font-bold text-text-secondary">Pro-Lehrgang</h3>
+          </div>
+          <p className="font-sans text-sm text-text-secondary mb-4">Volle Techniken, Harmonielehre, Improvisation und Ensemble-Spiel. Upgrade erforderlich.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ov.proKurse.map((kurs, i) => (
+              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <ProCourseRow title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration} />
+              </motion.div>
+            ))}
+          </div>
+          <ProUpgradeBanner onUpgrade={openUpgrade} />
+        </section>
+      )}
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -352,11 +345,20 @@ export default function MemberAcademyPage() {
       <div className="bg-dark text-white px-6 py-3 flex items-center justify-between">
         <h1 className="font-heading font-bold text-lg">LAEMU Musikschule</h1>
         <div className="flex items-center gap-4">
-          {!isFreeTier && (
+          {hasCourseAccess && (
             <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-2">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
               <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
             </div>
+          )}
+          {!hasCourseAccess && (
+            <button
+              onClick={openUpgrade}
+              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-2 font-sans font-semibold text-sm hover:bg-accent-earth transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+              {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
+            </button>
           )}
         </div>
       </div>
@@ -375,15 +377,17 @@ export default function MemberAcademyPage() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-dark p-8">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen{isFreeTier ? '' : ' zurück'}</p>
+                      <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen{hasCourseAccess ? ' zurück' : ''}</p>
                       <h2 className="font-heading text-3xl font-bold text-white mb-2">Guten Tag, Niklaus</h2>
                       <p className="font-sans text-white/60">
-                        {isFreeTier
-                          ? 'Schön, dass du da bist! Entdecke die ganze Musikschule — für vollen Zugang einfach upgraden.'
-                          : 'Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!'}
+                        {hasCourseAccess
+                          ? 'Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!'
+                          : isLernvideoOnly
+                            ? 'Dein Lernvideo-Abo gibt dir die komplette Datenbank. Für die Lehrgänge der Musikschule kannst du jederzeit auf Pro upgraden.'
+                            : 'Schön, dass du da bist! Entdecke die ganze Musikschule — für vollen Zugang einfach upgraden.'}
                       </p>
                     </div>
-                    {!isFreeTier && (
+                    {hasCourseAccess && (
                       <div className="bg-accent-gold/20 border border-accent-gold/30 px-4 py-3 text-center">
                         <p className="font-heading font-bold text-accent-gold text-2xl">7</p>
                         <p className="font-sans text-xs text-white/50">Wochen Streak</p>
@@ -400,7 +404,12 @@ export default function MemberAcademyPage() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                   )}
                   <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                    {isFreeTier ? (
+                    {isLernvideoOnly ? (
+                      <>
+                        <strong className="text-dark font-semibold">Lernvideo-Abo.</strong> Du hast Zugang zur kompletten Lernvideo-Datenbank. Die Lehrgänge der Musikschule sind nicht enthalten — hier siehst du dieselben Schnupper-Inhalte wie im Free-Account. Für vollen Musikschul-Zugang upgrade auf Pro.{' '}
+                        <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</button>
+                      </>
+                    ) : isFreeTier ? (
                       <>
                         <strong className="text-dark font-semibold">Free-Account.</strong> Du siehst die ganze Musikschule und kannst kostenlos reinschnuppern — die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und {FREE_TRIAL_DB_COUNT} Videos der Lernvideo-Datenbank sind frei. Für vollen Zugang brauchst du einen kostenpflichtigen Plan.{' '}
                         <button onClick={openUpgrade} className="text-accent-gold font-medium hover:underline">Jetzt upgraden →</button>
@@ -463,8 +472,8 @@ export default function MemberAcademyPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Free-Account: kostenlos reinschnuppern */}
-                {isFreeTier && (
+                {/* Free & Lernvideo: kostenlos reinschnuppern (kein Musikschul-Zugang) */}
+                {!hasCourseAccess && (
                   <section>
                     <div className="bg-surface border border-border p-8 sm:p-10 text-center">
                       <div className="w-14 h-14 bg-accent-gold/10 flex items-center justify-center mx-auto mb-5">
@@ -472,96 +481,74 @@ export default function MemberAcademyPage() {
                       </div>
                       <h3 className="font-heading font-bold text-xl mb-2">Kostenlos reinschnuppern</h3>
                       <p className="font-sans text-sm text-text-secondary leading-relaxed max-w-md mx-auto mb-6">
-                        Mit dem Free-Account sind die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und {FREE_TRIAL_DB_COUNT} Videos
-                        der Lernvideo-Datenbank frei. Probier es aus — für den vollen Zugang upgradest du jederzeit.
+                        {isLernvideoOnly
+                          ? `In der Musikschule kannst du die ersten ${FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses ansehen. Deine Lernvideo-Datenbank ist vollständig freigeschaltet — für die kompletten Lehrgänge upgrade auf Pro.`
+                          : `Mit dem Free-Account sind die ersten ${FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses und ${FREE_TRIAL_DB_COUNT} Videos der Lernvideo-Datenbank frei. Probier es aus — für den vollen Zugang upgradest du jederzeit.`}
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Link href="/member/academy/instrument/handorgel/kurs/grundlagen" className="bg-dark text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-gold transition-colors">
                           Schnupperkurs starten →
                         </Link>
                         <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-earth transition-colors">
-                          Plan upgraden
+                          {isLernvideoOnly ? 'Auf Pro upgraden' : 'Plan upgraden'}
                         </button>
                       </div>
                     </div>
                   </section>
                 )}
 
-                {!isFreeTier && (<>
-                {/* Meine Kurse — Journey-Design, filterbar nach Instrument */}
+                {/* Kurse — mit Filter-Tabs; integriert die Instrument-Lehrgänge */}
+                {hasCourseAccess && (
                 <section>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                     <h3 className="font-heading font-bold text-xl">Meine Kurse</h3>
-                    {courseTabs.length > 1 && (
-                      <div className="flex flex-wrap gap-2">
-                        {courseTabs.map((tab) => (
-                          <button
-                            key={tab}
-                            onClick={() => setCourseFilter(tab)}
-                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${courseFilter === tab ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                          >
-                            {tab}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {KURS_FILTERS.map((f) => (
+                        <button
+                          key={f.id}
+                          onClick={() => setCourseFilter(f.id)}
+                          className={`font-sans text-xs px-3 py-1.5 border transition-colors ${courseFilter === f.id ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {filteredCourses.map((course, i) => (
-                      <motion.div key={course.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                        <CourseCard course={course} />
-                      </motion.div>
-                    ))}
-                  </div>
-                  {filterInstrumentId && (
-                    <Link href={`/member/academy/instrument/${filterInstrumentId}`} className="mt-4 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-accent-gold hover:text-dark transition-colors">
-                      Ganzen {courseFilter}-Lehrgang ansehen
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                    </Link>
-                  )}
-                </section>
 
-                {/* Allgemeine Grundlagen — für alle freigeschaltet */}
-                <section>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
-                    <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 uppercase tracking-wide">Für alle</span>
-                  </div>
-                  <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    {ALLGEMEIN_COURSES.map((cid, i) => {
-                      const c = courses[cid]
-                      const pct = courseStats(c).percent
-                      return (
-                        <motion.div key={cid} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                          <Link href={`/member/academy/instrument/allgemein/kurs/${cid}`} className="block bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors h-full">
-                            <div className="relative h-28 overflow-hidden">
-                              <Image src={allgemeinCardMeta[cid]} alt={c.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                              <div className="absolute bottom-2 left-3 right-3 flex items-center gap-2">
-                                <span className="text-lg">{c.emoji}</span>
-                                <h4 className="font-heading text-sm font-bold text-white leading-tight">{c.title}</h4>
-                              </div>
-                            </div>
-                            <div className="p-4">
-                              <p className="font-sans text-xs text-text-secondary mb-2">mit {c.teacher}</p>
-                              <div className="flex justify-between text-xs font-sans mb-1.5">
-                                <span className="text-text-secondary">Fortschritt</span>
-                                <span className="font-medium">{pct}%</span>
-                              </div>
-                              <ProgressBar value={pct} />
-                              <div className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
-                                {pct > 0 ? 'Weiterfahren' : 'Kurs öffnen'}
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
-                              </div>
-                            </div>
-                          </Link>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
+                  {/* Alle: Weiterlernen + Allgemeine Grundlagen */}
+                  {courseFilter === 'alle' && (
+                    <div className="space-y-10">
+                      {startedCourses.length > 0 && (
+                        <div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <h4 className="font-heading font-bold text-lg">Weiterlernen</h4>
+                            <span className="font-sans text-xs text-text-secondary">— da bist du stehengeblieben</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {startedCourses.map((kurs, i) => (
+                              <motion.div key={`${kurs.instrumentId}-${kurs.id}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                                <StarterCourseCard
+                                  href={`/member/academy/instrument/${kurs.instrumentId}/kurs/${kurs.id}`}
+                                  title={kurs.title} level={kurs.instrumentLabel} modules={kurs.modules} duration={kurs.duration}
+                                  desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant={kurs.instrumentId}
+                                />
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {renderAllgemein()}
+                    </div>
+                  )}
+
+                  {/* Instrument-Lehrgänge */}
+                  {courseFilter === 'handorgel' && renderLehrgang(INSTRUMENT_OVERVIEWS.handorgel)}
+                  {courseFilter === 'schwyzer' && renderLehrgang(INSTRUMENT_OVERVIEWS.schwyzer)}
+
+                  {/* Allgemeine Grundlagen */}
+                  {courseFilter === 'allgemein' && renderAllgemein()}
                 </section>
-                </>)}
+                )}
 
                 {!isProTier && (
                   <section>
@@ -590,6 +577,7 @@ export default function MemberAcademyPage() {
                           </button>
                         </div>
                       </motion.div>
+                      {!isLernvideoOnly && (
                       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="bg-surface border border-border p-6 flex flex-col gap-4">
                         <div>
                           <span className="font-sans text-[10px] uppercase tracking-widest text-accent-gold">Lernvideo-Datenbank</span>
@@ -613,6 +601,7 @@ export default function MemberAcademyPage() {
                           </button>
                         </div>
                       </motion.div>
+                      )}
                     </div>
                   </section>
                 )}

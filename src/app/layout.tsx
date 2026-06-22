@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
 import './globals.css'
+import { Footer } from '@/components/Footer'
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -46,6 +47,7 @@ export default function RootLayout({
     <html lang="de" className={`${plusJakarta.variable} ${inter.variable}`}>
       <body>
         <main>{children}</main>
+        <Footer />
       </body>
     </html>
   )

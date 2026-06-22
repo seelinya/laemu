@@ -305,10 +305,9 @@ function IconPitch() { return <svg width="15" height="15" viewBox="0 0 24 24" fi
 function MixerFaders({ musicians }: { musicians: MixerMusician[] }) {
   const [state, setState] = useState(musicians)
 
+  // Nur Ein/Aus (Mute) — keine individuelle Lautstärke.
   const toggleMute = (id: string) =>
     setState(prev => prev.map(m => m.id === id ? { ...m, muted: !m.muted } : m))
-  const setVolume = (id: string, vol: number) =>
-    setState(prev => prev.map(m => m.id === id ? { ...m, volume: vol } : m))
   const soloMusician = (id: string) =>
     setState(prev => {
       const isAlreadySolo = prev.filter(m => !m.muted).length === 1 && !prev.find(m => m.id === id)?.muted
@@ -324,78 +323,48 @@ function MixerFaders({ musicians }: { musicians: MixerMusician[] }) {
         <div className="flex items-center gap-2">
           <span className="text-accent-gold"><IconMixer /></span>
           <span className="font-sans text-xs uppercase tracking-widest text-white/50">Mixer</span>
-          <span className="font-sans text-[10px] text-white/25 hidden sm:inline">— Stimmen individuell steuern</span>
+          <span className="font-sans text-[10px] text-white/25 hidden sm:inline">— Stimmen ein- oder ausschalten</span>
         </div>
         <button onClick={resetAll} className="font-sans text-[10px] text-white/30 hover:text-white/60 transition-colors">
           Zurücksetzen
         </button>
       </div>
       <div className="px-6 py-6 overflow-x-auto">
-        <div className="flex items-end gap-10 min-w-max">
-          {state.map(m => {
-            const vol = m.muted ? 0 : m.volume
-            return (
-              <div key={m.id} className={`flex flex-col items-center gap-2 transition-opacity duration-200 ${m.muted ? 'opacity-40' : ''}`}>
-                {/* Solo */}
-                <button
-                  onClick={() => soloMusician(m.id)}
-                  title="Solo"
-                  className="font-sans text-[10px] font-bold tracking-widest w-8 h-6 border transition-colors border-white/20 text-white/40 hover:border-accent-gold hover:text-accent-gold"
-                >
-                  S
-                </button>
-                {/* Mute */}
-                <button
-                  onClick={() => toggleMute(m.id)}
-                  title={m.muted ? 'Unmute' : 'Mute'}
-                  className={`font-sans text-[10px] font-bold tracking-widest w-8 h-6 border transition-colors ${m.muted ? 'border-red-400/70 text-red-400' : 'border-white/20 text-white/40 hover:border-red-400/60 hover:text-red-400/60'}`}
-                >
-                  M
-                </button>
-                {/* Vertical fader */}
-                <div className="relative" style={{ width: 36, height: 110 }}>
-                  {/* Track bg */}
-                  <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-white/10" />
-                  {/* Fill */}
-                  <div
-                    className="absolute left-1/2 -translate-x-1/2 bottom-0 w-1 transition-none"
-                    style={{ height: `${vol}%`, backgroundColor: m.color }}
-                  />
-                  {/* Thumb */}
-                  <div
-                    className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-white shadow-lg pointer-events-none border-2"
-                    style={{ bottom: `calc(${vol}% - 8px)`, borderColor: m.color }}
-                  />
-                  {/* Invisible rotated input */}
-                  <input
-                    type="range" min={0} max={100}
-                    value={vol}
-                    onChange={e => setVolume(m.id, parseInt(e.target.value))}
-                    disabled={m.muted}
-                    className="absolute opacity-0 cursor-pointer disabled:cursor-default"
-                    style={{
-                      width: 110,
-                      height: 36,
-                      top: (110 - 36) / 2,
-                      left: (36 - 110) / 2,
-                      transform: 'rotate(-90deg)',
-                    }}
-                  />
-                </div>
-                {/* Volume readout */}
-                <span className="font-mono text-[10px] text-white/30 w-8 text-center">{m.muted ? '—' : `${m.volume}`}</span>
-                {/* Divider */}
-                <div className="w-8 h-px bg-white/10 my-0.5" />
-                {/* Musician info — Stimme gross, Name klein */}
-                <div className="text-center" style={{ maxWidth: 80 }}>
-                  <p className="font-heading font-bold text-[11px] text-white leading-tight truncate">{m.voice}</p>
-                  <p className="font-sans text-[9px] text-white/40 leading-tight mt-0.5">{m.name}</p>
-                  <p className="font-sans text-[9px] leading-tight mt-0.5" style={{ color: m.color }}>{m.instrument}</p>
-                  {m.singing && <p className="font-sans text-[9px] text-white/30 leading-tight mt-0.5">{m.singing}</p>}
-                </div>
+        <div className="flex items-end gap-8 min-w-max">
+          {state.map(m => (
+            <div key={m.id} className={`flex flex-col items-center gap-2 transition-opacity duration-200 ${m.muted ? 'opacity-50' : ''}`}>
+              {/* Solo */}
+              <button
+                onClick={() => soloMusician(m.id)}
+                title="Solo — nur diese Stimme"
+                className="font-sans text-[10px] font-bold tracking-widest w-9 h-6 border transition-colors border-white/20 text-white/40 hover:border-accent-gold hover:text-accent-gold"
+              >
+                S
+              </button>
+              {/* Ein/Aus (Mute) — grosse Taste statt Lautstärkeregler */}
+              <button
+                onClick={() => toggleMute(m.id)}
+                title={m.muted ? 'Einschalten' : 'Stummschalten'}
+                aria-pressed={!m.muted}
+                className={`w-12 h-12 flex items-center justify-center border-2 transition-colors ${m.muted ? 'border-white/15 text-white/30 hover:border-white/30' : 'text-white'}`}
+                style={m.muted ? undefined : { backgroundColor: m.color, borderColor: m.color }}
+              >
+                {m.muted ? <IconVolOff /> : <IconVolOn />}
+              </button>
+              <span className="font-sans text-[10px] uppercase tracking-wide font-semibold" style={{ color: m.muted ? undefined : m.color }}>
+                {m.muted ? 'Aus' : 'An'}
+              </span>
+              {/* Divider */}
+              <div className="w-8 h-px bg-white/10 my-0.5" />
+              {/* Musician info — Stimme gross, Name klein */}
+              <div className="text-center" style={{ maxWidth: 80 }}>
+                <p className="font-heading font-bold text-[11px] text-white leading-tight truncate">{m.voice}</p>
+                <p className="font-sans text-[9px] text-white/40 leading-tight mt-0.5">{m.name}</p>
+                <p className="font-sans text-[9px] leading-tight mt-0.5" style={{ color: m.color }}>{m.instrument}</p>
+                {m.singing && <p className="font-sans text-[9px] text-white/30 leading-tight mt-0.5">{m.singing}</p>}
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       </div>
     </div>
