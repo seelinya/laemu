@@ -537,10 +537,8 @@ export default function RegisterPage() {
                       </div>
                     </div>
                   )}
+                  {!isFree && (
                   <div className="space-y-3 mb-6">
-                    {isFree && (
-                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-1">Das schaltest du mit einem Upgrade frei</p>
-                    )}
                     {INDIVIDUAL_PLAN_ORDER.map(planId => {
                       const meta = individualPlanMeta[planId]
                       const active = !isFree && individualPlan === planId
@@ -579,6 +577,7 @@ export default function RegisterPage() {
                       )
                     })}
                   </div>
+                  )}
 
                   {/* Scope + instrument selection */}
                   {!isFree && individualPlanMeta[individualPlan].hasScope && (
