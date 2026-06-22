@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
-import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT, getCourse } from '@/lib/courses'
+import { courses, ALLGEMEIN_COURSES, getCourse } from '@/lib/courses'
 import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
@@ -120,8 +120,10 @@ export default function MemberAcademyPage() {
   const courseUnlocked = (level: string, instrumentLabel: string) =>
     isUpgraded || isCourseUnlocked(level, instrumentLabel, userAbo)
 
-  // Aktive (begonnene) Kurse — nur freigeschaltete Instrument-Kurse plus die
-  // begonnenen allgemeinen Grundlagen.
+  // Aktive (begonnene) Kurse — die freigeschalteten Instrument-Lehrgänge, in
+  // denen man schon Module abgeschlossen hat. Neue Mitglieder (noch kein Abo /
+  // kein begonnener Lehrgang) haben hier nichts: «Aktive» wird dann deaktiviert
+  // und es wird direkt das erste Instrument angezeigt.
   type ActiveCourse = { key: string; href: string; title: string; level: string; modules: number; duration: string; desc: string; completedModules: number; emoji: string; variant: string }
   const activeCourses: ActiveCourse[] = [
     ...SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
@@ -131,9 +133,6 @@ export default function MemberAcademyPage() {
         .filter((k) => k.completedModules > 0)
         .map((k) => ({ key: `${ov.id}-${k.id}`, href: `/member/academy/instrument/${ov.id}/kurs/${k.id}`, title: k.title, level: ov.label, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, emoji: ov.emoji, variant: ov.id as string }))
     }),
-    ...allgemeinKurse
-      .filter((k) => k.completedModules > 0)
-      .map((k) => ({ key: `allgemein-${k.id}`, href: `/member/academy/instrument/allgemein/kurs/${k.id}`, title: k.title, level: k.level, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, emoji: k.emoji, variant: 'allgemein' })),
   ]
   const hasActive = activeCourses.length > 0
 
@@ -322,26 +321,6 @@ export default function MemberAcademyPage() {
                     )}
                   </AnimatePresence>
                 </div>
-
-                {/* Free & Lernvideo: kompakter Schnupper-Hinweis */}
-                {!hasCourseAccess && (
-                  <div className="bg-surface border border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
-                    <span className="w-8 h-8 bg-accent-gold/10 flex items-center justify-center flex-shrink-0 text-accent-gold">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-                    </span>
-                    <p className="font-sans text-xs text-text-secondary leading-snug flex-1">
-                      <strong className="text-dark font-semibold">Kostenlos reinschnuppern:</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses sind gratis. Für die kompletten Lehrgänge upgradest du jederzeit.
-                    </p>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <Link href="/member/academy/instrument/handorgel/kurs/grundlagen" className="bg-dark text-white font-sans text-xs font-semibold px-3 py-1.5 hover:bg-accent-gold transition-colors whitespace-nowrap">
-                        Schnupperkurs →
-                      </Link>
-                      <button onClick={openUpgrade} className="bg-accent-gold text-white font-sans text-xs font-semibold px-3 py-1.5 hover:bg-accent-earth transition-colors whitespace-nowrap">
-                        {isLernvideoOnly ? 'Auf Pro upgraden' : 'Plan upgraden'}
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 {/* Kurse / Lehrgänge — mit Tabs; integriert die Instrument-Lehrgänge.
                     Bezahlt: «Meine Kurse» (gewählte Instrumente).
