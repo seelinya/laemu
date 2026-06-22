@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
-import { InstrumentTagPicker } from '@/components/InstrumentTagPicker'
+import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
@@ -243,8 +243,10 @@ const discoverProfiles: DiscoverProfile[] = [
 // Anzeigetext (Instrument · Region) für eine Karte.
 const profileRole = (p: DiscoverProfile) => `${p.instruments.join(', ')} · ${p.region}`
 
-// Auswahllisten für die Filter (aus den Profilen abgeleitet, alphabetisch).
-const ALL_INSTRUMENTS = Array.from(new Set(discoverProfiles.flatMap(p => p.instruments))).sort()
+// Instrument-Filter: dieselben Instrumente wie im Profil-Editor (ohne «Sonstiges»,
+// das wird nur im Profil angezeigt, nicht gefiltert).
+const ALL_INSTRUMENTS = PRESET_INSTRUMENTS
+// Regionen weiterhin aus den Profilen abgeleitet (alphabetisch).
 const ALL_REGIONS = Array.from(new Set(discoverProfiles.map(p => p.region))).sort()
 
 function DiscoverView() {
