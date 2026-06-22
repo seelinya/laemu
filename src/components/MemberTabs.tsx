@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useUserProfile } from '@/lib/userProfile'
 
 type Area = 'community' | 'academy' | 'lerndatenbank'
 
@@ -123,14 +124,18 @@ export function NotificationBell() {
 
 export function ProfileMenu() {
   const [open, setOpen] = useState(false)
+  const profile = useUserProfile()
+  const name = profile.name || 'Mitglied'
+  const email = profile.email || 'mitglied@laemu.ch'
+  const avatar = profile.avatar || PROFILE_IMG
   return (
     <div className="relative flex-shrink-0">
       <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2.5 py-2 group">
         <div className="hidden sm:block text-right leading-tight">
-          <p className="font-heading font-bold text-sm text-dark">Niklaus Hess</p>
+          <p className="font-heading font-bold text-sm text-dark">{name}</p>
         </div>
         <div className="relative w-9 h-9 overflow-hidden rounded-full border border-border flex-shrink-0">
-          <Image src={PROFILE_IMG} alt="Niklaus Hess" fill className="object-cover" unoptimized />
+          <Image src={avatar} alt={name} fill className="object-cover" unoptimized />
         </div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-text-secondary transition-transform ${open ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
       </button>
@@ -141,11 +146,11 @@ export function ProfileMenu() {
           <div className="absolute right-0 top-full mt-1 w-64 bg-surface border border-border shadow-xl z-50">
             <div className="flex items-center gap-3 p-4 border-b border-border">
               <div className="relative w-11 h-11 overflow-hidden rounded-full flex-shrink-0">
-                <Image src={PROFILE_IMG} alt="Niklaus Hess" fill className="object-cover" unoptimized />
+                <Image src={avatar} alt={name} fill className="object-cover" unoptimized />
               </div>
               <div className="min-w-0">
-                <p className="font-heading font-bold text-sm truncate">Niklaus Hess</p>
-                <p className="font-sans text-xs text-text-secondary truncate">niklaus@laemu.ch</p>
+                <p className="font-heading font-bold text-sm truncate">{name}</p>
+                <p className="font-sans text-xs text-text-secondary truncate">{email}</p>
               </div>
             </div>
             <div className="py-1">

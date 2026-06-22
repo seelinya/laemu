@@ -653,8 +653,8 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
 
 // ─── Stimme-/Begleitvideo mit aufklappbarem Player (Auto-Loop) ────────────────
 
-function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist }: { lv: { id: string; label: string; duration: string; done: boolean }; img: string; inPlaylist: boolean; onPlaylist: () => void }) {
-  const [open, setOpen] = useState(false)
+function StimmeVideoItem({ lv, img, inPlaylist, onPlaylist, defaultOpen = false }: { lv: { id: string; label: string; duration: string; done: boolean }; img: string; inPlaylist: boolean; onPlaylist: () => void; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen)
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 hover:bg-background transition-colors">
@@ -830,8 +830,8 @@ export default function LernvideoDetailPage() {
         </div>
         {stimme.lernvideos.length > 0 && (
           <div className="divide-y divide-border">
-            {stimme.lernvideos.map(lv => (
-              <StimmeVideoItem key={lv.id} lv={lv} img={v.img} inPlaylist={audioPlaylist.has(lv.id)} onPlaylist={() => toggleAudioPlaylist(lv.id)} />
+            {stimme.lernvideos.map((lv, idx) => (
+              <StimmeVideoItem key={lv.id} lv={lv} img={v.img} inPlaylist={audioPlaylist.has(lv.id)} onPlaylist={() => toggleAudioPlaylist(lv.id)} defaultOpen={idx === 0} />
             ))}
           </div>
         )}
@@ -1310,7 +1310,7 @@ export default function LernvideoDetailPage() {
                   <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den Mixer steuerbar.</p>
                 </div>
 
-                {/* Master-/Mitspielvideo mit Mixer */}
+                {/* Mitspielvideo, der Mixer (Stimmen) darunter */}
                 <div>
                   <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
                   {v.hasMixer && <MixerFaders musicians={v.mixerMusicians} />}

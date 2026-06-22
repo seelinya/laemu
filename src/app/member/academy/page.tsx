@@ -7,7 +7,8 @@ import { MemberTabs } from '@/components/MemberTabs'
 import { courses, ALLGEMEIN_COURSES, FREE_TRIAL_LESSON_COUNT } from '@/lib/courses'
 import { FREE_TRIAL_DB_COUNT } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
-import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
+import { useUserProfile } from '@/lib/userProfile'
+import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, overviewIdsFromLabels, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
 import { StarterCourseCard, ProCourseRow, ProUpgradeBanner } from '@/components/CourseCards'
 
 // Allgemeine Grundlagen-Kurse (für alle Abos) — aus den geteilten Kursdaten.
@@ -22,22 +23,6 @@ const allgemeinKurse: (StarterKurs & { emoji: string })[] = ALLGEMEIN_COURSES.ma
     level: 'Für alle', emoji: c.emoji,
   }
 })
-
-// Begonnene Kurse über alle abonnierten Instrumente (für «Weiterlernen»).
-const startedCourses = SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
-  const ov = INSTRUMENT_OVERVIEWS[iid]
-  return ov.starterKurse
-    .filter((k) => k.completedModules > 0)
-    .map((k) => ({ ...k, instrumentId: ov.id, instrumentLabel: ov.label, emoji: ov.emoji }))
-})
-
-// Filter-Tabs der Startseite.
-const KURS_FILTERS: { id: string; label: string; instrument?: InstrumentId }[] = [
-  { id: 'alle', label: 'Alle' },
-  { id: 'handorgel', label: 'Handorgel', instrument: 'handorgel' },
-  { id: 'schwyzer', label: 'Schwyzerörgeli', instrument: 'schwyzer' },
-  { id: 'allgemein', label: 'Allgemeine Grundlagen' },
-]
 
 type MockSearchResult = {
   id: string
@@ -212,6 +197,36 @@ export default function MemberAcademyPage() {
   const hasCourseAccess = userAbo.plan === 'starter' || userAbo.plan === 'pro' || isUpgraded
   const isProTier = userAbo.plan === 'pro' || isUpgraded
 
+  // Bei der Registrierung gewählter Name & Instrumente.
+  const profile = useUserProfile()
+  const firstName = profile.name.trim().split(/\s+/)[0] || 'zusammen'
+
+  // Welche Instrument-Lehrgänge anzeigen? Bezahlte Abos: die gewählten
+  // Instrumente. Free/Lernvideo: Einblick in ALLE Instrumente.
+  const selectedInstrumentIds = overviewIdsFromLabels(userAbo.instruments)
+  const userInstrumentIds: InstrumentId[] =
+    hasCourseAccess && !userAbo.allInstruments && selectedInstrumentIds.length > 0
+      ? selectedInstrumentIds
+      : SUBSCRIBED_INSTRUMENTS
+
+  // Begonnene Kurse (für «Weiterlernen») über die angezeigten Instrumente.
+  const startedCourses = userInstrumentIds.flatMap((iid) => {
+    const ov = INSTRUMENT_OVERVIEWS[iid]
+    return ov.starterKurse
+      .filter((k) => k.completedModules > 0)
+      .map((k) => ({ ...k, instrumentId: ov.id, instrumentLabel: ov.label, emoji: ov.emoji }))
+  })
+
+  // Filter-Tabs: bezahlt → «Alle» + Instrumente + Allgemein; Free/Lernvideo →
+  // direkt die Instrumente (Einblick) + Allgemein.
+  const instrumentTabs = userInstrumentIds.map((iid) => ({ id: iid, label: INSTRUMENT_OVERVIEWS[iid].label, instrument: iid }))
+  const kursTabs: { id: string; label: string; instrument?: InstrumentId }[] = [
+    ...(hasCourseAccess ? [{ id: 'alle', label: 'Alle' }] : []),
+    ...instrumentTabs,
+    { id: 'allgemein', label: 'Allgemeine Grundlagen' },
+  ]
+  const activeCourseTab = kursTabs.some((t) => t.id === courseFilter) ? courseFilter : kursTabs[0].id
+
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
     ? mockSearchResults.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -339,7 +354,7 @@ export default function MemberAcademyPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="font-sans text-xs uppercase tracking-widest text-accent-gold mb-2">Willkommen{hasCourseAccess ? ' zurück' : ''}</p>
-                      <h2 className="font-heading text-3xl font-bold text-white mb-2">Guten Tag, Niklaus</h2>
+                      <h2 className="font-heading text-3xl font-bold text-white mb-2">Guten Tag, {firstName}</h2>
                       <p className="font-sans text-white/60">
                         {hasCourseAccess
                           ? 'Du hast diese Woche bereits 5 Lektionen abgeschlossen. Weiter so!'
@@ -458,26 +473,34 @@ export default function MemberAcademyPage() {
                   </section>
                 )}
 
-                {/* Kurse — mit Filter-Tabs; integriert die Instrument-Lehrgänge */}
-                {hasCourseAccess && (
+                {/* Kurse / Lehrgänge — mit Tabs; integriert die Instrument-Lehrgänge.
+                    Bezahlt: «Meine Kurse» (gewählte Instrumente).
+                    Free/Lernvideo: «Einblick in die Lehrgänge» (alle Instrumente). */}
                 <section>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                    <h3 className="font-heading font-bold text-xl">Meine Kurse</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+                    <h3 className="font-heading font-bold text-xl">{hasCourseAccess ? 'Meine Kurse' : 'Einblick in die Lehrgänge'}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {KURS_FILTERS.map((f) => (
+                      {kursTabs.map((f) => (
                         <button
                           key={f.id}
                           onClick={() => setCourseFilter(f.id)}
-                          className={`font-sans text-xs px-3 py-1.5 border transition-colors ${courseFilter === f.id ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                          className={`font-sans text-xs px-3 py-1.5 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
                         >
                           {f.label}
                         </button>
                       ))}
                     </div>
                   </div>
+                  {!hasCourseAccess && (
+                    <p className="font-sans text-sm text-text-secondary mb-5">
+                      Erkunde die Lehrgänge aller Instrumente — die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen jedes Kurses
+                      sind gratis. Zum Freischalten der kompletten Lehrgänge upgradest du jederzeit.
+                    </p>
+                  )}
+                  {hasCourseAccess && <div className="mb-5" />}
 
-                  {/* Alle: Weiterlernen + Allgemeine Grundlagen */}
-                  {courseFilter === 'alle' && (
+                  {/* Alle: Weiterlernen + Allgemeine Grundlagen (nur bei Musikschul-Zugang) */}
+                  {activeCourseTab === 'alle' && (
                     <div className="space-y-10">
                       {startedCourses.length > 0 && (
                         <div>
@@ -502,14 +525,16 @@ export default function MemberAcademyPage() {
                     </div>
                   )}
 
-                  {/* Instrument-Lehrgänge */}
-                  {courseFilter === 'handorgel' && renderLehrgang(INSTRUMENT_OVERVIEWS.handorgel)}
-                  {courseFilter === 'schwyzer' && renderLehrgang(INSTRUMENT_OVERVIEWS.schwyzer)}
+                  {/* Instrument-Lehrgänge (gewählte bzw. alle bei Free) */}
+                  {instrumentTabs.map((t) =>
+                    activeCourseTab === t.id ? (
+                      <div key={t.id}>{renderLehrgang(INSTRUMENT_OVERVIEWS[t.instrument as InstrumentId])}</div>
+                    ) : null,
+                  )}
 
                   {/* Allgemeine Grundlagen */}
-                  {courseFilter === 'allgemein' && renderAllgemein()}
+                  {activeCourseTab === 'allgemein' && renderAllgemein()}
                 </section>
-                )}
 
                 {!isProTier && (
                   <section>

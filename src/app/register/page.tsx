@@ -197,6 +197,8 @@ export default function RegisterPage() {
       email: email.trim(),
       wohnort: ort.trim(),
       inFormation: accountType === 'formation',
+      // Die bei der Mitgliedschaft gewählten Instrumente ins Profil übernehmen.
+      ...(abo.instruments.length > 0 ? { instruments: abo.instruments.join(', ') } : {}),
     })
 
     setDone(true)
@@ -566,10 +568,12 @@ export default function RegisterPage() {
                               </div>
                               <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
                             </div>
-                            <div className="text-right flex-shrink-0">
-                              <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
-                              <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
-                            </div>
+                            {!isFree && (
+                              <div className="text-right flex-shrink-0">
+                                <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
+                                <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
+                              </div>
+                            )}
                           </div>
                         </button>
                       )
