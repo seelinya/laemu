@@ -250,20 +250,20 @@ const ALL_REGIONS = Array.from(new Set(discoverProfiles.map(p => p.region))).sor
 function DiscoverView() {
   const [query, setQuery] = useState('')
   // Filter (nur sichtbar für Personen, die ihre Infos öffentlich teilen).
-  const [openForFormation, setOpenForFormation] = useState(false)
-  const [teacherOnly, setTeacherOnly] = useState(false)
-  const [inFormationOnly, setInFormationOnly] = useState(false)
+  // Formations-Status ist eine Einfachauswahl: entweder «offen», «spielt in
+  // einer Formation» oder keines von beiden.
+  const [formationFilter, setFormationFilter] = useState<'' | 'open' | 'inFormation'>('')
   const [instrument, setInstrument] = useState('')
   const [region, setRegion] = useState('')
 
+  const pickFormation = (val: 'open' | 'inFormation') =>
+    setFormationFilter(prev => (prev === val ? '' : val))
+
   const activeFilters =
-    Number(openForFormation) + Number(teacherOnly) + Number(inFormationOnly) +
-    Number(Boolean(instrument)) + Number(Boolean(region))
+    Number(Boolean(formationFilter)) + Number(Boolean(instrument)) + Number(Boolean(region))
 
   const resetFilters = () => {
-    setOpenForFormation(false)
-    setTeacherOnly(false)
-    setInFormationOnly(false)
+    setFormationFilter('')
     setInstrument('')
     setRegion('')
   }
@@ -271,9 +271,8 @@ function DiscoverView() {
   const q = query.trim().toLowerCase()
   const results = discoverProfiles.filter(p => {
     if (q && !p.name.toLowerCase().includes(q) && !profileRole(p).toLowerCase().includes(q)) return false
-    if (openForFormation && !p.openForFormation) return false
-    if (teacherOnly && !p.isTeacher) return false
-    if (inFormationOnly && !p.inFormation) return false
+    if (formationFilter === 'open' && !p.openForFormation) return false
+    if (formationFilter === 'inFormation' && !p.inFormation) return false
     if (instrument && !p.instruments.includes(instrument)) return false
     if (region && p.region !== region) return false
     return true
@@ -327,9 +326,8 @@ function DiscoverView() {
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setOpenForFormation(v => !v)} className={chip(openForFormation)}>Offen für Formation</button>
-          <button onClick={() => setTeacherOnly(v => !v)} className={chip(teacherOnly)}>Musiklehrer</button>
-          <button onClick={() => setInFormationOnly(v => !v)} className={chip(inFormationOnly)}>Spielt in einer Formation</button>
+          <button onClick={() => pickFormation('open')} className={chip(formationFilter === 'open')}>Offen für Formation</button>
+          <button onClick={() => pickFormation('inFormation')} className={chip(formationFilter === 'inFormation')}>Spielt in einer Formation</button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
