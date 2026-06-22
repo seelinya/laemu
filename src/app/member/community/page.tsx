@@ -222,16 +222,15 @@ type DiscoverProfile = {
   instruments: string[]
   region: string
   isTeacher: boolean
-  inFormation: boolean
   openForFormation: boolean
 }
 
 const discoverProfiles: DiscoverProfile[] = [
-  { name: 'Maria Kälin', handle: 'maria', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', instruments: ['Schwyzerörgeli'], region: 'Schwyz', isTeacher: false, inFormation: true, openForFormation: false },
-  { name: 'Hansruedi Wenger', handle: 'hansruedi', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', instruments: ['Handorgel'], region: 'Luzern', isTeacher: true, inFormation: true, openForFormation: false },
-  { name: 'Peter Gasser', handle: 'peter', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', instruments: ['Klarinette'], region: 'Nidwalden', isTeacher: false, inFormation: false, openForFormation: true },
-  { name: 'Lisa Frei', handle: 'lisa', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', instruments: ['Klavierbegleitung'], region: 'Zug', isTeacher: true, inFormation: false, openForFormation: true },
-  { name: 'Anna Steiner', handle: 'anna', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', instruments: ['Handorgel', 'Schwyzerörgeli'], region: 'Appenzell', isTeacher: false, inFormation: true, openForFormation: true },
+  { name: 'Maria Kälin', handle: 'maria', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', instruments: ['Schwyzerörgeli'], region: 'Schwyz', isTeacher: false, openForFormation: false },
+  { name: 'Hansruedi Wenger', handle: 'hansruedi', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80', instruments: ['Handorgel'], region: 'Luzern', isTeacher: true, openForFormation: false },
+  { name: 'Peter Gasser', handle: 'peter', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80', instruments: ['Klarinette'], region: 'Nidwalden', isTeacher: false, openForFormation: true },
+  { name: 'Lisa Frei', handle: 'lisa', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', instruments: ['Klavierbegleitung'], region: 'Zug', isTeacher: true, openForFormation: true },
+  { name: 'Anna Steiner', handle: 'anna', img: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', instruments: ['Handorgel', 'Schwyzerörgeli'], region: 'Appenzell', isTeacher: false, openForFormation: true },
 ]
 
 // Anzeigetext (Instrument · Region) für eine Karte.
@@ -246,13 +245,11 @@ const ALL_REGIONS = Array.from(new Set(discoverProfiles.map(p => p.region))).sor
 function DiscoverView() {
   const [query, setQuery] = useState('')
   // Filter (nur sichtbar für Personen, die ihre Infos öffentlich teilen).
-  // Formations-Status ist eine Einfachauswahl: entweder «offen», «spielt in
-  // einer Formation» oder keines von beiden.
-  const [formationFilter, setFormationFilter] = useState<'' | 'open' | 'inFormation'>('')
+  const [formationFilter, setFormationFilter] = useState<'' | 'open'>('')
   const [instrument, setInstrument] = useState('')
   const [region, setRegion] = useState('')
 
-  const pickFormation = (val: 'open' | 'inFormation') =>
+  const pickFormation = (val: 'open') =>
     setFormationFilter(prev => (prev === val ? '' : val))
 
   const activeFilters =
@@ -268,7 +265,6 @@ function DiscoverView() {
   const results = discoverProfiles.filter(p => {
     if (q && !p.name.toLowerCase().includes(q) && !profileRole(p).toLowerCase().includes(q)) return false
     if (formationFilter === 'open' && !p.openForFormation) return false
-    if (formationFilter === 'inFormation' && !p.inFormation) return false
     if (instrument && !p.instruments.includes(instrument)) return false
     if (region && p.region !== region) return false
     return true
@@ -323,7 +319,6 @@ function DiscoverView() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => pickFormation('open')} className={chip(formationFilter === 'open')}>Offen für Formation</button>
-          <button onClick={() => pickFormation('inFormation')} className={chip(formationFilter === 'inFormation')}>Spielt in einer Formation</button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -362,7 +357,6 @@ function DiscoverView() {
               <p className="font-sans text-xs font-light text-text-secondary">{profileRole(p)}</p>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {p.isTeacher && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">Musiklehrer</span>}
-                {p.inFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">In Formation</span>}
                 {p.openForFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Offen für Formation</span>}
               </div>
             </div>
