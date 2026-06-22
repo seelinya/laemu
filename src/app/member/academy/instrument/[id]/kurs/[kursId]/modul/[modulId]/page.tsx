@@ -126,9 +126,16 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
   return (
     <div ref={containerRef} className="bg-black">
       <div className="group relative aspect-video overflow-hidden select-none">
-        {/* Video-Oberfläche (ohne Bild) — dunkel mit Akzent-Verlauf */}
+        {/* Video-Oberfläche (Platzhalter) — dunkel mit Akzent-Verlauf */}
         <div className="absolute inset-0 bg-dark" />
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
+        {/* Platzhalter-Markierung */}
+        <div className="absolute top-3 right-3 pointer-events-none">
+          <span className="font-sans text-[10px] uppercase tracking-widest text-white/40 bg-black/30 px-2 py-1 inline-flex items-center gap-1.5">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+            Video-Platzhalter
+          </span>
+        </div>
 
         {/* Zentraler Play-Button, solange pausiert */}
         {!playing && (

@@ -186,7 +186,7 @@ export default function MemberAcademyPage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [isUpgraded, setIsUpgraded] = useState(false)
-  const [courseFilter, setCourseFilter] = useState('alle')
+  const [courseFilter, setCourseFilter] = useState('aktive')
 
   // Zugänge je nach gewähltem Abo:
   // - Free: kein Lehrgang, nur Schnupper-Inhalte.
@@ -205,23 +205,33 @@ export default function MemberAcademyPage() {
   const courseUnlocked = (level: string, instrumentLabel: string) =>
     isUpgraded || isCourseUnlocked(level, instrumentLabel, userAbo)
 
-  // Begonnene Kurse (für «Weiterlernen») — nur freigeschaltete Kurse.
-  const startedCourses = SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
-    const ov = INSTRUMENT_OVERVIEWS[iid]
-    if (!courseUnlocked('Starter', ov.label)) return []
-    return ov.starterKurse
+  // Aktive (begonnene) Kurse — nur freigeschaltete Instrument-Kurse plus die
+  // begonnenen allgemeinen Grundlagen.
+  type ActiveCourse = { key: string; href: string; title: string; level: string; modules: number; duration: string; desc: string; completedModules: number; emoji: string; variant: string }
+  const activeCourses: ActiveCourse[] = [
+    ...SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
+      const ov = INSTRUMENT_OVERVIEWS[iid]
+      if (!courseUnlocked('Starter', ov.label)) return [] as ActiveCourse[]
+      return ov.starterKurse
+        .filter((k) => k.completedModules > 0)
+        .map((k) => ({ key: `${ov.id}-${k.id}`, href: `/member/academy/instrument/${ov.id}/kurs/${k.id}`, title: k.title, level: ov.label, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, emoji: ov.emoji, variant: ov.id as string }))
+    }),
+    ...allgemeinKurse
       .filter((k) => k.completedModules > 0)
-      .map((k) => ({ ...k, instrumentId: ov.id, instrumentLabel: ov.label, emoji: ov.emoji }))
-  })
+      .map((k) => ({ key: `allgemein-${k.id}`, href: `/member/academy/instrument/allgemein/kurs/${k.id}`, title: k.title, level: k.level, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, emoji: k.emoji, variant: 'allgemein' })),
+  ]
+  const hasActive = activeCourses.length > 0
 
-  // Filter-Tabs: «Alle» + alle Instrumente + Allgemein — für jedes Abo gleich.
+  // Filter-Tabs: «Aktive» (begonnene Kurse) + alle Instrumente + Allgemein.
   const instrumentTabs = SUBSCRIBED_INSTRUMENTS.map((iid) => ({ id: iid as string, label: INSTRUMENT_OVERVIEWS[iid].label, instrument: iid }))
   const kursTabs: { id: string; label: string; instrument?: InstrumentId }[] = [
-    { id: 'alle', label: 'Alle' },
+    { id: 'aktive', label: 'Aktive' },
     ...instrumentTabs,
     { id: 'allgemein', label: 'Allgemeine Grundlagen' },
   ]
-  const activeCourseTab = kursTabs.some((t) => t.id === courseFilter) ? courseFilter : kursTabs[0].id
+  const fallbackTab = hasActive ? 'aktive' : instrumentTabs[0].id
+  const wanted = courseFilter === 'aktive' && !hasActive ? fallbackTab : courseFilter
+  const activeCourseTab = kursTabs.some((t) => t.id === wanted) ? wanted : fallbackTab
 
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
@@ -427,15 +437,20 @@ export default function MemberAcademyPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
                     <h3 className="font-heading font-bold text-xl">Kurse</h3>
                     <div className="flex flex-wrap gap-2">
-                      {kursTabs.map((f) => (
-                        <button
-                          key={f.id}
-                          onClick={() => setCourseFilter(f.id)}
-                          className={`font-sans text-xs px-3 py-1.5 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                        >
-                          {f.label}
-                        </button>
-                      ))}
+                      {kursTabs.map((f) => {
+                        const disabled = f.id === 'aktive' && !hasActive
+                        return (
+                          <button
+                            key={f.id}
+                            onClick={() => { if (!disabled) setCourseFilter(f.id) }}
+                            disabled={disabled}
+                            title={disabled ? 'Noch keinen Kurs gestartet' : undefined}
+                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : disabled ? 'border-border bg-surface text-text-secondary/40 cursor-not-allowed' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                          >
+                            {f.label}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                   <p className="font-sans text-sm text-text-secondary mb-5">
@@ -443,29 +458,24 @@ export default function MemberAcademyPage() {
                     oder als Vorschau (Schnupper-Lektionen) zugänglich.
                   </p>
 
-                  {/* Alle: Weiterlernen + Allgemeine Grundlagen (nur bei Musikschul-Zugang) */}
-                  {activeCourseTab === 'alle' && (
-                    <div className="space-y-10">
-                      {startedCourses.length > 0 && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-4">
-                            <h4 className="font-heading font-bold text-lg">Weiterlernen</h4>
-                            <span className="font-sans text-xs text-text-secondary">— da bist du stehengeblieben</span>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {startedCourses.map((kurs, i) => (
-                              <motion.div key={`${kurs.instrumentId}-${kurs.id}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                                <StarterCourseCard
-                                  href={`/member/academy/instrument/${kurs.instrumentId}/kurs/${kurs.id}`}
-                                  title={kurs.title} level={kurs.instrumentLabel} modules={kurs.modules} duration={kurs.duration}
-                                  desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant={kurs.instrumentId}
-                                />
-                              </motion.div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {renderAllgemein()}
+                  {/* Aktive: bereits begonnene Kurse */}
+                  {activeCourseTab === 'aktive' && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <h4 className="font-heading font-bold text-lg">Aktive Kurse</h4>
+                        <span className="font-sans text-xs text-text-secondary">— da bist du stehengeblieben</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {activeCourses.map((kurs, i) => (
+                          <motion.div key={kurs.key} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                            <StarterCourseCard
+                              href={kurs.href}
+                              title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                              desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant={kurs.variant}
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
