@@ -12,6 +12,10 @@ import { useUserProfile, readStoredProfile, handleFromName } from '@/lib/userPro
 const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
 const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
 const LAEMU_WHATSAPP_GROUP_URL = 'https://chat.whatsapp.com/'
+// WhatsApp-Channels (einseitige Broadcast-Kanäle zum Beitreten) — echte Links
+// hier eintragen, sobald verfügbar.
+const LAEMU_WHATSAPP_INFO_CHANNEL_URL = 'https://whatsapp.com/channel/'
+const LAEMU_WHATSAPP_SPAM_CHANNEL_URL = 'https://whatsapp.com/channel/'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -458,6 +462,67 @@ function StartView() {
         >
           <IconWhatsApp size={16} /> Der News-Gruppe beitreten
         </a>
+      </div>
+
+      {/* WhatsApp-Channels zum Beitreten */}
+      <div>
+        <h3 className="font-heading font-bold text-lg mb-1">WhatsApp-Channels</h3>
+        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">
+          Tritt unseren WhatsApp-Channels bei und bleib auf dem Laufenden. Channels sind einseitige
+          Kanäle — nur das LAEMU-Team postet, deine Nummer bleibt für andere verborgen.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Info-Channel */}
+          <div className="bg-surface border border-border p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="w-11 h-11 flex items-center justify-center bg-dark text-white flex-shrink-0">
+                <IconWhatsApp />
+              </span>
+              <div className="min-w-0">
+                <h4 className="font-heading font-bold text-base leading-tight">Info-Channel</h4>
+                <p className="font-sans text-xs text-text-secondary">Offizielle Infos &amp; News</p>
+              </div>
+            </div>
+            <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
+              Wichtige Ankündigungen, Termine und Neuigkeiten rund um LAEMU — kompakt und ohne
+              Geplauder.
+            </p>
+            <a
+              href={LAEMU_WHATSAPP_INFO_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold transition-colors"
+            >
+              <IconWhatsApp size={16} /> Info-Channel beitreten
+            </a>
+          </div>
+
+          {/* Spam-Channel */}
+          <div className="bg-surface border border-border p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
+                <IconWhatsApp />
+              </span>
+              <div className="min-w-0">
+                <h4 className="font-heading font-bold text-base leading-tight">Spam-Channel</h4>
+                <p className="font-sans text-xs text-text-secondary">Bilder, Videos &amp; mehr</p>
+              </div>
+            </div>
+            <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
+              Eindrücke aus dem LAEMU-Leben — Bilder und Videos von Auftritten, Musikhöcks und
+              spontanen Momenten. Einfach zum Geniessen.
+            </p>
+            <a
+              href={LAEMU_WHATSAPP_SPAM_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-5 py-2.5 hover:bg-dark hover:text-white transition-colors"
+            >
+              <IconWhatsApp size={16} /> Spam-Channel beitreten
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )
