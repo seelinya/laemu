@@ -8,6 +8,10 @@
 import { useEffect, useState } from 'react'
 
 const PROFILE_KEY = 'laemu-profile'
+// Gleicher-Tab-Benachrichtigung: das `storage`-Event feuert nur über Tabs
+// hinweg. Damit Header, Community-Sidebar und Profil im selben Tab sofort auf
+// Profiländerungen reagieren, lösen wir zusätzlich ein eigenes Event aus.
+const PROFILE_EVENT = 'laemu-profile-change'
 
 export type UserProfile = {
   name: string
@@ -75,6 +79,8 @@ export function setStoredProfile(profile: Partial<UserProfile>) {
   try {
     const current = readStoredProfile()
     window.localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...current, ...profile }))
+    // Gleicher-Tab-Konsumenten (Header, Sidebar …) sofort benachrichtigen.
+    window.dispatchEvent(new Event(PROFILE_EVENT))
   } catch {
     // localStorage nicht verfügbar — ignorieren.
   }
@@ -90,11 +96,17 @@ export function useUserProfile(): UserProfile {
 
   useEffect(() => {
     setProfile(readStoredProfile())
+    const refresh = () => setProfile(readStoredProfile())
     const onStorage = (e: StorageEvent) => {
-      if (e.key === PROFILE_KEY) setProfile(readStoredProfile())
+      if (e.key === PROFILE_KEY) refresh()
     }
+    // `storage` für andere Tabs, das eigene Event für denselben Tab.
     window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
+    window.addEventListener(PROFILE_EVENT, refresh)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener(PROFILE_EVENT, refresh)
+    }
   }, [])
 
   return profile
