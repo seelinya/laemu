@@ -264,9 +264,11 @@ export default function MemberAcademyPage() {
   const renderLehrgang = (ov: InstrumentOverview) => {
     const starterUnlocked = courseUnlocked('Starter', ov.label)
     const proUnlocked = courseUnlocked('Pro', ov.label)
-    // Kurse «im Aufbau» (noch ohne Inhalt) werden nicht angezeigt.
-    const starterKurse = ov.starterKurse.filter((k) => getCourse(ov.id, k.id))
-    const proKurse = ov.proKurse.filter((k) => getCourse(ov.id, k.id))
+    // Höhere/gesperrte Kurse werden als Vorschau mit Schloss gezeigt — auch wenn
+    // ihr Inhalt noch im Aufbau ist (Free sieht Starter + Pro, Starter sieht Pro).
+    // Nur bereits freigeschaltete Kurse ohne Inhalt bleiben ausgeblendet.
+    const starterKurse = ov.starterKurse.filter((k) => !starterUnlocked || getCourse(ov.id, k.id))
+    const proKurse = ov.proKurse.filter((k) => !proUnlocked || getCourse(ov.id, k.id))
     return (
       <div className="space-y-10">
         {starterKurse.length > 0 && (
@@ -283,7 +285,7 @@ export default function MemberAcademyPage() {
                     title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                     desc={kurs.desc} completedModules={kurs.completedModules} instrument={ov.label} variant={ov.id}
                     locked={!starterUnlocked} lockLabel="Starter"
-                    previewable={i === 0}
+                    previewable={i === 0 && !!getCourse(ov.id, kurs.id)}
                   />
                 </motion.div>
               ))}
@@ -306,7 +308,7 @@ export default function MemberAcademyPage() {
                       title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                       desc={kurs.desc} completedModules={0} instrument={ov.label} variant={ov.id}
                       locked={!proUnlocked} lockLabel="Pro"
-                      previewable={i === 0}
+                      previewable={i === 0 && !!getCourse(ov.id, kurs.id)}
                     />
                   </motion.div>
                 ))}
