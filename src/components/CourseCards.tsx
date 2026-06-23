@@ -36,11 +36,11 @@ export function StarterCourseCard({
   previewable?: boolean
 }) {
   const progress = modules === 0 ? 0 : Math.round((completedModules / modules) * 100)
-  return (
-    <Link
-      href={href}
-      className="bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors flex h-full"
-    >
+  // Gesperrte Kurse ohne Vorschau werden nicht verlinkt (keine «Kurs im Aufbau»-Seite).
+  const clickable = !locked || previewable
+  const cardClassName = `bg-surface border border-border overflow-hidden group flex h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-default'}`
+  const cardInner = (
+    <>
       <div className={`relative w-24 sm:w-28 flex-shrink-0 self-stretch overflow-hidden ${locked ? 'grayscale' : ''}`}>
         <CourseCover variant={variant} size="sm" />
         {locked && (
@@ -97,7 +97,12 @@ export function StarterCourseCard({
           </span>
         )}
       </div>
-    </Link>
+    </>
+  )
+  return clickable ? (
+    <Link href={href} className={cardClassName}>{cardInner}</Link>
+  ) : (
+    <div className={cardClassName}>{cardInner}</div>
   )
 }
 

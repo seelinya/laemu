@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -139,6 +139,14 @@ export default function LernvideosPage() {
   const [saved, setSaved] = useState<Set<number>>(new Set([1, 5, 7]))
   // Welche Stücke man bereits gelernt hat — markierbar & filterbar.
   const [learned, setLearned] = useState<Set<number>>(new Set([1, 2]))
+
+  // Frisch erstellter Free-Account: noch keine Stücke gelernt oder gemerkt.
+  useEffect(() => {
+    if (userAbo.plan === 'none') {
+      setLearned(new Set())
+      setSaved(new Set())
+    }
+  }, [userAbo.plan])
   const [tab, setTab] = useState<'datenbank' | 'merkliste' | 'wuensche'>('datenbank')
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [showAdvancedDesktop, setShowAdvancedDesktop] = useState(true)
@@ -250,18 +258,24 @@ export default function LernvideosPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.03 }}
-        role="link"
-        tabIndex={0}
-        onClick={() => router.push(href)}
-        onKeyDown={(e) => { if (e.key === 'Enter') router.push(href) }}
-        className="bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row cursor-pointer"
+        {...(unlocked
+          ? {
+              role: 'link',
+              tabIndex: 0,
+              onClick: () => router.push(href),
+              onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter') router.push(href) },
+            }
+          : {})}
+        className={`bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row ${unlocked ? 'cursor-pointer' : ''}`}
       >
         {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
         <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
-          <Image src={v.img} alt={v.title} fill className={`object-cover group-hover:scale-105 transition-transform duration-500 ${unlocked ? '' : 'grayscale'}`} unoptimized />
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
-          </div>
+          <Image src={v.img} alt={v.title} fill className={`object-cover transition-transform duration-500 ${unlocked ? 'group-hover:scale-105' : 'grayscale'}`} unoptimized />
+          {unlocked && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
+            </div>
+          )}
           <div className="absolute bottom-2 left-2">
             <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
           </div>
@@ -340,9 +354,11 @@ export default function LernvideosPage() {
                 </span>
               )}
             </div>
-            <Link href={`/member/academy/lernvideos/${v.id}`} className={`block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center ${unlocked ? 'bg-dark text-white hover:bg-accent-gold' : 'border border-border text-text-secondary hover:border-dark'}`}>
-              {unlocked ? 'Öffnen →' : 'Master-Video →'}
-            </Link>
+            {unlocked && (
+              <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center bg-dark text-white hover:bg-accent-gold">
+                Öffnen →
+              </Link>
+            )}
           </div>
         </div>
       </motion.div>
@@ -356,7 +372,15 @@ export default function LernvideosPage() {
       <MemberTopBar
         title={`Hallo ${greetingName}`}
         right={
-          <>
+          userAbo.plan === 'none' ? (
+            <Link
+              href="/member/academy?upgrade=1"
+              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-3 sm:px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-earth transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+              Jetzt upgraden
+            </Link>
+          ) : (
             <button
               onClick={() => setTab('merkliste')}
               title={`Merkliste (${saved.size})`}
@@ -367,7 +391,7 @@ export default function LernvideosPage() {
               <span className="hidden sm:inline">Merkliste </span>
               <span className="tabular-nums">({saved.size})</span>
             </button>
-          </>
+          )
         }
       />
 
@@ -710,9 +734,9 @@ export default function LernvideosPage() {
                 )}
               </div>
 
-              {/* Abo / Freischalt-Hinweis — nur wenn ein Upgrade möglich ist
-                  (Starter & Free). Pro/Lernvideo haben ohnehin alles freigeschaltet. */}
-              {userAbo.plan === 'starter' ? (
+              {/* Abo / Freischalt-Hinweis — nur für Starter (Upgrade auf Pro).
+                  Free upgradet über den Button oben rechts im Header. */}
+              {userAbo.plan === 'starter' && (
                 <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                   <p className="font-sans text-xs text-text-secondary leading-relaxed">
@@ -720,15 +744,7 @@ export default function LernvideosPage() {
                     <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
                   </p>
                 </div>
-              ) : userAbo.plan === 'none' ? (
-                <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                    <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind ausgewählte Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
-                    <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
-                  </p>
-                </div>
-              ) : null}
+              )}
 
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
