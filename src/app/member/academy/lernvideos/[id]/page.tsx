@@ -14,6 +14,7 @@ import { ShareMenu } from '@/components/ShareMenu'
 // (Schwyzerörgeli) ersichtlich.
 // Käufliche Notenblätter verweisen vorerst beispielhaft auf den LAEMU-Shop.
 const SHOP_NOTEN_URL = 'https://www.laemu.ch/product-page/hier-beginnt-musik'
+const SHOP_CD_URL = 'https://www.laemu.ch/product-page/der-jass-der-szene'
 const ALLOWED_NOTEN_KEYS = ['violin', 'griff-soe']
 const STANDARD_NOTEN: { label: string; key: string; price: number }[] = [
   { label: 'Violinschlüssel', key: 'violin', price: 5 },
@@ -864,7 +865,6 @@ export default function LernvideoDetailPage() {
           <span className="text-white/20 hidden sm:inline">/</span>
           <div className="min-w-0">
             <h1 className="font-heading font-bold text-base leading-tight truncate">{v.title}</h1>
-            <p className="font-sans text-xs text-white/40 truncate">{v.artist} · {v.year}</p>
           </div>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
@@ -1060,10 +1060,10 @@ export default function LernvideoDetailPage() {
                     </div>
                   )}
 
-                  {/* Tonträger */}
+                  {/* CDs */}
                   {v.tontraeger && v.tontraeger.length > 0 && (
                     <div>
-                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Auf diesen Tonträgern erhältlich</p>
+                      <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Auf diesen CDs erhältlich</p>
                       <div className="space-y-2">
                         {v.tontraeger.map((t, i) => (
                           <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark transition-colors">
@@ -1074,7 +1074,7 @@ export default function LernvideoDetailPage() {
                               <p className="font-sans text-sm font-medium truncate">{t.label}</p>
                               <p className="font-sans text-xs text-text-secondary">{t.artist} · {t.year}</p>
                             </div>
-                            {t.url && <a href={t.url} className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Info →</a>}
+                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex-shrink-0">Jetzt kaufen</a>
                           </div>
                         ))}
                       </div>
