@@ -241,7 +241,7 @@ export default function RegisterPage() {
                 <p className="font-sans text-sm font-semibold mb-1">Dein Free-Account ist bereit</p>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
                   Du kannst die ganze Musikschule erkunden und alle Gratis-Inhalte nutzen. Möchtest du die Lehrgänge
-                  oder die vollständige Lernvideo-Datenbank verwenden, upgradest du jederzeit in deinem Konto auf einen
+                  oder alle Stücke verwenden, upgradest du jederzeit in deinem Konto auf einen
                   passenden Plan.
                 </p>
               </div>
@@ -257,7 +257,7 @@ export default function RegisterPage() {
                   Da dein Abo bezahlt wurde, haben die anderen Mitglieder deiner Formation eine
                   Einladung per E-Mail erhalten. Über den Link darin registriert sich jedes Mitglied
                   selbst und legt sein eigenes Login und Profil an — mit vollem Zugriff auf alle
-                  Pro-Lehrgänge und die komplette Lernvideo-Datenbank für alle Instrumente.
+                  Pro-Lehrgänge und alle Stücke für alle Instrumente.
                 </p>
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function RegisterPage() {
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
                           Jedes weitere Mitglied erhält an die unten hinterlegte E-Mail-Adresse eine Einladung. Über den
                           Link darin registriert sich jedes Mitglied selbst und legt sein eigenes Login und Profil an —
-                          mit vollem Zugriff auf alle Pro-Lehrgänge und die komplette Lernvideo-Datenbank.
+                          mit vollem Zugriff auf alle Pro-Lehrgänge und alle Stücke.
                         </p>
                       </div>
                     </div>
@@ -542,7 +542,7 @@ export default function RegisterPage() {
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
                           Als interessierte:r Lernende:r erkundest du die ganze Musikschule kostenlos: Du siehst einen
                           Kurseinblick, Instrumente und Lernvideos und kannst die Gratis-Stücke direkt nutzen. Zum
-                          Freischalten der Lehrgänge und der vollständigen Lernvideo-Datenbank upgradest du jederzeit auf
+                          Freischalten der Lehrgänge und aller Stücke upgradest du jederzeit auf
                           einen kostenpflichtigen Plan — ganz ohne Eile.
                         </p>
                       </div>
@@ -649,7 +649,7 @@ export default function RegisterPage() {
                         <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-1">Erst mit Upgrade nutzbar</p>
                         {[
                           'Strukturierte Lehrgänge (Grund- & Erweiterungskurse)',
-                          'Vollständige Lernvideo-Datenbank',
+                          'Alle Stücke',
                           'Persönlicher Support & Video-Feedback',
                         ].map((f, i) => (
                           <div key={i} className="flex items-center gap-2 font-sans text-sm text-text-secondary">
@@ -669,9 +669,9 @@ export default function RegisterPage() {
                     <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-6 flex gap-3">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
                       <div>
-                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zur ganzen Lernvideo-Datenbank</p>
+                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zu allen Stücken</p>
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Du erhältst direkten Zugang zur kompletten Lernvideo-Datenbank — sämtliche Instrumente, ohne
+                          Du erhältst direkten Zugang zu allen Stücken — sämtliche Instrumente, ohne
                           Lehrgänge oder einen Umfang auszuwählen.
                         </p>
                       </div>
@@ -781,9 +781,9 @@ export default function RegisterPage() {
                     <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-6 flex gap-3">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
                       <div>
-                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zur ganzen Lernvideo-Datenbank</p>
+                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zu allen Stücken</p>
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Alle Mitglieder erhalten direkten Zugang zur kompletten Lernvideo-Datenbank — sämtliche
+                          Alle Mitglieder erhalten direkten Zugang zu allen Stücken — sämtliche
                           Instrumente, ohne Lehrgänge oder einen Umfang auszuwählen.
                         </p>
                       </div>

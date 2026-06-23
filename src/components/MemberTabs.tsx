@@ -10,7 +10,7 @@ type Area = 'community' | 'academy' | 'lerndatenbank'
 
 const tabs: { id: Area; label: string; emoji: string; href: string }[] = [
   { id: 'academy', label: 'Musikschule', emoji: '🎓', href: '/member/academy' },
-  { id: 'lerndatenbank', label: 'Lernvideodatenbank', emoji: '🎵', href: '/member/academy/lernvideos' },
+  { id: 'lerndatenbank', label: 'Stücke', emoji: '🎵', href: '/member/academy/lernvideos' },
   { id: 'community', label: 'Community', emoji: '💬', href: '/member/community' },
 ]
 

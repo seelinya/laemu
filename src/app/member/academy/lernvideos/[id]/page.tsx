@@ -701,7 +701,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
       <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
-            <IconBack /> <span className="hidden sm:inline">Datenbank</span>
+            <IconBack /> <span className="hidden sm:inline">Stücke</span>
           </Link>
           <span className="text-white/20 hidden sm:inline">/</span>
           <div className="min-w-0">
@@ -752,8 +752,8 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           <h3 className="font-heading text-xl font-bold text-white mb-2">{needsProUpgrade ? 'Upgrade auf Pro' : 'Voller Zugang mit dem passenden Abo'}</h3>
           <p className="font-sans text-sm text-white/60 mb-5">
             {needsProUpgrade
-              ? 'Mit dem Pro-Abo schaltest du alle Stimmen-Videos, den Mixer und die komplette Lernvideo-Datenbank für alle Instrumente frei.'
-              : <>Schalte alle Lern- und Stimmen-Videos, den Mixer und die komplette Lernvideo-Datenbank für {piece.instrument} frei.</>}
+              ? 'Mit dem Pro-Abo schaltest du alle Stimmen-Videos, den Mixer und alle Stücke für alle Instrumente frei.'
+              : <>Schalte alle Lern- und Stimmen-Videos, den Mixer und alle Stücke für {piece.instrument} frei.</>}
           </p>
           <div className="space-y-2 mb-5">
             {['Alle Lern- & Stimmen-Videos', 'Mixer mit Einzelstimmen-Steuerung', 'Tempo & Tonhöhe anpassen', 'Noten zu jeder Stimme'].map((f) => (
@@ -861,7 +861,7 @@ export default function LernvideoDetailPage() {
       <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
-            <IconBack /> <span className="hidden sm:inline">Datenbank</span>
+            <IconBack /> <span className="hidden sm:inline">Stücke</span>
           </Link>
           <span className="text-white/20 hidden sm:inline">/</span>
           <div className="min-w-0">

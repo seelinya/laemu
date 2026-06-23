@@ -3,7 +3,7 @@ import { LegalPage } from '@/components/LegalPage'
 
 export const metadata: Metadata = {
   title: 'Nutzungsbedingungen — LAEMU',
-  description: 'Die Nutzungsbedingungen der LAEMU-Plattform für Musikschule, Community und Lernvideodatenbank.',
+  description: 'Die Nutzungsbedingungen der LAEMU-Plattform für Musikschule, Community und Stücke.',
 }
 
 export default function AgbPage() {
@@ -11,7 +11,7 @@ export default function AgbPage() {
     <LegalPage
       title="Nutzungsbedingungen"
       updated="15. Juni 2026"
-      intro="Diese Nutzungsbedingungen regeln die Nutzung der LAEMU-Plattform — bestehend aus Musikschule, Community und Lernvideodatenbank rund um die Schweizer Ländlermusik. Mit der Erstellung eines Kontos akzeptierst du diese Bedingungen."
+      intro="Diese Nutzungsbedingungen regeln die Nutzung der LAEMU-Plattform — bestehend aus Musikschule, Community und Stücke rund um die Schweizer Ländlermusik. Mit der Erstellung eines Kontos akzeptierst du diese Bedingungen."
       sections={[
         {
           heading: 'Geltungsbereich',

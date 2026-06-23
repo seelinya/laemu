@@ -40,7 +40,7 @@ export default function ImpressumPage() {
                 </a>
               </p>
               <p>
-                Allgemeine Anfragen und Anliegen rund um Musikschule, Community und Lernvideodatenbank richtest du
+                Allgemeine Anfragen und Anliegen rund um Musikschule, Community und Stücke richtest du
                 bitte an die oben genannte E-Mail-Adresse.
               </p>
             </>
