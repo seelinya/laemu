@@ -196,6 +196,144 @@ const buehnenpraesenzModules: CourseModule[] = [
   },
 ]
 
+// ─── Ausgebaute Lehrgänge: weitere Starter- & Pro-Kurse je Instrument ─────────
+// Kompakte Helfer (neue Kurse starten ohne Fortschritt).
+const L = (id: string, title: string, duration: string, type: LessonType = 'video'): Lesson => ({ id, title, duration, type, completed: false })
+const M = (id: string, title: string, lessons: Lesson[]): CourseModule => ({ id, title, status: 'not-started', lessons })
+
+// Handorgel — Übungskurse (Starter)
+const handorgelUebungenModules: CourseModule[] = [
+  M('fingeruebungen', 'Fingerübungen', [
+    L('warmup', 'Warm-up für die Finger', '8 min'),
+    L('tonleitern', 'Tonleitern üben', '12 min'),
+    L('fingersaetze', 'Fingersätze festigen', '10 min', 'video+text'),
+  ]),
+  M('rhythmus-balg', 'Rhythmus & Balg', [
+    L('balg', 'Balgführung trainieren', '11 min'),
+    L('patterns', 'Rhythmus-Patterns', '13 min'),
+    L('dynamik', 'Dynamik üben', '9 min'),
+  ]),
+]
+// Handorgel — Harmonielehre (Pro)
+const handorgelHarmonieModules: CourseModule[] = [
+  M('akkorde', 'Akkorde verstehen', [
+    L('dur-moll', 'Dur- und Moll-Akkorde', '12 min', 'video+text'),
+    L('kadenzen', 'Die wichtigsten Kadenzen', '14 min'),
+    L('septakkorde', 'Septakkorde', '11 min'),
+  ]),
+  M('begleitung', 'Begleitung gestalten', [
+    L('basslaeufe', 'Bassläufe entwickeln', '13 min'),
+    L('wendungen', 'Harmonische Wendungen', '15 min', 'video+text'),
+    L('eigene-begleitung', 'Eigene Begleitung bauen', '16 min'),
+  ]),
+]
+// Handorgel — Fortgeschrittene Techniken (Pro)
+const handorgelFortgeschrittenModules: CourseModule[] = [
+  M('verzierungen', 'Verzierungen', [
+    L('triller', 'Triller & Mordent', '10 min'),
+    L('vorschlaege', 'Vorschläge & Doppelschläge', '12 min'),
+    L('laeufe', 'Schnelle Läufe', '14 min'),
+  ]),
+  M('ausdruck', 'Ausdruck & Tempo', [
+    L('dynamik', 'Dynamische Gestaltung', '11 min', 'video+text'),
+    L('tempo', 'Tempo-Wechsel meistern', '13 min'),
+    L('phrasierung', 'Phrasierung wie die Profis', '15 min'),
+  ]),
+]
+
+// Schwyzerörgeli — Übungskurse (Starter)
+const schwyzerUebungenModules: CourseModule[] = [
+  M('grifftechnik', 'Grifftechnik', [
+    L('diatonisch', 'Diatonische Fingerübungen', '9 min'),
+    L('reihenwechsel', 'Reihenwechsel üben', '12 min'),
+    L('uebergaenge', 'Saubere Tonübergänge', '10 min', 'video+text'),
+  ]),
+  M('balg-rhythmus', 'Balg & Rhythmus', [
+    L('balg', 'Balgführung ziehend/stossend', '11 min'),
+    L('rhythmusgefuehl', 'Rhythmusgefühl entwickeln', '13 min'),
+    L('tempo', 'Tempo steigern', '9 min'),
+  ]),
+]
+// Schwyzerörgeli — Harmonielehre (Pro)
+const schwyzerHarmonieModules: CourseModule[] = [
+  M('tonarten', 'Tonarten & Akkorde', [
+    L('tonarten', 'Die gängigen Tonarten', '12 min', 'video+text'),
+    L('begleitakkorde', 'Begleitakkorde auf der Bassseite', '13 min'),
+    L('kadenzen', 'Kadenzen im Örgeli-Spiel', '11 min'),
+  ]),
+  M('begleitsaetze', 'Begleitsätze', [
+    L('appenzeller', 'Typische Appenzeller Begleitung', '14 min'),
+    L('stimmfuehrung', 'Stimmführung', '15 min', 'video+text'),
+    L('eigene-saetze', 'Eigene Sätze entwickeln', '16 min'),
+  ]),
+]
+// Schwyzerörgeli — Fortgeschrittene Grifftechnik (Pro)
+const schwyzerFortgeschrittenModules: CourseModule[] = [
+  M('verzierungen', 'Verzierungen', [
+    L('zaeuerli', 'Zäuerli-Verzierungen', '11 min'),
+    L('wechsel', 'Schnelle Wechsel', '13 min'),
+    L('balg', 'Präzise Balgführung', '12 min', 'video+text'),
+  ]),
+  M('stilistik', 'Stilistik', [
+    L('innerschwyzer', 'Innerschwyzer Stil', '14 min'),
+    L('ausdruck', 'Ausdruck & Dynamik', '12 min'),
+    L('interpretation', 'Eigene Interpretation', '15 min'),
+  ]),
+]
+
+// Bassgeige — Grundlagenkurs (Starter)
+const bassgeigeGrundlagenModules: CourseModule[] = [
+  M('einfuehrung', 'Einführung', [
+    L('kennenlernen', 'Die Bassgeige kennenlernen', '7 min'),
+    L('haltung', 'Haltung & Stand', '10 min'),
+    L('bogen-zupfen', 'Der Bogen & das Zupfen', '11 min', 'video+text'),
+  ]),
+  M('erste-toene', 'Erste Töne', [
+    L('leere-saiten', 'Die leeren Saiten', '9 min'),
+    L('greifen', 'Erste Töne greifen', '12 min'),
+    L('basslinie', 'Einfache Basslinie', '14 min'),
+  ]),
+]
+// Bassgeige — Übungskurse (Starter)
+const bassgeigeUebungenModules: CourseModule[] = [
+  M('bogen-zupfen', 'Bogen & Zupfen', [
+    L('bogenfuehrung', 'Bogenführung üben', '10 min'),
+    L('pizzicato', 'Pizzicato-Technik', '11 min'),
+    L('ton', 'Sauberer Ton', '9 min', 'video+text'),
+  ]),
+  M('rhythmus', 'Rhythmus', [
+    L('puls', 'Der Ländler-Puls', '12 min'),
+    L('walzer', 'Walzer-Begleitung', '13 min'),
+    L('timing', 'Timing festigen', '10 min'),
+  ]),
+]
+// Bassgeige — Harmonielehre (Pro)
+const bassgeigeHarmonieModules: CourseModule[] = [
+  M('basslinien', 'Basslinien', [
+    L('grundtoene', 'Grundtöne finden', '12 min', 'video+text'),
+    L('quintfall', 'Quintfall & Kadenzen', '13 min'),
+    L('durchgang', 'Durchgangsnoten', '11 min'),
+  ]),
+  M('begleitung', 'Begleitung', [
+    L('walzer-bass', 'Walzer-Bass gestalten', '14 min'),
+    L('polka-bass', 'Polka-Bass', '12 min'),
+    L('eigene', 'Eigene Basslinien', '15 min', 'video+text'),
+  ]),
+]
+// Bassgeige — Fortgeschrittene Bogentechnik (Pro)
+const bassgeigeFortgeschrittenModules: CourseModule[] = [
+  M('bogentechnik', 'Bogentechnik', [
+    L('detache-legato', 'Détaché & Legato', '11 min'),
+    L('akzente', 'Akzente setzen', '12 min'),
+    L('dynamik', 'Dynamik mit dem Bogen', '13 min', 'video+text'),
+  ]),
+  M('ausdruck', 'Ausdruck', [
+    L('groove', 'Groove & Timing', '14 min'),
+    L('zusammenspiel', 'Zusammenspiel mit der Kapelle', '13 min'),
+    L('eigener-ausdruck', 'Eigener Ausdruck', '12 min'),
+  ]),
+]
+
 // ─── Kurs-Katalog ─────────────────────────────────────────────────────────────
 
 const handorgelCourses: Record<string, Course> = {
@@ -203,12 +341,55 @@ const handorgelCourses: Record<string, Course> = {
     id: 'grundlagen', title: 'Grundlagenkurs', instrumentId: 'handorgel', instrumentLabel: 'Handorgel',
     emoji: '🪗', level: 'Starter', teacher: 'Hansruedi Wenger', modules: grundlagenModules,
   },
+  uebungen: {
+    id: 'uebungen', title: 'Übungskurse', instrumentId: 'handorgel', instrumentLabel: 'Handorgel',
+    emoji: '🪗', level: 'Starter', teacher: 'Hansruedi Wenger', modules: handorgelUebungenModules,
+  },
+  harmonielehre: {
+    id: 'harmonielehre', title: 'Harmonielehre', instrumentId: 'handorgel', instrumentLabel: 'Handorgel',
+    emoji: '🪗', level: 'Pro', teacher: 'Franz Hess', modules: handorgelHarmonieModules,
+  },
+  fortgeschritten: {
+    id: 'fortgeschritten', title: 'Fortgeschrittene Techniken', instrumentId: 'handorgel', instrumentLabel: 'Handorgel',
+    emoji: '🪗', level: 'Pro', teacher: 'Hansruedi Wenger', modules: handorgelFortgeschrittenModules,
+  },
 }
 
 const schwyzerCourses: Record<string, Course> = {
   grundlagen: {
     id: 'grundlagen', title: 'Grundlagenkurs Schwyzerörgeli', instrumentId: 'schwyzer', instrumentLabel: 'Schwyzerörgeli',
     emoji: '🎶', level: 'Starter', teacher: 'Cyrill Rusch', modules: schwyzerGrundlagenModules,
+  },
+  uebungen: {
+    id: 'uebungen', title: 'Übungskurse', instrumentId: 'schwyzer', instrumentLabel: 'Schwyzerörgeli',
+    emoji: '🎶', level: 'Starter', teacher: 'Cyrill Rusch', modules: schwyzerUebungenModules,
+  },
+  harmonielehre: {
+    id: 'harmonielehre', title: 'Harmonielehre', instrumentId: 'schwyzer', instrumentLabel: 'Schwyzerörgeli',
+    emoji: '🎶', level: 'Pro', teacher: 'Cyrill Rusch', modules: schwyzerHarmonieModules,
+  },
+  fortgeschritten: {
+    id: 'fortgeschritten', title: 'Fortgeschrittene Grifftechnik', instrumentId: 'schwyzer', instrumentLabel: 'Schwyzerörgeli',
+    emoji: '🎶', level: 'Pro', teacher: 'Cyrill Rusch', modules: schwyzerFortgeschrittenModules,
+  },
+}
+
+const bassgeigeCourses: Record<string, Course> = {
+  grundlagen: {
+    id: 'grundlagen', title: 'Grundlagenkurs Bassgeige', instrumentId: 'bassgeige', instrumentLabel: 'Bassgeige',
+    emoji: '🎻', level: 'Starter', teacher: 'Simon Rusch', modules: bassgeigeGrundlagenModules,
+  },
+  uebungen: {
+    id: 'uebungen', title: 'Übungskurse', instrumentId: 'bassgeige', instrumentLabel: 'Bassgeige',
+    emoji: '🎻', level: 'Starter', teacher: 'Simon Rusch', modules: bassgeigeUebungenModules,
+  },
+  harmonielehre: {
+    id: 'harmonielehre', title: 'Harmonielehre', instrumentId: 'bassgeige', instrumentLabel: 'Bassgeige',
+    emoji: '🎻', level: 'Pro', teacher: 'Franz Hess', modules: bassgeigeHarmonieModules,
+  },
+  fortgeschritten: {
+    id: 'fortgeschritten', title: 'Fortgeschrittene Bogentechnik', instrumentId: 'bassgeige', instrumentLabel: 'Bassgeige',
+    emoji: '🎻', level: 'Pro', teacher: 'Simon Rusch', modules: bassgeigeFortgeschrittenModules,
   },
 }
 
@@ -232,6 +413,7 @@ const allgemeinCourses: Record<string, Course> = {
 const courseRegistry: Record<string, Record<string, Course>> = {
   handorgel: handorgelCourses,
   schwyzer: schwyzerCourses,
+  bassgeige: bassgeigeCourses,
   allgemein: allgemeinCourses,
 }
 
