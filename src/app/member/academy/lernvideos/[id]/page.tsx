@@ -1264,7 +1264,6 @@ export default function LernvideoDetailPage() {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div>
                   <h2 className="font-heading font-bold text-xl">Begleitvorschläge</h2>
-                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — Handorgel-, Schwyzerörgeli-, Klavier- & Bassbegleitung.</p>
                 </div>
                 {begleitSections.length > 0
                   ? begleitSections.map(s => renderStimmeSection(s, true, ['violin']))
