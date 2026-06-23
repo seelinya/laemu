@@ -57,15 +57,10 @@ export function StarterCourseCard({
       <div className="flex-1 p-4 min-w-0 flex flex-col">
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked ? 'text-text-secondary group-hover:text-dark' : 'group-hover:text-accent-gold'}`}>{title}</h3>
-          {locked ? (
+          {locked && (
             <span className="font-sans text-[10px] uppercase tracking-wide bg-dark/5 border border-border text-text-secondary px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
               {lockLabel} · Gesperrt
-            </span>
-          ) : (
-            <span className="font-sans text-[10px] uppercase tracking-wide bg-accent-gold/10 border border-accent-gold/30 text-accent-gold px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              Freigeschaltet
             </span>
           )}
         </div>
