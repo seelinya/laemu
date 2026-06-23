@@ -63,7 +63,7 @@ const videoData = {
     { id: 'j1', name: 'Seebi Diener', voice: '1. Stimme', instrument: 'Handorgel', volume: 85, muted: false, color: '#C4973A' },
     { id: 'j2', name: 'Cyrill Rusch', voice: '2. Stimme', instrument: 'Schwyzerörgeli', volume: 75, muted: false, color: '#5A8A6A' },
     { id: 'j3', name: 'Franz Hess', voice: 'Begleitung', instrument: 'Klavier', volume: 70, muted: false, color: '#7A6A9A' },
-    { id: 'j4', name: 'Simon Rusch', voice: 'Bassbegleitung', instrument: 'Bass', volume: 68, muted: true, color: '#8A5A4A' },
+    { id: 'j4', name: 'Simon Rusch', voice: 'Bassbegleitung', instrument: 'Bass', volume: 68, muted: false, color: '#8A5A4A' },
   ] as MixerMusician[],
   voices: [
     { id: 'v1_ho', label: '1. Stimme Handorgel', volume: 80, muted: false, color: '#C4973A' },
@@ -816,9 +816,8 @@ export default function LernvideoDetailPage() {
   const stimme2Sections = v.stimmenSections.filter(s => s.label.startsWith('2. Stimme') && MELODIC.includes(s.instrument))
   const begleitSections = v.stimmenSections.filter(s => s.label.toLowerCase().includes('begleitung'))
 
-  const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean) => {
-    // Nur Violinschlüssel- & Griffschrift-Noten (Schwyzerörgeli) anzeigen.
-    const noten = stimme.noten.filter(n => ALLOWED_NOTEN_KEYS.includes(n.key))
+  const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean, notenKeys: string[] = ALLOWED_NOTEN_KEYS) => {
+    const noten = stimme.noten.filter(n => notenKeys.includes(n.key))
     return (
       <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
         <div className="px-5 py-3 border-b border-border bg-background flex items-center gap-2.5">
@@ -997,20 +996,7 @@ export default function LernvideoDetailPage() {
                     </div>
                   ) : (
                     <>
-                      <p className="font-sans text-sm text-text-secondary mb-4">Einzelne Notenblätter à CHF 5 — als Violinschlüssel oder Griffschrift (Schwyzerörgeli).</p>
-
-                      {/* Verfügbare Notationsarten */}
-                      <div className="flex flex-wrap gap-2 mb-5 p-3 bg-background border border-border">
-                        <span className="font-sans text-xs text-text-secondary self-center">Verfügbare Notationsarten:</span>
-                        {STANDARD_NOTEN.map(s => (
-                          <span key={s.key} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1.5">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            {s.label}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                         {STANDARD_NOTEN.map(s => (
                           <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">
                             <div>
@@ -1029,17 +1015,6 @@ export default function LernvideoDetailPage() {
                           </div>
                         ))}
                       </div>
-                      {v.notenheftUrl && (
-                        <div className="border border-accent-gold/30 bg-accent-gold/5 p-4 flex items-center justify-between">
-                          <div>
-                            <p className="font-heading font-bold text-sm">Komplettes Notenheft</p>
-                            <p className="font-sans text-xs text-text-secondary">Violinschlüssel & Griffschrift (Schwyzerörgeli) · alle Stimmen</p>
-                          </div>
-                          <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-sm px-4 py-2 bg-accent-gold text-white hover:bg-accent-warm transition-colors whitespace-nowrap">
-                            Zum Notenheft →
-                          </a>
-                        </div>
-                      )}
                     </>
                   )}
                 </motion.div>
@@ -1294,7 +1269,7 @@ export default function LernvideoDetailPage() {
                   <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — Handorgel-, Schwyzerörgeli-, Klavier- & Bassbegleitung.</p>
                 </div>
                 {begleitSections.length > 0
-                  ? begleitSections.map(s => renderStimmeSection(s, true))
+                  ? begleitSections.map(s => renderStimmeSection(s, true, ['violin']))
                   : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es keine Begleitvideos.</p>}
               </motion.div>
             )}
@@ -1318,7 +1293,7 @@ export default function LernvideoDetailPage() {
 
           {/* RIGHT SIDEBAR */}
           <div>
-            <div className="sticky top-8 space-y-4">
+            <div className="sticky top-8 space-y-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-1">
               {/* Metadata */}
               <div className="bg-surface border border-border p-5">
                 <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Stück-Info</p>

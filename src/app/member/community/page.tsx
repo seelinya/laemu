@@ -14,6 +14,8 @@ import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } f
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
 const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
 const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
+const LAEMU_FACEBOOK_HANDLE = 'laemu.ch'
+const LAEMU_FACEBOOK_URL = `https://www.facebook.com/${LAEMU_FACEBOOK_HANDLE}`
 // Geschlossene WhatsApp-Gruppen — echte Einladungslinks hier eintragen.
 const LAEMU_WHATSAPP_INFO_GROUP_URL = 'https://chat.whatsapp.com/'
 const LAEMU_WHATSAPP_SHARE_GROUP_URL = 'https://chat.whatsapp.com/'
@@ -24,14 +26,6 @@ function IconUser() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-    </svg>
-  )
-}
-function IconSettings() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
     </svg>
   )
 }
@@ -86,55 +80,11 @@ function IconUpload() {
     </svg>
   )
 }
-function IconCard() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-    </svg>
-  )
-}
-function IconPhone() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-    </svg>
-  )
-}
-function IconLaptop() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-      <line x1="2" y1="20" x2="22" y2="20"/>
-    </svg>
-  )
-}
 function IconEdit() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
       <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-    </svg>
-  )
-}
-function IconKey() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-    </svg>
-  )
-}
-function IconLocation() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-    </svg>
-  )
-}
-function IconBilling() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
     </svg>
   )
 }
@@ -149,6 +99,13 @@ function IconWhatsApp({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
+    </svg>
+  )
+}
+function IconFacebook({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
     </svg>
   )
 }
@@ -208,7 +165,6 @@ const navItems = [
   { icon: <IconHomeSimple />, label: 'Start', id: 'start' },
   { icon: <IconUser />, label: 'Mein Profil', id: 'profile' },
   { icon: <IconSearch />, label: 'Entdecken', id: 'discover' },
-  { icon: <IconSettings />, label: 'Einstellungen', id: 'settings' },
 ]
 
 // Andere Mitglieder, die unter «Entdecken» sichtbar sind (im echten Betrieb:
@@ -293,7 +249,7 @@ function DiscoverView() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Mitglieder suchen — Name oder Instrument…"
+          placeholder="Mitglieder suchen"
           className="w-full border border-border pl-10 pr-9 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
         />
         {query && (
@@ -410,6 +366,28 @@ function StartView() {
             <p className="font-sans text-sm font-light text-text-secondary leading-snug">
               Folge <span className="text-accent-gold">@{LAEMU_INSTAGRAM_HANDLE}</span> für Einblicke,
               Stücke und Eindrücke aus der Szene.
+            </p>
+          </div>
+          <span className="font-sans text-sm text-text-secondary group-hover:text-accent-gold transition-colors flex-shrink-0">→</span>
+        </div>
+      </a>
+
+      {/* Facebook */}
+      <a
+        href={LAEMU_FACEBOOK_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
+      >
+        <div className="flex items-center gap-4">
+          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold transition-colors">
+            <IconFacebook />
+          </span>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-heading font-bold text-base">LAEMU auf Facebook</h3>
+            <p className="font-sans text-sm font-light text-text-secondary leading-snug">
+              Folge <span className="text-accent-gold">@{LAEMU_FACEBOOK_HANDLE}</span> für News,
+              Veranstaltungen und Eindrücke aus der Szene.
             </p>
           </div>
           <span className="font-sans text-sm text-text-secondary group-hover:text-accent-gold transition-colors flex-shrink-0">→</span>
@@ -1024,170 +1002,6 @@ function ProfileView() {
   )
 }
 
-function SettingsView() {
-  const [activeSection, setActiveSection] = useState('billing')
-
-  const sections = [
-    { id: 'billing', label: 'Rechnungen', icon: <IconBilling /> },
-    { id: 'payment', label: 'Zahlungsmittel', icon: <IconCard /> },
-    { id: 'address', label: 'Adresse', icon: <IconLocation /> },
-    { id: 'password', label: 'Passwort', icon: <IconKey /> },
-    { id: 'devices', label: 'Geräte', icon: <IconPhone /> },
-  ]
-
-  return (
-    <div className="bg-surface border border-border overflow-hidden">
-      <div className="flex border-b border-border overflow-x-auto">
-        {sections.map(s => (
-          <button
-            key={s.id}
-            onClick={() => setActiveSection(s.id)}
-            className={`flex items-center gap-1.5 px-4 py-3 font-sans text-sm whitespace-nowrap transition-colors border-b-2 ${activeSection === s.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark'}`}
-          >
-            {s.icon} {s.label}
-          </button>
-        ))}
-      </div>
-      <div className="p-6">
-        {activeSection === 'billing' && (
-          <div>
-            {/* Active subscriptions */}
-            <div className="mb-6">
-              <h3 className="font-heading font-bold text-lg mb-3">Aktive Abonnements</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 border border-accent-gold/40 bg-accent-gold/5">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">🪗</span>
-                    <div>
-                      <p className="font-sans text-sm font-semibold">LAEMU Musikschule – Handorgel-Lehrgang</p>
-                      <p className="font-sans text-xs text-text-secondary">Jahresabo · nächste Verlängerung 1. Feb 2027</p>
-                      <span className="font-sans text-[10px] text-accent-gold font-medium">Formation-Rabatt aktiv (Kapelle Hess-Ruedi)</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-sans text-sm font-semibold text-accent-gold">CHF 222.40 / Jahr</p>
-                    <span className="font-sans text-[10px] text-text-secondary line-through">CHF 278.00</span>
-                    <div className="mt-1">
-                      <button className="font-sans text-xs text-red-500 hover:text-red-700 transition-colors">Kündigen</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Invoice history */}
-            <h3 className="font-heading font-bold text-lg mb-3">Rechnungsverlauf</h3>
-            <div className="space-y-3">
-              {[
-                { date: 'Feb 2026', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
-                { date: 'Feb 2025', desc: 'LAEMU Musikschule – Handorgel-Lehrgang (Jahresabo)', amount: 'CHF 222.40' },
-              ].map((r, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors">
-                  <div>
-                    <p className="font-sans text-sm font-medium">{r.desc}</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">{r.date}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-sans text-sm font-semibold">{r.amount}</p>
-                    <span className="font-sans text-xs text-green-600 font-medium">Bezahlt</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {activeSection === 'payment' && (
-          <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Zahlungsmittel</h3>
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center justify-between p-4 border-2 border-dark bg-dark text-white">
-                <div className="flex items-center gap-3">
-                  <IconCard />
-                  <div>
-                    <p className="font-sans text-sm font-medium">Visa •••• 4242</p>
-                    <p className="font-sans text-xs text-white/60">Läuft ab 12/2027</p>
-                  </div>
-                </div>
-                <span className="font-sans text-xs text-accent-yellow border border-accent-yellow px-2 py-0.5">Favorit</span>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <IconCard />
-                  <div>
-                    <p className="font-sans text-sm font-medium">PostFinance •••• 8891</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">Läuft ab 03/2026</p>
-                  </div>
-                </div>
-                <button className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">Als Favorit</button>
-              </div>
-            </div>
-            <button className="font-sans text-sm text-accent-gold hover:text-dark transition-colors">+ Zahlungsmittel hinzufügen</button>
-          </div>
-        )}
-        {activeSection === 'address' && (
-          <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Wohnadresse</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {[['Vorname', 'Niklaus'], ['Nachname', 'Hess'], ['Strasse & Nr.', 'Musterstrasse 12'], ['PLZ', '6000'], ['Ort', 'Luzern'], ['Land', 'Schweiz']].map(([label, val]) => (
-                <div key={label}>
-                  <label className="font-sans text-xs font-light text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
-                  <input defaultValue={val} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                </div>
-              ))}
-            </div>
-            <button className="mt-4 bg-dark text-white font-sans text-sm px-6 py-2.5 hover:bg-accent-gold transition-colors">Speichern</button>
-          </div>
-        )}
-        {activeSection === 'password' && (
-          <div>
-            <h3 className="font-heading font-bold text-lg mb-4">Passwort ändern</h3>
-            <div className="space-y-4 max-w-sm">
-              {['Aktuelles Passwort', 'Neues Passwort', 'Passwort bestätigen'].map(label => (
-                <div key={label}>
-                  <label className="font-sans text-xs font-light text-text-secondary uppercase tracking-[0.15em] block mb-1">{label}</label>
-                  <input type="password" placeholder="••••••••" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
-                </div>
-              ))}
-              <button className="bg-dark text-white font-sans text-sm px-6 py-2.5 hover:bg-accent-gold transition-colors">Passwort aktualisieren</button>
-            </div>
-          </div>
-        )}
-        {activeSection === 'devices' && (
-          <div>
-            <h3 className="font-heading font-bold text-lg mb-2">Geräte-Verwaltung</h3>
-            <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">
-              Du kannst maximal 2 Geräte (Laptop und Smartphone) für den Zugriff hinterlegen.
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 border-2 border-dark bg-dark text-white">
-                <div className="flex items-center gap-3">
-                  <IconLaptop />
-                  <div>
-                    <p className="font-sans text-sm font-medium">MacBook Pro · Safari</p>
-                    <p className="font-sans text-xs text-accent-yellow">Aktuelles Gerät · Luzern, CH</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-border hover:border-dark transition-colors">
-                <div className="flex items-center gap-3">
-                  <IconPhone />
-                  <div>
-                    <p className="font-sans text-sm font-medium">iPhone 15 · Safari</p>
-                    <p className="font-sans text-xs font-light text-text-secondary">Letzter Zugriff: heute, 08:32</p>
-                  </div>
-                </div>
-                <button className="font-sans text-xs text-red-500 border border-red-200 px-2 py-1 hover:bg-red-50 transition-colors">Entfernen</button>
-              </div>
-            </div>
-            <p className="font-sans text-xs font-light text-text-secondary mt-4">
-              Möchtest du ein drittes Gerät hinzufügen? Entferne zuerst ein bestehendes.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MemberCommunityPage() {
@@ -1259,7 +1073,6 @@ export default function MemberCommunityPage() {
             {activeNav === 'start' && <StartView />}
             {activeNav === 'profile' && <ProfileView />}
             {activeNav === 'discover' && <DiscoverView />}
-            {activeNav === 'settings' && <SettingsView />}
           </div>
 
         </div>

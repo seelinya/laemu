@@ -719,7 +719,7 @@ export default function LernvideosPage() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
                       Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
-                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
+                      <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
                     </p>
                   </>
                 ) : (
@@ -727,7 +727,7 @@ export default function LernvideosPage() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                     <p className="font-sans text-xs text-text-secondary leading-relaxed">
                       <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind die ersten {FREE_TRIAL_DB_COUNT} Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
-                      <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
+                      <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
                     </p>
                   </>
                 )}
