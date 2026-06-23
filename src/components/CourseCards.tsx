@@ -16,11 +16,10 @@ export function StarterCourseCard({
   duration,
   desc,
   completedModules,
-  emoji,
+  instrument,
   variant,
   locked = false,
   lockLabel = 'Gesperrt',
-  comingSoon = false,
   previewable = true,
 }: {
   href: string
@@ -30,11 +29,10 @@ export function StarterCourseCard({
   duration: string
   desc: string
   completedModules: number
-  emoji: string
+  instrument?: string
   variant: string
   locked?: boolean
   lockLabel?: string
-  comingSoon?: boolean
   previewable?: boolean
 }) {
   const progress = modules === 0 ? 0 : Math.round((completedModules / modules) * 100)
@@ -43,14 +41,14 @@ export function StarterCourseCard({
       href={href}
       className="bg-surface border border-border overflow-hidden group hover:border-accent-gold transition-colors flex h-full"
     >
-      <div className="relative w-24 sm:w-28 flex-shrink-0 self-stretch overflow-hidden">
-        <CourseCover emoji={emoji} variant={variant} size="sm" />
-        {!comingSoon && locked && (
-          <span className="absolute inset-0 bg-dark/45 flex items-center justify-center z-10">
+      <div className={`relative w-24 sm:w-28 flex-shrink-0 self-stretch overflow-hidden ${locked ? 'grayscale' : ''}`}>
+        <CourseCover variant={variant} size="sm" />
+        {locked && (
+          <span className="absolute inset-0 bg-dark/60 flex items-center justify-center z-10">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
           </span>
         )}
-        {!comingSoon && !locked && progress > 0 && (
+        {!locked && progress > 0 && (
           <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 z-10">
             {progress}%
           </span>
@@ -58,30 +56,31 @@ export function StarterCourseCard({
       </div>
       <div className="flex-1 p-4 min-w-0 flex flex-col">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-heading font-bold text-base leading-snug group-hover:text-accent-gold transition-colors">{title}</h3>
-          {comingSoon ? (
-            <span className="font-sans text-[10px] uppercase tracking-wide bg-amber-50 border border-amber-200 text-amber-700 px-2 py-0.5 flex-shrink-0 whitespace-nowrap">In Aufbau</span>
+          <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked ? 'text-text-secondary group-hover:text-dark' : 'group-hover:text-accent-gold'}`}>{title}</h3>
+          {locked ? (
+            <span className="font-sans text-[10px] uppercase tracking-wide bg-dark/5 border border-border text-text-secondary px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+              {lockLabel} · Gesperrt
+            </span>
           ) : (
-            <span className="font-sans text-[10px] uppercase tracking-wide bg-background border border-border text-text-secondary px-2 py-0.5 flex-shrink-0">{level}</span>
+            <span className="font-sans text-[10px] uppercase tracking-wide bg-accent-gold/10 border border-accent-gold/30 text-accent-gold px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+              Freigeschaltet
+            </span>
           )}
         </div>
-        <p className="font-sans text-xs text-text-secondary mb-2">{modules} Module · {duration}</p>
+        <p className="font-sans text-xs text-text-secondary mb-2">{instrument ? `${instrument} · ` : ''}{level} · {modules} Module · {duration}</p>
         <p className="font-sans text-sm text-text-secondary leading-relaxed line-clamp-2 flex-1">{desc}</p>
-        {comingSoon ? (
-          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary group-hover:text-dark transition-colors">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-            In Vorbereitung
-          </span>
-        ) : locked ? (
+        {locked ? (
           previewable ? (
             <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary group-hover:text-dark transition-colors">
-              {lockLabel} · Vorschau ansehen
+              Vorschau ansehen
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </span>
           ) : (
             <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-              {lockLabel} · Gesperrt
+              Mit {lockLabel}-Abo freischalten
             </span>
           )
         ) : progress > 0 ? (

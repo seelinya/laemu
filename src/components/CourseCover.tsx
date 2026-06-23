@@ -22,12 +22,10 @@ const COVER_IMAGES: Record<string, string> = {
 }
 
 export function CourseCover({
-  emoji,
   variant = 'default',
   size = 'md',
   className = '',
 }: {
-  emoji: string
   variant?: string
   size?: 'sm' | 'md' | 'lg'
   className?: string
@@ -59,8 +57,6 @@ export function CourseCover({
       <span className={`relative ${play} rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center`}>
         <svg width={playIcon} height={playIcon} viewBox="0 0 24 24" fill="white" className="ml-0.5"><polygon points="6 4 20 12 6 20 6 4" /></svg>
       </span>
-      {/* Instrument-Emoji als kleines Badge */}
-      <span className="absolute bottom-1.5 left-1.5 text-base leading-none select-none drop-shadow">{emoji}</span>
     </div>
   )
 }

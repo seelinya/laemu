@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { isDbVideoUnlocked, individualPlanMeta, FREE_TRIAL_DB_COUNT } from '@/lib/academy'
+import { isDbVideoUnlocked, individualPlanMeta } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { MemberTabs } from '@/components/MemberTabs'
@@ -258,7 +258,7 @@ export default function LernvideosPage() {
       >
         {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
         <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
-          <Image src={v.img} alt={v.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+          <Image src={v.img} alt={v.title} fill className={`object-cover group-hover:scale-105 transition-transform duration-500 ${unlocked ? '' : 'grayscale'}`} unoptimized />
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
           </div>
@@ -328,8 +328,13 @@ export default function LernvideosPage() {
             </div>
             <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:my-2">
               <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
-              {!unlocked && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1">
+              {unlocked ? (
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1 whitespace-nowrap">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Freigeschaltet
+                </span>
+              ) : (
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                   Gesperrt
                 </span>
@@ -705,33 +710,25 @@ export default function LernvideosPage() {
                 )}
               </div>
 
-              {/* Abo / Freischalt-Hinweis */}
-              <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                {userAbo.plan === 'pro' || userAbo.plan === 'lernvideo' ? (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. Mixer und Stimmen-Videos.
-                    </p>
-                  </>
-                ) : userAbo.plan === 'starter' ? (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
-                      <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind die ersten {FREE_TRIAL_DB_COUNT} Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
-                      <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
-                    </p>
-                  </>
-                )}
-              </div>
+              {/* Abo / Freischalt-Hinweis — nur wenn ein Upgrade möglich ist
+                  (Starter & Free). Pro/Lernvideo haben ohnehin alles freigeschaltet. */}
+              {userAbo.plan === 'starter' ? (
+                <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                    Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
+                    <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
+                  </p>
+                </div>
+              ) : userAbo.plan === 'none' ? (
+                <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                    <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind ausgewählte Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
+                    <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
+                  </p>
+                </div>
+              ) : null}
 
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">

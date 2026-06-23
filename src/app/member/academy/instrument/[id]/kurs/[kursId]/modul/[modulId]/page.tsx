@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getCourse, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type LessonType } from '@/lib/courses'
+import { getCourse, freeTrialLessonKeys, type LessonType } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { isFreePreviewCourse } from '@/lib/instruments'
 import { useUserAbo } from '@/lib/userPlan'
@@ -571,7 +571,7 @@ export default function ModulPage({
                   <div>
                     <p className="font-heading font-bold text-white text-lg mb-1">Diese Lektion ist gesperrt</p>
                     <p className="font-sans text-sm text-white/60 max-w-md">
-                      Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für diese Lektion und den ganzen Kurs schaltest du den Kurs mit dem passenden Abo frei.
+                      Die ersten Lektionen dieses Kurses sind zum Reinschnuppern frei. Für diese Lektion und den ganzen Kurs schaltest du den Kurs mit dem passenden Abo frei.
                     </p>
                   </div>
                   <Link href="/member/academy" className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-warm transition-colors">
