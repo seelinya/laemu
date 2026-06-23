@@ -706,7 +706,6 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           <span className="text-white/20 hidden sm:inline">/</span>
           <div className="min-w-0">
             <h1 className="font-heading font-bold text-base leading-tight truncate">{piece.title}</h1>
-            <p className="font-sans text-xs text-white/40 truncate">{piece.artist} · {piece.year}</p>
           </div>
         </div>
         <span className="font-sans text-xs px-3 py-1.5 border border-white/20 text-white/60 flex items-center gap-1.5 flex-shrink-0">
