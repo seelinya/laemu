@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { getCourse, courseStats, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type Lesson } from '@/lib/courses'
+import { getCourse, courseStats, freeTrialLessonKeys, type Lesson } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { isFreePreviewCourse } from '@/lib/instruments'
 import { useUserAbo } from '@/lib/userPlan'
@@ -176,7 +176,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
           <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
             <p className="font-sans text-xs text-text-secondary leading-relaxed">
-              <strong className="text-dark font-semibold">Vorschau.</strong> Die ersten {FREE_TRIAL_LESSON_COUNT} Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs schaltest du mit dem passenden Abo {course.level === 'Pro' ? 'Pro' : `Starter für ${course.instrumentLabel}`} frei.{' '}
+              <strong className="text-dark font-semibold">Vorschau.</strong> Die ersten Lektionen dieses Kurses sind zum Reinschnuppern frei. Für den ganzen Kurs schaltest du mit dem passenden Abo {course.level === 'Pro' ? 'Pro' : `Starter für ${course.instrumentLabel}`} frei.{' '}
               <Link href="/member/academy" className="text-accent-gold font-medium hover:underline">Zur Übersicht →</Link>
             </p>
           </div>

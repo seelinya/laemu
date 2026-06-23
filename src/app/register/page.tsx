@@ -92,6 +92,9 @@ export default function RegisterPage() {
   // aber zur Nutzung ist ein Upgrade auf einen kostenpflichtigen Plan nötig.
   const isFree = accountType === 'individual' && billing === 'free'
 
+  // Free-Account braucht keinen Zahlungsschritt — Stepper ohne «Zahlung».
+  const visibleSteps = isFree ? steps.filter((s) => s.number !== 3) : steps
+
   // Für die Preisanzeige im Free-Modus referenzieren wir den Jahrespreis
   // (zeigt, was ein späteres Upgrade kosten würde).
   const priceBilling: 'yearly' | 'monthly' = billing === 'free' ? 'yearly' : billing
@@ -283,9 +286,9 @@ export default function RegisterPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-        {/* Step indicator — gleichmässiger Abstand, mobil-tauglich */}
+        {/* Step indicator — Free-Account hat keinen Zahlungsschritt */}
         <div className="flex items-start mb-10">
-          {steps.map((s, i) => (
+          {visibleSteps.map((s, i) => (
             <Fragment key={s.number}>
               <div className="flex flex-col items-center gap-2 w-20 sm:w-24 shrink-0">
                 <div className={`w-10 h-10 flex items-center justify-center font-heading font-bold text-sm transition-all ${
@@ -299,7 +302,7 @@ export default function RegisterPage() {
                 </div>
                 <span className={`font-sans text-xs text-center leading-tight ${step === s.number ? 'text-dark font-medium' : 'text-text-secondary'}`}>{s.label}</span>
               </div>
-              {i < steps.length - 1 && (
+              {i < visibleSteps.length - 1 && (
                 <div className={`flex-1 h-px mt-5 transition-colors ${step > s.number ? 'bg-accent-gold' : 'bg-border'}`} />
               )}
             </Fragment>
@@ -448,11 +451,11 @@ export default function RegisterPage() {
                     ← Zurück
                   </button>
                   <button
-                    onClick={() => setStep(3)}
+                    onClick={() => { if (isFree) finishRegistration(); else setStep(3) }}
                     disabled={!(angabenComplete && formationReady)}
                     className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
-                    Weiter zur Zahlung →
+                    {isFree ? 'Registrierung abschliessen →' : 'Weiter zur Zahlung →'}
                   </button>
                 </div>
                 {!(angabenComplete && formationReady) && (
