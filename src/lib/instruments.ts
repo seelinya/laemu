@@ -37,42 +37,42 @@ export type InstrumentOverview = {
 
 const handorgelStarterKurse: StarterKurs[] = [
   { id: 'grundlagen', title: 'Grundlagenkurs', desc: 'Der Einstieg in die Welt der Handorgel — von null bis zu deinen ersten Liedern.', modules: 5, completedModules: 3, duration: '8h', level: 'Einsteiger' },
-  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Finger, Rhythmus und Klang.', modules: 4, completedModules: 0, duration: '6h', level: 'Einsteiger' },
+  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Finger, Rhythmus und Klang.', modules: 2, completedModules: 0, duration: '2h', level: 'Einsteiger' },
   { id: 'pflege', title: 'Hege & Pflege', desc: 'Pflege, Stimmung und Wartung deiner Handorgel.', modules: 3, completedModules: 0, duration: '3h', level: 'Einsteiger' },
   { id: 'repertoire', title: 'Erstes Repertoire', desc: 'Deine ersten echten Ländlerstücke Schritt für Schritt erlernt.', modules: 6, completedModules: 0, duration: '10h', level: 'Einsteiger' },
 ]
 
 const schwyzerStarterKurse: StarterKurs[] = [
   { id: 'grundlagen', title: 'Grundlagenkurs Schwyzerörgeli', desc: 'Der Einstieg in die diatonische Welt des Schwyzerörgeli.', modules: 5, completedModules: 1, duration: '7h', level: 'Einsteiger' },
-  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Grifftechnik und Balg.', modules: 4, completedModules: 0, duration: '5h', level: 'Einsteiger' },
+  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Grifftechnik und Balg.', modules: 2, completedModules: 0, duration: '2h', level: 'Einsteiger' },
   { id: 'stimmung', title: 'Stimmung & Pflege', desc: 'Pflege und Wartung des Schwyzerörgeli.', modules: 3, completedModules: 0, duration: '2h', level: 'Einsteiger' },
   { id: 'repertoire', title: 'Appenzeller Repertoire', desc: 'Klassische Appenzeller Stücke für Einsteiger.', modules: 5, completedModules: 0, duration: '9h', level: 'Einsteiger' },
 ]
 
 const handorgelProKurse: ProKurs[] = [
-  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Akkorde, Tonarten und Stimmführung für die Handorgel.', modules: 4, duration: '7h', level: 'Fortgeschritten' },
-  { id: 'fortgeschritten', title: 'Fortgeschrittene Techniken', desc: 'Läufe, Verzierungen und Dynamik auf höchstem Niveau.', modules: 5, duration: '9h', level: 'Fortgeschritten' },
+  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Akkorde, Tonarten und Stimmführung für die Handorgel.', modules: 2, duration: '2h', level: 'Fortgeschritten' },
+  { id: 'fortgeschritten', title: 'Fortgeschrittene Techniken', desc: 'Läufe, Verzierungen und Dynamik auf höchstem Niveau.', modules: 2, duration: '2h', level: 'Fortgeschritten' },
   { id: 'ensemble', title: 'Ensemble-Spiel', desc: 'Zusammenspiel und Arrangement in der Formation.', modules: 3, duration: '5h', level: 'Fortgeschritten' },
   { id: 'improvisation', title: 'Improvisation', desc: 'Frei spielen im Ländlerstil — Variationen erfinden.', modules: 4, duration: '6h', level: 'Profi' },
 ]
 
 const schwyzerProKurse: ProKurs[] = [
-  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Tonarten, Akkorde und Stimmführung für das Schwyzerörgeli.', modules: 4, duration: '6h', level: 'Fortgeschritten' },
-  { id: 'fortgeschritten', title: 'Fortgeschrittene Grifftechnik', desc: 'Verzierungen, schnelle Läufe und präzise Balgführung.', modules: 5, duration: '8h', level: 'Fortgeschritten' },
+  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Tonarten, Akkorde und Stimmführung für das Schwyzerörgeli.', modules: 2, duration: '2h', level: 'Fortgeschritten' },
+  { id: 'fortgeschritten', title: 'Fortgeschrittene Grifftechnik', desc: 'Verzierungen, schnelle Läufe und präzise Balgführung.', modules: 2, duration: '2h', level: 'Fortgeschritten' },
   { id: 'ensemble', title: 'Ensemble-Spiel', desc: 'Zusammenspiel in Appenzeller Formation.', modules: 3, duration: '4h', level: 'Fortgeschritten' },
   { id: 'improvisation', title: 'Improvisation & Zäuerli', desc: 'Freies Spiel und Zäuerli-Stilistik.', modules: 4, duration: '5h', level: 'Profi' },
 ]
 
 const bassgeigeStarterKurse: StarterKurs[] = [
-  { id: 'grundlagen', title: 'Grundlagenkurs Bassgeige', desc: 'Der Einstieg in die Bassgeige — Haltung, Bogen und erste Töne.', modules: 5, completedModules: 0, duration: '7h', level: 'Einsteiger' },
-  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Bogenführung, Rhythmus und Intonation.', modules: 4, completedModules: 0, duration: '5h', level: 'Einsteiger' },
+  { id: 'grundlagen', title: 'Grundlagenkurs Bassgeige', desc: 'Der Einstieg in die Bassgeige — Haltung, Bogen und erste Töne.', modules: 2, completedModules: 0, duration: '2h', level: 'Einsteiger' },
+  { id: 'uebungen', title: 'Übungskurse', desc: 'Strukturierte Übungen für Bogenführung, Rhythmus und Intonation.', modules: 2, completedModules: 0, duration: '2h', level: 'Einsteiger' },
   { id: 'pflege', title: 'Hege & Pflege', desc: 'Saiten, Steg und Wartung deiner Bassgeige.', modules: 3, completedModules: 0, duration: '2h', level: 'Einsteiger' },
   { id: 'repertoire', title: 'Erstes Repertoire', desc: 'Deine ersten Ländler-Basslinien Schritt für Schritt erlernt.', modules: 5, completedModules: 0, duration: '8h', level: 'Einsteiger' },
 ]
 
 const bassgeigeProKurse: ProKurs[] = [
-  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Basslinien, Tonarten und Stimmführung für die Bassgeige.', modules: 4, duration: '6h', level: 'Fortgeschritten' },
-  { id: 'fortgeschritten', title: 'Fortgeschrittene Bogentechnik', desc: 'Präzise Bogenführung, Läufe und Dynamik.', modules: 5, duration: '8h', level: 'Fortgeschritten' },
+  { id: 'harmonielehre', title: 'Harmonielehre', desc: 'Basslinien, Tonarten und Stimmführung für die Bassgeige.', modules: 2, duration: '2h', level: 'Fortgeschritten' },
+  { id: 'fortgeschritten', title: 'Fortgeschrittene Bogentechnik', desc: 'Präzise Bogenführung, Läufe und Dynamik.', modules: 2, duration: '2h', level: 'Fortgeschritten' },
   { id: 'ensemble', title: 'Ensemble-Spiel', desc: 'Das rhythmische Fundament in der Formation.', modules: 3, duration: '4h', level: 'Fortgeschritten' },
   { id: 'improvisation', title: 'Improvisation', desc: 'Freie Basslinien im Ländlerstil gestalten.', modules: 4, duration: '5h', level: 'Profi' },
 ]
