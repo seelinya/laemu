@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { isDbVideoUnlocked, individualPlanMeta } from '@/lib/academy'
+import { isDbVideoUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { MemberTabs } from '@/components/MemberTabs'
@@ -733,18 +733,6 @@ export default function LernvideosPage() {
                   </div>
                 )}
               </div>
-
-              {/* Abo / Freischalt-Hinweis — nur für Starter (Upgrade auf Pro).
-                  Free upgradet über den Button oben rechts im Header. */}
-              {userAbo.plan === 'starter' && (
-                <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                    Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
-                    <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
-                  </p>
-                </div>
-              )}
 
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
