@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { useUserProfile } from '@/lib/userProfile'
 import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Noten ───────────────────────────────────────────────────────────────────
@@ -776,6 +777,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
 
 export default function LernvideoDetailPage() {
   const userAbo = useUserAbo()
+  const userProfile = useUserProfile()
   const params = useParams()
   const idNum = Number(Array.isArray(params?.id) ? params.id[0] : params?.id)
   const catalogEntry = pieceCatalog[idNum]
@@ -1084,7 +1086,7 @@ export default function LernvideoDetailPage() {
 
                 {/* 6 — KOMMENTARE (eine Leiste pro Lernvideo) */}
                 {(() => {
-                  const MY = { user: 'ich', name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' }
+                  const MY = { user: 'ich', name: userProfile.name || 'Mitglied', avatar: userProfile.avatar }
                   const profileHrefFor = (user: string) => (user === 'ich' ? '/member/profile' : `/member/u/${user}`)
                   const totalCount = videoComments.reduce((s, c) => s + 1 + c.replies.length, 0)
 
