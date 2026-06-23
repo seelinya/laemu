@@ -1240,7 +1240,6 @@ export default function LernvideoDetailPage() {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div>
                   <h2 className="font-heading font-bold text-xl">1. Stimme</h2>
-                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — für Handorgel, Schwyzerörgeli & Klarinette.</p>
                 </div>
                 {stimme1Sections.length > 0
                   ? stimme1Sections.map(s => renderStimmeSection(s, false))
@@ -1253,7 +1252,6 @@ export default function LernvideoDetailPage() {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div>
                   <h2 className="font-heading font-bold text-xl">2. Stimme</h2>
-                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — für Handorgel, Schwyzerörgeli & Klarinette.</p>
                 </div>
                 {stimme2Sections.length > 0
                   ? stimme2Sections.map(s => renderStimmeSection(s, false))
