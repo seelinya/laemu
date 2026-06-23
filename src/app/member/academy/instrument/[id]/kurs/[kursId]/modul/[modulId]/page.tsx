@@ -487,13 +487,16 @@ export default function ModulPage({
                                 <button
                                   key={lesson.id}
                                   onClick={() => {
+                                    if (lessonLocked) return
                                     if (mod.id === params.modulId) {
                                       setActiveLessonId(lesson.id)
                                     } else {
                                       router.push(`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${mod.id}?lektion=${lesson.id}`)
                                     }
                                   }}
-                                  className={`w-full flex items-center gap-2.5 pl-8 pr-4 py-2.5 text-left transition-colors ${isActiveLesson ? 'bg-accent-gold/10 border-l-2 border-accent-gold' : 'hover:bg-background border-l-2 border-transparent'} ${lessonLocked ? 'opacity-60' : ''}`}
+                                  disabled={lessonLocked}
+                                  title={lessonLocked ? 'Gesperrt — Plan upgraden' : undefined}
+                                  className={`w-full flex items-center gap-2.5 pl-8 pr-4 py-2.5 text-left transition-colors ${isActiveLesson ? 'bg-accent-gold/10 border-l-2 border-accent-gold' : 'hover:bg-background border-l-2 border-transparent'} ${lessonLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
                                   <div className={`w-4 h-4 flex items-center justify-center flex-shrink-0 border ${lessonDone ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
                                     {lessonDone && (
