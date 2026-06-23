@@ -95,6 +95,14 @@ export default function RegisterPage() {
   // Free-Account braucht keinen Zahlungsschritt — Stepper ohne «Zahlung».
   const visibleSteps = isFree ? steps.filter((s) => s.number !== 3) : steps
 
+  // Bei Plänen mit Umfang müssen genau so viele Instrumente gewählt sein wie
+  // der gewählte Umfang vorgibt — sonst kommt man im Schritt 1 nicht weiter.
+  const aboInstrumentsComplete =
+    isFree ||
+    accountType === 'formation' ||
+    !individualPlanMeta[individualPlan].hasScope ||
+    aboInstruments.length === scopeCount(scope)
+
   // Für die Preisanzeige im Free-Modus referenzieren wir den Jahrespreis
   // (zeigt, was ein späteres Upgrade kosten würde).
   const priceBilling: 'yearly' | 'monthly' = billing === 'free' ? 'yearly' : billing
@@ -598,8 +606,9 @@ export default function RegisterPage() {
                         ))}
                       </div>
 
-                      <p className="font-sans text-xs text-text-secondary mb-2">
+                      <p className={`font-sans text-xs mb-2 ${aboInstrumentsComplete ? 'text-text-secondary' : 'text-accent-gold font-medium'}`}>
                         Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({aboInstruments.length}/{scopeCount(scope)})
+                        {!aboInstrumentsComplete && ' — bitte noch auswählen'}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {ABO_INSTRUMENTS.map(inst => {
@@ -815,11 +824,17 @@ export default function RegisterPage() {
               )}
 
               <button
-                onClick={() => setStep(2)}
-                className="w-full bg-dark text-white font-sans font-semibold py-4 hover:bg-accent-gold transition-colors"
+                onClick={() => { if (aboInstrumentsComplete) setStep(2) }}
+                disabled={!aboInstrumentsComplete}
+                className={`w-full font-sans font-semibold py-4 transition-colors ${aboInstrumentsComplete ? 'bg-dark text-white hover:bg-accent-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
               >
                 Weiter →
               </button>
+              {!aboInstrumentsComplete && (
+                <p className="font-sans text-xs text-accent-gold text-center mt-2">
+                  Bitte wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'}, um fortzufahren.
+                </p>
+              )}
             </motion.div>
           )}
 

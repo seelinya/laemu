@@ -38,10 +38,10 @@ export function StarterCourseCard({
   const progress = modules === 0 ? 0 : Math.round((completedModules / modules) * 100)
   // Gesperrte Kurse ohne Vorschau werden nicht verlinkt (keine «Kurs im Aufbau»-Seite).
   const clickable = !locked || previewable
-  const cardClassName = `bg-surface border border-border overflow-hidden group flex h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-default'}`
+  const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col sm:flex-row h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-default'}`
   const cardInner = (
     <>
-      <div className={`relative w-24 sm:w-28 flex-shrink-0 self-stretch overflow-hidden ${locked ? 'grayscale' : ''}`}>
+      <div className={`relative w-full h-40 sm:h-auto sm:w-28 flex-shrink-0 sm:self-stretch overflow-hidden ${locked ? 'grayscale' : ''}`}>
         <CourseCover variant={variant} size="sm" />
         {locked && (
           <span className="absolute inset-0 bg-dark/60 flex items-center justify-center z-10">
