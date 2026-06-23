@@ -10,6 +10,7 @@ import { courses, ALLGEMEIN_COURSES, getCourse } from '@/lib/courses'
 import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
+import { useRecentCourses } from '@/lib/recentCourses'
 import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, overviewIdsFromLabels, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
 import { StarterCourseCard, ProUpgradeBanner } from '@/components/CourseCards'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
@@ -128,10 +129,6 @@ export default function MemberAcademyPage() {
   const courseUnlocked = (level: string, instrumentLabel: string) =>
     isUpgraded || isCourseUnlocked(level, instrumentLabel, userAbo)
 
-  // Aktive (begonnene) Kurse — die freigeschalteten Instrument-Lehrgänge, in
-  // denen man schon Module abgeschlossen hat. Neue Mitglieder (noch kein Abo /
-  // kein begonnener Lehrgang) haben hier nichts: «Aktive» wird dann deaktiviert
-  // und es wird direkt das erste Instrument angezeigt.
   // Nur die tatsächlich gekauften Instrument-Lehrgänge anzeigen — alles andere
   // verwirrt die Lernenden nur. All-in-One zeigt alle; wer (noch) keinen
   // Lehrgang gekauft hat (Free/Lernvideo), bekommt einen Einblick in alle.
@@ -140,16 +137,33 @@ export default function MemberAcademyPage() {
     : overviewIdsFromLabels(userAbo.instruments)
   const displayedInstruments = ownedInstrumentIds.length > 0 ? ownedInstrumentIds : SUBSCRIBED_INSTRUMENTS
 
-  type ActiveCourse = { key: string; href: string; title: string; level: string; modules: number; duration: string; desc: string; completedModules: number; emoji: string; variant: string }
-  const activeCourses: ActiveCourse[] = [
-    ...displayedInstruments.flatMap((iid) => {
-      const ov = INSTRUMENT_OVERVIEWS[iid]
-      if (!courseUnlocked('Starter', ov.label)) return [] as ActiveCourse[]
-      return ov.starterKurse
-        .filter((k) => k.completedModules > 0)
-        .map((k) => ({ key: `${ov.id}-${k.id}`, href: `/member/academy/instrument/${ov.id}/kurs/${k.id}`, title: k.title, level: ov.label, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, emoji: ov.emoji, variant: ov.id as string }))
-    }),
-  ]
+  // Zuletzt angeschaut: nur Kurse, die man tatsächlich geöffnet hat. Frisch
+  // gekaufte Lehrgänge sind hier noch leer und füllen sich erst beim Antippen.
+  type ActiveCourse = { key: string; href: string; title: string; level: string; modules: number; duration: string; desc: string; completedModules: number; instrument: string; variant: string }
+  const recentCourses = useRecentCourses()
+  const courseLookup = new Map<string, ActiveCourse>()
+  displayedInstruments.forEach((iid) => {
+    const ov = INSTRUMENT_OVERVIEWS[iid]
+    if (courseUnlocked('Starter', ov.label)) {
+      ov.starterKurse.forEach((k) => {
+        if (!getCourse(ov.id, k.id)) return
+        courseLookup.set(`${ov.id}-${k.id}`, { key: `${ov.id}-${k.id}`, href: `/member/academy/instrument/${ov.id}/kurs/${k.id}`, title: k.title, level: k.level, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, instrument: ov.label, variant: ov.id as string })
+      })
+    }
+    if (courseUnlocked('Pro', ov.label)) {
+      ov.proKurse.forEach((k) => {
+        if (!getCourse(ov.id, k.id)) return
+        courseLookup.set(`${ov.id}-${k.id}`, { key: `${ov.id}-${k.id}`, href: `/member/academy/instrument/${ov.id}/kurs/${k.id}`, title: k.title, level: k.level, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: 0, instrument: ov.label, variant: ov.id as string })
+      })
+    }
+  })
+  allgemeinKurse.forEach((k) => {
+    if (!getCourse('allgemein', k.id)) return
+    courseLookup.set(`allgemein-${k.id}`, { key: `allgemein-${k.id}`, href: `/member/academy/instrument/allgemein/kurs/${k.id}`, title: k.title, level: k.level, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, instrument: 'Allgemein', variant: 'allgemein' })
+  })
+  const activeCourses: ActiveCourse[] = recentCourses
+    .map((r) => courseLookup.get(`${r.instrumentId}-${r.kursId}`))
+    .filter((c): c is ActiveCourse => Boolean(c))
   const hasActive = activeCourses.length > 0
 
   // Das Instrument, dessen Lehrgang im Einführungsvideo vorgestellt wird.
@@ -199,8 +213,7 @@ export default function MemberAcademyPage() {
             <StarterCourseCard
               href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
               title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-              desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant="allgemein"
-              comingSoon={!getCourse('allgemein', kurs.id)}
+              desc={kurs.desc} completedModules={kurs.completedModules} instrument="Allgemein" variant="allgemein"
             />
           </motion.div>
         ))}
@@ -212,7 +225,7 @@ export default function MemberAcademyPage() {
   // Lehrgang vorstellt (der Kurs ist bereits aufs Dashboard gelegt), plus der
   // direkte Einstieg in die erste Lektion.
   const renderEinfuehrung = () => {
-    const introKurs = introInstrument.starterKurse[0]
+    const introKurs = introInstrument.starterKurse.find((k) => getCourse(introInstrument.id, k.id)) ?? introInstrument.starterKurse[0]
     const poster = INTRO_POSTERS[introInstrument.id] ?? INTRO_POSTERS.handorgel
     return (
       <div className="space-y-6">
@@ -237,9 +250,8 @@ export default function MemberAcademyPage() {
             <StarterCourseCard
               href={`/member/academy/instrument/${introInstrument.id}/kurs/${introKurs.id}`}
               title={introKurs.title} level={introKurs.level} modules={introKurs.modules} duration={introKurs.duration}
-              desc={introKurs.desc} completedModules={introKurs.completedModules} emoji={introInstrument.emoji} variant={introInstrument.id}
-              locked={!courseUnlocked('Starter', introInstrument.label)} lockLabel="Starter"
-              comingSoon={!getCourse(introInstrument.id, introKurs.id)} previewable
+              desc={introKurs.desc} completedModules={introKurs.completedModules} instrument={introInstrument.label} variant={introInstrument.id}
+              locked={!courseUnlocked('Starter', introInstrument.label)} lockLabel="Starter" previewable
             />
           </div>
         </div>
@@ -252,56 +264,63 @@ export default function MemberAcademyPage() {
   const renderLehrgang = (ov: InstrumentOverview) => {
     const starterUnlocked = courseUnlocked('Starter', ov.label)
     const proUnlocked = courseUnlocked('Pro', ov.label)
+    // Kurse «im Aufbau» (noch ohne Inhalt) werden nicht angezeigt.
+    const starterKurse = ov.starterKurse.filter((k) => getCourse(ov.id, k.id))
+    const proKurse = ov.proKurse.filter((k) => getCourse(ov.id, k.id))
     return (
       <div className="space-y-10">
-        <section>
-          <div className="flex items-center gap-3 mb-1">
-            <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
-            <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
-          </div>
-          <p className="font-sans text-sm text-text-secondary mb-4">Strukturierter Einstieg in die {ov.label} — von den Basics bis zu deinen ersten Stücken.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {ov.starterKurse.map((kurs, i) => (
-              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                <StarterCourseCard
-                  href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
-                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-                  desc={kurs.desc} completedModules={kurs.completedModules} emoji={ov.emoji} variant={ov.id}
-                  locked={!starterUnlocked} lockLabel="Starter" comingSoon={!getCourse(ov.id, kurs.id)}
-                  previewable={i === 0}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </section>
+        {starterKurse.length > 0 && (
+          <section>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
+              <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {starterKurse.map((kurs, i) => (
+                <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                  <StarterCourseCard
+                    href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
+                    title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                    desc={kurs.desc} completedModules={kurs.completedModules} instrument={ov.label} variant={ov.id}
+                    locked={!starterUnlocked} lockLabel="Starter"
+                    previewable={i === 0}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
 
-        <section>
-          <div className="flex items-center gap-3 mb-1">
-            <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 uppercase tracking-wide">Pro</span>
-            <h3 className="font-heading text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
-          </div>
-          <p className="font-sans text-sm text-text-secondary mb-4">Volle Techniken, Harmonielehre, Improvisation und Ensemble-Spiel.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {ov.proKurse.map((kurs, i) => (
-              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                <StarterCourseCard
-                  href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
-                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-                  desc={kurs.desc} completedModules={0} emoji={ov.emoji} variant={ov.id}
-                  locked={!proUnlocked} lockLabel="Pro" comingSoon={!getCourse(ov.id, kurs.id)}
-                  previewable={i === 0}
-                />
-              </motion.div>
-            ))}
-          </div>
-          {!proUnlocked && (
-            <ProUpgradeBanner
-              onUpgrade={openUpgrade}
-              monthlyLabel={proPriceLabel}
-              yearlyLabel={chf(proPrice.yearly)}
-            />
-          )}
-        </section>
+        {(proKurse.length > 0 || !proUnlocked) && (
+          <section>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 uppercase tracking-wide">Pro</span>
+              <h3 className="font-heading text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
+            </div>
+            {proKurse.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {proKurse.map((kurs, i) => (
+                  <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                    <StarterCourseCard
+                      href={`/member/academy/instrument/${ov.id}/kurs/${kurs.id}`}
+                      title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                      desc={kurs.desc} completedModules={0} instrument={ov.label} variant={ov.id}
+                      locked={!proUnlocked} lockLabel="Pro"
+                      previewable={i === 0}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+            {!proUnlocked && (
+              <ProUpgradeBanner
+                onUpgrade={openUpgrade}
+                monthlyLabel={proPriceLabel}
+                yearlyLabel={chf(proPrice.yearly)}
+              />
+            )}
+          </section>
+        )}
       </div>
     )
   }
@@ -398,24 +417,27 @@ export default function MemberAcademyPage() {
                     Bezahlt: «Meine Kurse» (gewählte Instrumente).
                     Free/Lernvideo: «Einblick in die Lehrgänge» (alle Instrumente). */}
                 <section>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
-                    <h3 className="font-heading font-bold text-xl">Kurse</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {kursTabs.map((f) => {
-                        const disabled = f.id === 'aktive' && !hasActive
-                        return (
-                          <button
-                            key={f.id}
-                            onClick={() => { if (!disabled) setCourseFilter(f.id) }}
-                            disabled={disabled}
-                            title={disabled ? 'Noch keinen Kurs gestartet' : undefined}
-                            className={`font-sans text-xs px-3 py-1.5 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : disabled ? 'border-border bg-surface text-text-secondary/40 cursor-not-allowed' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
-                          >
-                            {f.label}
-                          </button>
-                        )
-                      })}
-                    </div>
+                  <h3 className="font-heading font-bold text-xl mb-1">Kurse</h3>
+                  <p className="font-sans text-sm text-text-secondary mb-3">
+                    Tippe auf die Tabs, um dein Instrument
+                    {instrumentTabs.length > 0 ? <> ({instrumentTabs.map((t) => t.label).join(', ')})</> : null}
+                    {' '}oder eine andere Ansicht zu wählen.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {kursTabs.map((f) => {
+                      const disabled = f.id === 'aktive' && !hasActive
+                      return (
+                        <button
+                          key={f.id}
+                          onClick={() => { if (!disabled) setCourseFilter(f.id) }}
+                          disabled={disabled}
+                          title={disabled ? 'Noch keinen Kurs gestartet' : undefined}
+                          className={`font-sans text-sm px-4 py-2 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : disabled ? 'border-border bg-surface text-text-secondary/40 cursor-not-allowed' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                        >
+                          {f.label}
+                        </button>
+                      )
+                    })}
                   </div>
 
                   {/* Einführung: Intro-Video — Startansicht vor dem ersten Lernvideo */}
@@ -434,7 +456,7 @@ export default function MemberAcademyPage() {
                             <StarterCourseCard
                               href={kurs.href}
                               title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-                              desc={kurs.desc} completedModules={kurs.completedModules} emoji={kurs.emoji} variant={kurs.variant}
+                              desc={kurs.desc} completedModules={kurs.completedModules} instrument={kurs.instrument} variant={kurs.variant}
                             />
                           </motion.div>
                         ))}

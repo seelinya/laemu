@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/Button'
-import { getCourse, courseStats, flatLessons, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type Lesson } from '@/lib/courses'
+import { getCourse, courseStats, freeTrialLessonKeys, FREE_TRIAL_LESSON_COUNT, type Lesson } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { isFreePreviewCourse } from '@/lib/instruments'
 import { useUserAbo } from '@/lib/userPlan'
+import { addRecentCourse } from '@/lib/recentCourses'
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
@@ -59,6 +59,14 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   const trialKeys = previewOnly && course ? freeTrialLessonKeys(course) : new Set<string>()
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(course ? course.modules.slice(0, 2).map((m) => m.id) : []))
 
+  // Geöffneten (freigeschalteten) Kurs als «zuletzt angeschaut» merken — so
+  // füllt sich der Tab erst, wenn man Kurse tatsächlich antippt.
+  useEffect(() => {
+    if (course && fullyUnlocked) {
+      addRecentCourse({ instrumentId: course.instrumentId, kursId: course.id })
+    }
+  }, [course, fullyUnlocked])
+
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) => {
       const next = new Set(prev)
@@ -100,7 +108,6 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   // Ein Kurs gilt automatisch als abgeschlossen, sobald alle Lektionen erledigt sind.
   const courseCompleted = stats.total > 0 && stats.completed === stats.total
   const instrumentLabel = course.instrumentLabel
-  const next = flatLessons(course).find((x) => !x.lesson.completed)
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,28 +170,6 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
             </div>
           </div>
         </motion.div>
-
-        {/* ── Weiter lernen CTA ── */}
-        {next && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-dark text-white p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-          >
-            <div>
-              <p className="font-sans text-xs text-accent-gold uppercase tracking-wide mb-1">Weiter lernen</p>
-              <p className="font-sans font-medium">{next.moduleTitle} — {next.lesson.title}</p>
-            </div>
-            <Button
-              variant="primary"
-              size="sm"
-              href={`/member/academy/instrument/${params.id}/kurs/${params.kursId}/modul/${next.moduleId}?lektion=${next.lesson.id}`}
-            >
-              Jetzt lernen →
-            </Button>
-          </motion.div>
-        )}
 
         {/* ── Schnupper-Hinweis (Kurs nicht im Abo / Instrument freigeschaltet) ── */}
         {previewOnly && (

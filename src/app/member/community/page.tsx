@@ -14,8 +14,7 @@ import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } f
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
 const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
 const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
-const LAEMU_FACEBOOK_HANDLE = 'laemu.ch'
-const LAEMU_FACEBOOK_URL = `https://www.facebook.com/${LAEMU_FACEBOOK_HANDLE}`
+const LAEMU_FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61589800834530'
 // Geschlossene WhatsApp-Gruppen — echte Einladungslinks hier eintragen.
 const LAEMU_WHATSAPP_INFO_GROUP_URL = 'https://chat.whatsapp.com/'
 const LAEMU_WHATSAPP_SHARE_GROUP_URL = 'https://chat.whatsapp.com/'
@@ -386,7 +385,7 @@ function StartView() {
           <div className="flex-1 min-w-0">
             <h3 className="font-heading font-bold text-base">LAEMU auf Facebook</h3>
             <p className="font-sans text-sm font-light text-text-secondary leading-snug">
-              Folge <span className="text-accent-gold">@{LAEMU_FACEBOOK_HANDLE}</span> für News,
+              Folge uns auf <span className="text-accent-gold">Facebook</span> für News,
               Veranstaltungen und Eindrücke aus der Szene.
             </p>
           </div>

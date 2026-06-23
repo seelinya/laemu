@@ -705,33 +705,25 @@ export default function LernvideosPage() {
                 )}
               </div>
 
-              {/* Abo / Freischalt-Hinweis */}
-              <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
-                {userAbo.plan === 'pro' || userAbo.plan === 'lernvideo' ? (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Die komplette Lernvideo-Datenbank ist freigeschaltet — alle Stücke inkl. Mixer und Stimmen-Videos.
-                    </p>
-                  </>
-                ) : userAbo.plan === 'starter' ? (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
-                      <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind die ersten {FREE_TRIAL_DB_COUNT} Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
-                      <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
-                    </p>
-                  </>
-                )}
-              </div>
+              {/* Abo / Freischalt-Hinweis — nur wenn ein Upgrade möglich ist
+                  (Starter & Free). Pro/Lernvideo haben ohnehin alles freigeschaltet. */}
+              {userAbo.plan === 'starter' ? (
+                <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                    Dein Abo: <strong className="text-dark font-semibold">{individualPlanMeta[userAbo.plan].label}</strong>. Free- & Starter-Stücke sind komplett freigeschaltet. <strong className="text-dark font-semibold">Pro-Stücke</strong> zeigen nur die Masteraufnahme — für die Stimmen-Videos & den Mixer ist ein Upgrade nötig.{' '}
+                    <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Auf Pro upgraden →</Link>
+                  </p>
+                </div>
+              ) : userAbo.plan === 'none' ? (
+                <div className="mb-4 bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 flex items-start gap-3">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                    <strong className="text-dark font-semibold">Free-Account.</strong> Zum Reinschnuppern sind die ersten {FREE_TRIAL_DB_COUNT} Videos der Datenbank freigeschaltet. Für die <strong className="text-dark font-semibold">komplette Lernvideo-Datenbank</strong> brauchst du einen kostenpflichtigen Plan.{' '}
+                    <Link href="/member/academy?upgrade=1" className="text-accent-gold font-medium hover:underline">Plan upgraden →</Link>
+                  </p>
+                </div>
+              ) : null}
 
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
