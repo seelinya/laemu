@@ -273,9 +273,9 @@ export function UpgradeDialog({
 
                     {plan === 'lernvideo' && (
                       <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-5">
-                        <p className="font-sans text-sm font-semibold mb-1">Zugang zur ganzen Lernvideo-Datenbank</p>
+                        <p className="font-sans text-sm font-semibold mb-1">Zugang zu allen Stücken</p>
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Du erhältst direkten Zugang zur kompletten Lernvideo-Datenbank — sämtliche Instrumente, ohne Lehrgänge oder Umfang.
+                          Du erhältst direkten Zugang zu allen Stücken — sämtliche Instrumente, ohne Lehrgänge oder Umfang.
                         </p>
                       </div>
                     )}

@@ -775,7 +775,7 @@ export default function LernvideosPage() {
               {filtered.length === 0 && wishMatches.length === 0 && (
                 <div className="text-center py-16">
                   <p className="font-heading font-bold text-lg mb-2">Keine Ergebnisse gefunden</p>
-                  <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche die gesamte Datenbank.</p>
+                  <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche alle Stücke.</p>
                   <button onClick={resetAll} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
                     Alle Filter zurücksetzen
                   </button>

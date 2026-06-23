@@ -79,7 +79,7 @@ export function Footer() {
           <div>
             <p className="font-heading font-bold text-lg tracking-tight mb-2">LAEMU</p>
             <p className="font-sans text-sm text-white/50 leading-relaxed max-w-xs">
-              Musikschule, Community und Lernvideodatenbank für die Schweizer Ländlermusik.
+              Musikschule, Community und Stücke für die Schweizer Ländlermusik.
             </p>
           </div>
 

@@ -41,7 +41,7 @@ export default function DatenschutzPage() {
           body: (
             <p>
               Wir bearbeiten deine Daten, um dein Konto zu führen, dir die Musikschule, Community und
-              Lernvideodatenbank bereitzustellen, Zahlungen abzuwickeln sowie unsere Dienste zu verbessern und mit dir
+              Stücke bereitzustellen, Zahlungen abzuwickeln sowie unsere Dienste zu verbessern und mit dir
               zu kommunizieren.
             </p>
           ),

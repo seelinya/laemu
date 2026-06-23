@@ -133,8 +133,8 @@ function AboTab() {
         {isFree && (
           <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 mb-4">
             <p className="font-sans text-sm text-text-secondary">
-              Du nutzt den kostenlosen Free-Account. Schalte mit einem Upgrade die Lehrgänge und die
-              vollständige Lernvideo-Datenbank frei.
+              Du nutzt den kostenlosen Free-Account. Schalte mit einem Upgrade die Lehrgänge und
+              alle Stücke frei.
             </p>
           </div>
         )}
