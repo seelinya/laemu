@@ -176,32 +176,40 @@ export function ProfileMenu() {
 
 export function MemberTabs({ active }: { active: Area }) {
   const abo = useUserAbo()
-  // Tabs je nach Abo: Lernvideodatenbank-only → keine Musikschule;
-  // Free-Account → keine Community.
-  const visibleTabs = tabs.filter((t) => {
-    if (t.id === 'academy' && abo.plan === 'lernvideo') return false
-    if (t.id === 'community' && abo.plan === 'none') return false
-    return true
-  })
+  // Lernvideodatenbank-only sieht keine Musikschule.
+  const visibleTabs = tabs.filter((t) => !(t.id === 'academy' && abo.plan === 'lernvideo'))
+  // Free-Account: Community wird angezeigt, ist aber ausgegraut & nicht klickbar.
+  const isDisabled = (id: Area) => id === 'community' && abo.plan === 'none'
   return (
     <div className="bg-surface border-b border-border" style={{ borderTop: '2px solid rgba(196,151,58,0.25)' }}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between gap-4">
 
           <div className="flex items-center overflow-x-auto">
-            {visibleTabs.map((tab) => (
-              <Link
-                key={tab.id}
-                href={tab.href}
-                className={`flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  active === tab.id
-                    ? 'border-accent-gold text-dark'
-                    : 'border-transparent text-text-secondary hover:text-dark'
-                }`}
-              >
-                <span>{tab.emoji}</span> {tab.label}
-              </Link>
-            ))}
+            {visibleTabs.map((tab) =>
+              isDisabled(tab.id) ? (
+                <span
+                  key={tab.id}
+                  aria-disabled="true"
+                  title="Mit einem kostenpflichtigen Abo verfügbar"
+                  className="flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 border-transparent whitespace-nowrap text-text-secondary/40 cursor-not-allowed"
+                >
+                  <span>{tab.emoji}</span> {tab.label}
+                </span>
+              ) : (
+                <Link
+                  key={tab.id}
+                  href={tab.href}
+                  className={`flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    active === tab.id
+                      ? 'border-accent-gold text-dark'
+                      : 'border-transparent text-text-secondary hover:text-dark'
+                  }`}
+                >
+                  <span>{tab.emoji}</span> {tab.label}
+                </Link>
+              ),
+            )}
           </div>
 
           {/* Right: notifications + profile */}

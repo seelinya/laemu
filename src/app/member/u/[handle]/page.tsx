@@ -239,9 +239,6 @@ export default function PublicProfilePage({ params }: { params: { handle: string
               {profile.instruments.map((inst) => (
                 <span key={inst} className="font-sans text-xs px-2 py-1 bg-background border border-border text-text-secondary">{inst}</span>
               ))}
-              {profile.formation && (
-                <span className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">🎵 {profile.formation}</span>
-              )}
             </div>
             <p className="font-sans text-sm text-text-secondary leading-relaxed">{profile.bio}</p>
           </div>

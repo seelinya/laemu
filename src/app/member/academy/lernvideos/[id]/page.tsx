@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { useUserProfile } from '@/lib/userProfile'
 import { ShareMenu } from '@/components/ShareMenu'
 
 // ─── Noten ───────────────────────────────────────────────────────────────────
@@ -776,6 +777,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
 
 export default function LernvideoDetailPage() {
   const userAbo = useUserAbo()
+  const userProfile = useUserProfile()
   const params = useParams()
   const idNum = Number(Array.isArray(params?.id) ? params.id[0] : params?.id)
   const catalogEntry = pieceCatalog[idNum]
@@ -1084,7 +1086,7 @@ export default function LernvideoDetailPage() {
 
                 {/* 6 — KOMMENTARE (eine Leiste pro Lernvideo) */}
                 {(() => {
-                  const MY = { user: 'ich', name: 'Niklaus Hess', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' }
+                  const MY = { user: 'ich', name: userProfile.name || 'Mitglied', avatar: userProfile.avatar }
                   const profileHrefFor = (user: string) => (user === 'ich' ? '/member/profile' : `/member/u/${user}`)
                   const totalCount = videoComments.reduce((s, c) => s + 1 + c.replies.length, 0)
 
@@ -1264,7 +1266,6 @@ export default function LernvideoDetailPage() {
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div>
                   <h2 className="font-heading font-bold text-xl">Begleitvorschläge</h2>
-                  <p className="font-sans text-sm text-text-secondary mt-0.5">Pro Teil und Instrument ein Lernvideo — Handorgel-, Schwyzerörgeli-, Klavier- & Bassbegleitung.</p>
                 </div>
                 {begleitSections.length > 0
                   ? begleitSections.map(s => renderStimmeSection(s, true, ['violin']))
