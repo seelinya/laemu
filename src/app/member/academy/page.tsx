@@ -71,8 +71,10 @@ const categoryColors: Record<string, string> = {
   Kurse: 'bg-green-50 text-green-700',
 }
 
-// Poster für das Einführungsvideo je Instrument (Lehrgang-Einführung).
+// Poster für das Einführungsvideo. «allgemein» ist das allgemeine Poster für die
+// Einführung in die gesamte LAEMU-Musikschule.
 const INTRO_POSTERS: Record<string, string> = {
+  allgemein: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&q=80',
   handorgel: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80',
   schwyzer: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=1200&q=80',
   bassgeige: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=1200&q=80',
@@ -226,23 +228,24 @@ export default function MemberAcademyPage() {
   // direkte Einstieg in die erste Lektion.
   const renderEinfuehrung = () => {
     const introKurs = introInstrument.starterKurse.find((k) => getCourse(introInstrument.id, k.id)) ?? introInstrument.starterKurse[0]
-    const poster = INTRO_POSTERS[introInstrument.id] ?? INTRO_POSTERS.handorgel
+    // Allgemeines Poster — die Einführung gilt der ganzen LAEMU-Musikschule.
+    const poster = INTRO_POSTERS.allgemein
     return (
       <div className="space-y-6">
         <button className="relative aspect-video w-full overflow-hidden bg-dark group text-left block">
-          <Image src={poster} alt={`Einführung ${introInstrument.label}-Lehrgang`} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1000px" unoptimized />
+          <Image src={poster} alt="Einführung in die LAEMU-Musikschule" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1000px" unoptimized />
           <span className="absolute inset-0 bg-dark/45 group-hover:bg-dark/35 transition-colors" />
           <span className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
             <span className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="white" className="ml-1"><polygon points="6 4 20 12 6 20 6 4" /></svg>
             </span>
             <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-white/80 mb-1">Einführungsvideo</span>
-            <span className="font-heading font-black text-2xl sm:text-3xl text-white">Willkommen im {introInstrument.label}-Lehrgang</span>
+            <span className="font-heading font-black text-2xl sm:text-3xl text-white">Willkommen in der LAEMU-Musikschule</span>
           </span>
         </button>
         <p className="font-sans text-sm text-text-secondary leading-relaxed">
-          Schau dir zuerst die kurze Einführung an — sie zeigt dir, wie dein Lehrgang aufgebaut ist und
-          wie du am besten startest. Danach geht&rsquo;s direkt mit deiner ersten Lektion los.
+          Schau dir zuerst die kurze Einführung an — sie zeigt dir, wie die LAEMU-Musikschule aufgebaut
+          ist und wie du am besten startest. Danach geht&rsquo;s direkt mit deiner ersten Lektion los.
         </p>
         <div>
           <h4 className="font-heading font-bold text-lg mb-3">Hier startest du</h4>
