@@ -270,8 +270,9 @@ export function flatLessons(course: Course) {
 }
 
 // ─── Free-Account: Schnupper-Lektionen ────────────────────────────────────────
-// Im Free-Account sind die ersten Lektionen jedes Kurses zum Reinschnuppern frei.
-export const FREE_TRIAL_LESSON_COUNT = 5
+// Im Free-Account sind die ersten drei Lektionsvideos des ersten Kurses zum
+// Reinschnuppern frei.
+export const FREE_TRIAL_LESSON_COUNT = 3
 
 // Set der im Free-Account freigeschalteten Lektions-Keys (`moduleId:lessonId`).
 export function freeTrialLessonKeys(course: Course): Set<string> {
