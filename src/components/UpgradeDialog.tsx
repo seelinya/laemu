@@ -26,20 +26,11 @@ const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 // Registrierung, damit ein Upgrade dieselbe Auswahl bietet.
 const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
 
-// Welche Einzel-Pläne sind von einem bestehenden Abo aus erreichbar?
-// Free → Starter, Pro, Lernvideodatenbank · Starter → Pro (oder Instrumente
-// anpassen) · Lernvideodatenbank → Starter, Pro · Pro → Pro (Instrumente anpassen).
-function upgradeTargets(plan: UserAbo['plan']): IndividualPlanId[] {
-  switch (plan) {
-    case 'none':
-      return ['starter', 'pro', 'lernvideo']
-    case 'starter':
-      return ['starter', 'pro']
-    case 'lernvideo':
-      return ['starter', 'pro', 'lernvideo']
-    case 'pro':
-      return ['pro']
-  }
+// Von jedem Abo aus sind alle Einzel-Pläne erreichbar — Up- UND Downgrade
+// (z. B. Pro → Starter oder Pro → Lernvideodatenbank). Ein Wechsel auf «Free»
+// erfolgt über das Kündigen des Abos.
+function upgradeTargets(_plan: UserAbo['plan']): IndividualPlanId[] {
+  return ['starter', 'pro', 'lernvideo']
 }
 
 // Upgrade-/Abo-ändern-Dialog: dieselben Preise & dasselbe Konzept wie der erste
@@ -110,7 +101,9 @@ export function UpgradeDialog({
     else setInstr((prev) => prev.slice(0, Number(s)))
   }
 
-  const planStepValid = !(hasScope && instr.length === 0)
+  // Es müssen genau so viele Instrumente gewählt sein wie der Umfang vorgibt.
+  const instrumentsComplete = !hasScope || instr.length === scopeCount(scope)
+  const planStepValid = instrumentsComplete
   const paymentValid =
     payMethod === 'card'
       ? cardNumber.trim().length >= 12 && cardExp.trim().length >= 4 && cardCvc.trim().length >= 3 && cardHolder.trim().length > 0
@@ -257,8 +250,9 @@ export function UpgradeDialog({
                             </button>
                           ))}
                         </div>
-                        <p className="font-sans text-xs text-text-secondary mb-2">
+                        <p className={`font-sans text-xs mb-2 ${instrumentsComplete ? 'text-text-secondary' : 'text-accent-gold font-medium'}`}>
                           Wähle {scopeCount(scope)} {scopeCount(scope) === 1 ? 'Instrument' : 'Instrumente'} ({instr.length}/{scopeCount(scope)})
+                          {!instrumentsComplete && ' — bitte noch auswählen'}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {ABO_INSTRUMENTS.map((inst) => {
@@ -431,7 +425,7 @@ export function UpgradeDialog({
 
                 <p className="font-sans text-[11px] text-text-secondary leading-relaxed mt-4 flex items-start gap-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  Das Upgrade wird sofort aktiv. Du wirst {periodLabel === '/ Jahr' ? 'jährlich' : 'monatlich'} mit {chf(price)} belastet — jederzeit kündbar.
+                  Die Abo-Änderung wird sofort aktiv. Du wirst {periodLabel === '/ Jahr' ? 'jährlich' : 'monatlich'} mit {chf(price)} belastet — jederzeit kündbar.
                 </p>
 
                 <div className="flex items-center gap-3 justify-between mt-5 pt-4 border-t border-border">
@@ -441,7 +435,7 @@ export function UpgradeDialog({
                     disabled={!paymentValid}
                     className={`font-sans text-sm px-5 py-2.5 transition-colors ${paymentValid ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
-                    Zahlungspflichtig upgraden ✓
+                    Zahlungspflichtig bestätigen ✓
                   </button>
                 </div>
               </div>
