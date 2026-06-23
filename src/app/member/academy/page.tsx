@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
@@ -9,7 +10,7 @@ import { courses, ALLGEMEIN_COURSES, getCourse } from '@/lib/courses'
 import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
-import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
+import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, overviewIdsFromLabels, type InstrumentId, type InstrumentOverview, type StarterKurs } from '@/lib/instruments'
 import { StarterCourseCard, ProUpgradeBanner } from '@/components/CourseCards'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
 
@@ -69,6 +70,13 @@ const categoryColors: Record<string, string> = {
   Kurse: 'bg-green-50 text-green-700',
 }
 
+// Poster für das Einführungsvideo je Instrument (Lehrgang-Einführung).
+const INTRO_POSTERS: Record<string, string> = {
+  handorgel: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80',
+  schwyzer: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=1200&q=80',
+  bassgeige: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=1200&q=80',
+}
+
 // ─── Persönlicher Support — Verweis auf das LAEMU WhatsApp (floating) ──────────
 
 function SupportWidget() {
@@ -124,9 +132,17 @@ export default function MemberAcademyPage() {
   // denen man schon Module abgeschlossen hat. Neue Mitglieder (noch kein Abo /
   // kein begonnener Lehrgang) haben hier nichts: «Aktive» wird dann deaktiviert
   // und es wird direkt das erste Instrument angezeigt.
+  // Nur die tatsächlich gekauften Instrument-Lehrgänge anzeigen — alles andere
+  // verwirrt die Lernenden nur. All-in-One zeigt alle; wer (noch) keinen
+  // Lehrgang gekauft hat (Free/Lernvideo), bekommt einen Einblick in alle.
+  const ownedInstrumentIds = userAbo.allInstruments
+    ? SUBSCRIBED_INSTRUMENTS
+    : overviewIdsFromLabels(userAbo.instruments)
+  const displayedInstruments = ownedInstrumentIds.length > 0 ? ownedInstrumentIds : SUBSCRIBED_INSTRUMENTS
+
   type ActiveCourse = { key: string; href: string; title: string; level: string; modules: number; duration: string; desc: string; completedModules: number; emoji: string; variant: string }
   const activeCourses: ActiveCourse[] = [
-    ...SUBSCRIBED_INSTRUMENTS.flatMap((iid) => {
+    ...displayedInstruments.flatMap((iid) => {
       const ov = INSTRUMENT_OVERVIEWS[iid]
       if (!courseUnlocked('Starter', ov.label)) return [] as ActiveCourse[]
       return ov.starterKurse
@@ -136,14 +152,21 @@ export default function MemberAcademyPage() {
   ]
   const hasActive = activeCourses.length > 0
 
-  // Filter-Tabs: «Aktive» (begonnene Kurse) + alle Instrumente + Allgemein.
-  const instrumentTabs = SUBSCRIBED_INSTRUMENTS.map((iid) => ({ id: iid as string, label: INSTRUMENT_OVERVIEWS[iid].label, instrument: iid }))
+  // Das Instrument, dessen Lehrgang im Einführungsvideo vorgestellt wird.
+  const introInstrument = INSTRUMENT_OVERVIEWS[displayedInstruments[0]]
+
+  // Filter-Tabs: «Einführung» (Intro-Video) + «Zuletzt angeschaut» (begonnene
+  // Kurse) + gekaufte Instrumente + Allgemein.
+  const instrumentTabs = displayedInstruments.map((iid) => ({ id: iid as string, label: INSTRUMENT_OVERVIEWS[iid].label, instrument: iid }))
   const kursTabs: { id: string; label: string; instrument?: InstrumentId }[] = [
-    { id: 'aktive', label: 'Aktive' },
+    { id: 'einfuehrung', label: 'Einführung' },
+    { id: 'aktive', label: 'Zuletzt angeschaut' },
     ...instrumentTabs,
     { id: 'allgemein', label: 'Allgemeine Grundlagen' },
   ]
-  const fallbackTab = hasActive ? 'aktive' : instrumentTabs[0].id
+  // Vor dem ersten Lernvideo ist das Einführungsvideo die Startansicht; sobald
+  // Kurse begonnen wurden, ist «Zuletzt angeschaut» der Default.
+  const fallbackTab = hasActive ? 'aktive' : 'einfuehrung'
   const wanted = courseFilter === 'aktive' && !hasActive ? fallbackTab : courseFilter
   const activeCourseTab = kursTabs.some((t) => t.id === wanted) ? wanted : fallbackTab
 
@@ -153,6 +176,14 @@ export default function MemberAcademyPage() {
     : searchQuery.toLowerCase().includes('polka') ? mockSearchResults : mockSearchResults.slice(0, 3)
 
   function openUpgrade() { setShowUpgradeModal(true) }
+
+  // Wird die Seite mit ?upgrade=1 geöffnet (z. B. aus der Lernvideo-Datenbank),
+  // direkt den Upgrade-Dialog anzeigen — damit ein Upgrade wirklich möglich ist.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('upgrade') === '1') {
+      setShowUpgradeModal(true)
+    }
+  }, [])
 
   // Allgemeine Grundlagen — für alle Abos freigeschaltet.
   const renderAllgemein = () => (
@@ -176,6 +207,45 @@ export default function MemberAcademyPage() {
       </div>
     </section>
   )
+
+  // Einführung — das erste, was Neueinsteiger:innen sehen: ein Video, das den
+  // Lehrgang vorstellt (der Kurs ist bereits aufs Dashboard gelegt), plus der
+  // direkte Einstieg in die erste Lektion.
+  const renderEinfuehrung = () => {
+    const introKurs = introInstrument.starterKurse[0]
+    const poster = INTRO_POSTERS[introInstrument.id] ?? INTRO_POSTERS.handorgel
+    return (
+      <div className="space-y-6">
+        <button className="relative aspect-video w-full overflow-hidden bg-dark group text-left block">
+          <Image src={poster} alt={`Einführung ${introInstrument.label}-Lehrgang`} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1000px" unoptimized />
+          <span className="absolute inset-0 bg-dark/45 group-hover:bg-dark/35 transition-colors" />
+          <span className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+            <span className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="white" className="ml-1"><polygon points="6 4 20 12 6 20 6 4" /></svg>
+            </span>
+            <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-white/80 mb-1">Einführungsvideo</span>
+            <span className="font-heading font-black text-2xl sm:text-3xl text-white">Willkommen im {introInstrument.label}-Lehrgang</span>
+          </span>
+        </button>
+        <p className="font-sans text-sm text-text-secondary leading-relaxed">
+          Schau dir zuerst die kurze Einführung an — sie zeigt dir, wie dein Lehrgang aufgebaut ist und
+          wie du am besten startest. Danach geht&rsquo;s direkt mit deiner ersten Lektion los.
+        </p>
+        <div>
+          <h4 className="font-heading font-bold text-lg mb-3">Hier startest du</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <StarterCourseCard
+              href={`/member/academy/instrument/${introInstrument.id}/kurs/${introKurs.id}`}
+              title={introKurs.title} level={introKurs.level} modules={introKurs.modules} duration={introKurs.duration}
+              desc={introKurs.desc} completedModules={introKurs.completedModules} emoji={introInstrument.emoji} variant={introInstrument.id}
+              locked={!courseUnlocked('Starter', introInstrument.label)} lockLabel="Starter"
+              comingSoon={!getCourse(introInstrument.id, introKurs.id)} previewable
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // Instrument-Lehrgang: alle sehen Starter- & Pro-Kurse; je nach Abo sind sie
   // freigeschaltet oder nur als Vorschau (Schnupper-Lektionen) zugänglich.
@@ -348,11 +418,14 @@ export default function MemberAcademyPage() {
                     </div>
                   </div>
 
-                  {/* Aktive: bereits begonnene Kurse */}
+                  {/* Einführung: Intro-Video — Startansicht vor dem ersten Lernvideo */}
+                  {activeCourseTab === 'einfuehrung' && renderEinfuehrung()}
+
+                  {/* Zuletzt angeschaut: bereits begonnene Kurse */}
                   {activeCourseTab === 'aktive' && (
                     <div>
                       <div className="flex items-center gap-2 mb-4">
-                        <h4 className="font-heading font-bold text-lg">Aktive Kurse</h4>
+                        <h4 className="font-heading font-bold text-lg">Zuletzt angeschaut</h4>
                         <span className="font-sans text-xs text-text-secondary">— da bist du stehengeblieben</span>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
