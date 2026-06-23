@@ -176,8 +176,13 @@ export function ProfileMenu() {
 
 export function MemberTabs({ active }: { active: Area }) {
   const abo = useUserAbo()
-  // Wer nur Zugang zur Lernvideodatenbank hat, sieht keine Musikschule.
-  const visibleTabs = abo.plan === 'lernvideo' ? tabs.filter((t) => t.id !== 'academy') : tabs
+  // Tabs je nach Abo: Lernvideodatenbank-only → keine Musikschule;
+  // Free-Account → keine Community.
+  const visibleTabs = tabs.filter((t) => {
+    if (t.id === 'academy' && abo.plan === 'lernvideo') return false
+    if (t.id === 'community' && abo.plan === 'none') return false
+    return true
+  })
   return (
     <div className="bg-surface border-b border-border" style={{ borderTop: '2px solid rgba(196,151,58,0.25)' }}>
       <div className="max-w-7xl mx-auto px-4">
