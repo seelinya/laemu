@@ -20,6 +20,7 @@ export function StarterCourseCard({
   variant,
   locked = false,
   lockLabel = 'Gesperrt',
+  previewable = false,
 }: {
   href: string
   title: string
@@ -32,18 +33,28 @@ export function StarterCourseCard({
   variant: string
   locked?: boolean
   lockLabel?: string
+  // Gesperrte Kurse mit Inhalt sind als Vorschau anklickbar: die ersten Lektionen
+  // sind zum Reinschnuppern frei (Free-Zugang). Ohne Inhalt bleibt der Kurs gesperrt.
+  previewable?: boolean
 }) {
   const progress = modules === 0 ? 0 : Math.round((completedModules / modules) * 100)
-  // Gesperrte Kurse sind gesperrt: kein Zugriff, nicht anwählbar/verlinkt.
-  const clickable = !locked
+  // Vorschau: gesperrter Kurs, aber mit freigeschalteten Schnupper-Lektionen.
+  const preview = locked && previewable
+  // Anklickbar sind freie Kurse und Vorschau-Kurse; voll gesperrte (ohne Inhalt) nicht.
+  const clickable = !locked || preview
   const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col sm:flex-row h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
   const cardInner = (
     <>
-      <div className={`relative w-full h-40 sm:h-auto sm:w-28 flex-shrink-0 sm:self-stretch overflow-hidden ${locked ? 'grayscale' : ''}`}>
+      <div className={`relative w-full h-40 sm:h-auto sm:w-28 flex-shrink-0 sm:self-stretch overflow-hidden ${locked && !preview ? 'grayscale' : ''}`}>
         <CourseCover variant={variant} size="sm" />
-        {locked && (
+        {locked && !preview && (
           <span className="absolute inset-0 bg-dark/60 flex items-center justify-center z-10">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+          </span>
+        )}
+        {preview && (
+          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 z-10 uppercase tracking-wide">
+            Vorschau
           </span>
         )}
         {!locked && progress > 0 && (
@@ -54,8 +65,12 @@ export function StarterCourseCard({
       </div>
       <div className="flex-1 p-4 min-w-0 flex flex-col">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked ? 'text-text-secondary group-hover:text-dark' : 'group-hover:text-accent-gold'}`}>{title}</h3>
-          {locked && (
+          <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked && !preview ? 'text-text-secondary group-hover:text-dark' : 'group-hover:text-accent-gold'}`}>{title}</h3>
+          {preview ? (
+            <span className="font-sans text-[10px] uppercase tracking-wide bg-accent-gold/15 border border-accent-gold/30 text-accent-gold px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
+              Erste Lektionen frei
+            </span>
+          ) : locked && (
             <span className="font-sans text-[10px] uppercase tracking-wide bg-dark/5 border border-border text-text-secondary px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
               {lockLabel} · Gesperrt
@@ -64,7 +79,12 @@ export function StarterCourseCard({
         </div>
         <p className="font-sans text-xs text-text-secondary mb-2">{instrument ? `${instrument} · ` : ''}{level} · {modules} Module · {duration}</p>
         <p className="font-sans text-sm text-text-secondary leading-relaxed line-clamp-2 flex-1">{desc}</p>
-        {locked ? (
+        {preview ? (
+          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+            Reinschnuppern — erste Lektionen frei
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          </span>
+        ) : locked ? (
           <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-secondary">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
             Mit {lockLabel}-Abo freischalten

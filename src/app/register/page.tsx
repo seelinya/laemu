@@ -32,17 +32,17 @@ const steps = [
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 
-// Geburtsdatum-Auswahl per Dropdown (statt nativem Kalender) — gerade für
-// ältere Personen deutlich angenehmer: Jahr & Monat sind direkt wählbar,
-// ohne im Kalender Jahrzehnte zurückblättern zu müssen.
+// Geburtsdatum-Eingabe — gerade für ältere Personen angenehm: Tag & Monat als
+// kurze Dropdowns, das Jahr wird direkt eingetippt. So muss niemand durch eine
+// lange Liste von über hundert Jahren scrollen, um sein Geburtsjahr zu finden.
 const GEBURT_MONATE = [
   'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
   'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
 ]
 const GEBURT_TAGE = Array.from({ length: 31 }, (_, i) => i + 1)
 const GEBURT_AKTUELLES_JAHR = new Date().getFullYear()
-// Jahre absteigend (neuste zuerst), zurück bis ~120 Jahre.
-const GEBURT_JAHRE = Array.from({ length: 120 }, (_, i) => GEBURT_AKTUELLES_JAHR - i)
+// Plausibler Jahresbereich (ältester Jahrgang ~120 Jahre zurück).
+const GEBURT_MIN_JAHR = GEBURT_AKTUELLES_JAHR - 120
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
@@ -63,8 +63,13 @@ export default function RegisterPage() {
   const [geburtsTag, setGeburtsTag] = useState('')
   const [geburtsMonat, setGeburtsMonat] = useState('')
   const [geburtsJahr, setGeburtsJahr] = useState('')
+  // Das eingetippte Jahr muss vierstellig und im plausiblen Bereich liegen.
+  const geburtsJahrValid =
+    /^\d{4}$/.test(geburtsJahr) &&
+    Number(geburtsJahr) >= GEBURT_MIN_JAHR &&
+    Number(geburtsJahr) <= GEBURT_AKTUELLES_JAHR
   const geburtsdatum =
-    geburtsTag && geburtsMonat && geburtsJahr
+    geburtsTag && geburtsMonat && geburtsJahrValid
       ? `${geburtsJahr}-${geburtsMonat.padStart(2, '0')}-${geburtsTag.padStart(2, '0')}`
       : ''
   const [strasse, setStrasse] = useState('')
@@ -389,11 +394,23 @@ export default function RegisterPage() {
                       <option value="">Monat</option>
                       {GEBURT_MONATE.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                     </select>
-                    <select value={geburtsJahr} onChange={e => setGeburtsJahr(e.target.value)} aria-label="Geburtstag — Jahr" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary">
-                      <option value="">Jahr</option>
-                      {GEBURT_JAHRE.map(y => <option key={y} value={y}>{y}</option>)}
-                    </select>
+                    {/* Jahr wird eingetippt statt aus einer langen Liste gescrollt. */}
+                    <input
+                      value={geburtsJahr}
+                      onChange={e => setGeburtsJahr(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={4}
+                      aria-label="Geburtstag — Jahr"
+                      placeholder="Jahr"
+                      className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                    />
                   </div>
+                  {geburtsJahr.length === 4 && !geburtsJahrValid && (
+                    <p className="font-sans text-xs text-accent-gold mt-1.5">
+                      Bitte gib ein gültiges Jahr zwischen {GEBURT_MIN_JAHR} und {GEBURT_AKTUELLES_JAHR} ein.
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">

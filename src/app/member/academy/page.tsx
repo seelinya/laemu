@@ -255,6 +255,7 @@ export default function MemberAcademyPage() {
               title={introKurs.title} level={introKurs.level} modules={introKurs.modules} duration={introKurs.duration}
               desc={introKurs.desc} completedModules={introKurs.completedModules} instrument={introInstrument.label} variant={introInstrument.id}
               locked={!courseUnlocked('Starter', introInstrument.label)} lockLabel="Starter"
+              previewable={!!getCourse(introInstrument.id, introKurs.id)}
             />
           </div>
         </div>
@@ -288,6 +289,7 @@ export default function MemberAcademyPage() {
                     title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                     desc={kurs.desc} completedModules={kurs.completedModules} instrument={ov.label} variant={ov.id}
                     locked={!starterUnlocked} lockLabel="Starter"
+                    previewable={!!getCourse(ov.id, kurs.id)}
                   />
                 </motion.div>
               ))}
@@ -310,6 +312,7 @@ export default function MemberAcademyPage() {
                       title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
                       desc={kurs.desc} completedModules={0} instrument={ov.label} variant={ov.id}
                       locked={!proUnlocked} lockLabel="Pro"
+                      previewable={!!getCourse(ov.id, kurs.id)}
                     />
                   </motion.div>
                 ))}
