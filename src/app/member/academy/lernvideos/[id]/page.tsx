@@ -1087,6 +1087,120 @@ export default function LernvideoDetailPage() {
                   )}
                 </motion.div>
 
+              </>
+            )}
+
+            {/* ── 1. STIMME ── */}
+            {mainTab === 'stimme1' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">1. Stimme</h2>
+                </div>
+                {stimme1Sections.length > 0
+                  ? stimme1Sections.map(s => renderStimmeSection(s, false))
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 1.-Stimme-Video.</p>}
+              </motion.div>
+            )}
+
+            {/* ── 2. STIMME ── */}
+            {mainTab === 'stimme2' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">2. Stimme</h2>
+                </div>
+                {stimme2Sections.length > 0
+                  ? stimme2Sections.map(s => renderStimmeSection(s, false))
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 2.-Stimme-Video.</p>}
+              </motion.div>
+            )}
+
+            {/* ── BEGLEITVORSCHLÄGE ── */}
+            {mainTab === 'begleit' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">Begleitvorschläge</h2>
+                </div>
+                {begleitSections.length > 0
+                  ? begleitSections.map(s => renderStimmeSection(s, true, ['violin']))
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es keine Begleitvideos.</p>}
+              </motion.div>
+            )}
+
+            {/* ── MITSPIELEN ── */}
+            {mainTab === 'mitspielen' && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <div>
+                  <h2 className="font-heading font-bold text-xl">Mitspielen</h2>
+                  <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den Mixer steuerbar.</p>
+                </div>
+
+                {/* Mitspielvideo, der Mixer (Stimmen) darunter */}
+                <div>
+                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
+                  {v.hasMixer && <MixerFaders musicians={v.mixerMusicians} />}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* RIGHT SIDEBAR */}
+          <div>
+            <div className="sticky top-8 space-y-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-1">
+              {/* Metadata */}
+              <div className="bg-surface border border-border p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Stück-Info</p>
+                <div className="space-y-0">
+                  {([
+                    { label: 'Komponist', value: v.composer },
+                    { label: 'Takt', value: v.meter },
+                    ...(v.taktart ? [{ label: 'Taktart', value: v.taktart }] : []),
+                    { label: 'Harmoniestufen', value: `${v.level}` },
+                  ] as { label: string; value: string }[]).map(item => (
+                    <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
+                      <span className="font-sans text-xs text-text-secondary">{item.label}</span>
+                      <span className="font-sans text-xs font-medium">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="bg-surface border border-border p-4 space-y-2">
+                <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}>
+                  <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste hinzufügen'}
+                </button>
+                <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="left" className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
+                  <IconShare /> Teilen
+                </ShareMenu>
+              </div>
+
+              {/* Lehrpersonen (mehrere möglich — je Instrument/Stimme) */}
+              <div className="bg-surface border border-border p-5">
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Lehrpersonen</p>
+                <div className="space-y-5">
+                  {v.teachers.map((t, i) => (
+                    <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
+                      <div className="relative w-12 h-12 overflow-hidden flex-shrink-0">
+                        <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+                      </div>
+                      <div>
+                        <p className="font-heading font-bold text-sm">{t.name}</p>
+                        <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
+                        <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
+                        <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
+                          Profil ansehen
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* KOMMENTARE — auf Mobile/Tablet unter Stück-Infos, Lehrpersonen & Aktionen */}
+          {mainTab === 'ueberblick' && (
+            <div className="lg:col-span-2">
                 {/* 6 — KOMMENTARE (eine Leiste pro Lernvideo) */}
                 {(() => {
                   const MY = { user: 'ich', name: userProfile.name || 'Mitglied', avatar: userProfile.avatar }
@@ -1245,116 +1359,8 @@ export default function LernvideoDetailPage() {
                     </motion.div>
                   )
                 })()}
-              </>
-            )}
-
-            {/* ── 1. STIMME ── */}
-            {mainTab === 'stimme1' && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                <div>
-                  <h2 className="font-heading font-bold text-xl">1. Stimme</h2>
-                </div>
-                {stimme1Sections.length > 0
-                  ? stimme1Sections.map(s => renderStimmeSection(s, false))
-                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 1.-Stimme-Video.</p>}
-              </motion.div>
-            )}
-
-            {/* ── 2. STIMME ── */}
-            {mainTab === 'stimme2' && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                <div>
-                  <h2 className="font-heading font-bold text-xl">2. Stimme</h2>
-                </div>
-                {stimme2Sections.length > 0
-                  ? stimme2Sections.map(s => renderStimmeSection(s, false))
-                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 2.-Stimme-Video.</p>}
-              </motion.div>
-            )}
-
-            {/* ── BEGLEITVORSCHLÄGE ── */}
-            {mainTab === 'begleit' && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                <div>
-                  <h2 className="font-heading font-bold text-xl">Begleitvorschläge</h2>
-                </div>
-                {begleitSections.length > 0
-                  ? begleitSections.map(s => renderStimmeSection(s, true, ['violin']))
-                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es keine Begleitvideos.</p>}
-              </motion.div>
-            )}
-
-            {/* ── MITSPIELEN ── */}
-            {mainTab === 'mitspielen' && (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div>
-                  <h2 className="font-heading font-bold text-xl">Mitspielen</h2>
-                  <p className="font-sans text-sm text-text-secondary mt-0.5">Spiel zur Masteraufnahme mit — Tempo, Tonhöhe & einzelne Stimmen über den Mixer steuerbar.</p>
-                </div>
-
-                {/* Mitspielvideo, der Mixer (Stimmen) darunter */}
-                <div>
-                  <VideoPlayer img={v.img} label={`${v.title} — Masteraufnahme`} />
-                  {v.hasMixer && <MixerFaders musicians={v.mixerMusicians} />}
-                </div>
-              </motion.div>
-            )}
-          </div>
-
-          {/* RIGHT SIDEBAR */}
-          <div>
-            <div className="sticky top-8 space-y-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-1">
-              {/* Metadata */}
-              <div className="bg-surface border border-border p-5">
-                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Stück-Info</p>
-                <div className="space-y-0">
-                  {([
-                    { label: 'Komponist', value: v.composer },
-                    { label: 'Takt', value: v.meter },
-                    ...(v.taktart ? [{ label: 'Taktart', value: v.taktart }] : []),
-                    { label: 'Harmoniestufen', value: `${v.level}` },
-                  ] as { label: string; value: string }[]).map(item => (
-                    <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
-                      <span className="font-sans text-xs text-text-secondary">{item.label}</span>
-                      <span className="font-sans text-xs font-medium">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="bg-surface border border-border p-4 space-y-2">
-                <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}>
-                  <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste hinzufügen'}
-                </button>
-                <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="left" className="w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border border-border hover:border-dark text-text-secondary transition-colors">
-                  <IconShare /> Teilen
-                </ShareMenu>
-              </div>
-
-              {/* Lehrpersonen (mehrere möglich — je Instrument/Stimme) */}
-              <div className="bg-surface border border-border p-5">
-                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Lehrpersonen</p>
-                <div className="space-y-5">
-                  {v.teachers.map((t, i) => (
-                    <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
-                      <div className="relative w-12 h-12 overflow-hidden flex-shrink-0">
-                        <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
-                      </div>
-                      <div>
-                        <p className="font-heading font-bold text-sm">{t.name}</p>
-                        <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
-                        <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
-                        <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
-                          Profil ansehen
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
         </div>
       </div>
