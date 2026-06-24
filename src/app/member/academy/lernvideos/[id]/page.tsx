@@ -793,6 +793,8 @@ export default function LernvideoDetailPage() {
   const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
+  // Standardmässig nur die ersten Kommentare zeigen; «Alle laden» blendet den Rest ein.
+  const [showAllComments, setShowAllComments] = useState(false)
   // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
   // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
   const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
@@ -803,6 +805,8 @@ export default function LernvideoDetailPage() {
     if (!hash.startsWith('#comment-')) return
     const commentId = hash.slice('#comment-'.length)
     setHighlightedComment(commentId)
+    // Für den Direktsprung alle Kommentare einblenden, damit das Ziel sichtbar ist.
+    setShowAllComments(true)
     // Kommentare liegen im Überblick-Tab — dorthin wechseln und hinscrollen.
     setMainTab('ueberblick')
     const scrollTimer = setTimeout(() => {
@@ -1133,7 +1137,7 @@ export default function LernvideoDetailPage() {
                         {videoComments.length === 0 ? (
                           <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
                         ) : (
-                          videoComments.map((c) => (
+                          (showAllComments ? videoComments : videoComments.slice(0, 3)).map((c) => (
                             <div key={c.id} id={`comment-${c.id}`} className="flex gap-3 scroll-mt-24">
                               <Avatar user={c.user} name={c.name} avatar={c.avatar} />
                               <div className="flex-1 min-w-0">
@@ -1210,6 +1214,14 @@ export default function LernvideoDetailPage() {
                               </div>
                             </div>
                           ))
+                        )}
+                        {!showAllComments && videoComments.length > 3 && (
+                          <button
+                            onClick={() => setShowAllComments(true)}
+                            className="w-full border border-border py-2.5 font-sans text-sm font-medium text-text-secondary hover:border-dark hover:text-dark transition-colors"
+                          >
+                            Alle Kommentare laden ({videoComments.length})
+                          </button>
                         )}
                       </div>
 
