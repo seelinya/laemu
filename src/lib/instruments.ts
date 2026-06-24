@@ -99,16 +99,6 @@ export function getInstrumentOverview(id: string): InstrumentOverview | undefine
   return INSTRUMENT_OVERVIEWS[id as InstrumentId]
 }
 
-// Free-Einblick: Pro Instrument gibt es je einen Schnupper-Kurs auf Starter- und
-// auf Pro-Stufe (jeweils der erste Kurs der Stufe) mit fünf frei zugänglichen
-// Lektionen. Alle übrigen Kurse bleiben für Free-Accounts komplett gesperrt.
-export function isFreePreviewCourse(instrumentId: string, kursId: string, level: string): boolean {
-  const ov = INSTRUMENT_OVERVIEWS[instrumentId as InstrumentId]
-  if (!ov) return false
-  const list = level === 'Pro' ? ov.proKurse : level === 'Starter' ? ov.starterKurse : []
-  return list.length > 0 && list[0].id === kursId
-}
-
 // Abo-/Profil-Instrumentlabel → Overview-Id (nur Instrumente mit Lehrgang-Inhalt).
 const LABEL_TO_ID: Record<string, InstrumentId> = {
   Handorgel: 'handorgel',
