@@ -798,8 +798,6 @@ export default function LernvideoDetailPage() {
   // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
   // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
   const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
-  // Kommentare: standardmässig nur die drei neusten zeigen, Rest per «Alle anzeigen».
-  const [showAllComments, setShowAllComments] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -1201,7 +1199,7 @@ export default function LernvideoDetailPage() {
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
         </div>
 
