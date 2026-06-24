@@ -43,13 +43,6 @@ function IconSearch() {
     </svg>
   )
 }
-function IconHeart({ filled = false }: { filled?: boolean }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-    </svg>
-  )
-}
 function IconCamera() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -108,13 +101,6 @@ function IconFacebook({ size = 22 }: { size?: number }) {
     </svg>
   )
 }
-function IconComment16() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-  )
-}
 
 // ─── Eigene Profil-Beiträge (nur Foto & Video) ────────────────────────────────
 // In der Community ergänzt man sein Profil ausschliesslich mit Foto- und
@@ -126,8 +112,6 @@ type ProfilePost = {
   img: string
   caption: string
   time: string
-  likes: number
-  comments: number
 }
 
 const profilePosts: ProfilePost[] = [
@@ -137,8 +121,6 @@ const profilePosts: ProfilePost[] = [
     img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80',
     caption: 'Probetag in Luzern 🎶 — wir bereiten uns aufs Frühlingskonzert vor.',
     time: 'vor 2 Stunden',
-    likes: 47,
-    comments: 12,
   },
   {
     id: 2,
@@ -146,8 +128,6 @@ const profilePosts: ProfilePost[] = [
     img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
     caption: 'Eine kleine Improvisation auf dem Schwyzerörgeli — traditionell mit eigenem Touch.',
     time: 'vor 5 Stunden',
-    likes: 89,
-    comments: 23,
   },
   {
     id: 3,
@@ -155,8 +135,6 @@ const profilePosts: ProfilePost[] = [
     img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
     caption: 'Unvergesslicher Abend mit der Kapelle. Danke an alle, die dabei waren!',
     time: 'vor 3 Tagen',
-    likes: 134,
-    comments: 41,
   },
 ]
 
@@ -984,10 +962,6 @@ function ProfileView() {
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
                 </button>
-                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <span className="text-white text-xs flex items-center gap-1"><IconHeart filled /> {post.likes}</span>
-                  <span className="text-white text-xs flex items-center gap-1"><IconComment16 /> {post.comments}</span>
-                </div>
               </div>
             ))}
           </div>
