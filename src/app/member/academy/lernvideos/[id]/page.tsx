@@ -793,6 +793,8 @@ export default function LernvideoDetailPage() {
   const [videoComments, setVideoComments] = useState<VideoComment[]>(initialVideoComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
+  // Standardmässig nur die ersten Kommentare zeigen; «Alle laden» blendet den Rest ein.
+  const [showAllComments, setShowAllComments] = useState(false)
   // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
   // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
   const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
@@ -1199,7 +1201,7 @@ export default function LernvideoDetailPage() {
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
         </div>
 
