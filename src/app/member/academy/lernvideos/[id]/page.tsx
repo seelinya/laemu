@@ -290,7 +290,6 @@ function IconRepeat() { return <svg width="13" height="13" viewBox="0 0 24 24" f
 function IconArrowRight() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> }
 function IconShare() { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> }
 function IconStar({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> }
-function IconCheck() { return <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> }
 function IconHeart({ filled }: { filled: boolean }) { return <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg> }
 function IconMusic() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> }
 function IconVolOff() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg> }
@@ -660,24 +659,25 @@ function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; l
   const [open, setOpen] = useState(defaultOpen)
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 hover:bg-background transition-colors">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className={`w-7 h-7 flex items-center justify-center flex-shrink-0 ${lv.done ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
-            {lv.done ? <IconCheck /> : <IconPlay />}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-sans text-sm font-medium truncate">{lv.label}</p>
-            <p className="font-sans text-xs text-text-secondary">{lv.duration}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0 pl-10 sm:pl-0">
-          <button onClick={() => setOpen(o => !o)} title={open ? 'Schliessen' : 'Abspielen'} className="font-sans text-xs px-3 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
-            {open
-              ? <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span className="hidden sm:inline">Schliessen</span></>
-              : <><IconPlay /> <span className="hidden sm:inline">Abspielen</span></>}
-          </button>
-        </div>
-      </div>
+      {/* Ganze Zeile klickbar — öffnet/schliesst das Lernvideo. Einzelne Lernvideos
+          lassen sich nicht abhaken; nur das ganze Stück ist als «gelernt» markierbar. */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 text-left hover:bg-background transition-colors"
+      >
+        <span className={`w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors ${open ? 'bg-accent-gold text-white' : 'bg-dark text-white'}`}>
+          {open
+            ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            : <IconPlay />}
+        </span>
+        <span className="flex-1 min-w-0">
+          <span className="block font-sans text-sm font-medium truncate">{lv.label}</span>
+          <span className="block font-sans text-xs text-text-secondary">{lv.duration}</span>
+        </span>
+        <span className="font-sans text-xs text-text-secondary flex-shrink-0 hidden sm:inline">{open ? 'Schliessen' : 'Abspielen'}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-text-secondary flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
       <AnimatePresence>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
@@ -798,6 +798,8 @@ export default function LernvideoDetailPage() {
   // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
   // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
   const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
+  // Kommentare: standardmässig nur die drei neusten zeigen, Rest per «Alle anzeigen».
+  const [showAllComments, setShowAllComments] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -805,10 +807,9 @@ export default function LernvideoDetailPage() {
     if (!hash.startsWith('#comment-')) return
     const commentId = hash.slice('#comment-'.length)
     setHighlightedComment(commentId)
-    // Für den Direktsprung alle Kommentare einblenden, damit das Ziel sichtbar ist.
-    setShowAllComments(true)
-    // Kommentare liegen im Überblick-Tab — dorthin wechseln und hinscrollen.
+    // Kommentare liegen im Überblick-Tab — dorthin wechseln, alle einblenden und hinscrollen.
     setMainTab('ueberblick')
+    setShowAllComments(true)
     const scrollTimer = setTimeout(() => {
       document.getElementById(`comment-${commentId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 300)
@@ -1030,17 +1031,17 @@ export default function LernvideoDetailPage() {
 
                   {/* Spotify */}
                   {v.spotify && (
-                    <div className="flex items-center justify-between p-3 border border-border hover:border-dark transition-colors">
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 border border-border hover:border-dark transition-colors">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 bg-[#1DB954] flex items-center justify-center flex-shrink-0">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-sans text-sm font-medium">Auf Spotify anhören</p>
-                          <p className="font-sans text-xs text-text-secondary">{v.title} — {v.artist}</p>
+                          <p className="font-sans text-xs text-text-secondary truncate">{v.title} — {v.artist}</p>
                         </div>
                       </div>
-                      <a href={v.spotify} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors">Öffnen →</a>
+                      <a href={v.spotify} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors text-center whitespace-nowrap sm:flex-shrink-0">Öffnen →</a>
                     </div>
                   )}
 
@@ -1050,15 +1051,17 @@ export default function LernvideoDetailPage() {
                       <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Originalaufnahmen & Versionen</p>
                       <div className="space-y-2">
                         {v.originalRecordings.filter(r => r.type === 'youtube').map((r, i) => (
-                          <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark group transition-colors">
-                            <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:border-dark group-hover:text-white transition-colors flex-shrink-0">
-                              <IconPlay />
+                          <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border border-border hover:border-dark group transition-colors">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="w-8 h-8 bg-background border border-border flex items-center justify-center group-hover:bg-dark group-hover:border-dark group-hover:text-white transition-colors flex-shrink-0">
+                                <IconPlay />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-sans text-sm font-medium truncate">{r.label}</p>
+                                <p className="font-sans text-xs text-text-secondary">{r.artist} · YouTube</p>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-sans text-sm font-medium truncate">{r.label}</p>
-                              <p className="font-sans text-xs text-text-secondary">{r.artist} · YouTube</p>
-                            </div>
-                            <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex-shrink-0">Auf YouTube ansehen</button>
+                            <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Auf YouTube ansehen</button>
                           </div>
                         ))}
                       </div>
@@ -1071,15 +1074,17 @@ export default function LernvideoDetailPage() {
                       <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-3">Auf diesen CDs erhältlich</p>
                       <div className="space-y-2">
                         {v.tontraeger.map((t, i) => (
-                          <div key={i} className="flex items-center gap-3 p-3 border border-border hover:border-dark transition-colors">
-                            <div className="w-8 h-8 bg-background border border-border flex items-center justify-center text-text-secondary flex-shrink-0">
-                              <IconDisc />
+                          <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border border-border hover:border-dark transition-colors">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="w-8 h-8 bg-background border border-border flex items-center justify-center text-text-secondary flex-shrink-0">
+                                <IconDisc />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-sans text-sm font-medium truncate">{t.label}</p>
+                                <p className="font-sans text-xs text-text-secondary">{t.artist} · {t.year}</p>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-sans text-sm font-medium truncate">{t.label}</p>
-                              <p className="font-sans text-xs text-text-secondary">{t.artist} · {t.year}</p>
-                            </div>
-                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex-shrink-0">Jetzt kaufen</a>
+                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Jetzt kaufen</a>
                           </div>
                         ))}
                       </div>
@@ -1196,173 +1201,174 @@ export default function LernvideoDetailPage() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* KOMMENTARE — auf Mobile/Tablet unter Stück-Infos, Lehrpersonen & Aktionen */}
-          {mainTab === 'ueberblick' && (
-            <div className="lg:col-span-2">
-                {/* 6 — KOMMENTARE (eine Leiste pro Lernvideo) */}
-                {(() => {
-                  const MY = { user: 'ich', name: userProfile.name || 'Mitglied', avatar: userProfile.avatar }
-                  const profileHrefFor = (user: string) => (user === 'ich' ? '/member/profile' : `/member/u/${user}`)
-                  const totalCount = videoComments.reduce((s, c) => s + 1 + c.replies.length, 0)
-
-                  const handleSend = () => {
-                    if (!comment.trim()) return
-                    setVideoComments(prev => [
-                      { ...MY, id: `vc-${Date.now()}`, text: comment.trim(), time: 'Gerade eben', likes: 0, replies: [] },
-                      ...prev,
-                    ])
-                    setComment('')
-                  }
-
-                  const handleReply = (commentId: string) => {
-                    if (!replyText.trim()) return
-                    setVideoComments(prev => prev.map(c => c.id === commentId
-                      ? { ...c, replies: [...c.replies, { id: `r-${Date.now()}`, ...MY, text: replyText.trim(), time: 'Gerade eben' }] }
-                      : c))
-                    setReplyText(''); setReplyTo(null)
-                  }
-
-                  const Avatar = ({ user, name, avatar, small = false }: { user: string; name: string; avatar: string; small?: boolean }) => (
-                    <Link href={profileHrefFor(user)} className={`relative overflow-hidden flex-shrink-0 bg-background border border-border hover:border-accent-gold transition-colors ${small ? 'w-7 h-7' : 'w-9 h-9'}`}>
-                      {avatar ? (
-                        <Image src={avatar} alt={name} fill className="object-cover" unoptimized />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-text-secondary">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                      )}
-                    </Link>
-                  )
-
-                  return (
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6">
-                      {/* Header */}
-                      <div className="mb-5">
-                        <h3 className="font-heading font-bold text-lg">Kommentare ({totalCount})</h3>
-                        <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
-                          zu: <span className="text-dark font-medium">{v.title}</span>
-                        </p>
-                      </div>
-
-                      {/* Comment list */}
-                      <div className="space-y-4 mb-6">
-                        {videoComments.length === 0 ? (
-                          <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
-                        ) : (
-                          (showAllComments ? videoComments : videoComments.slice(0, 3)).map((c) => (
-                            <div key={c.id} id={`comment-${c.id}`} className="flex gap-3 scroll-mt-24">
-                              <Avatar user={c.user} name={c.name} avatar={c.avatar} />
-                              <div className="flex-1 min-w-0">
-                                <div className={`p-4 border transition-colors ${highlightedComment === c.id ? 'bg-accent-gold/10 border-accent-gold' : 'bg-background border-border'}`}>
-                                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                    <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
-                                    {c.isTeam && (
-                                      <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
-                                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
-                                        {c.role ?? 'LAEMU Team'}
-                                      </span>
-                                    )}
-                                    <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
-                                  </div>
-                                  <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
-                                  <div className="flex items-center gap-4">
-                                    <button
-                                      onClick={() => setCommentLikes(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
-                                      className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
-                                    >
-                                      <IconHeart filled={!!commentLikes[c.id]} />
-                                      {c.likes + (commentLikes[c.id] ? 1 : 0)}
-                                    </button>
-                                    <button
-                                      onClick={() => { setReplyTo(replyTo === c.id ? null : c.id); setReplyText('') }}
-                                      className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
-                                    >
-                                      Beantworten
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Replies */}
-                                {c.replies.length > 0 && (
-                                  <div className="mt-3 space-y-3 border-l-2 border-border pl-4">
-                                    {c.replies.map(r => (
-                                      <div key={r.id} className="flex gap-2.5">
-                                        <Avatar user={r.user} name={r.name} avatar={r.avatar} small />
-                                        <div className="flex-1 min-w-0 bg-background p-3 border border-border">
-                                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                            <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
-                                            {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
-                                            <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
-                                          </div>
-                                          <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-
-                                {/* Reply input — auf Mobile gestapelt statt zusammengequetscht */}
-                                {replyTo === c.id && (
-                                  <div className="mt-3 flex gap-2 sm:gap-2.5">
-                                    <div className="w-7 h-7 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
-                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    </div>
-                                    <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
-                                      <input
-                                        value={replyText}
-                                        onChange={e => setReplyText(e.target.value)}
-                                        onKeyDown={e => e.key === 'Enter' && handleReply(c.id)}
-                                        type="text"
-                                        placeholder={`Antwort an ${c.name}…`}
-                                        className="flex-1 min-w-0 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
-                                      />
-                                      <div className="flex gap-2 justify-end">
-                                        <button onClick={() => { setReplyTo(null); setReplyText('') }} className="sm:hidden border border-border text-text-secondary px-3 py-2 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
-                                        <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))
-                        )}
-                        {!showAllComments && videoComments.length > 3 && (
-                          <button
-                            onClick={() => setShowAllComments(true)}
-                            className="w-full border border-border py-2.5 font-sans text-sm font-medium text-text-secondary hover:border-dark hover:text-dark transition-colors"
-                          >
-                            Alle Kommentare laden ({videoComments.length})
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Input */}
-                      <div className="flex gap-3">
-                        <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
-                          <input
-                            value={comment}
-                            onChange={e => setComment(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleSend()}
-                            type="text"
-                            placeholder={`Kommentar zu "${v.title}"…`}
-                            className="flex-1 min-w-0 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                          />
-                          <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors whitespace-nowrap sm:w-auto">Senden</button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )
-                })()}
-            </div>
           )}
 
         </div>
+
+        {/* KOMMENTARE — ganz unten, volle Breite unter den Stück-Infos & Co. */}
+        {mainTab === 'ueberblick' && (() => {
+          const MY = { user: 'ich', name: userProfile.name || 'Mitglied', avatar: userProfile.avatar }
+          const profileHrefFor = (user: string) => (user === 'ich' ? '/member/profile' : `/member/u/${user}`)
+          const totalCount = videoComments.reduce((s, c) => s + 1 + c.replies.length, 0)
+          // Standardmässig nur die drei neusten Kommentare; Rest per «Alle anzeigen».
+          const visibleComments = showAllComments ? videoComments : videoComments.slice(0, 3)
+
+          const handleSend = () => {
+            if (!comment.trim()) return
+            setVideoComments(prev => [
+              { ...MY, id: `vc-${Date.now()}`, text: comment.trim(), time: 'Gerade eben', likes: 0, replies: [] },
+              ...prev,
+            ])
+            setComment('')
+          }
+
+          const handleReply = (commentId: string) => {
+            if (!replyText.trim()) return
+            setVideoComments(prev => prev.map(c => c.id === commentId
+              ? { ...c, replies: [...c.replies, { id: `r-${Date.now()}`, ...MY, text: replyText.trim(), time: 'Gerade eben' }] }
+              : c))
+            setReplyText(''); setReplyTo(null)
+          }
+
+          const Avatar = ({ user, name, avatar, small = false }: { user: string; name: string; avatar: string; small?: boolean }) => (
+            <Link href={profileHrefFor(user)} className={`relative overflow-hidden flex-shrink-0 bg-background border border-border hover:border-accent-gold transition-colors ${small ? 'w-7 h-7' : 'w-9 h-9'}`}>
+              {avatar ? (
+                <Image src={avatar} alt={name} fill className="object-cover" unoptimized />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-text-secondary">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+              )}
+            </Link>
+          )
+
+          return (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6 mt-6 lg:mt-8">
+              {/* Header */}
+              <div className="mb-5">
+                <h3 className="font-heading font-bold text-lg">Kommentare ({totalCount})</h3>
+                <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
+                  zu: <span className="text-dark font-medium">{v.title}</span>
+                </p>
+              </div>
+
+              {/* Comment list */}
+              <div className="space-y-4 mb-6">
+                {videoComments.length === 0 ? (
+                  <p className="font-sans text-sm text-text-secondary py-4 text-center">Noch keine Kommentare zu diesem Stück. Sei der Erste!</p>
+                ) : (
+                  visibleComments.map((c) => (
+                    <div key={c.id} id={`comment-${c.id}`} className="flex gap-3 scroll-mt-24">
+                      <Avatar user={c.user} name={c.name} avatar={c.avatar} />
+                      <div className="flex-1 min-w-0">
+                        <div className={`p-4 border transition-colors ${highlightedComment === c.id ? 'bg-accent-gold/10 border-accent-gold' : 'bg-background border-border'}`}>
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
+                            {c.isTeam && (
+                              <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                                {c.role ?? 'LAEMU Team'}
+                              </span>
+                            )}
+                            <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
+                          </div>
+                          <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
+                          <div className="flex items-center gap-4">
+                            <button
+                              onClick={() => setCommentLikes(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
+                              className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                            >
+                              <IconHeart filled={!!commentLikes[c.id]} />
+                              {c.likes + (commentLikes[c.id] ? 1 : 0)}
+                            </button>
+                            <button
+                              onClick={() => { setReplyTo(replyTo === c.id ? null : c.id); setReplyText('') }}
+                              className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                            >
+                              Beantworten
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Replies */}
+                        {c.replies.length > 0 && (
+                          <div className="mt-3 space-y-3 border-l-2 border-border pl-4">
+                            {c.replies.map(r => (
+                              <div key={r.id} className="flex gap-2.5">
+                                <Avatar user={r.user} name={r.name} avatar={r.avatar} small />
+                                <div className="flex-1 min-w-0 bg-background p-3 border border-border">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
+                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
+                                    <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
+                                  </div>
+                                  <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Reply input — auf Mobile gestapelt statt zusammengequetscht */}
+                        {replyTo === c.id && (
+                          <div className="mt-3 flex gap-2 sm:gap-2.5">
+                            <div className="w-7 h-7 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
+                              <input
+                                value={replyText}
+                                onChange={e => setReplyText(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleReply(c.id)}
+                                type="text"
+                                placeholder={`Antwort an ${c.name}…`}
+                                className="flex-1 min-w-0 border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark"
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <button onClick={() => { setReplyTo(null); setReplyText('') }} className="sm:hidden border border-border text-text-secondary px-3 py-2 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
+                                <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* «Alle anzeigen» — nur wenn es mehr als drei Kommentare gibt */}
+              {videoComments.length > 3 && (
+                <button
+                  onClick={() => setShowAllComments(s => !s)}
+                  className="w-full mb-6 -mt-2 font-sans text-sm px-4 py-2.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center justify-center gap-1.5"
+                >
+                  {showAllComments ? 'Weniger anzeigen' : `Alle ${videoComments.length} Kommentare anzeigen`}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showAllComments ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              )}
+
+              {/* Input */}
+              <div className="flex gap-3">
+                <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
+                  <input
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSend()}
+                    type="text"
+                    placeholder={`Kommentar zu "${v.title}"…`}
+                    className="flex-1 min-w-0 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                  />
+                  <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors whitespace-nowrap sm:w-auto">Senden</button>
+                </div>
+              </div>
+            </motion.div>
+          )
+        })()}
+
       </div>
     </div>
   )
