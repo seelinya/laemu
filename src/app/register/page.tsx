@@ -32,6 +32,18 @@ const steps = [
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 
+// Geburtsdatum-Auswahl per Dropdown (statt nativem Kalender) — gerade für
+// ältere Personen deutlich angenehmer: Jahr & Monat sind direkt wählbar,
+// ohne im Kalender Jahrzehnte zurückblättern zu müssen.
+const GEBURT_MONATE = [
+  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+]
+const GEBURT_TAGE = Array.from({ length: 31 }, (_, i) => i + 1)
+const GEBURT_AKTUELLES_JAHR = new Date().getFullYear()
+// Jahre absteigend (neuste zuerst), zurück bis ~120 Jahre.
+const GEBURT_JAHRE = Array.from({ length: 120 }, (_, i) => GEBURT_AKTUELLES_JAHR - i)
+
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
   const [selectedPayment, setSelectedPayment] = useState('card')
@@ -46,7 +58,15 @@ export default function RegisterPage() {
   const [nachname, setNachname] = useState('')
   const [email, setEmail] = useState('')
   const [passwort, setPasswort] = useState('')
-  const [geburtsdatum, setGeburtsdatum] = useState('')
+  // Geburtsdatum als drei separate Felder (Tag/Monat/Jahr) — zusammengesetzt zu
+  // einem ISO-Wert (YYYY-MM-DD), sobald alle drei gewählt sind.
+  const [geburtsTag, setGeburtsTag] = useState('')
+  const [geburtsMonat, setGeburtsMonat] = useState('')
+  const [geburtsJahr, setGeburtsJahr] = useState('')
+  const geburtsdatum =
+    geburtsTag && geburtsMonat && geburtsJahr
+      ? `${geburtsJahr}-${geburtsMonat.padStart(2, '0')}-${geburtsTag.padStart(2, '0')}`
+      : ''
   const [strasse, setStrasse] = useState('')
   const [hausnummer, setHausnummer] = useState('')
   const [plz, setPlz] = useState('')
@@ -360,7 +380,20 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label>
-                  <input value={geburtsdatum} onChange={e => setGeburtsdatum(e.target.value)} type="date" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary" />
+                  <div className="grid grid-cols-3 gap-4">
+                    <select value={geburtsTag} onChange={e => setGeburtsTag(e.target.value)} aria-label="Geburtstag — Tag" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary">
+                      <option value="">Tag</option>
+                      {GEBURT_TAGE.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                    <select value={geburtsMonat} onChange={e => setGeburtsMonat(e.target.value)} aria-label="Geburtstag — Monat" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary">
+                      <option value="">Monat</option>
+                      {GEBURT_MONATE.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+                    </select>
+                    <select value={geburtsJahr} onChange={e => setGeburtsJahr(e.target.value)} aria-label="Geburtstag — Jahr" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary">
+                      <option value="">Jahr</option>
+                      {GEBURT_JAHRE.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
