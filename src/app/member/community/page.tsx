@@ -232,7 +232,7 @@ function DiscoverView() {
         {query && (
           <button
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-dark transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
             aria-label="Suche zurücksetzen"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -245,7 +245,7 @@ function DiscoverView() {
         <div className="flex items-center justify-between">
           <p className="font-sans text-xs uppercase tracking-[0.15em] text-text-secondary">Filtern nach</p>
           {activeFilters > 0 && (
-            <button onClick={resetFilters} className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">
+            <button onClick={resetFilters} className="font-sans text-xs text-accent-gold hover:text-text-primary transition-colors">
               Filter zurücksetzen ({activeFilters})
             </button>
           )}
@@ -295,7 +295,7 @@ function DiscoverView() {
             </div>
             <Link
               href={`/member/u/${p.handle}`}
-              className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-dark hover:bg-dark hover:text-white transition-colors whitespace-nowrap self-start"
+              className="font-sans text-xs font-medium px-3 py-1.5 border border-dark text-text-primary hover:bg-dark hover:text-white transition-colors whitespace-nowrap self-start"
             >
               Profil ansehen →
             </Link>
@@ -377,7 +377,7 @@ function StartView() {
         <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">
           Tritt unseren geschlossenen WhatsApp-Gruppen bei. Da du dort deine Telefonnummer freigibst,
           behandle sie bitte vertraulich. Für Fragen zu Lernvideos nutzt du am besten die{' '}
-          <Link href="/member/academy/lernvideos" className="text-accent-gold hover:text-dark transition-colors font-medium">
+          <Link href="/member/academy/lernvideos" className="text-accent-gold hover:text-text-primary transition-colors font-medium">
             Kommentarfunktion unterhalb der Videos
           </Link>.
         </p>
@@ -427,7 +427,7 @@ function StartView() {
               href={LAEMU_WHATSAPP_SHARE_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-5 py-2.5 hover:bg-dark hover:text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 border border-dark text-text-primary font-sans text-sm font-medium px-5 py-2.5 hover:bg-dark hover:text-white transition-colors"
             >
               <IconWhatsApp size={16} /> Austausch-Gruppe beitreten
             </a>
@@ -471,7 +471,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
               <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary hover:text-dark">
+          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary hover:text-text-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -482,7 +482,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
             <button
               key={t.id}
               onClick={() => setType(t.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 font-sans text-xs font-medium transition-colors border-b-2 ${type === t.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 font-sans text-xs font-medium transition-colors border-b-2 ${type === t.id ? 'border-dark text-text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
             >
               {t.icon} {t.label}
             </button>
@@ -492,7 +492,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
         {/* Body */}
         <div className="p-5">
           <div className="border-2 border-dashed border-border hover:border-dark transition-colors p-8 text-center cursor-pointer group">
-            <div className="flex justify-center mb-2 text-text-secondary group-hover:text-dark transition-colors">
+            <div className="flex justify-center mb-2 text-text-secondary group-hover:text-text-primary transition-colors">
               {type === 'photo' ? (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
@@ -916,7 +916,7 @@ function ProfileView() {
               <IconUpload />
             </span>
             <div className="min-w-0">
-              <p className="font-sans text-sm font-semibold text-dark">Foto oder Video hochladen</p>
+              <p className="font-sans text-sm font-semibold text-text-primary">Foto oder Video hochladen</p>
               <p className="font-sans text-xs text-text-secondary leading-snug">Ergänze dein Profil mit einem neuen Beitrag.</p>
             </div>
           </div>
@@ -929,7 +929,7 @@ function ProfileView() {
             </button>
             <button
               onClick={() => openComposer('video')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-4 py-2.5 hover:bg-dark hover:text-white transition-colors"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-dark text-text-primary font-sans text-sm font-medium px-4 py-2.5 hover:bg-dark hover:text-white transition-colors"
             >
               <IconVideo /> Video
             </button>
@@ -1015,7 +1015,7 @@ export default function MemberCommunityPage() {
                     className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
                       activeNav === item.id
                         ? 'bg-dark text-white font-medium'
-                        : 'text-text-secondary hover:bg-background hover:text-dark'
+                        : 'text-text-secondary hover:bg-background hover:text-text-primary'
                     }`}
                   >
                     <span className={activeNav === item.id ? 'text-accent-yellow' : ''}>{item.icon}</span>
@@ -1035,7 +1035,7 @@ export default function MemberCommunityPage() {
                   key={item.id}
                   onClick={() => setActiveNav(item.id)}
                   className={`flex items-center gap-2 px-4 py-3 font-sans text-sm whitespace-nowrap transition-colors border-b-2 ${
-                    activeNav === item.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary'
+                    activeNav === item.id ? 'border-dark text-text-primary font-medium' : 'border-transparent text-text-secondary'
                   }`}
                 >
                   {item.icon} {item.label}

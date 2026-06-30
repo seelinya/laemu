@@ -112,7 +112,7 @@ const WISH_VOTE_OPTIONS = WISH_VOTE_GROUPS.flatMap(g => g.options)
 const planColors: Record<string, string> = {
   free: 'bg-border/60 text-text-secondary',
   starter: 'bg-accent-gold/10 text-accent-gold border border-accent-gold/30',
-  pro: 'bg-dark/10 text-dark border border-dark/20',
+  pro: 'bg-dark/10 text-text-primary border border-dark/20',
 }
 const planLabels: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
 
@@ -335,7 +335,7 @@ export default function LernvideosPage() {
               <button
                 onClick={(e) => { e.stopPropagation(); toggleSaved(v.id) }}
                 title={isSaved ? 'Aus Merkliste entfernen' : 'Zur Merkliste hinzufügen'}
-                className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                className={`p-1.5 border transition-colors flex-shrink-0 ${isSaved ? 'border-accent-gold text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
               </button>
@@ -401,13 +401,13 @@ export default function LernvideosPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Tabs — gerahmt, einzeilig, horizontal scrollbar auf Mobile */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
-          <button onClick={() => setTab('datenbank')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'datenbank' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setTab('datenbank')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'datenbank' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}>
             Lernvideos durchsuchen
           </button>
-          <button onClick={() => setTab('merkliste')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'merkliste' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setTab('merkliste')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'merkliste' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}>
             Merkliste ({saved.size})
           </button>
-          <button onClick={() => setTab('wuensche')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'wuensche' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setTab('wuensche')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'wuensche' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}>
             Stückwünsche ({wishes.length})
           </button>
         </div>
@@ -585,7 +585,7 @@ export default function LernvideosPage() {
               {/* Advanced filter toggle */}
               <button
                 onClick={() => setShowAdvancedDesktop(p => !p)}
-                className="w-full flex items-center justify-between font-sans text-xs text-text-secondary hover:text-dark transition-colors border-b border-border pb-2"
+                className="w-full flex items-center justify-between font-sans text-xs text-text-secondary hover:text-text-primary transition-colors border-b border-border pb-2"
               >
                 <span className="uppercase tracking-widest">Erweiterte Filter</span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showAdvancedDesktop ? '' : '-rotate-90'}`}><polyline points="6 9 12 15 18 9"/></svg>
@@ -847,7 +847,7 @@ export default function LernvideosPage() {
                                     key={opt}
                                     type="button"
                                     onClick={() => toggleWishVoteSel(opt)}
-                                    className={`font-sans text-xs px-3 py-1.5 border transition-colors ${active ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                                    className={`font-sans text-xs px-3 py-1.5 border transition-colors ${active ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
                                   >
                                     {active ? '✓ ' : ''}{opt}
                                   </button>
@@ -941,7 +941,7 @@ export default function LernvideosPage() {
                                 <button
                                   key={opt}
                                   onClick={() => toggleWishVote(w.id, opt)}
-                                  className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${voted ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                                  className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1.5 border transition-colors ${voted ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
                                 >
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill={voted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
                                   {opt}

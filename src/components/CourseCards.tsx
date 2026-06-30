@@ -65,7 +65,7 @@ export function StarterCourseCard({
       </div>
       <div className="flex-1 p-4 min-w-0 flex flex-col">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked && !preview ? 'text-text-secondary group-hover:text-dark' : 'group-hover:text-accent-gold'}`}>{title}</h3>
+          <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked && !preview ? 'text-text-secondary group-hover:text-text-primary' : 'group-hover:text-accent-gold'}`}>{title}</h3>
           {preview ? (
             <span className="font-sans text-[10px] uppercase tracking-wide bg-accent-gold/15 border border-accent-gold/30 text-accent-gold px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
               Erste Lektionen frei
@@ -80,7 +80,7 @@ export function StarterCourseCard({
         <p className="font-sans text-xs text-text-secondary mb-2">{instrument ? `${instrument} · ` : ''}{level} · {modules} Module · {duration}</p>
         <p className="font-sans text-sm text-text-secondary leading-relaxed line-clamp-2 flex-1">{desc}</p>
         {preview ? (
-          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-primary group-hover:text-accent-gold transition-colors">
             Reinschnuppern — erste Lektionen frei
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </span>
@@ -96,13 +96,13 @@ export function StarterCourseCard({
               <span className="font-medium">{progress}%</span>
             </div>
             <div className="h-1 bg-border overflow-hidden"><div className="h-full bg-accent-gold" style={{ width: `${progress}%` }} /></div>
-            <span className="mt-2.5 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+            <span className="mt-2.5 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-primary group-hover:text-accent-gold transition-colors">
               Weiterfahren
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
             </span>
           </div>
         ) : (
-          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-dark group-hover:text-accent-gold transition-colors">
+          <span className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm font-medium text-text-primary group-hover:text-accent-gold transition-colors">
             Kurs öffnen
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
           </span>

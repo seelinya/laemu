@@ -388,7 +388,7 @@ function VoiceMixer({ voices }: { voices: Voice[] }) {
       {state.map(voice => (
         <div key={voice.id} className={`flex items-center gap-3 py-1 px-1 transition-opacity ${voice.muted ? 'opacity-40' : ''}`}>
           <button onClick={() => solo(voice.id)} className="font-sans text-[9px] uppercase tracking-wide w-6 h-5 border border-border text-text-secondary hover:border-accent-gold hover:text-accent-gold transition-colors flex-shrink-0">S</button>
-          <button onClick={() => toggleMute(voice.id)} className={`flex items-center justify-center w-6 h-6 transition-colors flex-shrink-0 ${voice.muted ? 'text-text-secondary' : 'text-dark'}`}>
+          <button onClick={() => toggleMute(voice.id)} className={`flex items-center justify-center w-6 h-6 transition-colors flex-shrink-0 ${voice.muted ? 'text-text-secondary' : 'text-text-primary'}`}>
             {voice.muted ? <IconVolOff /> : <IconVolOn />}
           </button>
           <span className="font-sans text-xs text-text-secondary w-28 sm:w-44 flex-shrink-0 truncate">{voice.label}</span>
@@ -729,7 +729,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
           <p className="font-sans text-xs text-text-secondary leading-relaxed">
             {needsProUpgrade
-              ? <>Dieses Stück gehört zum <strong className="text-dark font-semibold">Pro-Angebot</strong>. Mit deinem Starter-Abo siehst du nur die Masteraufnahme. Für die einzelnen Stimmen-Videos und den Mixer ist ein <strong className="text-dark font-semibold">Upgrade auf Pro</strong> nötig.</>
+              ? <>Dieses Stück gehört zum <strong className="text-text-primary font-semibold">Pro-Angebot</strong>. Mit deinem Starter-Abo siehst du nur die Masteraufnahme. Für die einzelnen Stimmen-Videos und den Mixer ist ein <strong className="text-text-primary font-semibold">Upgrade auf Pro</strong> nötig.</>
               : <>Für die einzelnen Stimmen-Videos und den Mixer ist ein passendes Abo nötig.</>}
           </p>
         </div>
@@ -840,7 +840,7 @@ export default function LernvideoDetailPage() {
           <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
             <span className="font-sans text-xs text-text-secondary">Noten (PDF):</span>
             {noten.map(n => (
-              <a key={n.key} href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+              <a key={n.key} href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1.5">
                 {n.label}{n.price ? ` · CHF ${n.price}` : ''} <IconArrowRight />
               </a>
             ))}
@@ -895,7 +895,7 @@ export default function LernvideoDetailPage() {
               <button
                 key={tab.id}
                 onClick={() => setMainTab(tab.id)}
-                className={`px-4 sm:px-6 py-4 font-sans text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap flex-shrink-0 ${mainTab === tab.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+                className={`px-4 sm:px-6 py-4 font-sans text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap flex-shrink-0 ${mainTab === tab.id ? 'border-dark text-text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
               >
                 {tab.label}
               </button>
@@ -1039,7 +1039,7 @@ export default function LernvideoDetailPage() {
                           <p className="font-sans text-xs text-text-secondary truncate">{v.title} — {v.artist}</p>
                         </div>
                       </div>
-                      <a href={v.spotify} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors text-center whitespace-nowrap sm:flex-shrink-0">Öffnen →</a>
+                      <a href={v.spotify} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-3 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-text-primary transition-colors text-center whitespace-nowrap sm:flex-shrink-0">Öffnen →</a>
                     </div>
                   )}
 
@@ -1059,7 +1059,7 @@ export default function LernvideoDetailPage() {
                                 <p className="font-sans text-xs text-text-secondary">{r.artist} · YouTube</p>
                               </div>
                             </div>
-                            <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Auf YouTube ansehen</button>
+                            <button className="font-sans text-xs px-2.5 py-1.5 border border-border hover:border-dark text-text-secondary hover:text-text-primary transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Auf YouTube ansehen</button>
                           </div>
                         ))}
                       </div>
@@ -1246,7 +1246,7 @@ export default function LernvideoDetailPage() {
               <div className="mb-5">
                 <h3 className="font-heading font-bold text-lg">Kommentare ({totalCount})</h3>
                 <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">
-                  zu: <span className="text-dark font-medium">{v.title}</span>
+                  zu: <span className="text-text-primary font-medium">{v.title}</span>
                 </p>
               </div>
 
@@ -1274,14 +1274,14 @@ export default function LernvideoDetailPage() {
                           <div className="flex items-center gap-4">
                             <button
                               onClick={() => setCommentLikes(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
-                              className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                              className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-text-primary'}`}
                             >
                               <IconHeart filled={!!commentLikes[c.id]} />
                               {c.likes + (commentLikes[c.id] ? 1 : 0)}
                             </button>
                             <button
                               onClick={() => { setReplyTo(replyTo === c.id ? null : c.id); setReplyText('') }}
-                              className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                              className="font-sans text-xs text-text-secondary hover:text-text-primary transition-colors"
                             >
                               Beantworten
                             </button>
@@ -1339,7 +1339,7 @@ export default function LernvideoDetailPage() {
               {videoComments.length > 3 && (
                 <button
                   onClick={() => setShowAllComments(s => !s)}
-                  className="w-full mb-6 -mt-2 font-sans text-sm px-4 py-2.5 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full mb-6 -mt-2 font-sans text-sm px-4 py-2.5 border border-border hover:border-dark text-text-secondary hover:text-text-primary transition-colors flex items-center justify-center gap-1.5"
                 >
                   {showAllComments ? 'Weniger anzeigen' : `Alle ${videoComments.length} Kommentare anzeigen`}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showAllComments ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>

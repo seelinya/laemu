@@ -246,7 +246,7 @@ export default function MemberProfilePage() {
               )}
             </div>
             <p className="font-sans text-sm text-accent-gold">{profile.handle}</p>
-            <p className="font-sans text-sm font-medium text-dark mb-2">{profile.tagline}</p>
+            <p className="font-sans text-sm font-medium text-text-primary mb-2">{profile.tagline}</p>
             <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">{profile.bio}</p>
 
             <SocialLinks social={profile.social} />

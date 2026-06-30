@@ -301,7 +301,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
                 <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-background border border-border text-text-secondary">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                 </div>
-                <p className="font-sans text-sm font-semibold text-dark mb-1">Noch keine Beiträge</p>
+                <p className="font-sans text-sm font-semibold text-text-primary mb-1">Noch keine Beiträge</p>
                 <p className="font-sans text-sm text-text-secondary leading-relaxed">
                   {profile.name.split(' ')[0]} hat noch keine Fotos oder Videos hochgeladen.<br className="hidden sm:block" /> Schau später wieder vorbei.
                 </p>

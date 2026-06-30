@@ -58,7 +58,7 @@ const mockComments: CommentData[] = [
 function TypeBadge({ type }: { type: LessonType }) {
   const config: Record<LessonType, { label: string; cls: string }> = {
     video: { label: 'Video', cls: 'bg-accent-gold/10 text-accent-gold' },
-    text: { label: 'Text', cls: 'bg-dark/10 text-dark' },
+    text: { label: 'Text', cls: 'bg-dark/10 text-text-primary' },
     'video+text': { label: 'Video+Text', cls: 'bg-blue-50 text-blue-700' },
   }
   const c = config[type]
@@ -540,7 +540,7 @@ export default function ModulPage({
                   <motion.button
                     onClick={() => setIsFavorite(!isFavorite)}
                     whileTap={{ scale: 0.9 }}
-                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${isFavorite ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
+                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${isFavorite ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border hover:border-dark text-text-secondary hover:text-text-primary'}`}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
@@ -550,7 +550,7 @@ export default function ModulPage({
                   <motion.button
                     onClick={toggleActiveLessonDone}
                     whileTap={{ scale: 0.9 }}
-                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${activeLessonDone ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
+                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${activeLessonDone ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-text-primary'}`}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={activeLessonDone ? 3 : 2} strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
@@ -589,7 +589,7 @@ export default function ModulPage({
 
               {/* Text content */}
               <div className="bg-surface border border-border p-6 prose-sm max-w-none">
-                <p className="font-sans text-sm text-dark leading-relaxed">
+                <p className="font-sans text-sm text-text-primary leading-relaxed">
                   Willkommen zu deiner Lektion <strong>{activeLesson?.title}</strong> in der LAEMU Musikschule! In dieser Lektion lernst du Schritt für Schritt, wie du sicher mit deiner Handorgel umgehst und die wichtigsten Teile kennenlernst. Hansruedi zeigt dir, worauf du besonders achten musst.
                 </p>
                 <p className="font-sans text-sm text-text-secondary leading-relaxed mt-3">
@@ -597,7 +597,7 @@ export default function ModulPage({
                 </p>
                 {activeLesson?.type === 'video+text' && (
                   <div className="mt-4 p-4 bg-accent-gold/5 border-l-4 border-accent-gold">
-                    <p className="font-sans text-sm font-medium text-dark mb-1">Wichtiger Hinweis</p>
+                    <p className="font-sans text-sm font-medium text-text-primary mb-1">Wichtiger Hinweis</p>
                     <p className="font-sans text-sm text-text-secondary">Übe die Bewegungsabläufe immer langsam — Geschwindigkeit kommt mit der Zeit. Qualität vor Quantität!</p>
                   </div>
                 )}
@@ -624,7 +624,7 @@ export default function ModulPage({
                     <p className="font-sans text-sm font-medium">Übungsblatt zur Lektion (PDF)</p>
                     <p className="font-sans text-xs text-text-secondary">Grifftabelle + Übungshinweise · 2 Seiten</p>
                   </div>
-                  <button className="font-sans text-xs border border-border px-3 py-1.5 hover:border-dark hover:text-dark transition-colors text-text-secondary">
+                  <button className="font-sans text-xs border border-border px-3 py-1.5 hover:border-dark hover:text-text-primary transition-colors text-text-secondary">
                     Herunterladen
                   </button>
                 </div>
@@ -635,7 +635,7 @@ export default function ModulPage({
                 {prevLesson ? (
                   <button
                     onClick={() => setActiveLessonId(prevLesson.id)}
-                    className="flex items-center gap-2 font-sans text-sm text-text-secondary hover:text-dark transition-colors border border-border px-4 py-2.5 hover:border-dark"
+                    className="flex items-center gap-2 font-sans text-sm text-text-secondary hover:text-text-primary transition-colors border border-border px-4 py-2.5 hover:border-dark"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="15 18 9 12 15 6" />
@@ -693,7 +693,7 @@ export default function ModulPage({
               <div className="bg-accent-gold/5 border border-accent-gold/20 px-4 py-3 flex items-start gap-2.5">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                  Kommentare erscheinen mit deinem echten Namen (<strong className="text-dark">{CURRENT_USER.name}</strong>). Antworten kommen direkt von einer Person aus dem LAEMU Team — du wirst benachrichtigt, sobald jemand antwortet. Für persönliches oder vertrauliches Feedback melde dich bitte direkt beim Team.
+                  Kommentare erscheinen mit deinem echten Namen (<strong className="text-text-primary">{CURRENT_USER.name}</strong>). Antworten kommen direkt von einer Person aus dem LAEMU Team — du wirst benachrichtigt, sobald jemand antwortet. Für persönliches oder vertrauliches Feedback melde dich bitte direkt beim Team.
                 </p>
               </div>
 
@@ -711,7 +711,7 @@ export default function ModulPage({
                     className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark resize-none"
                   />
                   <div className="flex items-center justify-between mt-2">
-                    <span className="font-sans text-xs text-text-secondary">Sichtbar als <strong className="text-dark font-medium">{CURRENT_USER.name}</strong></span>
+                    <span className="font-sans text-xs text-text-secondary">Sichtbar als <strong className="text-text-primary font-medium">{CURRENT_USER.name}</strong></span>
                     <button
                       onClick={handleSubmitComment}
                       disabled={!newComment.trim()}
@@ -744,11 +744,11 @@ export default function ModulPage({
                         {comment.isAuthor && !comment.isTeam && <span className="font-sans text-[10px] border border-border text-text-secondary px-1.5 py-0.5">Du</span>}
                         <span className="font-sans text-xs text-text-secondary">{comment.time}</span>
                       </div>
-                      <p className="font-sans text-sm text-dark leading-relaxed">{comment.text}</p>
+                      <p className="font-sans text-sm text-text-primary leading-relaxed">{comment.text}</p>
                       <div className="flex items-center gap-4 mt-2">
                         <button
                           onClick={() => handleLikeComment(comment.id)}
-                          className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${comment.liked ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
+                          className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${comment.liked ? 'text-accent-gold' : 'text-text-secondary hover:text-text-primary'}`}
                         >
                           <svg width="13" height="13" viewBox="0 0 24 24" fill={comment.liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z" />
@@ -758,7 +758,7 @@ export default function ModulPage({
                         </button>
                         <button
                           onClick={() => { setReplyTo(replyTo === comment.id ? null : comment.id); setReplyText('') }}
-                          className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                          className="font-sans text-xs text-text-secondary hover:text-text-primary transition-colors"
                         >
                           Beantworten
                         </button>
@@ -786,7 +786,7 @@ export default function ModulPage({
                                     {r.isTeam && <TeamBadge role={r.role} />}
                                     <span className="font-sans text-xs text-text-secondary">{r.time}</span>
                                   </div>
-                                  <p className="font-sans text-sm text-dark leading-relaxed">{r.text}</p>
+                                  <p className="font-sans text-sm text-text-primary leading-relaxed">{r.text}</p>
                                 </div>
                               </div>
                             )
@@ -816,7 +816,7 @@ export default function ModulPage({
                               </button>
                               <button
                                 onClick={() => { setReplyTo(null); setReplyText('') }}
-                                className="font-sans text-xs text-text-secondary hover:text-dark transition-colors px-2 py-1.5"
+                                className="font-sans text-xs text-text-secondary hover:text-text-primary transition-colors px-2 py-1.5"
                               >
                                 Abbrechen
                               </button>

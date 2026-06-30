@@ -88,7 +88,7 @@ export function ShareMenu({ title = 'LAEMU', text = '', url, className, children
   const smsHref = `sms:?&body=${enc(body)}`
   const mailHref = `mailto:?subject=${enc(title)}&body=${enc(`${text ? text + '\n' : ''}${shareUrl}`)}`
 
-  const linkClass = 'w-full text-left px-4 py-2.5 font-sans text-sm hover:bg-background transition-colors flex items-center gap-3 text-text-secondary hover:text-dark'
+  const linkClass = 'w-full text-left px-4 py-2.5 font-sans text-sm hover:bg-background transition-colors flex items-center gap-3 text-text-secondary hover:text-text-primary'
 
   return (
     <div className="relative" ref={ref}>

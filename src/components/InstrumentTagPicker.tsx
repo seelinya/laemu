@@ -58,7 +58,7 @@ export function InstrumentTagPicker({ value, onChange }: { value: string; onChan
         <button
           type="button"
           onClick={() => setShowCustom(s => !s)}
-          className="font-sans text-xs font-medium px-3 py-1.5 border border-dashed border-border text-text-secondary hover:border-dark hover:text-dark transition-colors"
+          className="font-sans text-xs font-medium px-3 py-1.5 border border-dashed border-border text-text-secondary hover:border-dark hover:text-text-primary transition-colors"
         >
           + Sonstiges
         </button>

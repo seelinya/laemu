@@ -181,7 +181,7 @@ function AboTab() {
               Du hast noch Zugang bis zum <span className="text-accent-gold">{cancelDateLabel}</span>.
             </p>
             <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
-              <button onClick={() => setShowCancelModal(false)} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
+              <button onClick={() => setShowCancelModal(false)} className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors px-4 py-2">Abbrechen</button>
               <button
                 onClick={confirmCancel}
                 className="bg-red-600 text-white font-sans text-sm px-5 py-2.5 hover:bg-red-700 transition-colors"
@@ -290,7 +290,7 @@ function ZahlungsmittelTab() {
       {!showForm ? (
         <button
           onClick={openForm}
-          className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
+          className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-text-primary transition-colors"
         >
           + Zahlungsmittel hinzufügen
         </button>
@@ -302,13 +302,13 @@ function ZahlungsmittelTab() {
           <div className="flex gap-2 mb-5">
             <button
               onClick={() => setMethodType('kreditkarte')}
-              className={`flex-1 py-2 font-sans text-sm border transition-colors ${methodType === 'kreditkarte' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+              className={`flex-1 py-2 font-sans text-sm border transition-colors ${methodType === 'kreditkarte' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
             >
               Kreditkarte
             </button>
             <button
               onClick={() => setMethodType('twint')}
-              className={`flex-1 py-2 font-sans text-sm border transition-colors ${methodType === 'twint' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+              className={`flex-1 py-2 font-sans text-sm border transition-colors ${methodType === 'twint' ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
             >
               TWINT
             </button>
@@ -385,7 +385,7 @@ function ZahlungsmittelTab() {
             </button>
             <button
               onClick={cancelForm}
-              className="border border-border font-sans text-sm px-5 py-2.5 text-text-secondary hover:border-dark hover:text-dark transition-colors"
+              className="border border-border font-sans text-sm px-5 py-2.5 text-text-secondary hover:border-dark hover:text-text-primary transition-colors"
             >
               Abbrechen
             </button>
@@ -495,7 +495,7 @@ function AccountInner() {
                 <button
                   key={s.id}
                   onClick={() => setTab(s.id)}
-                  className={`text-left whitespace-nowrap px-4 py-2.5 font-sans text-sm transition-colors border-l-2 ${tab === s.id ? 'border-accent-gold bg-surface text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark hover:bg-surface'}`}
+                  className={`text-left whitespace-nowrap px-4 py-2.5 font-sans text-sm transition-colors border-l-2 ${tab === s.id ? 'border-accent-gold bg-surface text-text-primary font-medium' : 'border-transparent text-text-secondary hover:text-text-primary hover:bg-surface'}`}
                 >
                   {s.label}
                 </button>

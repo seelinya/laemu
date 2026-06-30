@@ -65,7 +65,7 @@ export function NotificationBell() {
 
   return (
     <div className="relative flex-shrink-0">
-      <button onClick={openMenu} className="relative p-2 text-text-secondary hover:text-dark transition-colors" aria-label="Benachrichtigungen">
+      <button onClick={openMenu} className="relative p-2 text-text-secondary hover:text-text-primary transition-colors" aria-label="Benachrichtigungen">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" />
         </svg>
@@ -81,7 +81,7 @@ export function NotificationBell() {
             <div className="flex items-center justify-between p-3 border-b border-border">
               <p className="font-heading font-bold text-sm">Benachrichtigungen</p>
               {unread > 0 && (
-                <button onClick={markAllRead} className="font-sans text-xs text-accent-gold hover:text-dark transition-colors">Alle gelesen</button>
+                <button onClick={markAllRead} className="font-sans text-xs text-accent-gold hover:text-text-primary transition-colors">Alle gelesen</button>
               )}
             </div>
             <div className="max-h-96 overflow-y-auto">
@@ -95,7 +95,7 @@ export function NotificationBell() {
                     onClick={() => { setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))); setOpen(false) }}
                     className={`flex gap-3 px-3 py-3 border-b border-border last:border-0 transition-colors hover:bg-background ${n.read ? '' : 'bg-accent-gold/5'}`}
                   >
-                    <span className={`w-8 h-8 flex items-center justify-center flex-shrink-0 ${n.kind === 'feedback' ? 'bg-accent-gold/15 text-accent-gold' : 'bg-dark/5 text-dark'}`}>
+                    <span className={`w-8 h-8 flex items-center justify-center flex-shrink-0 ${n.kind === 'feedback' ? 'bg-accent-gold/15 text-accent-gold' : 'bg-border text-text-secondary'}`}>
                       {n.kind === 'feedback' ? (
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" /></svg>
                       ) : (
@@ -151,7 +151,7 @@ export function ProfileMenu() {
                   key={item.label}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-2.5 font-sans text-sm text-text-secondary hover:bg-background hover:text-dark transition-colors"
+                  className="block px-4 py-2.5 font-sans text-sm text-text-secondary hover:bg-background hover:text-text-primary transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -161,7 +161,7 @@ export function ProfileMenu() {
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 px-4 py-2.5 font-sans text-sm text-text-secondary hover:bg-background hover:text-dark transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 font-sans text-sm text-text-secondary hover:bg-background hover:text-text-primary transition-colors"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
                 Abmelden
@@ -202,8 +202,8 @@ export function MemberTabs({ active }: { active: Area }) {
                   href={tab.href}
                   className={`flex items-center gap-2 px-5 py-4 font-sans text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                     active === tab.id
-                      ? 'border-accent-gold text-dark'
-                      : 'border-transparent text-text-secondary hover:text-dark'
+                      ? 'border-accent-gold text-text-primary'
+                      : 'border-transparent text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   <span>{tab.emoji}</span> {tab.label}

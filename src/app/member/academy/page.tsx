@@ -66,7 +66,7 @@ function proPriceFor(abo: UserAbo): { monthly: number; yearly: number } {
 
 const categoryColors: Record<string, string> = {
   Lektionen: 'bg-accent-gold/10 text-accent-gold',
-  Module: 'bg-dark/10 text-dark',
+  Module: 'bg-dark/10 text-text-primary',
   Lernvideos: 'bg-blue-50 text-blue-700',
   Kurse: 'bg-green-50 text-green-700',
 }
@@ -383,7 +383,7 @@ export default function MemberAcademyPage() {
                       placeholder="Suche nach Stücken, Komponisten, Techniken, Kursen..."
                       className="flex-1 px-4 py-3.5 font-sans text-sm bg-transparent focus:outline-none placeholder:text-text-secondary" />
                     {searchQuery && (
-                      <button onClick={() => setSearchQuery('')} className="mr-4 text-text-secondary hover:text-dark transition-colors">
+                      <button onClick={() => setSearchQuery('')} className="mr-4 text-text-secondary hover:text-text-primary transition-colors">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                       </button>
                     )}
@@ -438,7 +438,7 @@ export default function MemberAcademyPage() {
                           onClick={() => { if (!disabled) setCourseFilter(f.id) }}
                           disabled={disabled}
                           title={disabled ? 'Noch keinen Kurs gestartet' : undefined}
-                          className={`font-sans text-sm px-4 py-2 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : disabled ? 'border-border bg-surface text-text-secondary/40 cursor-not-allowed' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                          className={`font-sans text-sm px-4 py-2 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : disabled ? 'border-border bg-surface text-text-secondary/40 cursor-not-allowed' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
                         >
                           {f.label}
                         </button>

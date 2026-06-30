@@ -45,6 +45,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" className={`${plusJakarta.variable} ${inter.variable}`}>
+      <head>
+        {/* Material Symbols (Outlined) — Icon-Set des Design Systems */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..400,0,0"
+        />
+      </head>
       <body>
         <main>{children}</main>
         <Footer />

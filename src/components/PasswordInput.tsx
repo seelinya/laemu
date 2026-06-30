@@ -24,7 +24,7 @@ export function PasswordInput({
         type="button"
         onClick={() => setShow((s) => !s)}
         aria-label={show ? 'Passwort verbergen' : 'Passwort anzeigen'}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-dark transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors"
         tabIndex={-1}
       >
         {show ? (

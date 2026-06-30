@@ -2,18 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Schriften (LAEMU Brand: Radona Norm + Golden Hopes) ──────────────────────
+   Lizenzierte Schriften — Dateien gehören nach /public/fonts/ (woff2). Solange
+   sie fehlen, greift der Fallback-Stack (Plus Jakarta / Inter), das UI bleibt
+   sofort nutzbar. Sobald die Dateien vorliegen, einfach hierher legen. */
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/RadonaNorm-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/RadonaNorm-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/RadonaNorm-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/RadonaNorm-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+/* Golden Hopes (Deko, sparsam) — Datei folgt nach Lizenzierung; bis dahin
+   Fallback auf cursive. */
+@font-face {
+  font-family: 'Golden Hopes';
+  src: url('/fonts/GoldenHopes-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --color-background: #F0F0F0;
-  --color-surface: #FFFFFF;
-  --color-text-primary: #0A0A0A;
-  --color-text-secondary: #5A5A5A;
-  --color-accent-gold: #C4973A;
-  --color-accent-warm: #D4A84B;
-  --color-accent-yellow: #EDD84B;
-  --color-border: #DCDCDC;
-  --color-border-dark: #B0B0B0;
-  --color-dark: #0A0A0A;
-  --color-dark-secondary: #1A1A1A;
+  /* Schrift-Stacks (Radona zuerst, dann vorhandene Fallback-Fonts) */
+  --font-heading: 'Radona Norm', var(--font-syne), 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Radona Norm', var(--font-inter), 'Inter', system-ui, sans-serif;
+  --font-script: 'Golden Hopes', cursive;
+
+  /* ── Hell-Palette (global: Landing, Login, Registrierung) ──
+     Werte im Kanal-Format `R G B` für Opacity-Modifier. */
+  --color-background: 240 240 240;       /* #F0F0F0 */
+  --color-surface: 255 255 255;          /* #FFFFFF */
+  --color-text-primary: 10 10 10;        /* #0A0A0A */
+  --color-text-secondary: 90 90 90;      /* #5A5A5A */
+  --color-accent-gold: 196 151 58;       /* #C4973A */
+  --color-accent-gold-hover: 212 168 75; /* #D4A84B */
+  --color-accent-warm: 212 168 75;       /* #D4A84B */
+  --color-accent-yellow: 237 216 75;     /* #EDD84B */
+  --color-accent-silver: 176 176 176;    /* #B0B0B0 */
+  --color-border: 220 220 220;           /* #DCDCDC */
+  --color-border-dark: 176 176 176;      /* #B0B0B0 */
+  --color-dark: 10 10 10;                /* #0A0A0A — stabile dunkle Fläche/Tinte */
+  --color-dark-secondary: 26 26 26;      /* #1A1A1A */
+}
+
+/* ── Dunkel-Palette — nur im Mitgliederbereich (.theme-dark Scope) ──
+   Werte direkt aus den LAEMU Brand Guidelines / Design System. */
+.theme-dark {
+  --color-background: 0 0 0;             /* #000000 Klangschwarz */
+  --color-surface: 20 20 20;            /* #141414 Karten/Panels */
+  --color-text-primary: 255 255 255;    /* #FFFFFF Bühnenweiss */
+  --color-text-secondary: 160 160 160;  /* Silbergrau (#EFEFEF @ ~60% auf Schwarz) */
+  --color-accent-gold: 188 140 51;      /* #BC8C33 Klanggold */
+  --color-accent-gold-hover: 212 166 86;/* #D4A656 */
+  --color-accent-warm: 212 166 86;      /* #D4A656 */
+  --color-accent-silver: 239 239 239;   /* #EFEFEF Silbergrau */
+  --color-border: 42 42 42;             /* #2A2A2A */
+  --color-border-dark: 80 80 80;        /* #505050 Steingrau */
+  --color-dark: 10 10 10;               /* #0A0A0A — near-black Panels/Tinte (stabil) */
+  --color-dark-secondary: 31 31 31;     /* #1F1F1F Eingabefelder */
 }
 
 * {
@@ -31,9 +99,9 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-text-primary));
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Bildschirmbreite an Gerätebreite koppeln, kein horizontales Scrollen. */
@@ -48,7 +116,7 @@ img, video, svg, canvas {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-syne), 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-heading);
 }
 
 @layer utilities {
@@ -68,19 +136,29 @@ h1, h2, h3, h4, h5, h6 {
     @apply font-heading text-xl md:text-2xl font-bold leading-tight;
   }
   .body-lg {
-    @apply font-sans text-lg font-light leading-relaxed;
+    @apply font-sans text-lg leading-relaxed;
   }
   .body-md {
-    @apply font-sans text-base font-light leading-relaxed;
+    @apply font-sans text-base leading-relaxed;
   }
   .body-sm {
-    @apply font-sans text-sm font-light leading-relaxed;
+    @apply font-sans text-sm leading-relaxed;
   }
   .label {
-    @apply font-sans text-xs uppercase tracking-[0.2em] font-medium;
+    @apply font-sans text-xs uppercase tracking-widest font-bold;
+  }
+  /* Deko-Schrift (Golden Hopes) — nur in Ausnahmefällen. */
+  .script {
+    @apply font-script;
   }
   .gradient-hero {
-    background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+    background: linear-gradient(135deg, #000000 0%, #1F1F1F 100%);
+  }
+  .gradient-accent {
+    background: linear-gradient(135deg, #BC8C33 0%, #D4A656 100%);
+  }
+  .gradient-surface-fade {
+    background: linear-gradient(180deg, #141414 0%, #000000 100%);
   }
   .gradient-section {
     background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
@@ -90,23 +168,34 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Scrollbar styling */
+/* Scrollbar — global (hell) */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: rgb(var(--color-background));
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-dark);
+  background: rgb(var(--color-border-dark));
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent-gold);
+  background: rgb(var(--color-accent-gold));
 }
 
-/* Selection color */
+/* Scrollbar — Mitgliederbereich (dunkel) */
+.theme-dark ::-webkit-scrollbar-track {
+  background: #141414;
+}
+.theme-dark ::-webkit-scrollbar-thumb {
+  background: #505050;
+}
+.theme-dark ::-webkit-scrollbar-thumb:hover {
+  background: #BC8C33;
+}
+
+/* Selection color — Klanggold mit schwarzem Text */
 ::selection {
-  background-color: var(--color-accent-gold);
-  color: white;
+  background-color: #BC8C33;
+  color: #000000;
 }

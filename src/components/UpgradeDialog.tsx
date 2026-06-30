@@ -144,7 +144,7 @@ export function UpgradeDialog({
             </div>
             <h3 className="font-heading font-bold text-2xl mb-2">Abo aktiviert</h3>
             <p className="font-sans text-sm text-text-secondary mb-6">
-              Dein neuer Plan <strong className="text-dark">{aboPlanLabel(confirmedAbo)}</strong>
+              Dein neuer Plan <strong className="text-text-primary">{aboPlanLabel(confirmedAbo)}</strong>
               {aboInstrumentsLabel(confirmedAbo) ? <> — {aboInstrumentsLabel(confirmedAbo)}</> : null} ist ab sofort aktiv.
             </p>
             <button onClick={onClose} className="bg-dark text-white font-sans text-sm px-6 py-3 hover:bg-accent-gold transition-colors">
@@ -156,7 +156,7 @@ export function UpgradeDialog({
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border px-6 py-4 sticky top-0 bg-surface">
               <h3 className="font-heading font-bold text-xl">{step === 'plan' ? 'Abo wählen' : 'Zahlung'}</h3>
-              <button onClick={onClose} className="text-text-secondary hover:text-dark transition-colors" aria-label="Schliessen">
+              <button onClick={onClose} className="text-text-secondary hover:text-text-primary transition-colors" aria-label="Schliessen">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
@@ -164,7 +164,7 @@ export function UpgradeDialog({
             {step === 'plan' && (
               <div className="p-6">
                 <p className="font-sans text-sm text-text-secondary mb-5">
-                  Aktuell: <strong className="text-dark">{aboPlanLabel(abo)}</strong>
+                  Aktuell: <strong className="text-text-primary">{aboPlanLabel(abo)}</strong>
                   {instrumentsLabel ? <> — {instrumentsLabel}</> : null}. Wähle deinen neuen Plan — gleiche Preise & gleiches Konzept wie bei der Registrierung.
                 </p>
 
@@ -196,7 +196,7 @@ export function UpgradeDialog({
                         <button
                           key={opt.id}
                           onClick={() => setBilling(opt.id)}
-                          className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-1.5 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+                          className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-1.5 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-text-primary'}`}
                         >
                           {opt.label}
                           {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
@@ -336,7 +336,7 @@ export function UpgradeDialog({
                   </span>
                 </div>
                 <div className="flex items-center gap-3 justify-end">
-                  <button onClick={onClose} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
+                  <button onClick={onClose} className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors px-4 py-2">Abbrechen</button>
                   <button
                     onClick={() => setStep('payment')}
                     disabled={!planStepValid}
@@ -383,7 +383,7 @@ export function UpgradeDialog({
                     <button
                       key={m.id}
                       onClick={() => setPayMethod(m.id)}
-                      className={`flex-1 py-2 font-sans text-sm border transition-colors ${payMethod === m.id ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                      className={`flex-1 py-2 font-sans text-sm border transition-colors ${payMethod === m.id ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-text-primary'}`}
                     >
                       {m.label}
                     </button>
@@ -429,7 +429,7 @@ export function UpgradeDialog({
                 </p>
 
                 <div className="flex items-center gap-3 justify-between mt-5 pt-4 border-t border-border">
-                  <button onClick={() => setStep('plan')} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">← Zurück</button>
+                  <button onClick={() => setStep('plan')} className="font-sans text-sm text-text-secondary hover:text-text-primary transition-colors px-4 py-2">← Zurück</button>
                   <button
                     onClick={confirm}
                     disabled={!paymentValid}
