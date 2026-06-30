@@ -304,21 +304,7 @@ export default function LernvideosPage() {
                 <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
               )}
             </div>
-            <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
-            {/* Nur Tags zeigen, die sich auch tatsächlich filtern lassen
-                (Bekannte-Melodie-Tags + Notenarten). Stil-Tags haben kein
-                Filter-Steuerelement und werden daher nicht angezeigt. */}
-            <div className="flex flex-wrap gap-1">
-              {v.melodieTags.slice(0, 2).map(t => (
-                <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
-              ))}
-              {v.notesAvailable.violinschluessel && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Violin</span>
-              )}
-              {v.notesAvailable.griffschrift && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">♩ Griff</span>
-              )}
-            </div>
+            <p className="font-sans text-xs text-text-secondary">{v.artist}</p>
           </div>
 
           {/* Aktionen — auf Mobile als Reihe unter dem Text, auf Desktop als Spalte rechts */}
