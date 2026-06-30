@@ -147,7 +147,7 @@ export function UpgradeDialog({
               Dein neuer Plan <strong className="text-dark">{aboPlanLabel(confirmedAbo)}</strong>
               {aboInstrumentsLabel(confirmedAbo) ? <> — {aboInstrumentsLabel(confirmedAbo)}</> : null} ist ab sofort aktiv.
             </p>
-            <button onClick={onClose} className="bg-dark text-white font-sans text-sm px-6 py-3 hover:bg-accent-gold hover:text-on-gold transition-colors">
+            <button onClick={onClose} className="bg-dark text-white font-sans text-sm px-6 py-3 hover:bg-accent-gold hover:text-white transition-colors">
               Fertig
             </button>
           </div>
@@ -199,7 +199,7 @@ export function UpgradeDialog({
                           className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-1.5 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                         >
                           {opt.label}
-                          {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 ${billing === opt.id ? 'bg-accent-gold text-on-gold' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                          {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
                         </button>
                       ))}
                     </div>
@@ -221,7 +221,7 @@ export function UpgradeDialog({
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                                   <span>{meta.emoji}</span>
                                   <span className="font-sans font-semibold text-sm">{meta.label}</span>
-                                  {meta.badge && <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-on-gold">{meta.badge}</span>}
+                                  {meta.badge && <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>}
                                 </div>
                                 <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
                               </div>
@@ -340,7 +340,7 @@ export function UpgradeDialog({
                   <button
                     onClick={() => setStep('payment')}
                     disabled={!planStepValid}
-                    className={`font-sans text-sm px-5 py-2.5 transition-colors ${planStepValid ? 'bg-dark text-white hover:bg-accent-gold hover:text-on-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                    className={`font-sans text-sm px-5 py-2.5 transition-colors ${planStepValid ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
                     Weiter zur Zahlung →
                   </button>
@@ -433,7 +433,7 @@ export function UpgradeDialog({
                   <button
                     onClick={confirm}
                     disabled={!paymentValid}
-                    className={`font-sans text-sm px-5 py-2.5 transition-colors ${paymentValid ? 'bg-accent-gold text-on-gold hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                    className={`font-sans text-sm px-5 py-2.5 transition-colors ${paymentValid ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
                     Zahlungspflichtig bestätigen ✓
                   </button>

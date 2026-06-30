@@ -459,7 +459,7 @@ function StandardVideoPlayer({ img, label }: { img: string; label: string }) {
         {/* Zentraler Play-Button, solange pausiert */}
         {!playing && (
           <button onClick={() => setPlaying(true)} aria-label="Abspielen" className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
-            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold hover:text-on-gold flex items-center justify-center transition-colors">
+            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold hover:text-white flex items-center justify-center transition-colors">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6 4 20 12 6 20 6 4"/></svg>
             </span>
           </button>
@@ -666,7 +666,7 @@ function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; l
         aria-expanded={open}
         className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 text-left hover:bg-background transition-colors"
       >
-        <span className={`w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors ${open ? 'bg-accent-gold text-on-gold' : 'bg-dark text-white'}`}>
+        <span className={`w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors ${open ? 'bg-accent-gold text-white' : 'bg-dark text-white'}`}>
           {open
             ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             : <IconPlay />}
@@ -739,7 +739,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           <h2 className="font-heading font-bold text-2xl mb-1">{piece.title}</h2>
           <p className="font-sans text-sm text-accent-gold mb-4">{piece.artist} · {piece.year}</p>
           <div className="flex flex-wrap gap-2">
-            <span className={`font-sans text-xs px-2.5 py-1 font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-on-gold' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+            <span className={`font-sans text-xs px-2.5 py-1 font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-white' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
               {planLabel[piece.plan]}
             </span>
             <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{piece.instrument}</span>
@@ -763,7 +763,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
               </div>
             ))}
           </div>
-          <Link href="/member/academy" className="inline-block bg-accent-gold text-on-gold font-sans text-sm font-medium px-6 py-3 hover:bg-accent-gold-hover transition-colors">
+          <Link href="/member/academy" className="inline-block bg-accent-gold text-white font-sans text-sm font-medium px-6 py-3 hover:bg-accent-gold-hover transition-colors">
             {needsProUpgrade ? 'Auf Pro upgraden →' : 'Abo erweitern →'}
           </Link>
         </div>
@@ -948,7 +948,7 @@ export default function LernvideoDetailPage() {
 
                   {/* Tags — alle nacheinander, ohne Gruppierung */}
                   <div className="flex flex-wrap gap-1.5">
-                    <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-on-gold' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+                    <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
                       {planLabel[v.difficulty] ?? v.difficulty}
                     </span>
                     <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
@@ -1012,7 +1012,7 @@ export default function LernvideoDetailPage() {
                             </div>
                             <div className="flex items-center justify-between mt-auto">
                               <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
-                              <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors flex items-center gap-1.5">
+                              <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold hover:text-white transition-colors flex items-center gap-1.5">
                                 Im Shop kaufen <IconArrowRight />
                               </a>
                             </div>
@@ -1082,7 +1082,7 @@ export default function LernvideoDetailPage() {
                                 <p className="font-sans text-xs text-text-secondary">{t.artist} · {t.year}</p>
                               </div>
                             </div>
-                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Jetzt kaufen</a>
+                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold hover:text-white transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Jetzt kaufen</a>
                           </div>
                         ))}
                       </div>
@@ -1263,7 +1263,7 @@ export default function LernvideoDetailPage() {
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
                             {c.isTeam && (
-                              <span className="font-sans text-[10px] bg-accent-gold text-on-gold px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                              <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
                                 <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                                 {c.role ?? 'LAEMU Team'}
                               </span>
@@ -1297,7 +1297,7 @@ export default function LernvideoDetailPage() {
                                 <div className="flex-1 min-w-0 bg-background p-3 border border-border">
                                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                                     <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
-                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-on-gold px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
+                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
                                     <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
                                   </div>
                                   <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
@@ -1324,7 +1324,7 @@ export default function LernvideoDetailPage() {
                               />
                               <div className="flex gap-2 justify-end">
                                 <button onClick={() => { setReplyTo(null); setReplyText('') }} className="sm:hidden border border-border text-text-secondary px-3 py-2 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
-                                <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold hover:text-on-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
+                                <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
                               </div>
                             </div>
                           </div>
@@ -1360,7 +1360,7 @@ export default function LernvideoDetailPage() {
                     placeholder={`Kommentar zu "${v.title}"…`}
                     className="flex-1 min-w-0 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                   />
-                  <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold hover:text-on-gold transition-colors whitespace-nowrap sm:w-auto">Senden</button>
+                  <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold hover:text-white transition-colors whitespace-nowrap sm:w-auto">Senden</button>
                 </div>
               </div>
             </motion.div>

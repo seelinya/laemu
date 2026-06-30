@@ -53,12 +53,12 @@ export function StarterCourseCard({
           </span>
         )}
         {preview && (
-          <span className="absolute top-2 left-2 bg-accent-gold text-on-gold text-[10px] font-sans font-medium px-1.5 py-0.5 z-10 uppercase tracking-wide">
+          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 z-10 uppercase tracking-wide">
             Vorschau
           </span>
         )}
         {!locked && progress > 0 && (
-          <span className="absolute top-2 left-2 bg-accent-gold text-on-gold text-[10px] font-sans font-medium px-1.5 py-0.5 z-10">
+          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 z-10">
             {progress}%
           </span>
         )}
@@ -172,11 +172,11 @@ export function ProUpgradeBanner({
           <p className="font-sans text-xs text-white/40">oder {yearlyLabel}/Jahr</p>
         </div>
         {onUpgrade ? (
-          <button onClick={onUpgrade} className="bg-accent-gold text-on-gold px-4 py-2.5 font-sans text-sm font-medium hover:bg-accent-gold-hover transition-colors whitespace-nowrap">
+          <button onClick={onUpgrade} className="bg-accent-gold text-white px-4 py-2.5 font-sans text-sm font-medium hover:bg-accent-gold-hover transition-colors whitespace-nowrap">
             Auf Pro upgraden →
           </button>
         ) : (
-          <Link href="/member/account?tab=abo" className="bg-accent-gold text-on-gold px-4 py-2.5 font-sans text-sm font-medium hover:bg-accent-gold-hover transition-colors whitespace-nowrap">
+          <Link href="/member/account?tab=abo" className="bg-accent-gold text-white px-4 py-2.5 font-sans text-sm font-medium hover:bg-accent-gold-hover transition-colors whitespace-nowrap">
             Auf Pro upgraden →
           </Link>
         )}
