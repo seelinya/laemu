@@ -298,13 +298,15 @@ export default function LernvideosPage() {
         {/* Content */}
         <div className="flex-1 p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
           <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-2 mb-1">
-              <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug">{v.title}</h4>
+            <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug mb-1">{v.title}</h4>
+            <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
+            {/* Tags unter dem Namen — Taktart und Level/Plan. */}
+            <div className="flex flex-wrap items-center gap-1">
               {v.taktart && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary flex-shrink-0 mt-0.5">{v.taktart}</span>
+                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{v.taktart}</span>
               )}
+              <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
             </div>
-            <p className="font-sans text-xs text-text-secondary">{v.artist}</p>
           </div>
 
           {/* Aktionen — auf Mobile als Reihe unter dem Text, auf Desktop als Spalte rechts */}
@@ -326,19 +328,15 @@ export default function LernvideosPage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
               </button>
             </div>
-            <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:my-2">
-              <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
-              {!unlocked && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                  Gesperrt
-                </span>
-              )}
-            </div>
-            {unlocked && (
+            {unlocked ? (
               <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center bg-dark text-white hover:bg-accent-gold">
                 Öffnen →
               </Link>
+            ) : (
+              <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Gesperrt
+              </span>
             )}
           </div>
         </div>
