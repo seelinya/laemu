@@ -78,7 +78,7 @@ export function InstrumentTagPicker({ value, onChange }: { value: string; onChan
             type="button"
             onClick={addCustom}
             disabled={!custom.trim()}
-            className="font-sans text-sm px-4 py-2 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="font-sans text-sm px-4 py-2 bg-dark text-white hover:bg-accent-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Hinzufügen
           </button>

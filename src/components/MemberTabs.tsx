@@ -70,7 +70,7 @@ export function NotificationBell() {
           <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" />
         </svg>
         {unread > 0 && (
-          <span className="absolute top-1 right-1 min-w-[15px] h-[15px] px-1 bg-accent-gold text-on-gold text-[9px] font-sans font-bold rounded-full flex items-center justify-center">{unread}</span>
+          <span className="absolute top-1 right-1 min-w-[15px] h-[15px] px-1 bg-accent-gold text-white text-[9px] font-sans font-bold rounded-full flex items-center justify-center">{unread}</span>
         )}
       </button>
 

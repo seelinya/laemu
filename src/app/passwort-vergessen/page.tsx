@@ -66,7 +66,7 @@ export default function PasswortVergessenPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-dark text-white font-sans text-sm font-semibold tracking-wide py-3.5 hover:bg-accent-gold hover:text-on-gold transition-colors duration-200"
+                  className="w-full bg-dark text-white font-sans text-sm font-semibold tracking-wide py-3.5 hover:bg-accent-gold hover:text-white transition-colors duration-200"
                 >
                   Link senden →
                 </button>

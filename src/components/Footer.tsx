@@ -109,7 +109,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   title={s.label}
                   aria-label={s.label}
-                  className="w-9 h-9 flex items-center justify-center border border-white/15 text-white/70 hover:bg-accent-gold hover:border-accent-gold hover:text-on-gold transition-colors"
+                  className="w-9 h-9 flex items-center justify-center border border-white/15 text-white/70 hover:bg-accent-gold hover:border-accent-gold hover:text-white transition-colors"
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     {s.path}

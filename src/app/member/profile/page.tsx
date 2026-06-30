@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { instrumentBadge } from '@/lib/instrumentBadge'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -266,15 +265,9 @@ export default function MemberProfilePage() {
             </div>
 
             <div className="flex flex-wrap gap-1.5">
-              {profile.instruments.map((inst) => {
-                const b = instrumentBadge(inst)
-                return (
-                  <span key={inst} className="inline-flex items-center gap-1">
-                    <span className={b.className}>{inst}</span>
-                    {b.begleitung && <span className="font-sans text-xs text-text-secondary">· Begleitung</span>}
-                  </span>
-                )
-              })}
+              {profile.instruments.map((inst) => (
+                <span key={inst} className="font-sans text-xs px-2.5 py-1 bg-surface-muted border border-border text-text-secondary">{inst}</span>
+              ))}
               {profile.roles.map((r) => (
                 <span key={r} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">{r}</span>
               ))}

@@ -130,7 +130,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                 <span className="font-sans text-sm">{course.emoji}</span>
                 <span className="font-sans text-xs text-accent-gold uppercase tracking-wide">{instrumentLabel}</span>
                 <span className="font-sans text-xs text-text-secondary">·</span>
-                <span className="font-sans text-xs bg-accent-gold text-on-gold px-2 py-0.5">{course.level}</span>
+                <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5">{course.level}</span>
                 {courseCompleted && (
                   <span className="font-sans text-xs bg-green-600 text-white px-2 py-0.5 flex items-center gap-1">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -205,7 +205,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                     className={`w-full flex items-center gap-4 px-5 py-4 text-left ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     {/* Module number */}
-                    <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 font-heading font-bold text-sm ${mod.status === 'completed' ? 'bg-accent-gold text-on-gold' : 'bg-background border border-border text-text-secondary'}`}>
+                    <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 font-heading font-bold text-sm ${mod.status === 'completed' ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
                       {mod.status === 'completed' ? (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />

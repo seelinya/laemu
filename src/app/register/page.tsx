@@ -335,7 +335,7 @@ export default function RegisterPage() {
           <div className="space-y-3">
             <Link
               href="/member/academy"
-              className="block w-full bg-dark text-white text-center font-sans font-semibold py-4 hover:bg-accent-gold hover:text-on-gold transition-colors"
+              className="block w-full bg-dark text-white text-center font-sans font-semibold py-4 hover:bg-accent-gold hover:text-white transition-colors"
             >
               Zur Musikschule →
             </Link>
@@ -369,7 +369,7 @@ export default function RegisterPage() {
             <Fragment key={s.number}>
               <div className="flex flex-col items-center gap-2 w-20 sm:w-24 shrink-0">
                 <div className={`w-10 h-10 flex items-center justify-center font-heading font-bold text-sm transition-all ${
-                  step > s.number ? 'bg-accent-gold text-on-gold' :
+                  step > s.number ? 'bg-accent-gold text-white' :
                   step === s.number ? 'bg-dark text-white' :
                   'bg-border text-text-secondary'
                 }`}>
@@ -595,7 +595,7 @@ export default function RegisterPage() {
                   <button
                     onClick={() => { if (isFree) finishRegistration(); else setStep(3) }}
                     disabled={!(angabenComplete && formationReady)}
-                    className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-dark text-white hover:bg-accent-gold hover:text-on-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                    className={`flex-1 font-sans font-semibold py-4 transition-colors ${angabenComplete && formationReady ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
                     {isFree ? 'Registrierung abschliessen →' : 'Weiter zur Zahlung →'}
                   </button>
@@ -659,7 +659,7 @@ export default function RegisterPage() {
                       className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 font-sans text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                     >
                       {opt.label}
-                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 shrink-0 ${billing === opt.id ? 'bg-accent-gold text-on-gold' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 shrink-0 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
                     </button>
                   ))}
                 </div>
@@ -700,7 +700,7 @@ export default function RegisterPage() {
                                 <span className="font-sans font-semibold text-sm">{meta.label}</span>
                                 <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                                 {meta.badge && (
-                                  <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-on-gold">{meta.badge}</span>
+                                  <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
                                 )}
                                 {isFree && (
                                   <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary inline-flex items-center gap-1">
@@ -765,7 +765,7 @@ export default function RegisterPage() {
                   {isFree && (
                     <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
                       <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-on-gold flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                        <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                         Dein Free-Account
                       </p>
                       <div className="space-y-2">
@@ -816,7 +816,7 @@ export default function RegisterPage() {
                   {!isFree && (
                   <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
-                      <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-on-gold flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                      <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                       Enthalten
                     </p>
                     <div className="space-y-2">
@@ -927,7 +927,7 @@ export default function RegisterPage() {
                   {/* Enthalten (Formation) */}
                   <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
-                      <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-on-gold flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
+                      <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                       Enthalten — Formation {formationPlanMeta[formationPlan].label}
                     </p>
                     <div className="space-y-2">
@@ -960,7 +960,7 @@ export default function RegisterPage() {
               <button
                 onClick={() => { if (aboInstrumentsComplete) setStep(2) }}
                 disabled={!aboInstrumentsComplete}
-                className={`w-full font-sans font-semibold py-4 transition-colors ${aboInstrumentsComplete ? 'bg-dark text-white hover:bg-accent-gold hover:text-on-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                className={`w-full font-sans font-semibold py-4 transition-colors ${aboInstrumentsComplete ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
               >
                 Weiter →
               </button>
@@ -1133,7 +1133,7 @@ export default function RegisterPage() {
                               type="button"
                               onClick={() => { if (voucher.trim()) setVoucherApplied(true) }}
                               disabled={!voucher.trim()}
-                              className={`px-5 font-sans text-sm font-semibold transition-colors ${voucher.trim() ? 'bg-dark text-white hover:bg-accent-gold hover:text-on-gold' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                              className={`px-5 font-sans text-sm font-semibold transition-colors ${voucher.trim() ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                             >
                               Einlösen
                             </button>
@@ -1185,7 +1185,7 @@ export default function RegisterPage() {
                 </button>
                 <button
                   onClick={finishRegistration}
-                  className="flex-1 bg-accent-gold text-on-gold font-sans font-semibold py-4 hover:bg-dark transition-colors"
+                  className="flex-1 bg-accent-gold text-white font-sans font-semibold py-4 hover:bg-dark transition-colors"
                 >
                   {isFree ? 'Kostenlos abschliessen ✓' : 'Zahlungspflichtig abschliessen ✓'}
                 </button>

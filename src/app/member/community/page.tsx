@@ -8,7 +8,6 @@ import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
 import { Avatar } from '@/components/Avatar'
 import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
-import { instrumentBadge } from '@/lib/instrumentBadge'
 import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
@@ -336,7 +335,7 @@ function StartView() {
         className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
       >
         <div className="flex items-center gap-4">
-          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-on-gold transition-colors">
+          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-white transition-colors">
             <IconInstagram />
           </span>
           <div className="flex-1 min-w-0">
@@ -358,7 +357,7 @@ function StartView() {
         className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
       >
         <div className="flex items-center gap-4">
-          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-on-gold transition-colors">
+          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-white transition-colors">
             <IconFacebook />
           </span>
           <div className="flex-1 min-w-0">
@@ -403,7 +402,7 @@ function StartView() {
               href={LAEMU_WHATSAPP_INFO_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors"
             >
               <IconWhatsApp size={16} /> Info-Gruppe beitreten
             </a>
@@ -412,7 +411,7 @@ function StartView() {
           {/* Austausch-Gruppe */}
           <div className="bg-surface border border-border p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-on-gold flex-shrink-0">
+              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
                 <IconWhatsApp />
               </span>
               <div className="min-w-0">
@@ -527,7 +526,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
           </button>
           <button
             onClick={onClose}
-            className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors"
+            className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold hover:text-white transition-colors"
           >
             Auf Profil veröffentlichen
           </button>
@@ -729,7 +728,7 @@ function ProfileView() {
                   </button>
                   <button
                     onClick={saveEdit}
-                    className="font-sans text-sm font-semibold px-4 py-2 bg-accent-gold text-on-gold hover:bg-dark transition-colors"
+                    className="font-sans text-sm font-semibold px-4 py-2 bg-accent-gold text-white hover:bg-dark transition-colors"
                   >
                     Speichern ✓
                   </button>
@@ -899,15 +898,9 @@ function ProfileView() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {instruments.split(',').map(i => i.trim()).filter(Boolean).map(i => {
-                    const b = instrumentBadge(i)
-                    return (
-                      <span key={i} className="inline-flex items-center gap-1">
-                        <span className={b.className}>{i}</span>
-                        {b.begleitung && <span className="font-sans text-xs text-text-secondary">· Begleitung</span>}
-                      </span>
-                    )
-                  })}
+                  {instruments.split(',').map(i => i.trim()).filter(Boolean).map(i => (
+                    <span key={i} className="font-sans text-xs px-2.5 py-1 bg-surface-muted border border-border text-text-secondary">{i}</span>
+                  ))}
                 </div>
               </motion.div>
             )}
@@ -930,7 +923,7 @@ function ProfileView() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => openComposer('photo')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold hover:text-white transition-colors"
             >
               <IconCamera /> Foto
             </button>
