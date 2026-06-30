@@ -32,9 +32,13 @@ const steps = [
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 
-// Geburtsdatum-Eingabe — gerade für ältere Personen angenehm: Tag & Monat als
-// kurze Dropdowns, das Jahr wird direkt eingetippt. So muss niemand durch eine
-// lange Liste von über hundert Jahren scrollen, um sein Geburtsjahr zu finden.
+// Geburtsdatum-Eingabe — jedes der drei Felder (Tag/Monat/Jahr) lässt sich
+// sowohl direkt eintippen als auch per Antippen aus einer Liste wählen
+// (combobox via <input list> + <datalist>). Gerade für ältere Personen
+// angenehm: Sie tippen ihren Jahrgang einfach ein (z. B. «1945») und müssen
+// nicht durch eine lange Liste von über hundert Jahren scrollen — oder sie
+// tippen das Feld an und wählen aus der Liste; das Eintippen der ersten Ziffern
+// filtert die Liste sofort.
 const GEBURT_MONATE = [
   'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
   'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
@@ -43,6 +47,36 @@ const GEBURT_TAGE = Array.from({ length: 31 }, (_, i) => i + 1)
 const GEBURT_AKTUELLES_JAHR = new Date().getFullYear()
 // Plausibler Jahresbereich (ältester Jahrgang ~120 Jahre zurück).
 const GEBURT_MIN_JAHR = GEBURT_AKTUELLES_JAHR - 120
+// Jahrgänge als Liste, neueste zuerst. Wer einen alten Jahrgang sucht, tippt
+// ihn direkt ein (kein Scrollen nötig); die Liste dient nur als Komfort-Auswahl.
+const GEBURT_JAHRE = Array.from(
+  { length: GEBURT_AKTUELLES_JAHR - GEBURT_MIN_JAHR + 1 },
+  (_, i) => GEBURT_AKTUELLES_JAHR - i,
+)
+
+// Tag/Monat können als Zahl oder (beim Monat) als Name eingegeben werden — hier
+// zu einer Zahl normalisiert. Gibt null zurück, wenn die Eingabe ungültig ist.
+const parseGeburtsTag = (val: string): number | null => {
+  const t = val.trim()
+  if (!/^\d{1,2}$/.test(t)) return null
+  const n = Number(t)
+  return n >= 1 && n <= 31 ? n : null
+}
+const parseGeburtsMonat = (val: string): number | null => {
+  const t = val.trim().toLowerCase()
+  if (!t) return null
+  if (/^\d{1,2}$/.test(t)) {
+    const n = Number(t)
+    return n >= 1 && n <= 12 ? n : null
+  }
+  const exact = GEBURT_MONATE.findIndex(m => m.toLowerCase() === t)
+  if (exact >= 0) return exact + 1
+  // Auch eine eindeutige Abkürzung (z. B. «jan», «dez») akzeptieren.
+  const matches = GEBURT_MONATE
+    .map((m, i) => (m.toLowerCase().startsWith(t) ? i + 1 : 0))
+    .filter(Boolean)
+  return matches.length === 1 ? matches[0] : null
+}
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1)
@@ -58,20 +92,30 @@ export default function RegisterPage() {
   const [nachname, setNachname] = useState('')
   const [email, setEmail] = useState('')
   const [passwort, setPasswort] = useState('')
-  // Geburtsdatum als drei separate Felder (Tag/Monat/Jahr) — zusammengesetzt zu
-  // einem ISO-Wert (YYYY-MM-DD), sobald alle drei gewählt sind.
+  // Geburtsdatum als drei separate Felder (Tag/Monat/Jahr) — eingetippt oder aus
+  // der Liste gewählt — zusammengesetzt zu einem ISO-Wert (YYYY-MM-DD).
   const [geburtsTag, setGeburtsTag] = useState('')
   const [geburtsMonat, setGeburtsMonat] = useState('')
   const [geburtsJahr, setGeburtsJahr] = useState('')
-  // Das eingetippte Jahr muss vierstellig und im plausiblen Bereich liegen.
+  const geburtsTagNum = parseGeburtsTag(geburtsTag)
+  const geburtsMonatNum = parseGeburtsMonat(geburtsMonat)
+  // Das Jahr muss vierstellig und im plausiblen Bereich liegen.
   const geburtsJahrValid =
     /^\d{4}$/.test(geburtsJahr) &&
     Number(geburtsJahr) >= GEBURT_MIN_JAHR &&
     Number(geburtsJahr) <= GEBURT_AKTUELLES_JAHR
-  const geburtsdatum =
-    geburtsTag && geburtsMonat && geburtsJahrValid
-      ? `${geburtsJahr}-${geburtsMonat.padStart(2, '0')}-${geburtsTag.padStart(2, '0')}`
-      : ''
+  // Nur ein tatsächlich existierendes Datum übernehmen (z. B. kein 31. Februar).
+  const geburtsdatum = (() => {
+    if (!(geburtsTagNum && geburtsMonatNum && geburtsJahrValid)) return ''
+    const jahr = Number(geburtsJahr)
+    const d = new Date(jahr, geburtsMonatNum - 1, geburtsTagNum)
+    const exists =
+      d.getFullYear() === jahr &&
+      d.getMonth() === geburtsMonatNum - 1 &&
+      d.getDate() === geburtsTagNum
+    if (!exists) return ''
+    return `${geburtsJahr}-${String(geburtsMonatNum).padStart(2, '0')}-${String(geburtsTagNum).padStart(2, '0')}`
+  })()
   const [strasse, setStrasse] = useState('')
   const [hausnummer, setHausnummer] = useState('')
   const [plz, setPlz] = useState('')
@@ -385,30 +429,70 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="label text-text-secondary block mb-1.5">Geburtsdatum *</label>
+                  {/* Jedes Feld: eintippen oder antippen und aus der Liste wählen. */}
                   <div className="grid grid-cols-3 gap-4">
-                    <select value={geburtsTag} onChange={e => setGeburtsTag(e.target.value)} aria-label="Geburtstag — Tag" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary">
-                      <option value="">Tag</option>
-                      {GEBURT_TAGE.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                    <select value={geburtsMonat} onChange={e => setGeburtsMonat(e.target.value)} aria-label="Geburtstag — Monat" className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-text-secondary">
-                      <option value="">Monat</option>
-                      {GEBURT_MONATE.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
-                    </select>
-                    {/* Jahr wird eingetippt statt aus einer langen Liste gescrollt. */}
                     <input
+                      list="geburt-tage"
+                      value={geburtsTag}
+                      onChange={e => setGeburtsTag(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                      type="text"
+                      inputMode="numeric"
+                      aria-label="Geburtstag — Tag"
+                      placeholder="Tag"
+                      className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                    />
+                    <input
+                      list="geburt-monate"
+                      value={geburtsMonat}
+                      onChange={e => setGeburtsMonat(e.target.value)}
+                      type="text"
+                      aria-label="Geburtstag — Monat"
+                      placeholder="Monat"
+                      className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                    />
+                    <input
+                      list="geburt-jahre"
                       value={geburtsJahr}
                       onChange={e => setGeburtsJahr(e.target.value.replace(/\D/g, '').slice(0, 4))}
                       type="text"
                       inputMode="numeric"
                       maxLength={4}
-                      aria-label="Geburtstag — Jahr"
+                      aria-label="Geburtstag — Jahr (Jahrgang)"
                       placeholder="Jahr"
                       className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
                     />
                   </div>
+                  {/* Auswahllisten zum Antippen — die Felder bleiben frei eintippbar. */}
+                  <datalist id="geburt-tage">
+                    {GEBURT_TAGE.map(d => <option key={d} value={d} />)}
+                  </datalist>
+                  <datalist id="geburt-monate">
+                    {GEBURT_MONATE.map(m => <option key={m} value={m} />)}
+                  </datalist>
+                  <datalist id="geburt-jahre">
+                    {GEBURT_JAHRE.map(j => <option key={j} value={j} />)}
+                  </datalist>
+                  <p className="font-sans text-xs text-text-secondary mt-1.5">
+                    Tippe Tag, Monat und Jahrgang ein oder wähle sie aus der Liste.
+                  </p>
+                  {geburtsTag !== '' && geburtsTagNum === null && (
+                    <p className="font-sans text-xs text-accent-gold mt-1">
+                      Bitte gib einen gültigen Tag zwischen 1 und 31 ein.
+                    </p>
+                  )}
+                  {geburtsMonat !== '' && geburtsMonatNum === null && (
+                    <p className="font-sans text-xs text-accent-gold mt-1">
+                      Bitte gib einen gültigen Monat ein (Name oder Zahl 1–12).
+                    </p>
+                  )}
                   {geburtsJahr.length === 4 && !geburtsJahrValid && (
-                    <p className="font-sans text-xs text-accent-gold mt-1.5">
-                      Bitte gib ein gültiges Jahr zwischen {GEBURT_MIN_JAHR} und {GEBURT_AKTUELLES_JAHR} ein.
+                    <p className="font-sans text-xs text-accent-gold mt-1">
+                      Bitte gib einen gültigen Jahrgang zwischen {GEBURT_MIN_JAHR} und {GEBURT_AKTUELLES_JAHR} ein.
+                    </p>
+                  )}
+                  {geburtsTagNum !== null && geburtsMonatNum !== null && geburtsJahrValid && geburtsdatum === '' && (
+                    <p className="font-sans text-xs text-accent-gold mt-1">
+                      Dieses Datum gibt es nicht — bitte überprüfe Tag und Monat.
                     </p>
                   )}
                 </div>
