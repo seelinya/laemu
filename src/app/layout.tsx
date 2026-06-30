@@ -3,9 +3,11 @@ import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
 import './globals.css'
 import { Footer } from '@/components/Footer'
 
+// Fallback-Schriften für Radona Norm (lizenziert, lokal nachzureichen):
+// Plus Jakarta Sans deckt Headings ab, Inter den Fliesstext/UI.
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-syne',
+  variable: '--font-jakarta',
   display: 'swap',
   weight: ['600', '700', '800'],
 })
@@ -14,7 +16,7 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
-  weight: ['300', '400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {

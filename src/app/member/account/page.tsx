@@ -149,7 +149,7 @@ function AboTab() {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => setShowUpgrade(true)}
-            className="inline-flex items-center bg-accent-gold text-white font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
+            className="inline-flex items-center bg-accent-gold text-on-gold font-sans text-sm px-5 py-2.5 hover:bg-dark transition-colors"
           >
             {isFree ? 'Auf einen kostenpflichtigen Plan upgraden' : 'Abo ändern'}
           </button>
@@ -379,7 +379,7 @@ function ZahlungsmittelTab() {
           <div className="flex gap-3 mt-5 pt-4 border-t border-border">
             <button
               onClick={addMethod}
-              className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold transition-colors"
+              className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
             >
               Hinzufügen
             </button>
@@ -518,7 +518,7 @@ function AccountInner() {
                 </div>
                 <div className="flex items-center justify-between mt-6 pt-5 border-t border-border">
                   <button className="font-sans text-xs text-red-600 hover:underline">Konto löschen</button>
-                  <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold transition-colors">Änderungen speichern</button>
+                  <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors">Änderungen speichern</button>
                 </div>
               </SectionCard>
             )}

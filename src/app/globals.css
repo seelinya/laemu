@@ -3,17 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --color-background: #F0F0F0;
-  --color-surface: #FFFFFF;
-  --color-text-primary: #0A0A0A;
-  --color-text-secondary: #5A5A5A;
-  --color-accent-gold: #C4973A;
-  --color-accent-warm: #D4A84B;
-  --color-accent-yellow: #EDD84B;
-  --color-border: #DCDCDC;
-  --color-border-dark: #B0B0B0;
-  --color-dark: #0A0A0A;
-  --color-dark-secondary: #1A1A1A;
+  /* ─── Brand-Palette (Light Mode) — 1:1 aus dem Design System ───────────── */
+  --color-background: #EFEFEF;        /* Silbergrau */
+  --color-surface: #FFFFFF;           /* Bühnenweiss */
+  --color-surface-muted: #F7F7F7;
+  --color-nav-dark: #000000;          /* Klangschwarz */
+  --color-text-primary: #000000;      /* Klangschwarz */
+  --color-text-secondary: #505050;    /* Steingrau */
+  --color-text-on-dark: #FFFFFF;
+  --color-text-on-gold: #000000;
+  --color-border: #E0E0E0;
+  --color-border-dark: #505050;       /* Steingrau */
+  --color-accent-gold: #BC8C33;       /* Klanggold */
+  --color-accent-gold-hover: #A57726;
+  --color-accent-silver: #C9C9C9;
+  --color-status-success: #2E7D32;
+  --color-dark: #000000;
+
+  /* ─── Schriftfamilien ──────────────────────────────────────────────────
+     Radona Norm (Heading/Body) & Golden Hopes (Deko) sind lizenziert und
+     werden lokal via @font-face nachgereicht. Bis dahin greift der
+     Fallback-Stack (FOUT-/Performance-sicher). */
+  --font-heading: "Radona Norm", var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-sans: "Radona Norm", var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-script: "Golden Hopes", cursive;
 }
 
 * {
@@ -33,7 +46,7 @@ html {
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Bildschirmbreite an Gerätebreite koppeln, kein horizontales Scrollen. */
@@ -48,51 +61,54 @@ img, video, svg, canvas {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-syne), 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-heading);
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  /* ─── Typografische Abstufungen (Design System Kap. 2) ─────────────────
+     Radona Norm Bold für Headings, Regular für Fliesstext. */
   .heading-xl {
-    @apply font-heading text-4xl md:text-6xl lg:text-7xl font-bold leading-[0.95] tracking-tight;
+    @apply font-heading text-4xl md:text-6xl font-bold leading-none tracking-tight;
   }
   .heading-lg {
-    @apply font-heading text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight;
+    @apply font-heading text-3xl md:text-5xl font-bold leading-tight tracking-tight;
   }
   .heading-md {
-    @apply font-heading text-2xl md:text-3xl font-bold leading-tight tracking-tight;
+    @apply font-heading text-2xl md:text-4xl font-bold leading-tight tracking-tight;
   }
   .heading-sm {
-    @apply font-heading text-xl md:text-2xl font-bold leading-tight;
+    @apply font-heading text-xl md:text-2xl font-bold leading-snug;
   }
   .body-lg {
-    @apply font-sans text-lg font-light leading-relaxed;
+    @apply font-sans text-lg font-normal leading-relaxed;
   }
   .body-md {
-    @apply font-sans text-base font-light leading-relaxed;
+    @apply font-sans text-base font-normal leading-relaxed;
   }
   .body-sm {
-    @apply font-sans text-sm font-light leading-relaxed;
+    @apply font-sans text-sm font-normal leading-relaxed;
   }
   .label {
-    @apply font-sans text-xs uppercase tracking-[0.2em] font-medium;
+    @apply font-sans text-xs uppercase tracking-widest font-bold;
   }
-  .gradient-hero {
-    background: linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%);
+  /* ─── Gradienten (Design System Kap. 8) ────────────────────────────────── */
+  .gradient-nav-fade {
+    background: linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0.92) 100%);
   }
-  .gradient-section {
-    background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
+  .gradient-accent {
+    background: linear-gradient(135deg, #BC8C33 0%, #A57726 100%);
   }
-  .gradient-surface {
-    background: linear-gradient(180deg, #F8F8F8 0%, #F0F0F0 100%);
+  .gradient-card-overlay {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.65) 100%);
   }
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling (Design System Kap. 9) */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-background);
@@ -105,8 +121,8 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-accent-gold);
 }
 
-/* Selection color */
+/* Selection color (Design System Kap. 10) */
 ::selection {
   background-color: var(--color-accent-gold);
-  color: white;
+  color: #FFFFFF;
 }

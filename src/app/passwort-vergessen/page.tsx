@@ -24,7 +24,7 @@ export default function PasswortVergessenPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-block">
-            <span className="font-serif text-4xl font-bold text-dark">LAEMU</span>
+            <span className="font-heading text-4xl font-bold text-dark">LAEMU</span>
           </Link>
           <p className="font-sans text-sm text-text-secondary mt-2 italic">Am Puls der Ländlermusik.</p>
         </div>
@@ -66,7 +66,7 @@ export default function PasswortVergessenPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-dark text-white font-sans text-sm font-semibold tracking-wide py-3.5 hover:bg-accent-gold transition-colors duration-200"
+                  className="w-full bg-dark text-white font-sans text-sm font-semibold tracking-wide py-3.5 hover:bg-accent-gold hover:text-on-gold transition-colors duration-200"
                 >
                   Link senden →
                 </button>

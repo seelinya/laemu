@@ -273,7 +273,7 @@ export default function LernvideosPage() {
           <Image src={v.img} alt={v.title} fill className={`object-cover transition-transform duration-500 ${unlocked ? 'group-hover:scale-105' : 'grayscale'}`} unoptimized />
           {unlocked && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
+              <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-on-gold ml-0.5 text-sm">▶</span></div>
             </div>
           )}
           <div className="absolute bottom-2 left-2">
@@ -329,7 +329,7 @@ export default function LernvideosPage() {
               </button>
             </div>
             {unlocked ? (
-              <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center bg-dark text-white hover:bg-accent-gold">
+              <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center bg-dark text-white hover:bg-accent-gold hover:text-on-gold">
                 Öffnen →
               </Link>
             ) : (
@@ -354,7 +354,7 @@ export default function LernvideosPage() {
           userAbo.plan === 'none' ? (
             <Link
               href="/member/academy?upgrade=1"
-              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-3 sm:px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-earth transition-colors"
+              className="flex items-center gap-2 bg-accent-gold text-on-gold border border-accent-gold px-3 sm:px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
               Jetzt upgraden
@@ -494,11 +494,11 @@ export default function LernvideosPage() {
                         <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Noten</label>
                         <div className="space-y-1.5">
                           <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
-                            <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#C4973A]" />
+                            <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#BC8C33]" />
                             <span className={`font-sans text-sm ${filterNotenV ? 'text-accent-gold' : 'text-text-secondary'}`}>Violinschlüssel</span>
                           </label>
                           <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
-                            <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#C4973A]" />
+                            <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#BC8C33]" />
                             <span className={`font-sans text-sm ${filterNotenG ? 'text-accent-gold' : 'text-text-secondary'}`}>Griffschrift</span>
                           </label>
                         </div>
@@ -517,7 +517,7 @@ export default function LernvideosPage() {
                         <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Level</label>
                         <div className="grid grid-cols-3 gap-1.5">
                           {(['free', 'starter', 'pro'] as const).map(lvl => (
-                            <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{planLabels[lvl]}</button>
+                            <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-on-gold' : 'border-border text-text-secondary hover:border-dark'}`}>{planLabels[lvl]}</button>
                           ))}
                         </div>
                       </div>
@@ -654,11 +654,11 @@ export default function LernvideosPage() {
                 <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Noten</label>
                 <div className="space-y-1.5">
                   <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
-                    <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#C4973A]" />
+                    <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#BC8C33]" />
                     <span className={`font-sans text-sm ${filterNotenV ? 'text-accent-gold' : 'text-text-secondary'}`}>Violinschlüssel</span>
                   </label>
                   <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
-                    <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#C4973A]" />
+                    <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#BC8C33]" />
                     <span className={`font-sans text-sm ${filterNotenG ? 'text-accent-gold' : 'text-text-secondary'}`}>Griffschrift</span>
                   </label>
                 </div>
@@ -678,7 +678,7 @@ export default function LernvideosPage() {
                 <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Level</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {(['free', 'starter', 'pro'] as const).map(lvl => (
-                    <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{planLabels[lvl]}</button>
+                    <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-on-gold' : 'border-border text-text-secondary hover:border-dark'}`}>{planLabels[lvl]}</button>
                   ))}
                 </div>
               </div>
@@ -702,13 +702,13 @@ export default function LernvideosPage() {
                         {filterArt === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
                       </span>
                     )}
-                    {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{filterStyleTag}</span>}
+                    {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-on-gold">{filterStyleTag}</span>}
                     {filterTakt && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterTakt}</span>}
                     {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterGenreTag}</span>}
                     {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Violinschlüssel</span>}
                     {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Griffschrift</span>}
                     {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 ${filterLearned === 'learned' ? 'bg-green-600 text-white' : 'bg-dark text-white'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
-                    {filterLevel && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{planLabels[filterLevel]}</span>}
+                    {filterLevel && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-on-gold">{planLabels[filterLevel]}</span>}
                   </div>
                 )}
               </div>
@@ -792,7 +792,7 @@ export default function LernvideosPage() {
                 <h2 className="font-heading font-bold text-xl">Stückwünsche</h2>
                 <p className="font-sans text-sm text-text-secondary mt-1">Like Stücke, die du dir als Lernvideo wünschst. Sobald ein Stück produziert wird, erhältst du eine Benachrichtigung.</p>
               </div>
-              <button onClick={() => setShowWishForm(!showWishForm)} className="bg-accent-gold text-white font-sans text-sm px-4 py-2 hover:bg-accent-warm transition-colors flex-shrink-0">
+              <button onClick={() => setShowWishForm(!showWishForm)} className="bg-accent-gold text-on-gold font-sans text-sm px-4 py-2 hover:bg-accent-gold-hover transition-colors flex-shrink-0">
                 + Neuer Wunsch
               </button>
             </div>
@@ -838,7 +838,7 @@ export default function LernvideosPage() {
                       </div>
                     </div>
                     <div className="flex gap-3">
-                      <button onClick={submitWish} disabled={!wishTitle.trim() || wishVoteSel.length === 0} className="bg-accent-gold text-white font-sans text-sm px-5 py-2 hover:bg-accent-warm transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Wunsch einreichen</button>
+                      <button onClick={submitWish} disabled={!wishTitle.trim() || wishVoteSel.length === 0} className="bg-accent-gold text-on-gold font-sans text-sm px-5 py-2 hover:bg-accent-gold-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Wunsch einreichen</button>
                       <button onClick={() => setShowWishForm(false)} className="border border-border font-sans text-sm px-4 py-2 hover:border-dark transition-colors">Abbrechen</button>
                     </div>
                   </div>

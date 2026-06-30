@@ -62,14 +62,14 @@ const videoData = {
   hasMixer: true,
   introVideo: { label: 'Einführungsvideo — Überblick & Aufbau des Stückes', duration: '4:32' },
   mixerMusicians: [
-    { id: 'j1', name: 'Seebi Diener', voice: '1. Stimme', instrument: 'Handorgel', volume: 85, muted: false, color: '#C4973A' },
+    { id: 'j1', name: 'Seebi Diener', voice: '1. Stimme', instrument: 'Handorgel', volume: 85, muted: false, color: '#BC8C33' },
     { id: 'j2', name: 'Cyrill Rusch', voice: '2. Stimme', instrument: 'Schwyzerörgeli', volume: 75, muted: false, color: '#5A8A6A' },
     { id: 'j3', name: 'Franz Hess', voice: 'Begleitung', instrument: 'Klavier', volume: 70, muted: false, color: '#7A6A9A' },
     { id: 'j4', name: 'Simon Rusch', voice: 'Bassbegleitung', instrument: 'Bass', volume: 68, muted: false, color: '#8A5A4A' },
   ] as MixerMusician[],
   voices: [
-    { id: 'v1_ho', label: '1. Stimme Handorgel', volume: 80, muted: false, color: '#C4973A' },
-    { id: 'v2_ho', label: '2. Stimme Handorgel', volume: 70, muted: false, color: '#C4973A' },
+    { id: 'v1_ho', label: '1. Stimme Handorgel', volume: 80, muted: false, color: '#BC8C33' },
+    { id: 'v2_ho', label: '2. Stimme Handorgel', volume: 70, muted: false, color: '#BC8C33' },
     { id: 'v1_oe', label: '1. Stimme Schwyzerörgeli', volume: 80, muted: false, color: '#5A8A6A' },
     { id: 'v2_oe', label: '2. Stimme Schwyzerörgeli', volume: 70, muted: false, color: '#5A8A6A' },
     { id: 'bass', label: 'Bassbegleitung', volume: 75, muted: false, color: '#8A5A4A' },
@@ -77,7 +77,7 @@ const videoData = {
   ] as Voice[],
   stimmenSections: [
     {
-      id: 's1', label: '1. Stimme Handorgel', instrument: 'Handorgel', color: '#C4973A',
+      id: 's1', label: '1. Stimme Handorgel', instrument: 'Handorgel', color: '#BC8C33',
       lernvideos: [
         { id: 'lv1', label: '1. Stimme — Einführung & Takt 1–8', duration: '12 Min.', done: true },
         { id: 'lv2', label: '1. Stimme — Takt 9–16 mit Übergängen', duration: '14 Min.', done: true },
@@ -96,7 +96,7 @@ const videoData = {
       hasLaemuPlayer: true,
     },
     {
-      id: 's2', label: '2. Stimme Handorgel', instrument: 'Handorgel', color: '#C4973A',
+      id: 's2', label: '2. Stimme Handorgel', instrument: 'Handorgel', color: '#BC8C33',
       lernvideos: [
         { id: 'lv4', label: '2. Stimme — Einführung & Begleitfiguren', duration: '10 Min.', done: false },
         { id: 'lv5', label: '2. Stimme — Rhythmus & Zusammenspiel', duration: '12 Min.', done: false },
@@ -162,7 +162,7 @@ const videoData = {
       hasLaemuPlayer: false,
     },
     {
-      id: 's7', label: 'Handorgelbegleitung', instrument: 'Handorgel', color: '#C4973A',
+      id: 's7', label: 'Handorgelbegleitung', instrument: 'Handorgel', color: '#BC8C33',
       lernvideos: [
         { id: 'lv12', label: 'Handorgel — Begleit-Griffe & Harmonie', duration: '10 Min.', done: false },
       ],
@@ -187,7 +187,7 @@ const videoData = {
   begleitvorschlaege: [
     { id: 'bv1', instrument: 'Klavier', color: '#7A6A9A', label: 'Klavierbegleitung — Walzer-Pattern', teacher: 'Franz Hess', duration: '11 Min.', done: false },
     { id: 'bv2', instrument: 'Bass', color: '#8A5A4A', label: 'Bassbegleitung — 3-Schlag Basis', teacher: 'Seebi Diener', duration: '9 Min.', done: false },
-    { id: 'bv3', instrument: 'Handorgel', color: '#C4973A', label: 'Handorgel-Begleitung — Harmonie-Griffe', teacher: 'Cécile Schmidig', duration: '10 Min.', done: false },
+    { id: 'bv3', instrument: 'Handorgel', color: '#BC8C33', label: 'Handorgel-Begleitung — Harmonie-Griffe', teacher: 'Cécile Schmidig', duration: '10 Min.', done: false },
     { id: 'bv4', instrument: 'Schwyzerörgeli', color: '#5A8A6A', label: 'Schwyzerörgeli-Begleitung — 2. Stimme', teacher: 'Cyrill Rusch', duration: '9 Min.', done: false },
   ] as BegleitvorschlagVideo[],
   notenheftUrl: '#',
@@ -459,7 +459,7 @@ function StandardVideoPlayer({ img, label }: { img: string; label: string }) {
         {/* Zentraler Play-Button, solange pausiert */}
         {!playing && (
           <button onClick={() => setPlaying(true)} aria-label="Abspielen" className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
-            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold flex items-center justify-center transition-colors">
+            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold hover:text-on-gold flex items-center justify-center transition-colors">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6 4 20 12 6 20 6 4"/></svg>
             </span>
           </button>
@@ -548,7 +548,7 @@ function StandardVideoPlayer({ img, label }: { img: string; label: string }) {
                   onChange={e => { setVolume(Number(e.target.value)); setMuted(false) }}
                   aria-label="Lautstärke"
                   className="w-0 group-hover/vol:w-16 ml-0 group-hover/vol:ml-2 opacity-0 group-hover/vol:opacity-100 transition-all duration-200 cursor-pointer"
-                  style={{ accentColor: '#C4973A' }}
+                  style={{ accentColor: '#BC8C33' }}
                 />
               </div>
               {/* Einstellungen (Qualität + Geschwindigkeit) */}
@@ -601,7 +601,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
       <div className="relative aspect-video overflow-hidden">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
-          <button onClick={() => setPlaying(!playing)} className="w-16 h-16 bg-accent-gold hover:bg-accent-warm flex items-center justify-center transition-colors">
+          <button onClick={() => setPlaying(!playing)} className="w-16 h-16 bg-accent-gold hover:bg-accent-gold-hover flex items-center justify-center transition-colors">
             <span className={`text-white ${playing ? '' : 'ml-1'}`}>{playing ? <IconPause /> : <IconPlay />}</span>
           </button>
         </div>
@@ -634,7 +634,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
           </div>
           <div className="flex items-center gap-3">
             <span className="text-white/50 flex items-center gap-1.5 w-16 flex-shrink-0" title="Tempo / Geschwindigkeit"><IconSpeed /><span className="font-sans text-[10px] uppercase tracking-widest hidden sm:inline">Tempo</span></span>
-            <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#C4973A' }} />
+            <input type="range" min={25} max={200} step={1} value={speed} onChange={e => setSpeed(Number(e.target.value))} className="flex-1 cursor-pointer" style={{ accentColor: '#BC8C33' }} />
             <span className={`font-sans text-xs font-semibold w-10 text-right flex-shrink-0 tabular-nums ${speed !== 100 ? 'text-accent-gold' : 'text-white/40'}`}>{speed}%</span>
             {speed !== 100 && <button onClick={() => setSpeed(100)} className="font-sans text-[10px] text-white/25 hover:text-white/50 transition-colors flex-shrink-0">↺</button>}
           </div>
@@ -666,7 +666,7 @@ function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; l
         aria-expanded={open}
         className="w-full flex items-center gap-3 px-4 sm:px-5 py-3 text-left hover:bg-background transition-colors"
       >
-        <span className={`w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors ${open ? 'bg-accent-gold text-white' : 'bg-dark text-white'}`}>
+        <span className={`w-9 h-9 flex items-center justify-center flex-shrink-0 transition-colors ${open ? 'bg-accent-gold text-on-gold' : 'bg-dark text-white'}`}>
           {open
             ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             : <IconPlay />}
@@ -739,7 +739,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           <h2 className="font-heading font-bold text-2xl mb-1">{piece.title}</h2>
           <p className="font-sans text-sm text-accent-gold mb-4">{piece.artist} · {piece.year}</p>
           <div className="flex flex-wrap gap-2">
-            <span className={`font-sans text-xs px-2.5 py-1 font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-white' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+            <span className={`font-sans text-xs px-2.5 py-1 font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-on-gold' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
               {planLabel[piece.plan]}
             </span>
             <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{piece.instrument}</span>
@@ -763,7 +763,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
               </div>
             ))}
           </div>
-          <Link href="/member/academy" className="inline-block bg-accent-gold text-white font-sans text-sm font-medium px-6 py-3 hover:bg-accent-warm transition-colors">
+          <Link href="/member/academy" className="inline-block bg-accent-gold text-on-gold font-sans text-sm font-medium px-6 py-3 hover:bg-accent-gold-hover transition-colors">
             {needsProUpgrade ? 'Auf Pro upgraden →' : 'Abo erweitern →'}
           </Link>
         </div>
@@ -948,7 +948,7 @@ export default function LernvideoDetailPage() {
 
                   {/* Tags — alle nacheinander, ohne Gruppierung */}
                   <div className="flex flex-wrap gap-1.5">
-                    <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+                    <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-on-gold' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
                       {planLabel[v.difficulty] ?? v.difficulty}
                     </span>
                     <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
@@ -1012,7 +1012,7 @@ export default function LernvideoDetailPage() {
                             </div>
                             <div className="flex items-center justify-between mt-auto">
                               <span className="font-sans text-sm font-semibold text-accent-gold">CHF {s.price}</span>
-                              <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors flex items-center gap-1.5">
+                              <a href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors flex items-center gap-1.5">
                                 Im Shop kaufen <IconArrowRight />
                               </a>
                             </div>
@@ -1082,7 +1082,7 @@ export default function LernvideoDetailPage() {
                                 <p className="font-sans text-xs text-text-secondary">{t.artist} · {t.year}</p>
                               </div>
                             </div>
-                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Jetzt kaufen</a>
+                            <a href={SHOP_CD_URL} target="_blank" rel="noopener noreferrer" className="font-sans text-xs px-2.5 py-1.5 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors w-full sm:w-auto text-center sm:flex-shrink-0">Jetzt kaufen</a>
                           </div>
                         ))}
                       </div>
@@ -1263,7 +1263,7 @@ export default function LernvideoDetailPage() {
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
                             {c.isTeam && (
-                              <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                              <span className="font-sans text-[10px] bg-accent-gold text-on-gold px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
                                 <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                                 {c.role ?? 'LAEMU Team'}
                               </span>
@@ -1297,7 +1297,7 @@ export default function LernvideoDetailPage() {
                                 <div className="flex-1 min-w-0 bg-background p-3 border border-border">
                                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                                     <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
-                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
+                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-on-gold px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
                                     <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
                                   </div>
                                   <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
@@ -1324,7 +1324,7 @@ export default function LernvideoDetailPage() {
                               />
                               <div className="flex gap-2 justify-end">
                                 <button onClick={() => { setReplyTo(null); setReplyText('') }} className="sm:hidden border border-border text-text-secondary px-3 py-2 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
-                                <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
+                                <button onClick={() => handleReply(c.id)} disabled={!replyText.trim()} className="bg-dark text-white px-4 py-2 font-sans text-xs hover:bg-accent-gold hover:text-on-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">Senden</button>
                               </div>
                             </div>
                           </div>
@@ -1360,7 +1360,7 @@ export default function LernvideoDetailPage() {
                     placeholder={`Kommentar zu "${v.title}"…`}
                     className="flex-1 min-w-0 border border-border px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                   />
-                  <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold transition-colors whitespace-nowrap sm:w-auto">Senden</button>
+                  <button onClick={handleSend} className="bg-dark text-white px-4 py-2.5 font-sans text-sm hover:bg-accent-gold hover:text-on-gold transition-colors whitespace-nowrap sm:w-auto">Senden</button>
                 </div>
               </div>
             </motion.div>

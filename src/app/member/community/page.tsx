@@ -8,6 +8,7 @@ import { MemberTabs } from '@/components/MemberTabs'
 import { MemberTopBar } from '@/components/MemberTopBar'
 import { Avatar } from '@/components/Avatar'
 import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
+import { instrumentBadge } from '@/lib/instrumentBadge'
 import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } from '@/lib/userProfile'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
@@ -212,7 +213,7 @@ function DiscoverView() {
     <div className="space-y-4">
       <div>
         <h3 className="font-heading font-bold text-lg mb-1">Entdecken</h3>
-        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">
+        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">
           Finde andere Mitglieder der LAEMU-Szene. Hier erscheinen nur Personen, die ihr Profil
           nicht verborgen haben. Filtern kannst du nach Angaben, die diese Personen in ihrem Profil
           öffentlich teilen.
@@ -227,7 +228,7 @@ function DiscoverView() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Mitglieder suchen"
-          className="w-full border border-border pl-10 pr-9 py-3 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
+          className="w-full border border-border pl-10 pr-9 py-3 font-sans text-sm font-normal focus:outline-none focus:border-dark bg-surface"
         />
         {query && (
           <button
@@ -287,7 +288,7 @@ function DiscoverView() {
             </Link>
             <div className="flex-1 min-w-0">
               <Link href={`/member/u/${p.handle}`} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
-              <p className="font-sans text-xs font-light text-text-secondary">{profileRole(p)}</p>
+              <p className="font-sans text-xs font-normal text-text-secondary">{profileRole(p)}</p>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {p.isTeacher && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">Musiklehrer</span>}
                 {p.openForFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Offen für Formation</span>}
@@ -320,7 +321,7 @@ function StartView() {
     <div className="space-y-6">
       <div className="bg-surface border border-border p-6 sm:p-8">
         <h2 className="font-heading font-black text-2xl mb-2">Willkommen in der LAEMU-Community</h2>
-        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">
+        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">
           Hier bleibst du mit der LAEMU-Szene verbunden — ganz schlank gehalten. Folge uns auf
           Instagram für Eindrücke und tritt der geschlossenen WhatsApp-Gruppe bei, um keine News
           zu verpassen. Dein eigenes Profil kannst du jederzeit mit Foto- und Video-Beiträgen ergänzen.
@@ -335,12 +336,12 @@ function StartView() {
         className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
       >
         <div className="flex items-center gap-4">
-          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold transition-colors">
+          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-on-gold transition-colors">
             <IconInstagram />
           </span>
           <div className="flex-1 min-w-0">
             <h3 className="font-heading font-bold text-base">LAEMU auf Instagram</h3>
-            <p className="font-sans text-sm font-light text-text-secondary leading-snug">
+            <p className="font-sans text-sm font-normal text-text-secondary leading-snug">
               Folge <span className="text-accent-gold">@{LAEMU_INSTAGRAM_HANDLE}</span> für Einblicke,
               Stücke und Eindrücke aus der Szene.
             </p>
@@ -357,12 +358,12 @@ function StartView() {
         className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
       >
         <div className="flex items-center gap-4">
-          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold transition-colors">
+          <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-on-gold transition-colors">
             <IconFacebook />
           </span>
           <div className="flex-1 min-w-0">
             <h3 className="font-heading font-bold text-base">LAEMU auf Facebook</h3>
-            <p className="font-sans text-sm font-light text-text-secondary leading-snug">
+            <p className="font-sans text-sm font-normal text-text-secondary leading-snug">
               Folge uns auf <span className="text-accent-gold">Facebook</span> für News,
               Veranstaltungen und Eindrücke aus der Szene.
             </p>
@@ -374,7 +375,7 @@ function StartView() {
       {/* Geschlossene WhatsApp-Gruppen */}
       <div>
         <h3 className="font-heading font-bold text-lg mb-1">WhatsApp-Gruppen</h3>
-        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">
+        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed mb-4">
           Tritt unseren geschlossenen WhatsApp-Gruppen bei. Da du dort deine Telefonnummer freigibst,
           behandle sie bitte vertraulich. Für Fragen zu Lernvideos nutzt du am besten die{' '}
           <Link href="/member/academy/lernvideos" className="text-accent-gold hover:text-dark transition-colors font-medium">
@@ -394,7 +395,7 @@ function StartView() {
                 <p className="font-sans text-xs text-text-secondary">Nur News vom LAEMU-Team</p>
               </div>
             </div>
-            <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
+            <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
               In dieser geschlossenen Gruppe postet nur das LAEMU-Team wichtige Ankündigungen, Termine
               und Neuigkeiten rund um LAEMU — kompakt und ohne Geplauder.
             </p>
@@ -402,7 +403,7 @@ function StartView() {
               href={LAEMU_WHATSAPP_INFO_GROUP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
             >
               <IconWhatsApp size={16} /> Info-Gruppe beitreten
             </a>
@@ -411,7 +412,7 @@ function StartView() {
           {/* Austausch-Gruppe */}
           <div className="bg-surface border border-border p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
+              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-on-gold flex-shrink-0">
                 <IconWhatsApp />
               </span>
               <div className="min-w-0">
@@ -419,7 +420,7 @@ function StartView() {
                 <p className="font-sans text-xs text-text-secondary">Inspiration &amp; Teilen</p>
               </div>
             </div>
-            <p className="font-sans text-sm font-light text-text-secondary leading-snug flex-1 mb-4">
+            <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
               In dieser geschlossenen Gruppe inspiriert ihr euch gegenseitig: Teilt Videos, Bilder und
               Stücke aus dem LAEMU-Leben — von Auftritten, Musikhöcks und spontanen Momenten.
             </p>
@@ -512,7 +513,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
             onChange={(e) => setCaption(e.target.value)}
             placeholder="Beschreibung hinzufügen…"
             rows={3}
-            className="mt-4 w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none bg-background placeholder:text-border"
+            className="mt-4 w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark resize-none bg-background placeholder:text-border"
           />
           <p className="font-sans text-[11px] text-text-secondary mt-2 leading-relaxed">
             Der Beitrag erscheint auf deinem Profil und ist für Profilbesucher sichtbar.
@@ -526,7 +527,7 @@ function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'v
           </button>
           <button
             onClick={onClose}
-            className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold transition-colors"
+            className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors"
           >
             Auf Profil veröffentlichen
           </button>
@@ -728,7 +729,7 @@ function ProfileView() {
                   </button>
                   <button
                     onClick={saveEdit}
-                    className="font-sans text-sm font-semibold px-4 py-2 bg-accent-gold text-white hover:bg-dark transition-colors"
+                    className="font-sans text-sm font-semibold px-4 py-2 bg-accent-gold text-on-gold hover:bg-dark transition-colors"
                   >
                     Speichern ✓
                   </button>
@@ -749,16 +750,16 @@ function ProfileView() {
               <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Profilname *</label>
-                  <input value={draftName} onChange={e => setDraftName(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  <input value={draftName} onChange={e => setDraftName(e.target.value)} className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Bio</label>
-                  <textarea value={draftBio} onChange={e => setDraftBio(e.target.value)} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark resize-none" />
+                  <textarea value={draftBio} onChange={e => setDraftBio(e.target.value)} rows={3} className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark resize-none" />
                   <p className="font-sans text-[11px] text-text-secondary mt-1">Tipp: Links zu deinen Kanälen kannst du hier in der Bio integrieren.</p>
                 </div>
                 <div>
                   <label className="font-sans text-xs text-text-secondary uppercase tracking-[0.15em] block mb-1">Wohnort</label>
-                  <input value={draftWohnort} onChange={e => setDraftWohnort(e.target.value)} placeholder="z.B. Luzern" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                  <input value={draftWohnort} onChange={e => setDraftWohnort(e.target.value)} placeholder="z.B. Luzern" className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                   <div className="flex items-center justify-between mt-3">
                     <div>
                       <p className="font-sans text-sm font-medium">Wohnort auf dem Profil verbergen</p>
@@ -787,23 +788,23 @@ function ProfileView() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">Instagram</label>
-                      <input value={draftInstagram} onChange={e => setDraftInstagram(e.target.value)} placeholder="benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                      <input value={draftInstagram} onChange={e => setDraftInstagram(e.target.value)} placeholder="benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                     </div>
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">WhatsApp</label>
-                      <input value={draftWhatsapp} onChange={e => setDraftWhatsapp(e.target.value)} placeholder="+41 79 …" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                      <input value={draftWhatsapp} onChange={e => setDraftWhatsapp(e.target.value)} placeholder="+41 79 …" className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                     </div>
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">E-Mail</label>
-                      <input value={draftEmail} onChange={e => setDraftEmail(e.target.value)} type="email" placeholder="name@email.ch" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                      <input value={draftEmail} onChange={e => setDraftEmail(e.target.value)} type="email" placeholder="name@email.ch" className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                     </div>
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">Facebook</label>
-                      <input value={draftFacebook} onChange={e => setDraftFacebook(e.target.value)} placeholder="profil-name" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                      <input value={draftFacebook} onChange={e => setDraftFacebook(e.target.value)} placeholder="profil-name" className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                     </div>
                     <div>
                       <label className="font-sans text-xs text-text-secondary block mb-1">TikTok</label>
-                      <input value={draftTiktok} onChange={e => setDraftTiktok(e.target.value)} placeholder="@benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark" />
+                      <input value={draftTiktok} onChange={e => setDraftTiktok(e.target.value)} placeholder="@benutzername" className="w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark" />
                     </div>
                   </div>
                 </div>
@@ -865,7 +866,7 @@ function ProfileView() {
                     {wohnort}
                   </p>
                 )}
-                <p className="font-sans text-sm font-light text-text-secondary mb-4 leading-relaxed">{bio}</p>
+                <p className="font-sans text-sm font-normal text-text-secondary mb-4 leading-relaxed">{bio}</p>
 
                 {/* Social-media links */}
                 {(instagram || whatsapp || email || facebook || tiktok) && (
@@ -898,9 +899,15 @@ function ProfileView() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {instruments.split(',').map(i => (
-                    <span key={i} className="font-sans text-xs px-2 py-1 bg-background border border-border">{i.trim()}</span>
-                  ))}
+                  {instruments.split(',').map(i => i.trim()).filter(Boolean).map(i => {
+                    const b = instrumentBadge(i)
+                    return (
+                      <span key={i} className="inline-flex items-center gap-1">
+                        <span className={b.className}>{i}</span>
+                        {b.begleitung && <span className="font-sans text-xs text-text-secondary">· Begleitung</span>}
+                      </span>
+                    )
+                  })}
                 </div>
               </motion.div>
             )}
@@ -923,7 +930,7 @@ function ProfileView() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => openComposer('photo')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold transition-colors"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
             >
               <IconCamera /> Foto
             </button>
@@ -1018,7 +1025,7 @@ export default function MemberCommunityPage() {
                         : 'text-text-secondary hover:bg-background hover:text-dark'
                     }`}
                   >
-                    <span className={activeNav === item.id ? 'text-accent-yellow' : ''}>{item.icon}</span>
+                    <span className={activeNav === item.id ? 'text-accent-gold' : ''}>{item.icon}</span>
                     {item.label}
                   </button>
                 ))}
