@@ -305,10 +305,10 @@ export default function LernvideosPage() {
               )}
             </div>
             <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
+            {/* Nur Tags zeigen, die sich auch tatsächlich filtern lassen
+                (Bekannte-Melodie-Tags + Notenarten). Stil-Tags haben kein
+                Filter-Steuerelement und werden daher nicht angezeigt. */}
             <div className="flex flex-wrap gap-1">
-              {v.styleTags.slice(0, 3).map(t => (
-                <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/8 border border-accent-gold/20 text-accent-gold">{t}</span>
-              ))}
               {v.melodieTags.slice(0, 2).map(t => (
                 <span key={t} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{t}</span>
               ))}
@@ -342,12 +342,7 @@ export default function LernvideosPage() {
             </div>
             <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:my-2">
               <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
-              {unlocked ? (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold flex items-center gap-1 whitespace-nowrap">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  Freigeschaltet
-                </span>
-              ) : (
+              {!unlocked && (
                 <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                   Gesperrt
