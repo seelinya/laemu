@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { instrumentBadge } from '@/lib/instrumentBadge'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -175,7 +176,7 @@ function PostCard({ post, onOpen }: { post: ProfilePost; onOpen: () => void }) {
       </button>
 
       <div className="p-4">
-        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{post.text}</p>
+        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">{post.text}</p>
       </div>
     </motion.div>
   )
@@ -213,7 +214,7 @@ export default function MemberProfilePage() {
       <AnimatePresence>
         {lightbox && <Lightbox key="lightbox" post={lightbox} onClose={() => setLightbox(null)} />}
       </AnimatePresence>
-      <div className="bg-dark border-b border-dark-secondary px-6 py-4 flex items-center justify-between">
+      <div className="bg-dark border-b border-white/10 px-6 py-4 flex items-center justify-between">
         <Link href="/member/academy" className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           Zurück zur Musikschule
@@ -247,7 +248,7 @@ export default function MemberProfilePage() {
             </div>
             <p className="font-sans text-sm text-accent-gold">{profile.handle}</p>
             <p className="font-sans text-sm font-medium text-dark mb-2">{profile.tagline}</p>
-            <p className="font-sans text-sm font-light text-text-secondary leading-relaxed mb-4">{profile.bio}</p>
+            <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed mb-4">{profile.bio}</p>
 
             <SocialLinks social={profile.social} />
 
@@ -265,9 +266,15 @@ export default function MemberProfilePage() {
             </div>
 
             <div className="flex flex-wrap gap-1.5">
-              {profile.instruments.map((inst) => (
-                <span key={inst} className="font-sans text-xs px-2 py-1 bg-background border border-border">{inst}</span>
-              ))}
+              {profile.instruments.map((inst) => {
+                const b = instrumentBadge(inst)
+                return (
+                  <span key={inst} className="inline-flex items-center gap-1">
+                    <span className={b.className}>{inst}</span>
+                    {b.begleitung && <span className="font-sans text-xs text-text-secondary">· Begleitung</span>}
+                  </span>
+                )
+              })}
               {profile.roles.map((r) => (
                 <span key={r} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">{r}</span>
               ))}

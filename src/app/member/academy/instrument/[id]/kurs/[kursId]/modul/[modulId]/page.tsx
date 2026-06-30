@@ -68,7 +68,7 @@ function TypeBadge({ type }: { type: LessonType }) {
 // Markierung für Team-Mitglieder (Lehrpersonen / LAEMU Team).
 function TeamBadge({ role }: { role?: string }) {
   return (
-    <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+    <span className="font-sans text-[10px] bg-accent-gold text-on-gold px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
       {role ?? 'LAEMU Team'}
     </span>
@@ -140,7 +140,7 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
         {/* Zentraler Play-Button, solange pausiert */}
         {!playing && (
           <button onClick={() => setPlaying(true)} aria-label="Abspielen" className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
-            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold flex items-center justify-center transition-colors">
+            <span className="w-16 h-16 bg-accent-gold/90 hover:bg-accent-gold hover:text-on-gold flex items-center justify-center transition-colors">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="6 4 20 12 6 20 6 4"/></svg>
             </span>
           </button>
@@ -229,7 +229,7 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
                   onChange={e => { setVolume(Number(e.target.value)); setMuted(false) }}
                   aria-label="Lautstärke"
                   className="w-0 group-hover/vol:w-16 ml-0 group-hover/vol:ml-2 opacity-0 group-hover/vol:opacity-100 transition-all duration-200 cursor-pointer"
-                  style={{ accentColor: '#C4973A' }}
+                  style={{ accentColor: '#BC8C33' }}
                 />
               </div>
               {/* Einstellungen (Qualität + Geschwindigkeit) */}
@@ -563,7 +563,7 @@ export default function ModulPage({
                       Die ersten Lektionen dieses Kurses sind zum Reinschnuppern frei. Für diese Lektion und den ganzen Kurs schaltest du den Kurs mit dem passenden Abo frei.
                     </p>
                   </div>
-                  <Link href="/member/academy" className="bg-accent-gold text-white font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-warm transition-colors">
+                  <Link href="/member/academy" className="bg-accent-gold text-on-gold font-sans text-sm font-semibold px-6 py-3 hover:bg-accent-gold-hover transition-colors">
                     Zur Übersicht →
                   </Link>
                 </div>
@@ -639,7 +639,7 @@ export default function ModulPage({
                 {nextLesson ? (
                   <button
                     onClick={goToNext}
-                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-4 py-2.5 hover:bg-accent-gold transition-colors"
+                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-4 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
                   >
                     <span className="hidden sm:inline">Weiter: {nextLesson.title}</span>
                     <span className="sm:hidden">Weiter</span>
@@ -650,7 +650,7 @@ export default function ModulPage({
                 ) : nextModule ? (
                   <button
                     onClick={goToNext}
-                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-4 py-2.5 hover:bg-accent-gold transition-colors"
+                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-4 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
                   >
                     <span className="hidden sm:inline">Nächstes Modul: {nextModule.title}</span>
                     <span className="sm:hidden">Nächstes Modul</span>
@@ -661,7 +661,7 @@ export default function ModulPage({
                 ) : (
                   <button
                     onClick={finishLastLesson}
-                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-5 py-2.5 hover:bg-accent-gold transition-colors"
+                    className="flex items-center gap-2 font-sans text-sm font-medium bg-dark text-white px-5 py-2.5 hover:bg-accent-gold hover:text-on-gold transition-colors"
                   >
                     Lektion abschliessen &amp; zurück zum Kurs
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -688,7 +688,7 @@ export default function ModulPage({
 
               {/* Comment input */}
               <div className="flex gap-3">
-                <div className="w-9 h-9 bg-accent-gold flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-sm">
+                <div className="w-9 h-9 bg-accent-gold flex items-center justify-center flex-shrink-0 font-heading font-bold text-on-gold text-sm">
                   {CURRENT_USER.initials}
                 </div>
                 <div className="flex-1">
@@ -704,7 +704,7 @@ export default function ModulPage({
                     <button
                       onClick={handleSubmitComment}
                       disabled={!newComment.trim()}
-                      className="font-sans text-sm bg-dark text-white px-4 py-2 hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="font-sans text-sm bg-dark text-white px-4 py-2 hover:bg-accent-gold hover:text-on-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Kommentar senden
                     </button>
@@ -723,7 +723,7 @@ export default function ModulPage({
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-3"
                   >
-                    <Link href={profileHref(comment.isAuthor, comment.handle)} className={`w-9 h-9 ${comment.isTeam ? 'bg-accent-gold' : comment.color} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-xs hover:opacity-80 transition-opacity`}>
+                    <Link href={profileHref(comment.isAuthor, comment.handle)} className={`w-9 h-9 ${comment.isTeam ? 'bg-accent-gold text-on-gold' : comment.color + ' text-white'} flex items-center justify-center flex-shrink-0 font-heading font-bold text-xs hover:opacity-80 transition-opacity`}>
                       {comment.initials}
                     </Link>
                     <div className="flex-1 min-w-0">
@@ -768,7 +768,7 @@ export default function ModulPage({
                             const ini = r.name.split(' ').map((w) => w[0]).join('').slice(0, 2)
                             return (
                               <div key={r.id} className="flex gap-2.5">
-                                <Link href={profileHref(r.name === CURRENT_USER.name, r.handle)} className={`w-7 h-7 ${r.isTeam ? 'bg-accent-gold' : 'bg-dark'} flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-[10px] hover:opacity-80 transition-opacity`}>{ini}</Link>
+                                <Link href={profileHref(r.name === CURRENT_USER.name, r.handle)} className={`w-7 h-7 ${r.isTeam ? 'bg-accent-gold text-on-gold' : 'bg-dark text-white'} flex items-center justify-center flex-shrink-0 font-heading font-bold text-[10px] hover:opacity-80 transition-opacity`}>{ini}</Link>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
                                     <Link href={profileHref(r.name === CURRENT_USER.name, r.handle)} className="font-sans text-sm font-medium hover:text-accent-gold transition-colors">{r.name}</Link>
@@ -786,7 +786,7 @@ export default function ModulPage({
                       {/* Antwort-Eingabe */}
                       {replyTo === comment.id && (
                         <div className="mt-3 flex gap-2.5">
-                          <div className="w-7 h-7 bg-accent-gold flex items-center justify-center flex-shrink-0 font-heading font-bold text-white text-[10px]">{CURRENT_USER.initials}</div>
+                          <div className="w-7 h-7 bg-accent-gold flex items-center justify-center flex-shrink-0 font-heading font-bold text-on-gold text-[10px]">{CURRENT_USER.initials}</div>
                           <div className="flex-1">
                             <textarea
                               value={replyText}
@@ -799,7 +799,7 @@ export default function ModulPage({
                               <button
                                 onClick={() => handleSubmitReply(comment.id)}
                                 disabled={!replyText.trim()}
-                                className="font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold hover:text-on-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 Antwort senden
                               </button>

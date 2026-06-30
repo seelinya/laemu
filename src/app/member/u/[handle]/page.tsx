@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
+import { instrumentBadge } from '@/lib/instrumentBadge'
 
 type Shares = {
   whatsapp?: string
@@ -176,7 +177,7 @@ function PostCard({ post, name, avatar, onOpen }: { post: ProfilePost; name: str
       </button>
 
       <div className="p-4">
-        <p className="font-sans text-sm font-light text-text-secondary leading-relaxed">{post.text}</p>
+        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">{post.text}</p>
       </div>
     </motion.div>
   )
@@ -220,7 +221,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <h1 className="font-heading text-2xl font-bold">{profile.name}</h1>
               {profile.role && (
-                <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                <span className="font-sans text-[10px] bg-accent-gold text-on-gold px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                   {profile.role}
                 </span>
@@ -236,9 +237,15 @@ export default function PublicProfilePage({ params }: { params: { handle: string
               <span>{profile.joined}</span>
             </div>
             <div className="flex flex-wrap gap-1.5 mb-3">
-              {profile.instruments.map((inst) => (
-                <span key={inst} className="font-sans text-xs px-2 py-1 bg-background border border-border text-text-secondary">{inst}</span>
-              ))}
+              {profile.instruments.map((inst) => {
+                const b = instrumentBadge(inst)
+                return (
+                  <span key={inst} className="inline-flex items-center gap-1">
+                    <span className={b.className}>{inst}</span>
+                    {b.begleitung && <span className="font-sans text-xs text-text-secondary">· Begleitung</span>}
+                  </span>
+                )
+              })}
             </div>
             <p className="font-sans text-sm text-text-secondary leading-relaxed">{profile.bio}</p>
           </div>

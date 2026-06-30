@@ -20,9 +20,9 @@ const paddingStyles = {
 
 export function Card({ children, className, hover = false, onClick, padding = 'md' }: CardProps) {
   const baseStyles = clsx(
-    'bg-surface border border-border',
+    'bg-surface border border-border transition-colors',
     paddingStyles[padding],
-    hover && 'cursor-pointer',
+    hover && 'cursor-pointer hover:border-border-dark',
     className
   )
 
@@ -30,7 +30,7 @@ export function Card({ children, className, hover = false, onClick, padding = 'm
     return (
       <motion.div
         className={baseStyles}
-        whileHover={{ y: -4, boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}
+        whileHover={{ y: -4 }}
         transition={{ duration: 0.25 }}
         onClick={onClick}
       >

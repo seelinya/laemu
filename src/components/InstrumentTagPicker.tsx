@@ -72,13 +72,13 @@ export function InstrumentTagPicker({ value, onChange }: { value: string; onChan
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
             placeholder="Instrument eingeben…"
             autoFocus
-            className="flex-1 border border-border px-3 py-2 font-sans text-sm font-light focus:outline-none focus:border-dark bg-surface"
+            className="flex-1 border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark bg-surface"
           />
           <button
             type="button"
             onClick={addCustom}
             disabled={!custom.trim()}
-            className="font-sans text-sm px-4 py-2 bg-dark text-white hover:bg-accent-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="font-sans text-sm px-4 py-2 bg-dark text-white hover:bg-accent-gold hover:text-on-gold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Hinzufügen
           </button>

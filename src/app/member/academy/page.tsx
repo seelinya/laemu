@@ -90,7 +90,7 @@ function SupportWidget() {
       rel="noopener noreferrer"
       title="Persönlicher Support via WhatsApp: +41 77 408 30 57"
       aria-label="Persönlicher Support via WhatsApp"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-accent-gold text-white pl-4 pr-5 py-3.5 shadow-lg hover:bg-accent-warm transition-colors"
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-accent-gold text-on-gold pl-4 pr-5 py-3.5 shadow-lg hover:bg-accent-gold-hover transition-colors"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
@@ -278,7 +278,7 @@ export default function MemberAcademyPage() {
         {starterKurse.length > 0 && (
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
+              <span className="font-sans text-xs bg-accent-gold text-on-gold px-2 py-0.5 uppercase tracking-wide">Starter</span>
               <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -354,7 +354,7 @@ export default function MemberAcademyPage() {
           ) : (
             <button
               onClick={openUpgrade}
-              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-earth transition-colors"
+              className="flex items-center gap-2 bg-accent-gold text-on-gold border border-accent-gold px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
               {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
