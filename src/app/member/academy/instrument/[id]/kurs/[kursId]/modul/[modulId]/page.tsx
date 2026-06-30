@@ -272,7 +272,6 @@ export default function ModulPage({
   const activeModuleData = modules.find((m) => m.id === params.modulId) ?? modules[0]
   const defaultLessonId = searchParams.lektion ?? activeModuleData?.lessons[0]?.id ?? ''
   const [activeLessonId, setActiveLessonId] = useState(defaultLessonId)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set([params.modulId]))
   const [newComment, setNewComment] = useState('')
   const [comments, setComments] = useState<CommentData[]>(mockComments)
@@ -537,16 +536,6 @@ export default function ModulPage({
                 <h1 className="font-heading text-2xl md:text-3xl font-bold">{activeLesson?.title}</h1>
                 {/* Action bar */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <motion.button
-                    onClick={() => setIsFavorite(!isFavorite)}
-                    whileTap={{ scale: 0.9 }}
-                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${isFavorite ? 'border-accent-gold bg-accent-gold/10 text-accent-gold' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                    </svg>
-                    Merken
-                  </motion.button>
                   <motion.button
                     onClick={toggleActiveLessonDone}
                     whileTap={{ scale: 0.9 }}
