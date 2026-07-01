@@ -106,8 +106,10 @@ export const INDIVIDUAL_PLAN_ORDER: IndividualPlanId[] = ['starter', 'pro', 'ler
 
 // ─── Formationen ────────────────────────────────────────────────────────────
 // Gilt für bis zu 3 Mitglieder. Ab dem 4. Mitglied: +10 % Zuschlag pro Mitglied.
+// Es können sich maximal 6 Mitglieder als Formation registrieren.
 
 export const FORMATION_INCLUDED_MEMBERS = 3
+export const FORMATION_MAX_MEMBERS = 6
 export const FORMATION_SURCHARGE_PER_MEMBER = 0.1
 
 export type FormationPlanId = 'pro' | 'lernvideo'

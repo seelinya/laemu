@@ -12,6 +12,7 @@ import {
   formationPlanMeta,
   formationYearlyPrice,
   FORMATION_INCLUDED_MEMBERS,
+  FORMATION_MAX_MEMBERS,
   type Scope,
   type IndividualPlanId,
   type FormationPlanId,
@@ -128,6 +129,9 @@ export default function RegisterPage() {
   const [aboInstruments, setAboInstruments] = useState<string[]>(['Handorgel'])
   const [formationPlan, setFormationPlan] = useState<FormationPlanId>('pro')
   const [memberCount, setMemberCount] = useState(3)
+  // Name der Formation — Pflichtangabe bei Formations-Registrierung. Die Formation
+  // muss bei LAEMU registriert sein.
+  const [formationName, setFormationName] = useState('')
 
   // E-Mail-Adressen der weiteren Formationsmitglieder (Index 1 … N-1; Mitglied 0
   // ist die anmeldende Person selbst). Über diese E-Mails werden die anderen
@@ -238,12 +242,14 @@ export default function RegisterPage() {
   // Anzahl einzuladender Mitglieder (alle ausser der anmeldenden Person selbst).
   const inviteCount = Math.max(0, memberCount - 1)
 
-  // Formationen: Pflichtschritt — für jedes weitere Mitglied muss eine E-Mail-
-  // Adresse hinterlegt werden, damit sie zur Selbst-Registrierung eingeladen
-  // werden können. Erst dann lässt sich die Registrierung abschliessen.
+  // Formationen: Pflichtschritt — der Formationsname muss angegeben sein und für
+  // jedes weitere Mitglied muss eine E-Mail-Adresse hinterlegt werden, damit sie
+  // zur Selbst-Registrierung eingeladen werden können. Erst dann lässt sich die
+  // Registrierung abschliessen.
   const formationReady =
     accountType !== 'formation' ||
-    Array.from({ length: inviteCount }).every((_, i) => (memberEmails[i + 1] ?? '').trim().length > 0)
+    (formationName.trim().length > 0 &&
+      Array.from({ length: inviteCount }).every((_, i) => (memberEmails[i + 1] ?? '').trim().length > 0))
 
   // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
   // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
@@ -277,6 +283,7 @@ export default function RegisterPage() {
       email: email.trim(),
       wohnort: ort.trim(),
       inFormation: accountType === 'formation',
+      ...(accountType === 'formation' && formationName.trim() ? { formationName: formationName.trim() } : {}),
       // Die bei der Mitgliedschaft gewählten Instrumente ins Profil übernehmen.
       ...(abo.instruments.length > 0 ? { instruments: abo.instruments.join(', ') } : {}),
     })
@@ -520,6 +527,21 @@ export default function RegisterPage() {
                 {/* ── Weitere Formationsmitglieder (direkt unter den eigenen Kontaktdaten) ── */}
                 {accountType === 'formation' && (
                   <div className="space-y-4">
+                    {/* Name der Formation — Pflichtangabe */}
+                    <div className="bg-surface border-2 border-accent-gold p-5">
+                      <label className="label text-text-secondary block mb-1.5">Name der Formation *</label>
+                      <input
+                        type="text"
+                        value={formationName}
+                        onChange={e => setFormationName(e.target.value)}
+                        placeholder="z. B. Örgeliquartett Seetal"
+                        className="w-full border border-border px-4 py-3 font-sans text-sm focus:outline-none focus:border-dark bg-background"
+                      />
+                      <p className="font-sans text-xs text-text-secondary mt-2 leading-relaxed">
+                        Die Formation muss bei LAEMU registriert sein.
+                      </p>
+                    </div>
+
                     {/* Golden hint: Selbst-Registrierung & voller Zugang */}
                     <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 flex gap-3">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
@@ -649,7 +671,7 @@ export default function RegisterPage() {
               {accountType === 'individual' && (
                 <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
                   {([
-                    { id: 'yearly', label: 'Jährlich', hint: '−16 %' },
+                    { id: 'yearly', label: 'Jährlich', hint: null },
                     { id: 'monthly', label: 'Monatlich', hint: null },
                     { id: 'free', label: 'Free', hint: 'Gratis' },
                   ] as const).map(opt => (
@@ -860,7 +882,8 @@ export default function RegisterPage() {
                     <h3 className="font-heading font-bold text-sm mb-1">Anzahl Mitglieder</h3>
                     <p className="font-sans text-xs text-text-secondary mb-4">
                       Das Formationsangebot gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder. Bei mehr als {FORMATION_INCLUDED_MEMBERS} Mitgliedern
-                      wird ein Zuschlag von 10 % pro zusätzlichem Mitglied verrechnet.
+                      wird ein Zuschlag von 10 % pro zusätzlichem Mitglied verrechnet. Es können sich maximal {FORMATION_MAX_MEMBERS} Mitglieder
+                      als Formation registrieren.
                     </p>
                     <div className="flex items-center gap-3">
                       <button
@@ -869,8 +892,9 @@ export default function RegisterPage() {
                       >−</button>
                       <span className="font-heading font-bold text-xl w-12 text-center tabular-nums">{memberCount}</span>
                       <button
-                        onClick={() => setMemberCount(m => m + 1)}
-                        className="w-10 h-10 border border-border font-heading font-bold hover:border-dark transition-colors"
+                        onClick={() => setMemberCount(m => Math.min(FORMATION_MAX_MEMBERS, m + 1))}
+                        disabled={memberCount >= FORMATION_MAX_MEMBERS}
+                        className="w-10 h-10 border border-border font-heading font-bold hover:border-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-border"
                       >+</button>
                       {formationExtra > 0 && (
                         <span className="font-sans text-xs text-accent-gold ml-2">+{formationExtra} × 10 % Zuschlag</span>
