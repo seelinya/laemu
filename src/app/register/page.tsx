@@ -125,7 +125,10 @@ export default function RegisterPage() {
 
   const selectScope = (s: Scope) => {
     setScope(s)
-    if (s === 'all') {
+    // «All-in-One» oder ein Umfang, der bereits alle verfügbaren Instrumente
+    // abdeckt (z. B. «3 Instrumente» bei drei wählbaren), automatisch komplett
+    // vorauswählen — der Nutzer muss dann nicht mehr einzeln anklicken.
+    if (s === 'all' || Number(s) >= ABO_INSTRUMENTS.length) {
       setAboInstruments([...ABO_INSTRUMENTS])
     } else {
       setAboInstruments(prev => prev.slice(0, Number(s)))
