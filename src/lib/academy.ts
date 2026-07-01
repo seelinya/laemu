@@ -61,7 +61,7 @@ export const individualPlanMeta: Record<
     emoji: '🎓',
     badge: null,
     audience: 'Für Einsteiger',
-    desc: 'Strukturierter Lehrgang mit Grundkursen — wähle 1, 2, 3 oder alle Instrumente.',
+    desc: 'Strukturierter Lehrgang mit Grundkursen und dazu passenden Stücken — wähle 1, 2, 3 oder alle Instrumente.',
     features: [
       'Strukturierter Online-Lehrgang (Grundkurse)',
       'Generelle Grundkurse (Harmonielehre, Taktarten …)',
@@ -76,7 +76,7 @@ export const individualPlanMeta: Record<
     emoji: '⭐',
     badge: 'Empfohlen',
     audience: 'Für Aufsteiger',
-    desc: 'Voller Zugang: Grund- & Erweiterungskurse plus alle Stücke.',
+    desc: 'Voller Zugang: Grund- & Erweiterungskurse plus die KOMPLETTE Stücke-Datenbank.',
     features: [
       'Alles aus Starter',
       'Grund- und Erweiterungskurse',
@@ -91,10 +91,9 @@ export const individualPlanMeta: Record<
     emoji: '📹',
     badge: 'Alle Instrumente',
     audience: 'Für Profis',
-    desc: 'Ein Zugang für ALLE Instrumente der Ländlermusik — alle Stücke ohne Einschränkung auf einzelne Instrumente.',
+    desc: 'Ein Zugang für die gesamte Stücke-Datenbank mit sämtlichen Stücken verschiedener Komponisten und Interpreten — für alle Instrumente.',
     features: [
-      'Alle Stücke — alle Instrumente inklusive',
-      'Kein Instrument ausgeschlossen — Schwyzerörgeli, Handorgel, Bassgeige, Klavier, Klarinette u. v. m.',
+      'Sämtliche Lernvideos zu allen Stücken für alle Instrumente',
       'Ständig wachsendes Angebot',
     ],
     notIncluded: ['Keine Grundkurse', 'Keine Erweiterungskurse', 'Kein persönlicher Support'],

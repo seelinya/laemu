@@ -821,19 +821,6 @@ export default function RegisterPage() {
                     </div>
                   )}
 
-                  {!isFree && individualPlan === 'lernvideo' && (
-                    <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-6 flex gap-3">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                      <div>
-                        <p className="font-sans text-sm font-semibold mb-1">Einfacher Zugang zu allen Stücken</p>
-                        <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Du erhältst direkten Zugang zu allen Stücken — sämtliche Instrumente, ohne
-                          Lehrgänge oder einen Umfang auszuwählen.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Feature list of selected plan */}
                   {!isFree && (
                   <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
