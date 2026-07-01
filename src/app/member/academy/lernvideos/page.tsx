@@ -229,17 +229,6 @@ export default function LernvideosPage() {
 
   const savedVideos = videos.filter(v => saved.has(v.id))
 
-  // Bereits gewünschte Stücke, zu denen es noch kein Video gibt: bei der Suche
-  // ausgegraut mit Tag "In Bearbeitung" anzeigen.
-  const wishMatches = (() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return []
-    return wishes.filter(w =>
-      (w.title.toLowerCase().includes(q) || (w.composer ?? '').toLowerCase().includes(q)) &&
-      !videos.some(v => v.title.toLowerCase() === w.title.toLowerCase()),
-    )
-  })()
-
   const activeFilterCount = [
     filterInst !== 'Alle', filterArt !== null, filterTakt !== null,
     filterStyleTag !== null, filterGenreTag !== null,
@@ -716,42 +705,9 @@ export default function LernvideosPage() {
               {/* Horizontal list */}
               <div className="flex flex-col gap-3">
                 {filtered.map((v, i) => renderResultCard(v, i))}
-
-                {/* Bereits gewünschte Stücke (noch kein Video) — In Bearbeitung */}
-                {wishMatches.map((w, i) => (
-                  <motion.div
-                    key={`wish-${w.id}`}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 0.6, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="bg-surface border border-dashed border-border overflow-hidden flex flex-col sm:flex-row select-none"
-                  >
-                    <div className="relative w-full h-32 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch bg-dark/5 flex items-center justify-center sm:min-h-[96px]">
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                    </div>
-                    <div className="flex-1 p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-heading font-bold text-sm leading-snug text-text-secondary">{w.title}</h4>
-                        {w.composer && <p className="font-sans text-xs text-text-secondary mb-2">Komponist / Interpret: {w.composer}</p>}
-                        <div className="flex flex-wrap gap-1">
-                          {Object.keys(w.votes).map(opt => (
-                            <span key={opt} className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{opt}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 flex-shrink-0 border-t sm:border-t-0 border-border pt-3 sm:pt-0">
-                        <span className="font-sans text-[10px] px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 whitespace-nowrap">
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                          In Bearbeitung
-                        </span>
-                        <span className="sm:mt-auto font-sans text-xs text-text-secondary">Bald verfügbar</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
               </div>
 
-              {filtered.length === 0 && wishMatches.length === 0 && (
+              {filtered.length === 0 && (
                 <div className="text-center py-16">
                   <p className="font-heading font-bold text-lg mb-2">Keine Ergebnisse gefunden</p>
                   <p className="font-sans text-sm text-text-secondary mb-4">Versuche andere Filtereinstellungen oder durchsuche alle Stücke.</p>
