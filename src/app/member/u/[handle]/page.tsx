@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 type Shares = {
   whatsapp?: string
@@ -12,18 +12,6 @@ type Shares = {
   facebook?: string
   tiktok?: string
   openForFormation?: boolean
-}
-
-// In der Community ergänzt man sein Profil ausschliesslich mit Foto- und
-// Video-Beiträgen. Links, Texte und Events lassen sich nicht teilen.
-type ProfilePostType = 'photo' | 'video'
-
-type ProfilePost = {
-  id: number
-  type: ProfilePostType
-  time: string
-  text: string
-  img: string
 }
 
 type PublicProfile = {
@@ -37,13 +25,7 @@ type PublicProfile = {
   bio: string
   joined: string
   shares: Shares
-  posts?: ProfilePost[]
 }
-
-const samplePosts: ProfilePost[] = [
-  { id: 1, type: 'photo', time: 'vor 2 Tagen', text: 'Schöner Probeabend mit der Kapelle 🎶', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80' },
-  { id: 2, type: 'video', time: 'vor 5 Tagen', text: 'Ein kurzer Ausschnitt aus meinem neuen Schottisch — Volksmusik macht einfach Freude.', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },
-]
 
 const profiles: Record<string, PublicProfile> = {
   maria: {
@@ -60,8 +42,6 @@ const profiles: Record<string, PublicProfile> = {
     bio: 'Handorgel-Lehrer bei der LAEMU Musikschule. Über 25 Jahre Bühnenerfahrung in diversen Formationen.',
     joined: 'Lehrperson seit 2024',
     shares: { email: 'hansruedi@laemu.ch', website: 'wenger-musik.ch', facebook: 'hansruedi.wenger.musik', tiktok: 'hansruedi_oergeli', openForFormation: false },
-    // Musiklehrer-Profil ohne hochgeladene Beiträge — zeigt den Leerzustand.
-    posts: [],
   },
   peter: {
     name: 'Peter Gasser', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80',
@@ -116,84 +96,13 @@ function ShareRow({ icon, label, value, href }: { icon: ReactNode; label: string
   return href ? <a href={href} target="_blank" rel="noopener noreferrer">{content}</a> : content
 }
 
-const POST_TYPE_LABEL: Record<ProfilePostType, string> = {
-  photo: 'Foto',
-  video: 'Video',
-}
-
-function Lightbox({ post, onClose }: { post: ProfilePost; onClose: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Schliessen">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-      </button>
-      <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-        <div className="relative aspect-video bg-black overflow-hidden">
-          <Image src={post.img} alt="" fill className="object-contain" unoptimized />
-          {post.type === 'video' && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-              </div>
-            </div>
-          )}
-        </div>
-        {post.text && <p className="font-sans text-sm text-white/80 mt-3 text-center">{post.text}</p>}
-      </motion.div>
-    </motion.div>
-  )
-}
-
-// Beiträge anderer Profile lassen sich weder liken noch kommentieren — man kann
-// sie aber anklicken und vergrössert anschauen.
-function PostCard({ post, name, avatar, onOpen }: { post: ProfilePost; name: string; avatar: string; onOpen: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden">
-      <div className="p-4 flex items-center gap-3">
-        <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-background border border-border">
-          {avatar && <Image src={avatar} alt={name} fill className="object-cover" unoptimized />}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-heading font-bold text-sm truncate">{name}</p>
-          <p className="font-sans text-xs text-text-secondary">{post.time}</p>
-        </div>
-        <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-dark text-white tracking-wide uppercase flex-shrink-0">{POST_TYPE_LABEL[post.type]}</span>
-      </div>
-
-      <button onClick={onOpen} className="relative aspect-video overflow-hidden w-full block cursor-zoom-in group" aria-label="Beitrag vergrössern">
-        <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-        {post.type === 'video' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-            </div>
-          </div>
-        )}
-      </button>
-
-      <div className="p-4">
-        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">{post.text}</p>
-      </div>
-    </motion.div>
-  )
-}
-
 export default function PublicProfilePage({ params }: { params: { handle: string } }) {
   const profile = profiles[params.handle] ?? fallbackProfile(params.handle)
   const s = profile.shares
   const hasShares = !!(s.whatsapp || s.instagram || s.email || s.website || s.facebook || s.tiktok || s.openForFormation)
-  const posts = profile.posts ?? samplePosts
-  const [lightbox, setLightbox] = useState<ProfilePost | null>(null)
 
   return (
     <div className="min-h-screen bg-background">
-      <AnimatePresence>
-        {lightbox && <Lightbox key="lightbox" post={lightbox} onClose={() => setLightbox(null)} />}
-      </AnimatePresence>
       {/* Top bar */}
       <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
         <button onClick={() => history.back()} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
@@ -289,26 +198,6 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Kontaktinfos öffentlich geteilt.</p>
           </div>
         )}
-
-        {/* Beiträge — nur Foto & Video */}
-        <div>
-          <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
-          <div className="space-y-4">
-            {posts.length > 0 ? (
-              posts.map((post) => <PostCard key={post.id} post={post} name={profile.name} avatar={profile.avatar} onOpen={() => setLightbox(post)} />)
-            ) : (
-              <div className="bg-surface border border-dashed border-border p-10 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-background border border-border text-text-secondary">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                </div>
-                <p className="font-sans text-sm font-semibold text-dark mb-1">Noch keine Beiträge</p>
-                <p className="font-sans text-sm text-text-secondary leading-relaxed">
-                  {profile.name.split(' ')[0]} hat noch keine Fotos oder Videos hochgeladen.<br className="hidden sm:block" /> Schau später wieder vorbei.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   )

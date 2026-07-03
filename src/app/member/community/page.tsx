@@ -43,35 +43,6 @@ function IconSearch() {
     </svg>
   )
 }
-function IconCamera() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-      <circle cx="12" cy="13" r="4"/>
-    </svg>
-  )
-}
-function IconVideo() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-    </svg>
-  )
-}
-function IconPlay() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-      <polygon points="5 3 19 12 5 21 5 3"/>
-    </svg>
-  )
-}
-function IconUpload() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-    </svg>
-  )
-}
 function IconEdit() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -101,42 +72,6 @@ function IconFacebook({ size = 22 }: { size?: number }) {
     </svg>
   )
 }
-
-// ─── Eigene Profil-Beiträge (nur Foto & Video) ────────────────────────────────
-// In der Community ergänzt man sein Profil ausschliesslich mit Foto- und
-// Video-Beiträgen. Links, Texte und Events lassen sich nicht teilen.
-
-type ProfilePost = {
-  id: number
-  type: 'photo' | 'video'
-  img: string
-  caption: string
-  time: string
-}
-
-const profilePosts: ProfilePost[] = [
-  {
-    id: 1,
-    type: 'photo',
-    img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80',
-    caption: 'Probetag in Luzern 🎶 — wir bereiten uns aufs Frühlingskonzert vor.',
-    time: 'vor 2 Stunden',
-  },
-  {
-    id: 2,
-    type: 'video',
-    img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
-    caption: 'Eine kleine Improvisation auf dem Schwyzerörgeli — traditionell mit eigenem Touch.',
-    time: 'vor 5 Stunden',
-  },
-  {
-    id: 3,
-    type: 'photo',
-    img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
-    caption: 'Unvergesslicher Abend mit der Kapelle. Danke an alle, die dabei waren!',
-    time: 'vor 3 Tagen',
-  },
-]
 
 const navItems = [
   { icon: <IconHomeSimple />, label: 'Start', id: 'start' },
@@ -323,7 +258,7 @@ function StartView() {
         <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">
           Hier bleibst du mit der LAEMU-Szene verbunden — ganz schlank gehalten. Folge uns auf
           Instagram für Eindrücke und tritt der geschlossenen WhatsApp-Gruppe bei, um keine News
-          zu verpassen. Dein eigenes Profil kannst du jederzeit mit Foto- und Video-Beiträgen ergänzen.
+          zu verpassen.
         </p>
       </div>
 
@@ -438,108 +373,8 @@ function StartView() {
   )
 }
 
-// ─── Composer: nur Foto- & Video-Beiträge fürs eigene Profil ──────────────────
-
-function PostComposerModal({ initialType, onClose }: { initialType: 'photo' | 'video'; onClose: () => void }) {
-  const [type, setType] = useState<'photo' | 'video'>(initialType)
-  const [caption, setCaption] = useState('')
-  const profile = useUserProfile()
-
-  const types = [
-    { id: 'photo' as const, label: 'Foto', icon: <IconCamera /> },
-    { id: 'video' as const, label: 'Video', icon: <IconVideo /> },
-  ]
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.2 }}
-        className="bg-surface w-full max-w-lg overflow-hidden shadow-2xl"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <Avatar src={profile.avatar} name={profile.name} className="w-10 h-10" />
-            <div>
-              <p className="font-heading font-bold text-sm">{profile.name}</p>
-              <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-background rounded-full transition-colors text-text-secondary hover:text-dark">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-
-        {/* Type tabs — nur Foto & Video */}
-        <div className="flex border-b border-border">
-          {types.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setType(t.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 font-sans text-xs font-medium transition-colors border-b-2 ${type === t.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
-            >
-              {t.icon} {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Body */}
-        <div className="p-5">
-          <div className="border-2 border-dashed border-border hover:border-dark transition-colors p-8 text-center cursor-pointer group">
-            <div className="flex justify-center mb-2 text-text-secondary group-hover:text-dark transition-colors">
-              {type === 'photo' ? (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                </svg>
-              ) : (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                </svg>
-              )}
-            </div>
-            <p className="font-sans text-sm text-text-secondary">{type === 'photo' ? 'Foto auswählen' : 'Video hochladen'}</p>
-            <p className="font-sans text-xs text-text-secondary/60 mt-1">{type === 'photo' ? 'PNG, JPG bis 10 MB' : 'MP4, MOV bis 500 MB'}</p>
-          </div>
-
-          <textarea
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Beschreibung hinzufügen…"
-            rows={3}
-            className="mt-4 w-full border border-border px-3 py-2 font-sans text-sm font-normal focus:outline-none focus:border-dark resize-none bg-background placeholder:text-border"
-          />
-          <p className="font-sans text-[11px] text-text-secondary mt-2 leading-relaxed">
-            Der Beitrag erscheint auf deinem Profil und ist für Profilbesucher sichtbar.
-          </p>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end px-5 py-4 border-t border-border gap-2">
-          <button onClick={onClose} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">
-            Abbrechen
-          </button>
-          <button
-            onClick={onClose}
-            className="font-sans text-sm px-5 py-2 bg-dark text-white hover:bg-accent-gold hover:text-white transition-colors"
-          >
-            Auf Profil veröffentlichen
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
 function ProfileView() {
   const [editMode, setEditMode] = useState(false)
-  const [composerOpen, setComposerOpen] = useState(false)
-  const [composerType, setComposerType] = useState<'photo' | 'video'>('photo')
 
   // Committed profile values
   const [name, setName] = useState('Niklaus Hess')
@@ -572,11 +407,6 @@ function ProfileView() {
   // @handle aus dem Namen ableiten, damit er zum übernommenen Namen passt.
   const handle = handleFromName(name)
 
-  // Eigene Beiträge (löschbar) + Vergrösserungs-Ansicht (Lightbox)
-  const [posts, setPosts] = useState<ProfilePost[]>(profilePosts)
-  const [lightbox, setLightbox] = useState<ProfilePost | null>(null)
-  const deletePost = (id: number) => setPosts(prev => prev.filter(p => p.id !== id))
-
   // Draft values (live while editing)
   const [draftName, setDraftName] = useState('')
   const [draftAvatar, setDraftAvatar] = useState<string>('')
@@ -591,11 +421,6 @@ function ProfileView() {
   const [draftEmail, setDraftEmail] = useState('')
   const [draftFacebook, setDraftFacebook] = useState('')
   const [draftTiktok, setDraftTiktok] = useState('')
-
-  const openComposer = (type: 'photo' | 'video') => {
-    setComposerType(type)
-    setComposerOpen(true)
-  }
 
   const startEdit = () => {
     setDraftName(name)
@@ -644,39 +469,6 @@ function ProfileView() {
 
   return (
     <div className="space-y-6">
-      <AnimatePresence>
-        {composerOpen && (
-          <PostComposerModal key="profile-composer" initialType={composerType} onClose={() => setComposerOpen(false)} />
-        )}
-      </AnimatePresence>
-
-      {/* Lightbox — Beitrag vergrössert anzeigen */}
-      <AnimatePresence>
-        {lightbox && (
-          <motion.div
-            key="lightbox"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
-            onClick={() => setLightbox(null)}
-          >
-            <button onClick={() => setLightbox(null)} className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Schliessen">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-              <div className="relative aspect-video bg-black overflow-hidden">
-                <Image src={lightbox.img} alt={lightbox.caption} fill className="object-contain" unoptimized />
-                {lightbox.type === 'video' && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"><IconPlay /></div>
-                  </div>
-                )}
-              </div>
-              {lightbox.caption && <p className="font-sans text-sm text-white/80 mt-3 text-center">{lightbox.caption}</p>}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Profile header — ohne Titelbild, Profilbild optional */}
       <div className="bg-surface border border-border overflow-hidden">
         <div className="p-6">
@@ -906,70 +698,6 @@ function ProfileView() {
             )}
           </AnimatePresence>
         </div>
-      </div>
-
-      {/* Klarer Upload-Button — direkt unter dem Profil */}
-      <div className="bg-surface border border-border p-4 sm:p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <span className="w-10 h-10 flex items-center justify-center bg-accent-gold/10 text-accent-gold flex-shrink-0">
-              <IconUpload />
-            </span>
-            <div className="min-w-0">
-              <p className="font-sans text-sm font-semibold text-dark">Foto oder Video hochladen</p>
-              <p className="font-sans text-xs text-text-secondary leading-snug">Ergänze dein Profil mit einem neuen Beitrag.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => openComposer('photo')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-4 py-2.5 hover:bg-accent-gold hover:text-white transition-colors"
-            >
-              <IconCamera /> Foto
-            </button>
-            <button
-              onClick={() => openComposer('video')}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-4 py-2.5 hover:bg-dark hover:text-white transition-colors"
-            >
-              <IconVideo /> Video
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile content — nur eigene Foto- & Video-Beiträge */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading font-bold text-lg">Beiträge</h3>
-        </div>
-
-        {posts.length > 0 ? (
-          <div className="grid grid-cols-3 gap-2">
-            {posts.map((post) => (
-              <div key={post.id} className="relative aspect-square overflow-hidden group bg-background">
-                <button onClick={() => setLightbox(post)} className="absolute inset-0 w-full h-full cursor-zoom-in" aria-label="Beitrag vergrössern">
-                  <Image src={post.img} alt={post.caption} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-                </button>
-                {post.type === 'video' && (
-                  <div className="absolute top-2 left-2 text-white drop-shadow pointer-events-none"><IconVideo /></div>
-                )}
-                {/* Eigenen Beitrag löschen */}
-                <button
-                  onClick={() => deletePost(post.id)}
-                  className="absolute top-2 right-2 w-7 h-7 bg-black/50 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                  title="Beitrag löschen"
-                  aria-label="Beitrag löschen"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-surface border border-border p-10 text-center">
-            <p className="font-sans text-sm text-text-secondary">Noch keine Beiträge. Ergänze dein Profil mit einem Foto oder Video.</p>
-          </div>
-        )}
       </div>
     </div>
   )

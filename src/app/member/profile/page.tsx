@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -25,72 +24,6 @@ const profile = {
     facebook: 'hansruedi.wenger.musik',
     tiktok: 'hansruedi_oergeli',
   },
-}
-
-// In der Community ergänzt man sein Profil ausschliesslich mit Foto- und
-// Video-Beiträgen. Links, Texte und Events lassen sich nicht teilen.
-type PostType = 'photo' | 'video'
-
-interface ProfilePost {
-  id: number
-  time: string
-  text: string
-  img: string
-  likes: number
-  comments: number
-  type: PostType
-}
-
-const posts: ProfilePost[] = [
-  {
-    id: 1,
-    time: 'vor 2 Stunden',
-    text: 'Heute am Probetag in Luzern 🎶 Was für eine Energie — wir bereiten uns auf das Frühlingskonzert vor!',
-    img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80',
-    likes: 47,
-    comments: 12,
-    type: 'photo',
-  },
-  {
-    id: 2,
-    time: 'vor 2 Wochen',
-    text: 'Unser Konzert war ein voller Erfolg! Danke an alle, die dabei waren — die Energie im Saal war unvergesslich.',
-    img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80',
-    likes: 134,
-    comments: 41,
-    type: 'photo',
-  },
-  {
-    id: 3,
-    time: 'vor 3 Wochen',
-    text: 'Neue Video-Lektion auf LAEMU Musikschule: Der Zwiefache — Rhythmus und Interpretation.',
-    img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80',
-    likes: 89,
-    comments: 23,
-    type: 'video',
-  },
-]
-
-function IconHeart({ filled = false }: { filled?: boolean }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-    </svg>
-  )
-}
-function IconComment() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-    </svg>
-  )
-}
-function IconPlay() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-      <polygon points="5 3 19 12 5 21 5 3"/>
-    </svg>
-  )
 }
 
 function IconInstagram() {
@@ -145,74 +78,9 @@ function SocialLinks({ social }: { social: typeof profile.social }) {
   )
 }
 
-// Beiträge anderer Profile lassen sich weder liken noch kommentieren — man kann
-// sie aber anklicken und vergrössert anschauen.
-function PostCard({ post, onOpen }: { post: ProfilePost; onOpen: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden">
-      <div className="p-4 flex items-center gap-3">
-        <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
-          <Image src={profile.avatar} alt={profile.name} fill className="object-cover" unoptimized />
-        </div>
-        <div className="flex-1">
-          <p className="font-heading font-bold text-sm">{profile.name}</p>
-          <p className="font-sans text-xs text-text-secondary">{post.time}</p>
-        </div>
-        {post.type === 'video' && (
-          <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-dark text-white tracking-wide uppercase">Video</span>
-        )}
-      </div>
-
-      <button onClick={onOpen} className="relative aspect-video overflow-hidden w-full block cursor-zoom-in group" aria-label="Beitrag vergrössern">
-        <Image src={post.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized />
-        {post.type === 'video' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <IconPlay />
-            </div>
-          </div>
-        )}
-      </button>
-
-      <div className="p-4">
-        <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">{post.text}</p>
-      </div>
-    </motion.div>
-  )
-}
-
-function Lightbox({ post, onClose }: { post: ProfilePost; onClose: () => void }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Schliessen">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
-        <div className="relative aspect-video bg-black overflow-hidden">
-          <Image src={post.img} alt="" fill className="object-contain" unoptimized />
-          {post.type === 'video' && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"><IconPlay /></div>
-            </div>
-          )}
-        </div>
-        {post.text && <p className="font-sans text-sm text-white/80 mt-3 text-center">{post.text}</p>}
-      </motion.div>
-    </motion.div>
-  )
-}
-
 export default function MemberProfilePage() {
-  const [lightbox, setLightbox] = useState<ProfilePost | null>(null)
   return (
     <div className="min-h-screen bg-background">
-      <AnimatePresence>
-        {lightbox && <Lightbox key="lightbox" post={lightbox} onClose={() => setLightbox(null)} />}
-      </AnimatePresence>
       <div className="bg-dark border-b border-white/10 px-6 py-4 flex items-center justify-between">
         <Link href="/member/academy" className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -274,12 +142,6 @@ export default function MemberProfilePage() {
             </div>
           </div>
         </motion.div>
-
-        {/* Beiträge — nur Foto & Video */}
-        <h2 className="font-heading font-bold text-lg mb-4">Beiträge</h2>
-        <div className="space-y-4">
-          {posts.map((post) => <PostCard key={post.id} post={post} onOpen={() => setLightbox(post)} />)}
-        </div>
       </div>
     </div>
   )
