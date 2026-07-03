@@ -7,13 +7,22 @@ import {
   aboPlanLabel,
   aboMonthlyPrice,
   aboInstrumentsLabel,
+  FORMATION_MAX_MEMBERS,
   type UserAbo,
 } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { useUserProfile } from '@/lib/userProfile'
+import {
+  readStoredFormation,
+  setStoredFormation,
+  makeSlotId,
+  type FormationMemberSlot,
+} from '@/lib/formation'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
+  { id: 'formation', label: 'Formationsübersicht' },
   { id: 'abo', label: 'Mein Abo' },
   { id: 'rechnungen', label: 'Rechnungen & Zahlungen' },
   { id: 'zahlungsmittel', label: 'Zahlungsmittel' },
@@ -21,6 +30,59 @@ const SECTIONS = [
 ] as const
 
 type SectionId = (typeof SECTIONS)[number]['id']
+
+// Einfache E-Mail-Prüfung für den Einladungs-Flow.
+const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+
+// Faltet Umlaute/Sonderzeichen auf ASCII, damit die einfache PDF-Erzeugung
+// (Byte == Zeichen) korrekte Offsets liefert und Helvetica sie darstellen kann.
+const asciiFold = (s: string) =>
+  s
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
+    .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue')
+    .replace(/ß/g, 'ss')
+    // eslint-disable-next-line no-control-regex
+    .replace(/[^\x20-\x7E]/g, '')
+
+// Erzeugt eine minimale, gültige einseitige PDF-Rechnung (Demo) aus Textzeilen.
+function buildInvoicePdf(lines: string[]): Blob {
+  const esc = (s: string) => asciiFold(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
+  const body =
+    'BT /F1 12 Tf 50 790 Td 18 TL ' +
+    lines.map((l, i) => `${i === 0 ? '' : 'T* '}(${esc(l)}) Tj`).join(' ') +
+    ' ET'
+  const objects = [
+    '<</Type/Catalog/Pages 2 0 R>>',
+    '<</Type/Pages/Kids[3 0 R]/Count 1>>',
+    '<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>',
+    '<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>',
+    `<</Length ${body.length}>>\nstream\n${body}\nendstream`,
+  ]
+  let pdf = '%PDF-1.4\n'
+  const offsets: number[] = []
+  objects.forEach((obj, i) => {
+    offsets.push(pdf.length)
+    pdf += `${i + 1} 0 obj\n${obj}\nendobj\n`
+  })
+  const xrefStart = pdf.length
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
+  offsets.forEach((off) => {
+    pdf += String(off).padStart(10, '0') + ' 00000 n \n'
+  })
+  pdf += `trailer\n<</Size ${objects.length + 1}/Root 1 0 R>>\nstartxref\n${xrefStart}\n%%EOF`
+  return new Blob([pdf], { type: 'application/pdf' })
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
 
 type PaymentMethod = {
   id: string
@@ -99,6 +161,75 @@ function AboTab() {
 
   // Upgrade/Abo ändern läuft über ein Popup (kein Registrationsprozess).
   const [showUpgrade, setShowUpgrade] = useState(false)
+
+  // Nicht-zahlungspflichtige Formationsmitglieder: Abo läuft über die Formation.
+  const profile = useUserProfile()
+  const isNonPayingMember = profile.inFormation && !profile.formationPayer
+
+  // Demo-Daten für das über die Formation bezahlte Jahresabo.
+  const paidDateLabel = '26. Juni 2026'
+  const expiryDateLabel = '26. Juni 2027'
+
+  if (isNonPayingMember) {
+    const downloadInvoice = () => {
+      const f = readStoredFormation()
+      downloadBlob(
+        buildInvoicePdf([
+          'LAEMU Musikschule — Rechnung',
+          '',
+          `Formation: ${f.name || profile.formationName || '-'}`,
+          `Mitglied: ${profile.name || '-'}`,
+          `Plan: ${aboPlanLabel(abo)}`,
+          `Zugang: ${instrumentsLabel || 'Alle Instrumente'}`,
+          `Bezahlt am: ${paidDateLabel}`,
+          `Gueltig bis: ${expiryDateLabel}`,
+          `Zahlungspflichtig: ${f.payerName || 'Die zahlungspflichtige Person der Formation'}`,
+          'Betrag: ueber die Formation beglichen',
+        ]),
+        'LAEMU-Rechnung.pdf',
+      )
+    }
+
+    return (
+      <SectionCard title="Mein Abo" desc="Dein Zugang läuft über deine Formation.">
+        <div className="border border-border p-5 mb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Aktiver Plan</p>
+              <h3 className="font-heading text-xl font-bold">{aboPlanLabel(abo)}</h3>
+              {instrumentsLabel && <p className="font-sans text-xs text-text-secondary mt-0.5">{instrumentsLabel}</p>}
+            </div>
+            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Über Formation</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-border">
+            <div>
+              <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Bezahlt am</p>
+              <p className="font-sans text-sm font-medium">{paidDateLabel}</p>
+            </div>
+            <div>
+              <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Läuft ab am</p>
+              <p className="font-sans text-sm font-medium">{expiryDateLabel}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 mb-4">
+          <p className="font-sans text-sm text-text-secondary">
+            Dein Zugang wird über deine Formation bezahlt. Das Abonnement verwaltet die zahlungspflichtige
+            Person — du musst kein Zahlungsmittel hinterlegen.
+          </p>
+        </div>
+
+        <button
+          onClick={downloadInvoice}
+          className="inline-flex items-center gap-2 border border-border font-sans text-sm px-5 py-2.5 hover:border-dark transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+          Rechnung herunterladen
+        </button>
+      </SectionCard>
+    )
+  }
 
   return (
     <>
@@ -455,12 +586,274 @@ function GeraeteTab() {
 }
 
 // ---------------------------------------------------------------------------
+// Formationsübersicht Tab — E-Mails der weiteren Mitglieder verwalten & einladen
+// ---------------------------------------------------------------------------
+function FormationOverviewTab({ formationName, isPayer, selfName }: { formationName: string; isPayer: boolean; selfName: string }) {
+  const [name, setName] = useState('')
+  const [payerName, setPayerName] = useState('')
+  const [members, setMembers] = useState<FormationMemberSlot[]>([])
+  // Zu entfernende (eingeladene) Adresse — wird vor dem Löschen bestätigt.
+  const [confirmRemove, setConfirmRemove] = useState<FormationMemberSlot | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+
+  // Gespeicherten Formations-Zustand einmalig laden; Name & zahlungspflichtige
+  // Person notfalls aus dem Profil ableiten.
+  useEffect(() => {
+    const s = readStoredFormation()
+    setName(s.name || formationName)
+    setPayerName(s.payerName || (isPayer ? selfName : ''))
+    setMembers(s.members)
+  }, [formationName, isPayer, selfName])
+
+  // Höchstens FORMATION_MAX_MEMBERS inkl. der eigenen Person → so viele weitere.
+  const maxOthers = FORMATION_MAX_MEMBERS - 1
+
+  const persist = (nextMembers: FormationMemberSlot[]) => {
+    setMembers(nextMembers)
+    setStoredFormation({ name, payerName, members: nextMembers })
+  }
+
+  // Anzeigename der zahlungspflichtigen Person (für eingeladene Mitglieder ggf.
+  // unbekannt → neutraler Hinweis). Für die Einladung geben wir ihn im Link mit.
+  const payerLabel = isPayer ? (selfName ? `${selfName} (du)` : 'Du') : payerName
+  const inviteHref = `/register/einladung?formation=${encodeURIComponent(name)}${payerLabel ? `&payer=${encodeURIComponent(isPayer ? selfName : payerName)}` : ''}`
+
+  const setSlotEmail = (id: string, email: string) =>
+    persist(members.map((m) => (m.id === id ? { ...m, email } : m)))
+
+  const sendInvite = (id: string) => {
+    const slot = members.find((m) => m.id === id)
+    if (!slot || !isValidEmail(slot.email)) return
+    persist(members.map((m) => (m.id === id ? { ...m, email: m.email.trim(), invited: true } : m)))
+    setNotice(`Einladung an ${slot.email.trim()} gesendet.`)
+  }
+
+  const addSlot = () => {
+    if (members.length >= maxOthers) return
+    persist([...members, { id: makeSlotId(), email: '', invited: false }])
+  }
+
+  // Leeren (noch nicht eingeladenen) Platz wieder entfernen.
+  const removeSlot = (id: string) =>
+    persist(members.filter((m) => m.id !== id))
+
+  // Eingeladene Adresse nach Bestätigung entfernen: Feld wird wieder leer, der
+  // Platz bleibt bestehen, damit man eine neue Person einladen kann.
+  const clearInvited = (id: string) => {
+    persist(members.map((m) => (m.id === id ? { ...m, email: '', invited: false } : m)))
+    setConfirmRemove(null)
+    setNotice('Die E-Mail-Adresse wurde entfernt. Du kannst nun eine neue Person einladen.')
+  }
+
+  return (
+    <>
+      <SectionCard
+        title="Formationsübersicht"
+        desc="Verwalte die weiteren Mitglieder deiner Formation. Hinterlege E-Mail-Adressen und verschicke die Einladungen — auch nachträglich."
+      >
+        {/* Name der Formation */}
+        <div className="border border-border p-4 mb-5 flex items-center gap-3 bg-background">
+          <span className="w-10 h-10 bg-accent-gold/10 text-accent-gold flex items-center justify-center flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
+          </span>
+          <div className="min-w-0">
+            <p className="font-sans text-xs uppercase tracking-widest text-text-secondary">Formation</p>
+            <p className="font-heading font-bold text-lg truncate">{name || '—'}</p>
+          </div>
+        </div>
+
+        {/* Zahlungspflichtige Person der Formation */}
+        <div className="border border-border p-4 mb-5 flex items-start gap-3">
+          <span className="w-10 h-10 bg-background border border-border text-text-secondary flex items-center justify-center flex-shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+          </span>
+          <div className="min-w-0">
+            <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-0.5">Zahlungspflichtige Person</p>
+            {isPayer ? (
+              <>
+                <p className="font-sans text-sm font-medium">{selfName ? `${selfName} (du)` : 'Du'}</p>
+                <p className="font-sans text-xs text-text-secondary mt-0.5">Du hast die Formation registriert und bezahlst das Abonnement.</p>
+              </>
+            ) : (
+              <>
+                <p className="font-sans text-sm font-medium">{payerName || 'Die Person, die die Formation registriert hat'}</p>
+                <p className="font-sans text-xs text-text-secondary mt-0.5">Diese Person bezahlt das Abonnement — für dich fallen keine Kosten an.</p>
+              </>
+            )}
+          </div>
+        </div>
+
+        {notice && (
+          <div className="mb-4 flex items-start justify-between gap-3 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
+            <p className="font-sans text-xs text-text-secondary leading-relaxed">{notice}</p>
+            <button onClick={() => setNotice(null)} aria-label="Hinweis schliessen" className="text-text-secondary hover:text-dark transition-colors flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          </div>
+        )}
+
+        <p className="font-sans text-sm text-text-secondary mb-4 leading-relaxed">
+          Mitglied 1 bist du selbst. Für jedes weitere Mitglied hinterlegst du eine E-Mail-Adresse und
+          verschickst die Einladung. Eingeladene Personen geben nur ihre persönlichen Daten an und
+          erhalten direkten Zugang zur Musikschule.
+        </p>
+
+        {/* Mitgliederliste */}
+        <div className="space-y-3">
+          {members.map((slot, i) =>
+            slot.invited ? (
+              <div key={slot.id} className="flex items-center gap-3 border border-border p-4">
+                <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 6L2 7" /></svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-sm font-medium truncate">{slot.email}</p>
+                  <p className="font-sans text-xs text-text-secondary">Mitglied {i + 2} · Einladung gesendet</p>
+                </div>
+                <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Eingeladen</span>
+                <button
+                  onClick={() => setConfirmRemove(slot)}
+                  className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors flex-shrink-0"
+                >
+                  Entfernen
+                </button>
+              </div>
+            ) : (
+              <div key={slot.id} className="border border-border p-4">
+                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">
+                  E-Mail Mitglied {i + 2}
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="email"
+                    value={slot.email}
+                    onChange={(e) => setSlotEmail(slot.id, e.target.value)}
+                    placeholder="mitglied@email.ch"
+                    className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => sendInvite(slot.id)}
+                      disabled={!isValidEmail(slot.email)}
+                      className={`font-sans text-sm px-4 py-2.5 transition-colors whitespace-nowrap ${isValidEmail(slot.email) ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                    >
+                      Einladung senden
+                    </button>
+                    {slot.email.trim() === '' && members.length > 1 && (
+                      <button
+                        onClick={() => removeSlot(slot.id)}
+                        aria-label="Platz entfernen"
+                        title="Platz entfernen"
+                        className="w-10 border border-border flex items-center justify-center text-text-secondary hover:border-red-500 hover:text-red-600 transition-colors flex-shrink-0"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" /></svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {slot.email.trim().length > 0 && !isValidEmail(slot.email) && (
+                  <p className="font-sans text-xs text-accent-gold mt-1.5">Bitte gib eine gültige E-Mail-Adresse ein.</p>
+                )}
+              </div>
+            ),
+          )}
+          {members.length === 0 && (
+            <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
+              Noch keine weiteren Mitglieder erfasst. Füge unten eine Person hinzu, um sie einzuladen.
+            </p>
+          )}
+        </div>
+
+        {/* Weiteres Mitglied hinzufügen */}
+        <div className="mt-4">
+          {members.length < maxOthers ? (
+            <button
+              onClick={addSlot}
+              className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
+            >
+              + Weiteres Mitglied hinzufügen
+            </button>
+          ) : (
+            <p className="font-sans text-xs text-text-secondary border border-dashed border-border px-4 py-3 text-center">
+              Maximale Mitgliederzahl erreicht (max. {FORMATION_MAX_MEMBERS} inkl. dir). Entferne zuerst eine
+              Adresse, um eine neue Person einzuladen.
+            </p>
+          )}
+        </div>
+
+        {/* So sieht die Einladung aus — der Link, den eingeladene Mitglieder erhalten. */}
+        <div className="mt-6 pt-5 border-t border-border">
+          <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">So funktioniert die Einladung</p>
+          <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">
+            Eingeladene Personen erhalten per E-Mail einen Link zur Anmeldung. Dort geben sie nur ihre persönlichen
+            Daten an — Abo-Auswahl und Zahlung entfallen — und gelangen direkt in die Musikschule.
+          </p>
+          <Link
+            href={inviteHref}
+            className="inline-flex items-center gap-2 font-sans text-sm text-accent-gold hover:text-dark transition-colors"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></svg>
+            Einladungslink ansehen
+          </Link>
+        </div>
+      </SectionCard>
+
+      {/* Bestätigung vor dem Entfernen einer eingeladenen Adresse */}
+      {confirmRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-dark/70" onClick={() => setConfirmRemove(null)} />
+          <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+            <h3 className="font-heading font-bold text-xl mb-2">E-Mail-Adresse entfernen?</h3>
+            <p className="font-sans text-sm text-text-secondary mb-2">
+              Möchtest du <span className="font-medium text-dark break-all">{confirmRemove.email}</span> wirklich
+              aus deiner Formation entfernen?
+            </p>
+            <p className="font-sans text-sm text-text-secondary mb-5">
+              Das Feld wird danach wieder leer und du kannst eine neue Person einladen.
+            </p>
+            <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
+              <button onClick={() => setConfirmRemove(null)} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">
+                Abbrechen
+              </button>
+              <button
+                onClick={() => clearInvited(confirmRemove.id)}
+                className="bg-red-600 text-white font-sans text-sm px-5 py-2.5 hover:bg-red-700 transition-colors"
+              >
+                Ja, entfernen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main inner component
 // ---------------------------------------------------------------------------
 function AccountInner() {
   const params = useSearchParams()
   const initial = (params.get('tab') as SectionId) ?? 'konto'
   const [tab, setTab] = useState<SectionId>(SECTIONS.some((s) => s.id === initial) ? initial : 'konto')
+
+  // Die «Formationsübersicht» gibt es nur für Mitglieder einer Formation.
+  const profile = useUserProfile()
+  const inFormation = profile.inFormation
+  // Nicht-zahlungspflichtige Formationsmitglieder müssen kein Zahlungsmittel
+  // hinterlegen — für sie blenden wir den «Zahlungsmittel»-Tab aus.
+  const isNonPayingMember = inFormation && !profile.formationPayer
+  const visibleSections = SECTIONS.filter((s) => {
+    if (s.id === 'formation' && !inFormation) return false
+    if (s.id === 'zahlungsmittel' && isNonPayingMember) return false
+    return true
+  })
+
+  // Ist der gewünschte Tab (noch) nicht sichtbar — z. B. ?tab=formation, während
+  // `inFormation` erst nach dem Mount aus dem Profil geladen wird — zeigen wir
+  // «Konto & Daten». Sobald die Formationsübersicht verfügbar ist, greift der
+  // gewünschte Tab automatisch wieder. So gibt es keinen destruktiven Reset.
+  const activeTab: SectionId = visibleSections.some((s) => s.id === tab) ? tab : 'konto'
 
   // Rechnungen aus dem tatsächlich gewählten Abo ableiten (Free hat keine).
   const abo = useUserAbo()
@@ -491,11 +884,11 @@ function AccountInner() {
           {/* Nav */}
           <nav className="lg:col-span-1">
             <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible">
-              {SECTIONS.map((s) => (
+              {visibleSections.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => setTab(s.id)}
-                  className={`text-left whitespace-nowrap px-4 py-2.5 font-sans text-sm transition-colors border-l-2 ${tab === s.id ? 'border-accent-gold bg-surface text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark hover:bg-surface'}`}
+                  className={`text-left whitespace-nowrap px-4 py-2.5 font-sans text-sm transition-colors border-l-2 ${activeTab === s.id ? 'border-accent-gold bg-surface text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark hover:bg-surface'}`}
                 >
                   {s.label}
                 </button>
@@ -505,7 +898,7 @@ function AccountInner() {
 
           {/* Content */}
           <div className="lg:col-span-3 space-y-6">
-            {tab === 'konto' && (
+            {activeTab === 'konto' && (
               <SectionCard title="Konto & Daten" desc="Deine persönlichen Angaben. Diese sind nur für dich und LAEMU sichtbar.">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Vorname" value="Niklaus" />
@@ -523,9 +916,17 @@ function AccountInner() {
               </SectionCard>
             )}
 
-            {tab === 'abo' && <AboTab />}
+            {activeTab === 'formation' && inFormation && (
+              <FormationOverviewTab
+                formationName={profile.formationName}
+                isPayer={profile.formationPayer}
+                selfName={profile.name}
+              />
+            )}
 
-            {tab === 'rechnungen' && (
+            {activeTab === 'abo' && <AboTab />}
+
+            {activeTab === 'rechnungen' && (
               <SectionCard title="Rechnungen & Zahlungen" desc="Deine Zahlungshistorie.">
                 {invoices.length === 0 ? (
                   <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
@@ -551,9 +952,9 @@ function AccountInner() {
               </SectionCard>
             )}
 
-            {tab === 'zahlungsmittel' && <ZahlungsmittelTab />}
+            {activeTab === 'zahlungsmittel' && <ZahlungsmittelTab />}
 
-            {tab === 'geraete' && <GeraeteTab />}
+            {activeTab === 'geraete' && <GeraeteTab />}
           </div>
         </div>
       </div>
