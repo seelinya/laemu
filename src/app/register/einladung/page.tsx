@@ -108,7 +108,9 @@ function EinladungInner() {
     // Formations-Zustand anlegen, damit auch dieses Mitglied die «Formations-
     // übersicht» erhält (Name der Formation, zahlungspflichtige Person und
     // Verwaltung der weiteren E-Mails).
-    setStoredFormation({ name: formationName, payerName, members: [] })
+    // Eingeladene Mitglieder sind nicht zahlungspflichtig und verwalten die
+    // Formation nicht — die bezahlte Mitgliederzahl kennen sie nicht (0).
+    setStoredFormation({ name: formationName, payerName, members: [], paidMemberCount: 0 })
 
     setDone(true)
   }

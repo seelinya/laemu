@@ -273,6 +273,9 @@ export default function RegisterPage() {
         name: formationName.trim(),
         payerName: fullName,
         members: buildMemberSlots(inviteCount, emails),
+        // Bezahlte Mitgliederzahl inkl. der eigenen Person — begrenzt später,
+        // wie viele Mitglieder in der Formationsübersicht ergänzt werden können.
+        paidMemberCount: memberCount,
       })
     } else {
       // Einzelperson: einen evtl. früher gespeicherten Formations-Zustand leeren.
