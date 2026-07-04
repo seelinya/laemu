@@ -32,22 +32,17 @@ type MockSearchResult = {
   id: string
   title: string
   subtitle: string
-  category: 'Lektionen' | 'Module' | 'Lernvideos' | 'Kurse'
+  category: 'Lektionen' | 'Module' | 'Kurse'
   href: string
 }
 
+// Das generelle Suchfeld durchsucht nur Kursinhalte (Lektionen, Module, Kurse).
+// Einzelne Stücke werden bewusst NICHT hier gesucht — dafür gibt es die eigene
+// Suche in der Stück-Datenbank (Lernvideos).
 const mockSearchResults: MockSearchResult[] = [
   { id: 'sr1', title: 'Einfache Polka — Schritt 1', subtitle: 'Grundlagenkurs · Handorgel', category: 'Lektionen', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-lieder?lektion=polka1' },
   { id: 'sr2', title: 'Erste Lieder', subtitle: 'Grundlagenkurs · Modul 4', category: 'Module', href: '/member/academy/instrument/handorgel/kurs/grundlagen/modul/erste-lieder' },
   { id: 'sr4', title: 'Erstes Repertoire', subtitle: 'Handorgel Starter · 6 Module', category: 'Kurse', href: '/member/academy/instrument/handorgel/kurs/repertoire' },
-  // Lernvideos aus der Lernvideodatenbank — ebenfalls über die Suche auffindbar.
-  { id: 'lv1', title: 'Dr Alperose', subtitle: 'Willi Valotti · Handorgel · Walzer', category: 'Lernvideos', href: '/member/academy/lernvideos/1' },
-  { id: 'lv2', title: 'Ländler im Dreivierteltakt', subtitle: 'Kapelle Hess-Ruedi-Hegner · Schwyzerörgeli', category: 'Lernvideos', href: '/member/academy/lernvideos/2' },
-  { id: 'lv3', title: 'Abendstern-Polka', subtitle: 'Bodästänix · Handorgel · Polka', category: 'Lernvideos', href: '/member/academy/lernvideos/3' },
-  { id: 'lv4', title: 'Innerschwizer Schottisch', subtitle: 'Trio Rigi · Klarinette · Schottisch', category: 'Lernvideos', href: '/member/academy/lernvideos/4' },
-  { id: 'lv5', title: 'Walzer am See', subtitle: 'Lisa Frei · Klavierbegleitung · Walzer', category: 'Lernvideos', href: '/member/academy/lernvideos/5' },
-  { id: 'lv6', title: 'Bergbach-Mazurka', subtitle: 'Hess-Rusch-Hegner · Bassgeige · Mazurka', category: 'Lernvideos', href: '/member/academy/lernvideos/6' },
-  { id: 'lv7', title: 'Stille Nacht', subtitle: 'Verschiedene Kapellen · Handorgel', category: 'Lernvideos', href: '/member/academy/lernvideos/7' },
 ]
 
 
@@ -67,7 +62,6 @@ function proPriceFor(abo: UserAbo): { monthly: number; yearly: number } {
 const categoryColors: Record<string, string> = {
   Lektionen: 'bg-accent-gold/10 text-accent-gold',
   Module: 'bg-dark/10 text-dark',
-  Lernvideos: 'bg-blue-50 text-blue-700',
   Kurse: 'bg-green-50 text-green-700',
 }
 
@@ -189,7 +183,7 @@ export default function MemberAcademyPage() {
   const showSearchDropdown = searchFocused && searchQuery.length >= 2
   const filteredResults = searchQuery.length >= 2
     ? mockSearchResults.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
-    : searchQuery.toLowerCase().includes('polka') ? mockSearchResults : mockSearchResults.slice(0, 3)
+    : mockSearchResults.slice(0, 3)
 
   function openUpgrade() { setShowUpgradeModal(true) }
 
@@ -380,7 +374,7 @@ export default function MemberAcademyPage() {
                     <svg className="ml-4 flex-shrink-0 text-text-secondary" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                     <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setSearchFocused(true)} onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
-                      placeholder="Suche nach Stücken, Komponisten, Techniken, Kursen..."
+                      placeholder="Suche nach Lektionen, Modulen, Kursen..."
                       className="flex-1 px-4 py-3.5 font-sans text-sm bg-transparent focus:outline-none placeholder:text-text-secondary" />
                     {searchQuery && (
                       <button onClick={() => setSearchQuery('')} className="mr-4 text-text-secondary hover:text-dark transition-colors">

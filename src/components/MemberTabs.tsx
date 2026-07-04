@@ -22,6 +22,9 @@ const accountLinks = [
   { label: 'Geräte', href: '/member/account?tab=geraete' },
 ]
 
+// Nur für Mitglieder einer Formation sichtbar.
+const formationLink = { label: 'Formationsübersicht', href: '/member/account?tab=formation' }
+
 type Notification = {
   id: string
   kind: 'reply' | 'feedback'
@@ -127,6 +130,10 @@ export function ProfileMenu() {
   const name = profile.name || 'Mitglied'
   const email = profile.email || 'mitglied@laemu.ch'
   const avatar = profile.avatar
+  // Formationsmitglieder erhalten zusätzlich den Link zur Formationsübersicht.
+  const links = profile.inFormation
+    ? [accountLinks[0], formationLink, ...accountLinks.slice(1)]
+    : accountLinks
   return (
     <div className="relative flex-shrink-0">
       <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 py-2 group" aria-label="Konto-Menü">
@@ -146,7 +153,7 @@ export function ProfileMenu() {
               </div>
             </div>
             <div className="py-1">
-              {accountLinks.map((item) => (
+              {links.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}

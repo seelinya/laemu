@@ -23,6 +23,10 @@ export type UserProfile = {
   openForFormation: boolean
   inFormation: boolean
   formationName: string
+  // Ist diese Person in ihrer Formation zahlungspflichtig? Die Person, die die
+  // Formation registriert und das Abo bezahlt, ist zahlungspflichtig; per
+  // Einladung beigetretene Mitglieder sind es nicht.
+  formationPayer: boolean
 }
 
 // Standardprofil (Demo-Nutzer), falls noch keine Registrierungsdaten vorliegen.
@@ -38,6 +42,7 @@ export const defaultProfile: UserProfile = {
   openForFormation: false,
   inFormation: false,
   formationName: '',
+  formationPayer: false,
 }
 
 // Initialen aus dem Namen ableiten (z. B. «Niklaus Hess» → «NH») — als

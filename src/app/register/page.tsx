@@ -21,6 +21,7 @@ import {
 } from '@/lib/academy'
 import { setStoredAbo } from '@/lib/userPlan'
 import { setStoredProfile } from '@/lib/userProfile'
+import { setStoredFormation, buildMemberSlots, emptyFormation } from '@/lib/formation'
 
 // In der Mitgliedschaft (Musikschule) wählbare Instrumente.
 const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
@@ -216,14 +217,12 @@ export default function RegisterPage() {
   // Anzahl einzuladender Mitglieder (alle ausser der anmeldenden Person selbst).
   const inviteCount = Math.max(0, memberCount - 1)
 
-  // Formationen: Pflichtschritt — der Formationsname muss angegeben sein und für
-  // jedes weitere Mitglied muss eine E-Mail-Adresse hinterlegt werden, damit sie
-  // zur Selbst-Registrierung eingeladen werden können. Erst dann lässt sich die
-  // Registrierung abschliessen.
+  // Formationen: einzige Pflichtangabe ist der Formationsname. Die E-Mail-Adressen
+  // der weiteren Mitglieder sind optional — die anmeldende Person kennt zum
+  // Zeitpunkt der Registrierung womöglich noch nicht alle. Fehlende Adressen
+  // lassen sich später im Konto («Formationsübersicht») ergänzen und einladen.
   const formationReady =
-    accountType !== 'formation' ||
-    (formationName.trim().length > 0 &&
-      Array.from({ length: inviteCount }).every((_, i) => (memberEmails[i + 1] ?? '').trim().length > 0))
+    accountType !== 'formation' || formationName.trim().length > 0
 
   // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
   // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
@@ -257,10 +256,28 @@ export default function RegisterPage() {
       email: email.trim(),
       wohnort: ort.trim(),
       inFormation: accountType === 'formation',
+      // Die anmeldende Person ist bei einer Formation die zahlungspflichtige Person.
+      formationPayer: accountType === 'formation',
       ...(accountType === 'formation' && formationName.trim() ? { formationName: formationName.trim() } : {}),
       // Die bei der Mitgliedschaft gewählten Instrumente ins Profil übernehmen.
       ...(abo.instruments.length > 0 ? { instruments: abo.instruments.join(', ') } : {}),
     })
+
+    // Formations-Registrierung: Namen, zahlungspflichtige Person und die (optional)
+    // erfassten Mitglieder-E-Mails als Formations-Zustand ablegen. Dieser speist
+    // die «Formationsübersicht» im Konto, wo weitere Adressen ergänzt und
+    // eingeladen werden.
+    if (accountType === 'formation') {
+      const emails = Array.from({ length: inviteCount }).map((_, i) => memberEmails[i + 1] ?? '')
+      setStoredFormation({
+        name: formationName.trim(),
+        payerName: fullName,
+        members: buildMemberSlots(inviteCount, emails),
+      })
+    } else {
+      // Einzelperson: einen evtl. früher gespeicherten Formations-Zustand leeren.
+      setStoredFormation(emptyFormation)
+    }
 
     setDone(true)
   }
@@ -302,12 +319,13 @@ export default function RegisterPage() {
             <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-8 text-left flex gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
               <div>
-                <p className="font-sans text-sm font-semibold mb-1">Die weiteren Mitglieder sind eingeladen</p>
+                <p className="font-sans text-sm font-semibold mb-1">Die weiteren Mitglieder einladen</p>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                  Da dein Abo bezahlt wurde, haben die anderen Mitglieder deiner Formation eine
-                  Einladung per E-Mail erhalten. Über den Link darin registriert sich jedes Mitglied
-                  selbst und legt sein eigenes Login und Profil an — mit vollem Zugriff auf alle
-                  Pro-Lehrgänge und alle Stücke für alle Instrumente.
+                  Da dein Abo bezahlt wurde, haben alle Mitglieder, für die du bereits eine E-Mail-Adresse
+                  hinterlegt hast, eine Einladung erhalten. Über den Link darin registriert sich jedes
+                  Mitglied selbst und legt sein eigenes Login und Profil an — mit vollem Zugriff auf alle
+                  Pro-Lehrgänge und alle Stücke. Noch fehlende E-Mail-Adressen ergänzt und versendest du
+                  jederzeit in deinem Konto unter «Formationsübersicht».
                 </p>
               </div>
             </div>
@@ -474,21 +492,24 @@ export default function RegisterPage() {
                       <div>
                         <p className="font-sans text-sm font-semibold mb-1">So erhalten die weiteren Mitglieder Zugang</p>
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                          Jedes weitere Mitglied erhält an die unten hinterlegte E-Mail-Adresse eine Einladung. Über den
-                          Link darin registriert sich jedes Mitglied selbst und legt sein eigenes Login und Profil an —
-                          mit vollem Zugriff auf alle Pro-Lehrgänge und alle Stücke.
+                          Jedes weitere Mitglied erhält an die hinterlegte E-Mail-Adresse eine Einladung. Über den
+                          Link darin gibt das Mitglied nur noch seine persönlichen Daten an — Abo-Auswahl und Zahlung
+                          entfallen — und erhält direkten Zugang zur Musikschule mit allen Pro-Lehrgängen und allen Stücken.
                         </p>
                       </div>
                     </div>
 
-                    {/* Wichtige Aktion: weitere Mitglieder erfassen — prominent auf hellem Grund */}
+                    {/* Weitere Mitglieder erfassen — E-Mails sind optional */}
                     <div className="bg-surface border-2 border-accent-gold p-5">
                       <div className="flex items-center gap-2 mb-1">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-dark flex-shrink-0"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                         <h3 className="font-heading font-bold text-base">Weitere Formationsmitglieder einladen</h3>
+                        <span className="font-sans text-[10px] font-semibold px-2 py-0.5 bg-background border border-border text-text-secondary uppercase tracking-wide">Optional</span>
                       </div>
                       <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
-                        Mitglied 1 bist du selbst (oben erfasst). Hinterlege für jedes weitere Mitglied eine E-Mail-Adresse.
+                        Mitglied 1 bist du selbst (oben erfasst). Hinterlege – wenn du sie schon kennst – für jedes
+                        weitere Mitglied eine E-Mail-Adresse. Noch fehlende Adressen kannst du später jederzeit in
+                        deinem Konto unter «Formationsübersicht» ergänzen und einladen.
                       </p>
                       {inviteCount === 0 ? (
                         <p className="font-sans text-sm text-text-secondary bg-background border border-border px-4 py-3">
@@ -500,7 +521,7 @@ export default function RegisterPage() {
                             const idx = i + 1
                             return (
                               <div key={idx}>
-                                <label className="label text-text-secondary block mb-1.5">E-Mail Mitglied {idx + 1} *</label>
+                                <label className="label text-text-secondary block mb-1.5">E-Mail Mitglied {idx + 1} <span className="normal-case text-text-secondary/70">(optional)</span></label>
                                 <input
                                   type="email"
                                   value={memberEmails[idx] ?? ''}
@@ -552,7 +573,7 @@ export default function RegisterPage() {
                   <p className="font-sans text-xs text-text-secondary text-center">
                     {!angabenComplete
                       ? 'Bitte fülle alle Pflichtfelder (*) aus und akzeptiere die Nutzungsbedingungen, um fortzufahren.'
-                      : 'Bitte hinterlege für jedes weitere Formationsmitglied eine E-Mail-Adresse, um fortzufahren.'}
+                      : 'Bitte gib den Namen deiner Formation an, um fortzufahren.'}
                   </p>
                 )}
               </div>
