@@ -242,8 +242,9 @@ function AboTab() {
   if (isFormationPayer) {
     const formationPlan: FormationPlanId = abo.plan === 'lernvideo' ? 'lernvideo' : 'pro'
     const formation = readStoredFormation()
-    // Mitglieder inkl. der eigenen (zahlungspflichtigen) Person.
-    const memberCount = 1 + formation.members.length
+    // Bezahlte Mitgliederzahl inkl. der eigenen (zahlungspflichtigen) Person;
+    // ohne gespeicherten Wert aus den vorhandenen Plätzen abgeleitet.
+    const memberCount = formation.paidMemberCount || 1 + formation.members.length
     const yearly = formationYearlyPrice(formationPlan, memberCount)
 
     return (
@@ -686,6 +687,8 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
   const [name, setName] = useState('')
   const [payerName, setPayerName] = useState('')
   const [members, setMembers] = useState<FormationMemberSlot[]>([])
+  // Anzahl der bei der Registrierung bezahlten Mitglieder (inkl. eigener Person).
+  const [paidMemberCount, setPaidMemberCount] = useState(0)
   // Zu entfernende (eingeladene) Adresse — wird vor dem Löschen bestätigt.
   const [confirmRemove, setConfirmRemove] = useState<FormationMemberSlot | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -697,14 +700,19 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
     setName(s.name || formationName)
     setPayerName(s.payerName || (isPayer ? selfName : ''))
     setMembers(s.members)
+    setPaidMemberCount(s.paidMemberCount)
   }, [formationName, isPayer, selfName])
 
-  // Höchstens FORMATION_MAX_MEMBERS inkl. der eigenen Person → so viele weitere.
-  const maxOthers = FORMATION_MAX_MEMBERS - 1
+  // Es lassen sich nur so viele weitere Mitglieder erfassen, wie auch eingeladen
+  // und bezahlt wurden: bezahlte Mitgliederzahl abzüglich der eigenen Person.
+  // Ohne gespeicherten Wert (ältere Formationen) fallen wir auf die bereits
+  // vorhandenen Plätze zurück, gedeckelt durch die maximale Formationsgrösse.
+  const paidOthers = Math.max(0, (paidMemberCount || members.length + 1) - 1)
+  const maxOthers = Math.min(FORMATION_MAX_MEMBERS - 1, paidOthers)
 
   const persist = (nextMembers: FormationMemberSlot[]) => {
     setMembers(nextMembers)
-    setStoredFormation({ name, payerName, members: nextMembers })
+    setStoredFormation({ name, payerName, members: nextMembers, paidMemberCount })
   }
 
   // Anzeigename der zahlungspflichtigen Person (für eingeladene Mitglieder ggf.
@@ -869,8 +877,9 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
             </button>
           ) : (
             <p className="font-sans text-xs text-text-secondary border border-dashed border-border px-4 py-3 text-center">
-              Maximale Mitgliederzahl erreicht (max. {FORMATION_MAX_MEMBERS} inkl. dir). Entferne zuerst eine
-              Adresse, um eine neue Person einzuladen.
+              Alle bezahlten Plätze sind belegt ({maxOthers + 1} Mitglieder inkl. dir). Es lassen sich nur so
+              viele Mitglieder erfassen, wie eingeladen und bezahlt wurden. Entferne zuerst eine Adresse, um
+              eine neue Person einzuladen.
             </p>
           )}
         </div>
