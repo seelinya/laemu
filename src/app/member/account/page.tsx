@@ -7,7 +7,10 @@ import {
   aboPlanLabel,
   aboMonthlyPrice,
   aboInstrumentsLabel,
+  formationPlanMeta,
+  formationYearlyPrice,
   FORMATION_MAX_MEMBERS,
+  type FormationPlanId,
   type UserAbo,
 } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
@@ -228,6 +231,97 @@ function AboTab() {
           Rechnung herunterladen
         </button>
       </SectionCard>
+    )
+  }
+
+  // Zahlungspflichtige Person einer Formation: Das Abo ist ein Formationsabo und
+  // wird als Formation verwaltet. Ein Wechsel auf ein Einzelabo ist hier nicht
+  // möglich — es lässt sich nur als Formation kündigen.
+  const isFormationPayer = profile.inFormation && profile.formationPayer
+
+  if (isFormationPayer) {
+    const formationPlan: FormationPlanId = abo.plan === 'lernvideo' ? 'lernvideo' : 'pro'
+    const formation = readStoredFormation()
+    // Mitglieder inkl. der eigenen (zahlungspflichtigen) Person.
+    const memberCount = 1 + formation.members.length
+    const yearly = formationYearlyPrice(formationPlan, memberCount)
+
+    return (
+      <>
+        <SectionCard title="Mein Abo" desc="Übersicht deines Formationsabos.">
+          <div className="border border-border p-5 mb-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Aktiver Plan</p>
+                <h3 className="font-heading text-xl font-bold">Formation {formationPlanMeta[formationPlan].label}</h3>
+                <p className="font-sans text-xs text-text-secondary mt-0.5">
+                  {memberCount} {memberCount === 1 ? 'Mitglied' : 'Mitglieder'} · Alle Instrumente
+                </p>
+                {cancelled ? (
+                  <p className="font-sans text-xs text-red-600 mt-1 font-medium">Gekündigt — Zugang bis {expiryDateLabel}</p>
+                ) : (
+                  <p className="font-sans text-xs text-text-secondary mt-1">Nächste Abrechnung: {expiryDateLabel}</p>
+                )}
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-heading text-2xl font-bold text-accent-gold">CHF {yearly.toLocaleString('de-CH')}</p>
+                <p className="font-sans text-xs text-text-secondary">/ Jahr</p>
+              </div>
+            </div>
+          </div>
+
+          {cancelled && (
+            <div className="bg-red-50 border border-red-200 px-4 py-3 mb-4 flex items-center justify-between">
+              <p className="font-sans text-sm text-red-700">Deine Formation wurde gekündigt. Alle Mitglieder haben noch Zugang bis zum {expiryDateLabel}.</p>
+              <button onClick={undoCancel} className="font-sans text-xs text-red-700 underline hover:no-underline ml-4 whitespace-nowrap">Kündigung rückgängig machen</button>
+            </div>
+          )}
+
+          <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 mb-4">
+            <p className="font-sans text-sm text-text-secondary">
+              Dein Abo ist ein Formationsabo und wird als Formation verwaltet. Ein Wechsel auf ein
+              Einzelabo ist hier nicht möglich — du kannst dein Abo nur als Formation kündigen. Möchtest
+              du zu einem Einzelabo wechseln, kündige zuerst die Formation und registriere dich
+              anschliessend neu als Einzelperson.
+            </p>
+          </div>
+
+          {!cancelled && (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="border border-border font-sans text-sm px-5 py-2.5 hover:border-dark transition-colors"
+            >
+              Formation kündigen
+            </button>
+          )}
+        </SectionCard>
+
+        {/* Kündigungsbestätigung — für die gesamte Formation */}
+        {showCancelModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-dark/70" onClick={() => setShowCancelModal(false)} />
+            <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+              <h3 className="font-heading font-bold text-xl mb-2">Formation kündigen?</h3>
+              <p className="font-sans text-sm text-text-secondary mb-2">
+                Du kündigst das Abo für die gesamte Formation. Die Kündigung wird zum Ende der laufenden
+                Abo-Periode wirksam.
+              </p>
+              <p className="font-sans text-sm font-medium mb-5">
+                Alle Mitglieder haben noch Zugang bis zum <span className="text-accent-gold">{expiryDateLabel}</span>.
+              </p>
+              <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
+                <button onClick={() => setShowCancelModal(false)} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
+                <button
+                  onClick={confirmCancel}
+                  className="bg-red-600 text-white font-sans text-sm px-5 py-2.5 hover:bg-red-700 transition-colors"
+                >
+                  Formation kündigen
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     )
   }
 
