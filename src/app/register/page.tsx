@@ -497,7 +497,7 @@ export default function RegisterPage() {
                         <p className="font-sans text-xs text-text-secondary leading-relaxed">
                           Jedes weitere Mitglied erhält an die hinterlegte E-Mail-Adresse eine Einladung. Über den
                           Link darin gibt das Mitglied nur noch seine persönlichen Daten an — Abo-Auswahl und Zahlung
-                          entfallen — und erhält direkten Zugang zur Musikschule mit allen Pro-Lehrgängen und allen Stücken.
+                          entfallen — und erhält direkten Zugang zur Musikschule mit allen Inhalten, die für die Formation gekauft wurden.
                         </p>
                       </div>
                     </div>

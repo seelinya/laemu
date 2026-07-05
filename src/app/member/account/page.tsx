@@ -804,18 +804,13 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
 
             {/* Weiteres Mitglied hinzufügen */}
             <div className="mt-4">
-              {members.length < maxOthers ? (
+              {members.length < maxOthers && (
                 <button
                   onClick={addSlot}
                   className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
                 >
                   + Weiteres Mitglied hinzufügen
                 </button>
-              ) : (
-                <p className="font-sans text-xs text-text-secondary border border-dashed border-border px-4 py-3 text-center">
-                  Maximale Mitgliederzahl erreicht (max. {FORMATION_MAX_MEMBERS} inkl. dir). Entferne zuerst eine
-                  Adresse, um eine neue Person einzuladen.
-                </p>
               )}
             </div>
           </>
