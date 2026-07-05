@@ -33,9 +33,14 @@ export type FormationState = {
   payerName: string
   // Die weiteren Mitglieder (ohne die eigene Person).
   members: FormationMemberSlot[]
+  // Anzahl der bei der Registrierung bezahlten Mitglieder INKL. der eigenen
+  // (zahlungspflichtigen) Person. Bestimmt, wie viele weitere Mitglieder in der
+  // Formationsübersicht hinzugefügt werden können — es lassen sich nur so viele
+  // Plätze belegen, wie auch eingeladen und bezahlt wurden.
+  paidMemberCount: number
 }
 
-export const emptyFormation: FormationState = { name: '', payerName: '', members: [] }
+export const emptyFormation: FormationState = { name: '', payerName: '', members: [], paidMemberCount: 0 }
 
 // Eindeutige Slot-ID (nur clientseitig verwendet, für React-Keys & Updates).
 let slotCounter = 0
@@ -66,7 +71,18 @@ export function readStoredFormation(): FormationState {
           .filter((m): m is FormationMemberSlot => !!m && typeof m.email === 'string')
           .map((m) => ({ id: m.id || makeSlotId(), email: m.email, invited: !!m.invited }))
       : []
-    return { name: parsed.name, payerName: typeof parsed.payerName === 'string' ? parsed.payerName : '', members }
+    // Bezahlte Mitgliederzahl (inkl. der eigenen Person). Für ältere Formationen
+    // ohne dieses Feld leiten wir sie aus den vorhandenen Plätzen ab.
+    const paidMemberCount =
+      typeof parsed.paidMemberCount === 'number' && parsed.paidMemberCount > 0
+        ? parsed.paidMemberCount
+        : members.length + 1
+    return {
+      name: parsed.name,
+      payerName: typeof parsed.payerName === 'string' ? parsed.payerName : '',
+      members,
+      paidMemberCount,
+    }
   } catch {
     return emptyFormation
   }
