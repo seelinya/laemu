@@ -221,10 +221,13 @@ const videoData = {
     bio: 'Die Originalbesetzung der Kapelle Valotti gilt als Musterbeispiel für authentische Schweizer Ländlermusik. Willi Valotti spielte selbst Handorgel und leitete seine Formation mit grossem Gefühl für die natürliche Energie seiner Stücke.',
     img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&q=80',
   },
+  // hasProfile: nicht jede:r Interpret:in hat ein eigenes Profil auf LAEMU —
+  // nur bei diesen wird «Profil ansehen» angezeigt.
   teachers: [
     {
       name: 'Hansruedi Wenger',
       handle: '@hansruedi_wenger',
+      hasProfile: true,
       img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
       instrument: 'Handorgel',
       bio: 'Über 20 Jahre Unterrichtserfahrung. Mitglied der Ländlerkapelle Hess.',
@@ -232,6 +235,7 @@ const videoData = {
     {
       name: 'Cyrill Rusch',
       handle: '@cyrill_rusch',
+      hasProfile: false,
       img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80',
       instrument: 'Schwyzerörgeli',
       bio: 'Preisgekrönter Örgelist — spielt die Schwyzerörgeli-Lernvideos zu diesem Stück ein.',
@@ -239,6 +243,7 @@ const videoData = {
     {
       name: 'Franz Hess',
       handle: '@franz_hess',
+      hasProfile: false,
       img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80',
       instrument: 'Klavier- & Bassbegleitung',
       bio: 'Harmonischer Anker vieler Kapellen — verantwortlich für die Begleit-Lernvideos.',
@@ -1177,9 +1182,9 @@ export default function LernvideoDetailPage() {
                 </ShareMenu>
               </div>
 
-              {/* Lehrpersonen (mehrere möglich — je Instrument/Stimme) */}
+              {/* Interpret (mehrere möglich — je Instrument/Stimme) */}
               <div className="bg-surface border border-border p-5">
-                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Lehrpersonen</p>
+                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Interpret</p>
                 <div className="space-y-5">
                   {v.teachers.map((t, i) => (
                     <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
@@ -1190,9 +1195,12 @@ export default function LernvideoDetailPage() {
                         <p className="font-heading font-bold text-sm">{t.name}</p>
                         <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
                         <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
-                        <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
-                          Profil ansehen
-                        </Link>
+                        {/* «Profil ansehen» nur, wenn diese Person ein Profil hat. */}
+                        {t.hasProfile && (
+                          <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
+                            Profil ansehen
+                          </Link>
+                        )}
                       </div>
                     </div>
                   ))}

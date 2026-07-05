@@ -14,7 +14,7 @@ import {
   type UserAbo,
 } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
-import { useUserProfile } from '@/lib/userProfile'
+import { useUserProfile, setStoredProfile } from '@/lib/userProfile'
 import {
   readStoredFormation,
   setStoredFormation,
@@ -36,56 +36,6 @@ type SectionId = (typeof SECTIONS)[number]['id']
 
 // Einfache E-Mail-Prüfung für den Einladungs-Flow.
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
-
-// Faltet Umlaute/Sonderzeichen auf ASCII, damit die einfache PDF-Erzeugung
-// (Byte == Zeichen) korrekte Offsets liefert und Helvetica sie darstellen kann.
-const asciiFold = (s: string) =>
-  s
-    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
-    .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue')
-    .replace(/ß/g, 'ss')
-    // eslint-disable-next-line no-control-regex
-    .replace(/[^\x20-\x7E]/g, '')
-
-// Erzeugt eine minimale, gültige einseitige PDF-Rechnung (Demo) aus Textzeilen.
-function buildInvoicePdf(lines: string[]): Blob {
-  const esc = (s: string) => asciiFold(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
-  const body =
-    'BT /F1 12 Tf 50 790 Td 18 TL ' +
-    lines.map((l, i) => `${i === 0 ? '' : 'T* '}(${esc(l)}) Tj`).join(' ') +
-    ' ET'
-  const objects = [
-    '<</Type/Catalog/Pages 2 0 R>>',
-    '<</Type/Pages/Kids[3 0 R]/Count 1>>',
-    '<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>',
-    '<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>',
-    `<</Length ${body.length}>>\nstream\n${body}\nendstream`,
-  ]
-  let pdf = '%PDF-1.4\n'
-  const offsets: number[] = []
-  objects.forEach((obj, i) => {
-    offsets.push(pdf.length)
-    pdf += `${i + 1} 0 obj\n${obj}\nendobj\n`
-  })
-  const xrefStart = pdf.length
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
-  offsets.forEach((off) => {
-    pdf += String(off).padStart(10, '0') + ' 00000 n \n'
-  })
-  pdf += `trailer\n<</Size ${objects.length + 1}/Root 1 0 R>>\nstartxref\n${xrefStart}\n%%EOF`
-  return new Blob([pdf], { type: 'application/pdf' })
-}
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
-}
 
 type PaymentMethod = {
   id: string
@@ -174,25 +124,6 @@ function AboTab() {
   const expiryDateLabel = '26. Juni 2027'
 
   if (isNonPayingMember) {
-    const downloadInvoice = () => {
-      const f = readStoredFormation()
-      downloadBlob(
-        buildInvoicePdf([
-          'LAEMU Musikschule — Rechnung',
-          '',
-          `Formation: ${f.name || profile.formationName || '-'}`,
-          `Mitglied: ${profile.name || '-'}`,
-          `Plan: ${aboPlanLabel(abo)}`,
-          `Zugang: ${instrumentsLabel || 'Alle Instrumente'}`,
-          `Bezahlt am: ${paidDateLabel}`,
-          `Gueltig bis: ${expiryDateLabel}`,
-          `Zahlungspflichtig: ${f.payerName || 'Die zahlungspflichtige Person der Formation'}`,
-          'Betrag: ueber die Formation beglichen',
-        ]),
-        'LAEMU-Rechnung.pdf',
-      )
-    }
-
     return (
       <SectionCard title="Mein Abo" desc="Dein Zugang läuft über deine Formation.">
         <div className="border border-border p-5 mb-4">
@@ -216,20 +147,12 @@ function AboTab() {
           </div>
         </div>
 
-        <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 mb-4">
+        <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3">
           <p className="font-sans text-sm text-text-secondary">
-            Dein Zugang wird über deine Formation bezahlt. Das Abonnement verwaltet die zahlungspflichtige
-            Person — du musst kein Zahlungsmittel hinterlegen.
+            Dein Zugang wird über deine Formation bezahlt. Das Abonnement und die Rechnungen verwaltet die
+            zahlungspflichtige Person — du musst kein Zahlungsmittel hinterlegen.
           </p>
         </div>
-
-        <button
-          onClick={downloadInvoice}
-          className="inline-flex items-center gap-2 border border-border font-sans text-sm px-5 py-2.5 hover:border-dark transition-colors"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-          Rechnung herunterladen
-        </button>
       </SectionCard>
     )
   }
@@ -715,11 +638,6 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
     setStoredFormation({ name, payerName, members: nextMembers, paidMemberCount })
   }
 
-  // Anzeigename der zahlungspflichtigen Person (für eingeladene Mitglieder ggf.
-  // unbekannt → neutraler Hinweis). Für die Einladung geben wir ihn im Link mit.
-  const payerLabel = isPayer ? (selfName ? `${selfName} (du)` : 'Du') : payerName
-  const inviteHref = `/register/einladung?formation=${encodeURIComponent(name)}${payerLabel ? `&payer=${encodeURIComponent(isPayer ? selfName : payerName)}` : ''}`
-
   const setSlotEmail = (id: string, email: string) =>
     persist(members.map((m) => (m.id === id ? { ...m, email } : m)))
 
@@ -747,11 +665,25 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
     setNotice('Die E-Mail-Adresse wurde entfernt. Du kannst nun eine neue Person einladen.')
   }
 
+  // Lese-Übersicht für weitere (nicht zahlungspflichtige) Mitglieder: die
+  // zahlungspflichtige Person, man selbst und weitere bekannte Mitglieder.
+  const roster: { key: string; label: string; role?: string }[] = [
+    { key: 'payer', label: payerName || 'Zahlungspflichtige Person', role: 'Zahlungspflichtig' },
+    { key: 'self', label: selfName || 'Du', role: 'Du' },
+    ...members
+      .filter((m) => m.email.trim().length > 0)
+      .map((m) => ({ key: m.id, label: m.email, role: 'Mitglied' })),
+  ]
+
   return (
     <>
       <SectionCard
         title="Formationsübersicht"
-        desc="Verwalte die weiteren Mitglieder deiner Formation. Hinterlege E-Mail-Adressen und verschicke die Einladungen — auch nachträglich."
+        desc={
+          isPayer
+            ? 'Verwalte die weiteren Mitglieder deiner Formation. Hinterlege E-Mail-Adressen und verschicke die Einladungen — auch nachträglich.'
+            : 'Die Mitglieder deiner Formation im Überblick.'
+        }
       >
         {/* Name der Formation */}
         <div className="border border-border p-4 mb-5 flex items-center gap-3 bg-background">
@@ -774,7 +706,7 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
             {isPayer ? (
               <>
                 <p className="font-sans text-sm font-medium">{selfName ? `${selfName} (du)` : 'Du'}</p>
-                <p className="font-sans text-xs text-text-secondary mt-0.5">Du hast die Formation registriert und bezahlst das Abonnement.</p>
+                <p className="font-sans text-xs text-text-secondary mt-0.5">Du hast die Formation registriert und bezahlst das Abonnement. Die zahlungspflichtige Person änderst du in den Konto-Einstellungen.</p>
               </>
             ) : (
               <>
@@ -785,7 +717,7 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
           </div>
         </div>
 
-        {notice && (
+        {isPayer && notice && (
           <div className="mb-4 flex items-start justify-between gap-3 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
             <p className="font-sans text-xs text-text-secondary leading-relaxed">{notice}</p>
             <button onClick={() => setNotice(null)} aria-label="Hinweis schliessen" className="text-text-secondary hover:text-dark transition-colors flex-shrink-0">
@@ -794,115 +726,127 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
           </div>
         )}
 
-        <p className="font-sans text-sm text-text-secondary mb-4 leading-relaxed">
-          Mitglied 1 bist du selbst. Für jedes weitere Mitglied hinterlegst du eine E-Mail-Adresse und
-          verschickst die Einladung. Eingeladene Personen geben nur ihre persönlichen Daten an und
-          erhalten direkten Zugang zur Musikschule.
-        </p>
+        {isPayer ? (
+          /* ── Zahlungspflichtige Person: Mitglieder verwalten & einladen ── */
+          <>
+            <p className="font-sans text-sm text-text-secondary mb-4 leading-relaxed">
+              Mitglied 1 bist du selbst. Für jedes weitere Mitglied hinterlegst du eine E-Mail-Adresse und
+              verschickst die Einladung. Eingeladene Personen geben nur ihre persönlichen Daten an und
+              erhalten direkten Zugang zur Musikschule. Nur du als zahlungspflichtige Person kannst Mitglieder
+              ein- und ausladen.
+            </p>
 
-        {/* Mitgliederliste */}
-        <div className="space-y-3">
-          {members.map((slot, i) =>
-            slot.invited ? (
-              <div key={slot.id} className="flex items-center gap-3 border border-border p-4">
-                <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 6L2 7" /></svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-sans text-sm font-medium truncate">{slot.email}</p>
-                  <p className="font-sans text-xs text-text-secondary">Mitglied {i + 2} · Einladung gesendet</p>
-                </div>
-                <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Eingeladen</span>
-                <button
-                  onClick={() => setConfirmRemove(slot)}
-                  className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors flex-shrink-0"
-                >
-                  Entfernen
-                </button>
-              </div>
-            ) : (
-              <div key={slot.id} className="border border-border p-4">
-                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">
-                  E-Mail Mitglied {i + 2}
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="email"
-                    value={slot.email}
-                    onChange={(e) => setSlotEmail(slot.id, e.target.value)}
-                    placeholder="mitglied@email.ch"
-                    className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                  />
-                  <div className="flex gap-2">
+            {/* Mitgliederliste */}
+            <div className="space-y-3">
+              {members.map((slot, i) =>
+                slot.invited ? (
+                  <div key={slot.id} className="flex items-center gap-3 border border-border p-4">
+                    <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 6L2 7" /></svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-sm font-medium truncate">{slot.email}</p>
+                      <p className="font-sans text-xs text-text-secondary">Mitglied {i + 2} · Einladung gesendet</p>
+                    </div>
+                    <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Eingeladen</span>
                     <button
-                      onClick={() => sendInvite(slot.id)}
-                      disabled={!isValidEmail(slot.email)}
-                      className={`font-sans text-sm px-4 py-2.5 transition-colors whitespace-nowrap ${isValidEmail(slot.email) ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                      onClick={() => setConfirmRemove(slot)}
+                      className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors flex-shrink-0"
                     >
-                      Einladung senden
+                      Entfernen
                     </button>
-                    {slot.email.trim() === '' && members.length > 1 && (
-                      <button
-                        onClick={() => removeSlot(slot.id)}
-                        aria-label="Platz entfernen"
-                        title="Platz entfernen"
-                        className="w-10 border border-border flex items-center justify-center text-text-secondary hover:border-red-500 hover:text-red-600 transition-colors flex-shrink-0"
-                      >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" /></svg>
-                      </button>
+                  </div>
+                ) : (
+                  <div key={slot.id} className="border border-border p-4">
+                    <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">
+                      E-Mail Mitglied {i + 2}
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="email"
+                        value={slot.email}
+                        onChange={(e) => setSlotEmail(slot.id, e.target.value)}
+                        placeholder="mitglied@email.ch"
+                        className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => sendInvite(slot.id)}
+                          disabled={!isValidEmail(slot.email)}
+                          className={`font-sans text-sm px-4 py-2.5 transition-colors whitespace-nowrap ${isValidEmail(slot.email) ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+                        >
+                          Einladung senden
+                        </button>
+                        {slot.email.trim() === '' && members.length > 1 && (
+                          <button
+                            onClick={() => removeSlot(slot.id)}
+                            aria-label="Platz entfernen"
+                            title="Platz entfernen"
+                            className="w-10 border border-border flex items-center justify-center text-text-secondary hover:border-red-500 hover:text-red-600 transition-colors flex-shrink-0"
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" /></svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {slot.email.trim().length > 0 && !isValidEmail(slot.email) && (
+                      <p className="font-sans text-xs text-accent-gold mt-1.5">Bitte gib eine gültige E-Mail-Adresse ein.</p>
                     )}
                   </div>
+                ),
+              )}
+              {members.length === 0 && (
+                <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
+                  Noch keine weiteren Mitglieder erfasst. Füge unten eine Person hinzu, um sie einzuladen.
+                </p>
+              )}
+            </div>
+
+            {/* Weiteres Mitglied hinzufügen */}
+            <div className="mt-4">
+              {members.length < maxOthers ? (
+                <button
+                  onClick={addSlot}
+                  className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
+                >
+                  + Weiteres Mitglied hinzufügen
+                </button>
+              ) : (
+                <p className="font-sans text-xs text-text-secondary border border-dashed border-border px-4 py-3 text-center">
+                  Maximale Mitgliederzahl erreicht (max. {FORMATION_MAX_MEMBERS} inkl. dir). Entferne zuerst eine
+                  Adresse, um eine neue Person einzuladen.
+                </p>
+              )}
+            </div>
+          </>
+        ) : (
+          /* ── Weitere Mitglieder: nur Lese-Übersicht der Formation ── */
+          <>
+            <p className="font-sans text-sm text-text-secondary mb-4 leading-relaxed">
+              Diese Personen sind unter deiner Formation angemeldet. Mitglieder werden ausschliesslich von der
+              zahlungspflichtigen Person ein- und ausgeladen.
+            </p>
+            <div className="space-y-3">
+              {roster.map((r) => (
+                <div key={r.key} className="flex items-center gap-3 border border-border p-4">
+                  <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-sans text-sm font-medium truncate">{r.label}</p>
+                  </div>
+                  {r.role && (
+                    <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">{r.role}</span>
+                  )}
                 </div>
-                {slot.email.trim().length > 0 && !isValidEmail(slot.email) && (
-                  <p className="font-sans text-xs text-accent-gold mt-1.5">Bitte gib eine gültige E-Mail-Adresse ein.</p>
-                )}
-              </div>
-            ),
-          )}
-          {members.length === 0 && (
-            <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
-              Noch keine weiteren Mitglieder erfasst. Füge unten eine Person hinzu, um sie einzuladen.
-            </p>
-          )}
-        </div>
-
-        {/* Weiteres Mitglied hinzufügen */}
-        <div className="mt-4">
-          {members.length < maxOthers ? (
-            <button
-              onClick={addSlot}
-              className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors"
-            >
-              + Weiteres Mitglied hinzufügen
-            </button>
-          ) : (
-            <p className="font-sans text-xs text-text-secondary border border-dashed border-border px-4 py-3 text-center">
-              Alle bezahlten Plätze sind belegt ({maxOthers + 1} Mitglieder inkl. dir). Es lassen sich nur so
-              viele Mitglieder erfassen, wie eingeladen und bezahlt wurden. Entferne zuerst eine Adresse, um
-              eine neue Person einzuladen.
-            </p>
-          )}
-        </div>
-
-        {/* So sieht die Einladung aus — der Link, den eingeladene Mitglieder erhalten. */}
-        <div className="mt-6 pt-5 border-t border-border">
-          <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-2">So funktioniert die Einladung</p>
-          <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">
-            Eingeladene Personen erhalten per E-Mail einen Link zur Anmeldung. Dort geben sie nur ihre persönlichen
-            Daten an — Abo-Auswahl und Zahlung entfallen — und gelangen direkt in die Musikschule.
-          </p>
-          <Link
-            href={inviteHref}
-            className="inline-flex items-center gap-2 font-sans text-sm text-accent-gold hover:text-dark transition-colors"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" /></svg>
-            Einladungslink ansehen
-          </Link>
-        </div>
+              ))}
+            </div>
+          </>
+        )}
       </SectionCard>
 
-      {/* Bestätigung vor dem Entfernen einer eingeladenen Adresse */}
-      {confirmRemove && (
+      {/* Bestätigung vor dem Entfernen einer eingeladenen Adresse (nur Payer) */}
+      {isPayer && confirmRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-dark/70" onClick={() => setConfirmRemove(null)} />
           <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
@@ -933,6 +877,105 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
 }
 
 // ---------------------------------------------------------------------------
+// Konto-Einstellungen der zahlungspflichtigen Person — Zahlungspflicht ändern
+// ---------------------------------------------------------------------------
+function PayerFormationSettings() {
+  const [members, setMembers] = useState<FormationMemberSlot[]>([])
+  const [selected, setSelected] = useState('')
+  const [confirm, setConfirm] = useState(false)
+
+  useEffect(() => {
+    setMembers(readStoredFormation().members)
+  }, [])
+
+  // Nur bereits eingeladene Mitglieder kommen als neue zahlungspflichtige Person
+  // in Frage (identifiziert über ihre E-Mail-Adresse).
+  const invited = members.filter((m) => m.invited && m.email.trim().length > 0)
+
+  const transfer = () => {
+    if (!selected) return
+    const f = readStoredFormation()
+    setStoredFormation({ ...f, payerName: selected })
+    // Man selbst ist danach nicht mehr zahlungspflichtig.
+    setStoredProfile({ formationPayer: false })
+    setConfirm(false)
+  }
+
+  return (
+    <>
+      <SectionCard title="Formation — Zahlungspflicht" desc="Lege fest, wer für deine Formation zahlungspflichtig ist.">
+        <div className="bg-accent-gold/5 border border-accent-gold/30 px-4 py-3 mb-5">
+          <p className="font-sans text-sm text-text-secondary">
+            Als zahlungspflichtige Person bezahlst du das Abonnement der Formation. Nur du kannst weitere
+            Mitglieder ein- und ausladen — das machst du in der «Formationsübersicht».
+          </p>
+        </div>
+
+        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">
+          Zahlungspflicht übertragen an
+        </label>
+        {invited.length === 0 ? (
+          <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-3">
+            Lade zuerst in der «Formationsübersicht» ein Mitglied ein. Danach kannst du die Zahlungspflicht an
+            dieses Mitglied übertragen.
+          </p>
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <select
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
+                className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+              >
+                <option value="">Mitglied auswählen …</option>
+                {invited.map((m) => (
+                  <option key={m.id} value={m.email}>{m.email}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => setConfirm(true)}
+                disabled={!selected}
+                className={`font-sans text-sm px-5 py-2.5 transition-colors whitespace-nowrap ${selected ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+              >
+                Als zahlungspflichtig festlegen
+              </button>
+            </div>
+            <p className="font-sans text-xs text-text-secondary mt-2">
+              Überträgst du die Zahlungspflicht, bist du selbst nicht mehr zahlungspflichtig und kannst keine
+              Mitglieder mehr ein- oder ausladen.
+            </p>
+          </>
+        )}
+      </SectionCard>
+
+      {confirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-dark/70" onClick={() => setConfirm(false)} />
+          <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+            <h3 className="font-heading font-bold text-xl mb-2">Zahlungspflicht übertragen?</h3>
+            <p className="font-sans text-sm text-text-secondary mb-2">
+              <span className="font-medium text-dark break-all">{selected}</span> wird die zahlungspflichtige
+              Person deiner Formation und übernimmt Abonnement und Mitgliederverwaltung.
+            </p>
+            <p className="font-sans text-sm text-text-secondary mb-5">
+              Du bist danach nicht mehr zahlungspflichtig und kannst keine Mitglieder mehr ein- oder ausladen.
+            </p>
+            <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
+              <button onClick={() => setConfirm(false)} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">
+                Abbrechen
+              </button>
+              <button onClick={transfer} className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors">
+                Ja, übertragen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main inner component
 // ---------------------------------------------------------------------------
 function AccountInner() {
@@ -944,11 +987,12 @@ function AccountInner() {
   const profile = useUserProfile()
   const inFormation = profile.inFormation
   // Nicht-zahlungspflichtige Formationsmitglieder müssen kein Zahlungsmittel
-  // hinterlegen — für sie blenden wir den «Zahlungsmittel»-Tab aus.
+  // hinterlegen und verwalten keine Rechnungen — für sie blenden wir die Tabs
+  // «Zahlungsmittel» und «Rechnungen & Zahlungen» aus.
   const isNonPayingMember = inFormation && !profile.formationPayer
   const visibleSections = SECTIONS.filter((s) => {
     if (s.id === 'formation' && !inFormation) return false
-    if (s.id === 'zahlungsmittel' && isNonPayingMember) return false
+    if ((s.id === 'zahlungsmittel' || s.id === 'rechnungen') && isNonPayingMember) return false
     return true
   })
 
@@ -1002,21 +1046,26 @@ function AccountInner() {
           {/* Content */}
           <div className="lg:col-span-3 space-y-6">
             {activeTab === 'konto' && (
-              <SectionCard title="Konto & Daten" desc="Deine persönlichen Angaben. Diese sind nur für dich und LAEMU sichtbar.">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="Vorname" value="Niklaus" />
-                  <Field label="Nachname" value="Hess" />
-                  <Field label="E-Mail" value="niklaus@laemu.ch" type="email" />
-                  <Field label="Telefon" value="+41 79 123 45 67" />
-                  <Field label="Geburtsdatum" value="1990-05-14" type="date" />
-                  <Field label="Ort" value="Luzern" />
-                  <div className="sm:col-span-2"><Field label="Strasse und Hausnummer" value="Musterstrasse 12" /></div>
-                </div>
-                <div className="flex items-center justify-between mt-6 pt-5 border-t border-border">
-                  <button className="font-sans text-xs text-red-600 hover:underline">Konto löschen</button>
-                  <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors">Änderungen speichern</button>
-                </div>
-              </SectionCard>
+              <>
+                <SectionCard title="Konto & Daten" desc="Deine persönlichen Angaben. Diese sind nur für dich und LAEMU sichtbar.">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Vorname" value="Niklaus" />
+                    <Field label="Nachname" value="Hess" />
+                    <Field label="E-Mail" value="niklaus@laemu.ch" type="email" />
+                    <Field label="Telefon" value="+41 79 123 45 67" />
+                    <Field label="Geburtsdatum" value="1990-05-14" type="date" />
+                    <Field label="Ort" value="Luzern" />
+                    <div className="sm:col-span-2"><Field label="Strasse und Hausnummer" value="Musterstrasse 12" /></div>
+                  </div>
+                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-border">
+                    <button className="font-sans text-xs text-red-600 hover:underline">Konto löschen</button>
+                    <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors">Änderungen speichern</button>
+                  </div>
+                </SectionCard>
+
+                {/* Nur die zahlungspflichtige Person kann die Zahlungspflicht ändern. */}
+                {inFormation && profile.formationPayer && <PayerFormationSettings />}
+              </>
             )}
 
             {activeTab === 'formation' && inFormation && (
