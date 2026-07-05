@@ -131,9 +131,17 @@ export function ProfileMenu() {
   const email = profile.email || 'mitglied@laemu.ch'
   const avatar = profile.avatar
   // Formationsmitglieder erhalten zusätzlich den Link zur Formationsübersicht.
-  const links = profile.inFormation
+  let links = profile.inFormation
     ? [accountLinks[0], formationLink, ...accountLinks.slice(1)]
     : accountLinks
+  // Nicht zahlungspflichtige (eingeladene) Formationsmitglieder verwalten weder
+  // Rechnungen noch Zahlungsmittel — diese Einträge blenden wir im Menü aus,
+  // passend zu den ausgeblendeten Tabs im Konto.
+  if (profile.inFormation && !profile.formationPayer) {
+    links = links.filter(
+      (l) => !l.href.includes('tab=rechnungen') && !l.href.includes('tab=zahlungsmittel'),
+    )
+  }
   return (
     <div className="relative flex-shrink-0">
       <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 py-2 group" aria-label="Konto-Menü">

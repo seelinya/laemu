@@ -1046,34 +1046,32 @@ function AccountInner() {
           {/* Content */}
           <div className="lg:col-span-3 space-y-6">
             {activeTab === 'konto' && (
-              <>
-                <SectionCard title="Konto & Daten" desc="Deine persönlichen Angaben. Diese sind nur für dich und LAEMU sichtbar.">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Vorname" value="Niklaus" />
-                    <Field label="Nachname" value="Hess" />
-                    <Field label="E-Mail" value="niklaus@laemu.ch" type="email" />
-                    <Field label="Telefon" value="+41 79 123 45 67" />
-                    <Field label="Geburtsdatum" value="1990-05-14" type="date" />
-                    <Field label="Ort" value="Luzern" />
-                    <div className="sm:col-span-2"><Field label="Strasse und Hausnummer" value="Musterstrasse 12" /></div>
-                  </div>
-                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-border">
-                    <button className="font-sans text-xs text-red-600 hover:underline">Konto löschen</button>
-                    <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors">Änderungen speichern</button>
-                  </div>
-                </SectionCard>
-
-                {/* Nur die zahlungspflichtige Person kann die Zahlungspflicht ändern. */}
-                {inFormation && profile.formationPayer && <PayerFormationSettings />}
-              </>
+              <SectionCard title="Konto & Daten" desc="Deine persönlichen Angaben. Diese sind nur für dich und LAEMU sichtbar.">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Vorname" value="Niklaus" />
+                  <Field label="Nachname" value="Hess" />
+                  <Field label="E-Mail" value="niklaus@laemu.ch" type="email" />
+                  <Field label="Telefon" value="+41 79 123 45 67" />
+                  <Field label="Geburtsdatum" value="1990-05-14" type="date" />
+                  <Field label="Ort" value="Luzern" />
+                  <div className="sm:col-span-2"><Field label="Strasse und Hausnummer" value="Musterstrasse 12" /></div>
+                </div>
+                <div className="flex items-center justify-end mt-6 pt-5 border-t border-border">
+                  <button className="bg-dark text-white font-sans text-sm px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors">Änderungen speichern</button>
+                </div>
+              </SectionCard>
             )}
 
             {activeTab === 'formation' && inFormation && (
-              <FormationOverviewTab
-                formationName={profile.formationName}
-                isPayer={profile.formationPayer}
-                selfName={profile.name}
-              />
+              <>
+                <FormationOverviewTab
+                  formationName={profile.formationName}
+                  isPayer={profile.formationPayer}
+                  selfName={profile.name}
+                />
+                {/* Nur die zahlungspflichtige Person kann die Zahlungspflicht ändern. */}
+                {profile.formationPayer && <PayerFormationSettings />}
+              </>
             )}
 
             {activeTab === 'abo' && <AboTab />}
