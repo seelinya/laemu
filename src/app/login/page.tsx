@@ -11,6 +11,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState('niklaus@laemu.ch')
   const [password, setPassword] = useState('demo1234')
   const [loading, setLoading] = useState(false)
+  // Passkey-Anmeldung (WebAuthn) — in dieser Demo simuliert.
+  const [passkeyLoading, setPasskeyLoading] = useState(false)
+
+  const busy = loading || passkeyLoading
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,6 +22,15 @@ export default function LoginPage() {
     setTimeout(() => {
       router.push('/member/academy')
     }, 800)
+  }
+
+  // Passkey-Login: Öffnet normalerweise den Sicherheitsdialog des Geräts
+  // (Fingerabdruck, Gesicht, PIN). Hier simulieren wir den Ablauf.
+  const handlePasskey = () => {
+    setPasskeyLoading(true)
+    setTimeout(() => {
+      router.push('/member/academy')
+    }, 900)
   }
 
   return (
@@ -76,12 +89,33 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={busy}
               className="w-full bg-dark text-white font-sans text-sm font-semibold tracking-wide py-3.5 hover:bg-accent-gold hover:text-white transition-colors duration-200 disabled:opacity-60"
             >
               {loading ? 'Wird angemeldet…' : 'Anmelden →'}
             </button>
           </form>
+
+          {/* Trenner */}
+          <div className="flex items-center gap-3 my-6">
+            <span className="h-px flex-1 bg-border" />
+            <span className="font-sans text-xs uppercase tracking-widest text-text-secondary">oder</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+
+          {/* Passkey-Anmeldung (WebAuthn) */}
+          <button
+            type="button"
+            onClick={handlePasskey}
+            disabled={busy}
+            className="w-full flex items-center justify-center gap-2 border border-border font-sans text-sm font-semibold text-dark py-3.5 hover:border-dark transition-colors disabled:opacity-60"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a5 5 0 0 0-5 5c0 2.5 1.5 4 1.5 4M12 2a5 5 0 0 1 5 5" /><circle cx="12" cy="9" r="2.5" /><path d="M12 11.5V21M12 21l-2-1.5M12 18l2-1.5" /></svg>
+            {passkeyLoading ? 'Passkey wird geprüft…' : 'Mit Passkey anmelden'}
+          </button>
+          <p className="font-sans text-xs text-text-secondary text-center mt-2">
+            Ohne Passwort — mit Fingerabdruck, Gesichtserkennung oder Geräte-PIN.
+          </p>
 
           <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="font-sans text-sm text-text-secondary">

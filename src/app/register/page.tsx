@@ -79,6 +79,8 @@ export default function RegisterPage() {
   const [ort, setOrt] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
+  // Bestätigungs-E-Mail erneut senden (Demo — nur Rückmeldung).
+  const [confirmResent, setConfirmResent] = useState(false)
 
   // ── Angaben (Konto) — Pflichtfelder, auch zur Übernahme ins Profil ───────────
   const [vorname, setVorname] = useState('')
@@ -303,6 +305,38 @@ export default function RegisterPage() {
             Dein Konto wurde erfolgreich erstellt. Du bleibst am Puls der Ländlerszene und bist Teil der
             LAEMU-Community.
           </p>
+
+          {/* E-Mail-Bestätigung / Kontoaktivierung */}
+          <div className="bg-surface border border-border p-4 mb-4 text-left flex gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 6L2 7" /></svg>
+            <div>
+              <p className="font-sans text-sm font-semibold mb-1">Bestätige deine E-Mail-Adresse</p>
+              <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                Wir haben dir einen Bestätigungslink an{' '}
+                {email.trim() ? <span className="text-dark font-medium">{email.trim()}</span> : 'deine E-Mail-Adresse'}{' '}
+                geschickt. Bestätige deine Adresse, um dein Konto vollständig zu aktivieren.
+              </p>
+              <div className="flex items-center gap-3 mt-2">
+                {/* Demo: Bestätigungslink direkt öffnen. */}
+                <Link
+                  href={`/e-mail-bestaetigen${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ''}`}
+                  className="font-sans text-xs text-accent-gold hover:underline"
+                >
+                  Demo: Link öffnen →
+                </Link>
+                {confirmResent ? (
+                  <span className="font-sans text-xs text-text-secondary">Erneut gesendet ✓</span>
+                ) : (
+                  <button
+                    onClick={() => setConfirmResent(true)}
+                    className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                  >
+                    E-Mail erneut senden
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           {isFree && (
             <div className="bg-accent-gold/5 border border-accent-gold/30 p-4 mb-8 text-left flex gap-3">

@@ -22,6 +22,7 @@ import {
   type FormationMemberSlot,
 } from '@/lib/formation'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
+import { PasswordInput } from '@/components/PasswordInput'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
@@ -29,6 +30,7 @@ const SECTIONS = [
   { id: 'abo', label: 'Mein Abo' },
   { id: 'rechnungen', label: 'Rechnungen & Zahlungen' },
   { id: 'zahlungsmittel', label: 'Zahlungsmittel' },
+  { id: 'sicherheit', label: 'Sicherheit & Passkeys' },
   { id: 'geraete', label: 'Geräte' },
 ] as const
 
@@ -61,6 +63,16 @@ type Device = {
 const SEED_DEVICES: Device[] = [
   { id: 'd1', name: 'iPhone 15 — Safari', location: 'Luzern, CH', last: 'Aktiv jetzt', current: true },
   { id: 'd2', name: 'MacBook Pro — Chrome', location: 'Luzern, CH', last: 'vor 2 Stunden', current: false },
+]
+
+type Passkey = {
+  id: string
+  name: string
+  added: string
+}
+
+const SEED_PASSKEYS: Passkey[] = [
+  { id: 'pk1', name: 'iPhone 15 — Face ID', added: 'Hinzugefügt am 12. Juni 2026' },
 ]
 
 function Field({ label, value, type = 'text' }: { label: string; value: string; type?: string }) {
@@ -542,6 +554,155 @@ function ZahlungsmittelTab() {
         </div>
       )}
     </SectionCard>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Sicherheit & Passkeys Tab — Passwort ändern und Passkeys (WebAuthn) verwalten
+// ---------------------------------------------------------------------------
+function SicherheitTab() {
+  // ── Passwort ändern ──
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [repeat, setRepeat] = useState('')
+  const [pwSaved, setPwSaved] = useState(false)
+
+  const tooShort = next.length > 0 && next.length < 8
+  const mismatch = repeat.length > 0 && repeat !== next
+  const pwValid = current.length > 0 && next.length >= 8 && next === repeat
+
+  const savePassword = () => {
+    if (!pwValid) return
+    setCurrent('')
+    setNext('')
+    setRepeat('')
+    setPwSaved(true)
+  }
+
+  // ── Passkeys (WebAuthn) ──
+  const [passkeys, setPasskeys] = useState<Passkey[]>(SEED_PASSKEYS)
+  const [adding, setAdding] = useState(false)
+  const [confirmRemove, setConfirmRemove] = useState<Passkey | null>(null)
+
+  // Passkey hinzufügen: öffnet normalerweise den Geräte-Sicherheitsdialog
+  // (Fingerabdruck, Gesicht, PIN). Hier simulieren wir den Ablauf.
+  const addPasskey = () => {
+    setAdding(true)
+    setTimeout(() => {
+      setPasskeys((prev) => [
+        ...prev,
+        { id: `pk${prev.length + 1}-${prev.length}`, name: 'Dieses Gerät — Passkey', added: 'Gerade hinzugefügt' },
+      ])
+      setAdding(false)
+    }, 900)
+  }
+
+  const removePasskey = (id: string) => {
+    setPasskeys((prev) => prev.filter((p) => p.id !== id))
+    setConfirmRemove(null)
+  }
+
+  return (
+    <>
+      {/* Passwort ändern */}
+      <SectionCard title="Passwort ändern" desc="Wähle ein neues Passwort für dein Konto (mind. 8 Zeichen).">
+        <div className="space-y-4 max-w-md">
+          <div>
+            <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Aktuelles Passwort</label>
+            <PasswordInput
+              value={current}
+              onChange={(e) => { setCurrent(e.target.value); setPwSaved(false) }}
+              placeholder="Aktuelles Passwort"
+              className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            />
+          </div>
+          <div>
+            <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Neues Passwort</label>
+            <PasswordInput
+              value={next}
+              onChange={(e) => { setNext(e.target.value); setPwSaved(false) }}
+              placeholder="Mindestens 8 Zeichen"
+              className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            />
+            {tooShort && <p className="font-sans text-xs text-accent-gold mt-1.5">Das Passwort muss mindestens 8 Zeichen lang sein.</p>}
+          </div>
+          <div>
+            <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Neues Passwort wiederholen</label>
+            <PasswordInput
+              value={repeat}
+              onChange={(e) => { setRepeat(e.target.value); setPwSaved(false) }}
+              placeholder="Passwort erneut eingeben"
+              className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            />
+            {mismatch && <p className="font-sans text-xs text-accent-gold mt-1.5">Die Passwörter stimmen nicht überein.</p>}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 mt-6 pt-5 border-t border-border">
+          <button
+            onClick={savePassword}
+            disabled={!pwValid}
+            className={`font-sans text-sm px-5 py-2.5 transition-colors ${pwValid ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+          >
+            Passwort speichern
+          </button>
+          {pwSaved && <span className="font-sans text-sm text-status-success">Passwort geändert ✓</span>}
+        </div>
+      </SectionCard>
+
+      {/* Passkeys (WebAuthn) */}
+      <SectionCard title="Passkeys" desc="Melde dich ohne Passwort an — mit Fingerabdruck, Gesichtserkennung oder Geräte-PIN.">
+        <div className="space-y-3 mb-4">
+          {passkeys.map((pk) => (
+            <div key={pk.id} className="flex items-center gap-4 border border-border p-4">
+              <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary"><path d="M12 2a5 5 0 0 0-5 5c0 2.5 1.5 4 1.5 4M12 2a5 5 0 0 1 5 5" /><circle cx="12" cy="9" r="2.5" /><path d="M12 11.5V21M12 21l-2-1.5M12 18l2-1.5" /></svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-sans text-sm font-medium truncate">{pk.name}</p>
+                <p className="font-sans text-xs text-text-secondary">{pk.added}</p>
+              </div>
+              <button
+                onClick={() => setConfirmRemove(pk)}
+                className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors flex-shrink-0"
+              >
+                Entfernen
+              </button>
+            </div>
+          ))}
+          {passkeys.length === 0 && (
+            <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
+              Noch kein Passkey hinterlegt. Füge einen hinzu, um dich künftig ohne Passwort anzumelden.
+            </p>
+          )}
+        </div>
+
+        <button
+          onClick={addPasskey}
+          disabled={adding}
+          className="border border-dashed border-border w-full py-3 font-sans text-sm text-text-secondary hover:border-dark hover:text-dark transition-colors disabled:opacity-60"
+        >
+          {adding ? 'Passkey wird erstellt…' : '+ Passkey hinzufügen'}
+        </button>
+      </SectionCard>
+
+      {/* Bestätigung vor dem Entfernen eines Passkeys */}
+      {confirmRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-dark/70" onClick={() => setConfirmRemove(null)} />
+          <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+            <h3 className="font-heading font-bold text-xl mb-2">Passkey entfernen?</h3>
+            <p className="font-sans text-sm text-text-secondary mb-5">
+              <span className="font-medium text-dark">{confirmRemove.name}</span> kann danach nicht mehr zur
+              Anmeldung verwendet werden. Du kannst jederzeit einen neuen Passkey hinzufügen.
+            </p>
+            <div className="flex items-center gap-3 justify-end border-t border-border pt-4">
+              <button onClick={() => setConfirmRemove(null)} className="font-sans text-sm text-text-secondary hover:text-dark transition-colors px-4 py-2">Abbrechen</button>
+              <button onClick={() => removePasskey(confirmRemove.id)} className="bg-red-600 text-white font-sans text-sm px-5 py-2.5 hover:bg-red-700 transition-colors">Ja, entfernen</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -1098,6 +1259,8 @@ function AccountInner() {
             )}
 
             {activeTab === 'zahlungsmittel' && <ZahlungsmittelTab />}
+
+            {activeTab === 'sicherheit' && <SicherheitTab />}
 
             {activeTab === 'geraete' && <GeraeteTab />}
           </div>
