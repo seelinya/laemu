@@ -56,6 +56,8 @@ function EinladungInner() {
   const payerName = (params.get('payer') ?? '').trim()
 
   const [done, setDone] = useState(false)
+  // Bestätigungs-E-Mail erneut senden (Demo — nur Rückmeldung).
+  const [confirmResent, setConfirmResent] = useState(false)
 
   // Persönliche Angaben (Pflichtfelder) — identisch zur regulären Registrierung.
   const [vorname, setVorname] = useState('')
@@ -127,6 +129,37 @@ function EinladungInner() {
             Dein Konto wurde erstellt und du bist Teil {formationName ? <>der Formation <span className="font-semibold text-dark">{formationName}</span></> : 'deiner Formation'}.
             Du hast direkten Zugang zu allen Pro-Lehrgängen und allen Stücken — ohne eigenes Abo und ohne Zahlung.
           </p>
+
+          {/* E-Mail-Bestätigung / Kontoaktivierung */}
+          <div className="bg-surface border border-border p-4 mb-4 text-left flex gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 6L2 7" /></svg>
+            <div>
+              <p className="font-sans text-sm font-semibold mb-1">Bestätige deine E-Mail-Adresse</p>
+              <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                Wir haben dir einen Bestätigungslink an{' '}
+                {email.trim() ? <span className="text-dark font-medium">{email.trim()}</span> : 'deine E-Mail-Adresse'}{' '}
+                geschickt. Bestätige deine Adresse, um dein Konto vollständig zu aktivieren.
+              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <Link
+                  href={`/e-mail-bestaetigen${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ''}`}
+                  className="font-sans text-xs text-accent-gold hover:underline"
+                >
+                  Demo: Link öffnen →
+                </Link>
+                {confirmResent ? (
+                  <span className="font-sans text-xs text-text-secondary">Erneut gesendet ✓</span>
+                ) : (
+                  <button
+                    onClick={() => setConfirmResent(true)}
+                    className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                  >
+                    E-Mail erneut senden
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="bg-accent-gold/10 border border-accent-gold/40 p-4 mb-8 text-left flex gap-3">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>

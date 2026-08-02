@@ -22,6 +22,7 @@ import {
   type FormationMemberSlot,
 } from '@/lib/formation'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
+import { PasswordInput } from '@/components/PasswordInput'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
@@ -29,6 +30,7 @@ const SECTIONS = [
   { id: 'abo', label: 'Mein Abo' },
   { id: 'rechnungen', label: 'Rechnungen & Zahlungen' },
   { id: 'zahlungsmittel', label: 'Zahlungsmittel' },
+  { id: 'sicherheit', label: 'Sicherheit' },
   { id: 'geraete', label: 'Geräte' },
 ] as const
 
@@ -542,6 +544,78 @@ function ZahlungsmittelTab() {
         </div>
       )}
     </SectionCard>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Sicherheit Tab — Passwort ändern
+// ---------------------------------------------------------------------------
+function SicherheitTab() {
+  // ── Passwort ändern ──
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [repeat, setRepeat] = useState('')
+  const [pwSaved, setPwSaved] = useState(false)
+
+  const tooShort = next.length > 0 && next.length < 8
+  const mismatch = repeat.length > 0 && repeat !== next
+  const pwValid = current.length > 0 && next.length >= 8 && next === repeat
+
+  const savePassword = () => {
+    if (!pwValid) return
+    setCurrent('')
+    setNext('')
+    setRepeat('')
+    setPwSaved(true)
+  }
+
+  return (
+    <>
+      {/* Passwort ändern */}
+      <SectionCard title="Passwort ändern" desc="Wähle ein neues Passwort für dein Konto (mind. 8 Zeichen).">
+        <div className="space-y-4 max-w-md">
+          <div>
+            <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Aktuelles Passwort</label>
+            <PasswordInput
+              value={current}
+              onChange={(e) => { setCurrent(e.target.value); setPwSaved(false) }}
+              placeholder="Aktuelles Passwort"
+              className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            />
+          </div>
+          <div>
+            <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Neues Passwort</label>
+            <PasswordInput
+              value={next}
+              onChange={(e) => { setNext(e.target.value); setPwSaved(false) }}
+              placeholder="Mindestens 8 Zeichen"
+              className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            />
+            {tooShort && <p className="font-sans text-xs text-accent-gold mt-1.5">Das Passwort muss mindestens 8 Zeichen lang sein.</p>}
+          </div>
+          <div>
+            <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Neues Passwort wiederholen</label>
+            <PasswordInput
+              value={repeat}
+              onChange={(e) => { setRepeat(e.target.value); setPwSaved(false) }}
+              placeholder="Passwort erneut eingeben"
+              className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+            />
+            {mismatch && <p className="font-sans text-xs text-accent-gold mt-1.5">Die Passwörter stimmen nicht überein.</p>}
+          </div>
+        </div>
+        <div className="flex items-center gap-3 mt-6 pt-5 border-t border-border">
+          <button
+            onClick={savePassword}
+            disabled={!pwValid}
+            className={`font-sans text-sm px-5 py-2.5 transition-colors ${pwValid ? 'bg-dark text-white hover:bg-accent-gold hover:text-white' : 'bg-border text-text-secondary cursor-not-allowed'}`}
+          >
+            Passwort speichern
+          </button>
+          {pwSaved && <span className="font-sans text-sm text-status-success">Passwort geändert ✓</span>}
+        </div>
+      </SectionCard>
+    </>
   )
 }
 
@@ -1098,6 +1172,8 @@ function AccountInner() {
             )}
 
             {activeTab === 'zahlungsmittel' && <ZahlungsmittelTab />}
+
+            {activeTab === 'sicherheit' && <SicherheitTab />}
 
             {activeTab === 'geraete' && <GeraeteTab />}
           </div>
