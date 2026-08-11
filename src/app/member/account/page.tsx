@@ -23,6 +23,14 @@ import {
 } from '@/lib/formation'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
 import { PasswordInput } from '@/components/PasswordInput'
+import {
+  LAEMU_BANK,
+  useBilling,
+  confirmBankTransferPaid,
+  formatDate,
+  formatAmount,
+  type BillingState,
+} from '@/lib/billing'
 
 const SECTIONS = [
   { id: 'konto', label: 'Konto & Daten' },
@@ -84,6 +92,78 @@ function SectionCard({ title, desc, children }: { title: string; desc?: string; 
   )
 }
 
+const billingReasonLabel: Record<BillingState['reason'], string> = {
+  registration: 'Erstregistrierung',
+  renewal: 'Verlängerung',
+  change: 'Abo-Änderung',
+}
+
+// ---------------------------------------------------------------------------
+// Vorauskasse-Rechnung (Banküberweisung) — offen/bezahlt, mit Bankverbindung
+// ---------------------------------------------------------------------------
+// Zeigt die Stripe-Rechnung mit den Angaben zur Banküberweisung. Der «LAEMU:
+// Zahlung bestätigen»-Button simuliert die manuelle Bestätigung des Bankeingangs
+// durch LAEMU — danach übernimmt die zentrale Aktivierungslogik.
+function BankTransferInvoiceCard({ billing }: { billing: BillingState }) {
+  const open = billing.invoiceStatus === 'open'
+  return (
+    <div className="border border-border">
+      <div className="flex items-center justify-between gap-3 p-4 border-b border-border">
+        <div className="min-w-0">
+          <p className="font-sans text-sm font-medium">
+            {billingReasonLabel[billing.reason]} · Vorauskasse
+          </p>
+          <p className="font-sans text-xs text-text-secondary">
+            {formatDate(billing.createdAt)} · Referenz <span className="tabular-nums">{billing.invoiceNumber}</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-4 flex-shrink-0">
+          {open ? (
+            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5">Offen</span>
+          ) : (
+            <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5">Bezahlt</span>
+          )}
+          <span className="font-sans text-sm font-medium whitespace-nowrap">{formatAmount(billing.amount, billing.currency)}</span>
+          <a href={billing.invoicePdfUrl} className="font-sans text-xs text-accent-gold hover:underline">PDF</a>
+        </div>
+      </div>
+
+      {open && (
+        <div className="p-4 space-y-3">
+          <p className="font-sans text-xs text-text-secondary leading-relaxed">
+            Überweise den Rechnungsbetrag mit der Referenz <span className="font-medium text-dark tabular-nums">{billing.invoiceNumber}</span> auf
+            folgendes Konto. Dein Zugang wird freigeschaltet, sobald die Zahlung bei uns eingegangen und deine
+            E-Mail-Adresse bestätigt ist.
+          </p>
+          <dl className="font-sans text-xs space-y-1.5 bg-background border border-border p-3">
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Empfänger</dt><dd className="text-dark font-medium text-right">{LAEMU_BANK.company}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Adresse</dt><dd className="text-dark text-right">{LAEMU_BANK.addressLines.join(', ')}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">IBAN</dt><dd className="text-dark font-medium text-right tabular-nums">{LAEMU_BANK.iban}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Betrag</dt><dd className="text-dark font-medium text-right">{formatAmount(billing.amount, billing.currency)} {billing.periodLabel}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Referenz</dt><dd className="text-accent-gold font-semibold text-right break-all">{billing.invoiceNumber}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Zahlungsfrist</dt><dd className="text-dark text-right">bis {formatDate(billing.dueDate)}</dd></div>
+          </dl>
+
+          {/* Demo: manuelle Bestätigung des Bankeingangs durch LAEMU. */}
+          <div className="bg-surface border border-dashed border-border p-3">
+            <p className="font-sans text-[11px] text-text-secondary leading-relaxed mb-2">
+              <span className="font-semibold text-dark">Demo (LAEMU-Backoffice):</span> Nach Prüfung des Bankeingangs
+              bestätigt LAEMU die Rechnung als bezahlt. Die anschliessende Freischaltung erfolgt automatisch über den
+              bestehenden Aktivierungsprozess (sofern die E-Mail-Adresse bestätigt ist).
+            </p>
+            <button
+              onClick={() => confirmBankTransferPaid()}
+              className="font-sans text-xs bg-dark text-white px-4 py-2 hover:bg-accent-gold hover:text-white transition-colors"
+            >
+              Zahlungseingang bestätigen (LAEMU)
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Frei hinzufügbare „Sonstiges“-Links (z.B. YouTube, Website …) — beliebig viele.
 // ---------------------------------------------------------------------------
 // Abo Tab
@@ -94,6 +174,18 @@ function AboTab() {
   const [abo, setAbo] = useState<UserAbo>(storedAbo)
   // useUserAbo liefert erst nach dem Mount den gespeicherten Wert — übernehmen.
   useEffect(() => { setAbo(storedAbo) }, [storedAbo])
+
+  // Vorauskasse-Zustand (Banküberweisung) — solange die Zahlung aussteht, ist
+  // das Abo noch nicht freigeschaltet.
+  const billing = useBilling()
+  // Nur bei der Erstregistrierung ersetzt der «Zahlung ausstehend»-Zustand die
+  // Abo-Ansicht (es gibt noch kein aktives Abo). Bei einer Verlängerung oder
+  // zahlungsrelevanten Abo-Änderung bleibt das bestehende Abo aktiv sichtbar —
+  // die offene Rechnung erscheint unter «Rechnungen & Zahlungen».
+  const pendingBankTransfer =
+    billing?.method === 'bank_transfer' &&
+    billing.subscriptionStatus === 'pending_payment' &&
+    billing.reason === 'registration'
 
   const [cancelled, setCancelled] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
@@ -120,6 +212,40 @@ function AboTab() {
   // Nicht-zahlungspflichtige Formationsmitglieder: Abo läuft über die Formation.
   const profile = useUserProfile()
   const isNonPayingMember = profile.inFormation && !profile.formationPayer
+
+  // Vorauskasse — Zahlung ausstehend: das gebuchte Abo ist noch nicht aktiv.
+  // Kein Paid-Zugriff, bis Zahlungseingang bestätigt UND E-Mail bestätigt sind.
+  if (pendingBankTransfer && billing) {
+    return (
+      <SectionCard title="Mein Abo" desc="Dein Abo ist reserviert — die Zahlung steht noch aus.">
+        <div className="border border-accent-gold/40 bg-accent-gold/10 p-5 mb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Gebuchter Plan</p>
+              <h3 className="font-heading text-xl font-bold">{aboPlanLabel(billing.pendingAbo)}</h3>
+              {aboInstrumentsLabel(billing.pendingAbo) && (
+                <p className="font-sans text-xs text-text-secondary mt-0.5">{aboInstrumentsLabel(billing.pendingAbo)}</p>
+              )}
+            </div>
+            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">
+              Zahlung ausstehend
+            </span>
+          </div>
+          <div className="mt-4 pt-4 border-t border-border text-right">
+            <p className="font-heading text-2xl font-bold text-accent-gold">{formatAmount(billing.amount, billing.currency)}</p>
+            <p className="font-sans text-xs text-text-secondary">{billing.periodLabel}</p>
+          </div>
+        </div>
+        <div className="bg-surface border border-border px-4 py-3">
+          <p className="font-sans text-sm text-text-secondary leading-relaxed">
+            Du hast Vorauskasse per Banküberweisung gewählt. Sobald deine Zahlung bei uns eingegangen und deine
+            E-Mail-Adresse bestätigt ist, wird dein Abo automatisch freigeschaltet. Die Rechnung mit der
+            Bankverbindung findest du unter «Rechnungen &amp; Zahlungen».
+          </p>
+        </div>
+      </SectionCard>
+    )
+  }
 
   // Demo-Daten für das über die Formation bezahlte Jahresabo.
   const paidDateLabel = '26. Juni 2026'
@@ -1071,6 +1197,9 @@ function AccountInner() {
   // gewünschte Tab automatisch wieder. So gibt es keinen destruktiven Reset.
   const activeTab: SectionId = visibleSections.some((s) => s.id === tab) ? tab : 'konto'
 
+  // Vorauskasse-Rechnung (Banküberweisung), falls vorhanden.
+  const billing = useBilling()
+
   // Rechnungen aus dem tatsächlich gewählten Abo ableiten (Free hat keine).
   const abo = useUserAbo()
   const monthlyLabel = `CHF ${aboMonthlyPrice(abo).toFixed(2)}`
@@ -1147,7 +1276,9 @@ function AccountInner() {
 
             {activeTab === 'rechnungen' && (
               <SectionCard title="Rechnungen & Zahlungen" desc="Deine Zahlungshistorie.">
-                {invoices.length === 0 ? (
+                {billing?.method === 'bank_transfer' ? (
+                  <BankTransferInvoiceCard billing={billing} />
+                ) : invoices.length === 0 ? (
                   <p className="font-sans text-sm text-text-secondary border border-dashed border-border px-4 py-6 text-center">
                     Mit deinem Free-Account fallen keine Rechnungen an.
                   </p>

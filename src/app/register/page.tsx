@@ -22,6 +22,12 @@ import {
 import { setStoredAbo } from '@/lib/userPlan'
 import { setStoredProfile } from '@/lib/userProfile'
 import { setStoredFormation, buildMemberSlots, emptyFormation } from '@/lib/formation'
+import {
+  LAEMU_BANK,
+  BANK_TRANSFER_DUE_DAYS,
+  createBankTransferInvoice,
+  setEmailVerified,
+} from '@/lib/billing'
 
 // In der Mitgliedschaft (Musikschule) wählbare Instrumente.
 const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
@@ -79,6 +85,11 @@ export default function RegisterPage() {
   const [ort, setOrt] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [done, setDone] = useState(false)
+  // Merkt sich, ob der Abschluss über Vorauskasse (Banküberweisung) erfolgt ist —
+  // steuert die abweichende Erfolgsseite und die Rechnungs-Info.
+  const [orderIsBankTransfer, setOrderIsBankTransfer] = useState(false)
+  const [orderInvoiceNumber, setOrderInvoiceNumber] = useState('')
+  const [orderDueDate, setOrderDueDate] = useState('')
   // Bestätigungs-E-Mail erneut senden (Demo — nur Rückmeldung).
   const [confirmResent, setConfirmResent] = useState(false)
 
@@ -228,6 +239,9 @@ export default function RegisterPage() {
 
   // Den gewählten Plan als Abo-Zustand speichern, damit der Mitgliederbereich
   // die richtigen Zugänge (Free / Starter / Pro) anzeigt, und abschliessen.
+  // Vorauskasse per Banküberweisung: nur bei kostenpflichtigen Abos wählbar.
+  const isBankTransfer = !isFree && selectedPayment === 'bank_transfer'
+
   const finishRegistration = () => {
     let abo: UserAbo
     if (isFree) {
@@ -247,7 +261,35 @@ export default function RegisterPage() {
         allInstruments: scope === 'all' || individualPlan === 'lernvideo',
       }
     }
-    setStoredAbo(abo)
+
+    // Bei Vorauskasse wird das gebuchte Abo NOCH NICHT freigeschaltet — der
+    // Zugriff hängt an bestätigter Zahlung + bestätigter E-Mail. Wir hinterlegen
+    // deshalb ein «leeres» aktives Abo (kein Paid-Zugriff) und führen das
+    // gebuchte Abo als `pendingAbo` in der Rechnung mit. Karte/TWINT/Free
+    // aktivieren wie bisher sofort.
+    if (isBankTransfer) {
+      setStoredAbo({ plan: 'none', instruments: [] })
+      // Neue Registrierung: E-Mail-Bestätigung steht noch aus.
+      setEmailVerified(false)
+      const fullName = [vorname.trim(), nachname.trim()].filter(Boolean).join(' ')
+      const invoice = createBankTransferInvoice({
+        amount: accountType === 'formation' ? formationPrice : individualPrice,
+        periodLabel: accountType === 'formation' ? '/ Jahr' : periodLabel,
+        ownerType: accountType,
+        ownerName: fullName,
+        ownerEmail: email.trim(),
+        ...(accountType === 'formation' && formationName.trim() ? { formationName: formationName.trim() } : {}),
+        ...(voucherApplied && voucher.trim() ? { voucher: voucher.trim().toUpperCase() } : {}),
+        pendingAbo: abo,
+        reason: 'registration',
+      })
+      setOrderInvoiceNumber(invoice.invoiceNumber)
+      setOrderDueDate(invoice.dueDate)
+      setOrderIsBankTransfer(true)
+    } else {
+      setStoredAbo(abo)
+      setOrderIsBankTransfer(false)
+    }
 
     // Eingegebene Angaben ins Profil übernehmen, damit Name & Infos im
     // Mitgliederbereich gleich stimmen. Das Profil (Bild, Bio, Instrumente …)
@@ -271,10 +313,16 @@ export default function RegisterPage() {
     // eingeladen werden.
     if (accountType === 'formation') {
       const emails = Array.from({ length: inviteCount }).map((_, i) => memberEmails[i + 1] ?? '')
+      const memberSlots = buildMemberSlots(inviteCount, emails)
       setStoredFormation({
         name: formationName.trim(),
         payerName: fullName,
-        members: buildMemberSlots(inviteCount, emails),
+        // Bei Vorauskasse dürfen die Mitglieder erst nach tatsächlicher
+        // Aktivierung (Zahlungseingang + E-Mail bestätigt) eingeladen werden —
+        // die Einladungen werden deshalb erst bei der Freischaltung ausgelöst.
+        members: isBankTransfer
+          ? memberSlots.map((m) => ({ ...m, invited: false }))
+          : memberSlots,
         // Bezahlte Mitgliederzahl inkl. der eigenen Person — begrenzt später,
         // wie viele Mitglieder in der Formationsübersicht ergänzt werden können.
         paidMemberCount: memberCount,
@@ -285,6 +333,99 @@ export default function RegisterPage() {
     }
 
     setDone(true)
+  }
+
+  // ── Erfolgsseite Vorauskasse (Banküberweisung) ──────────────────────────────
+  // Bewusst ANDERS als die direkte Zahlung: keine «Zahlung eingegangen»-Meldung,
+  // sondern Hinweis auf E-Mail-Bestätigung + Rechnung und die Freischaltung nach
+  // Zahlungseingang.
+  if (done && orderIsBankTransfer) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-lg w-full text-center"
+        >
+          <div className="w-20 h-20 bg-accent-gold flex items-center justify-center mx-auto mb-6">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h1 className="font-heading text-4xl font-bold mb-4">Registrierung erfolgreich</h1>
+          <p className="font-sans text-text-secondary leading-relaxed mb-6">
+            Danke! Deine Registrierung ist abgeschlossen.
+            <br /><br />
+            So geht es weiter: Nach deiner Bestellung erhältst du zwei separate E-Mails: eine zur Bestätigung
+            deiner E-Mail-Adresse und eine mit deiner Rechnung. Sobald deine E-Mail-Adresse bestätigt und deine
+            Zahlung bei uns eingegangen ist, wird dein Zugang freigeschaltet.
+          </p>
+
+          {/* E-Mail A — E-Mail-Adresse bestätigen (bestehende US-01.005-Logik) */}
+          <div className="bg-surface border border-border p-4 mb-4 text-left flex gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 6L2 7" /></svg>
+            <div>
+              <p className="font-sans text-sm font-semibold mb-1">1. Bestätige deine E-Mail-Adresse</p>
+              <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                Wir haben dir einen Bestätigungslink an{' '}
+                {email.trim() ? <span className="text-dark font-medium">{email.trim()}</span> : 'deine E-Mail-Adresse'}{' '}
+                geschickt. Die Bestätigung ist unabhängig von deiner Zahlung.
+              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <Link
+                  href={`/e-mail-bestaetigen${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ''}`}
+                  className="font-sans text-xs text-accent-gold hover:underline"
+                >
+                  Demo: Link öffnen →
+                </Link>
+                {confirmResent ? (
+                  <span className="font-sans text-xs text-text-secondary">Erneut gesendet ✓</span>
+                ) : (
+                  <button
+                    onClick={() => setConfirmResent(true)}
+                    className="font-sans text-xs text-text-secondary hover:text-dark transition-colors"
+                  >
+                    E-Mail erneut senden
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* E-Mail B — Rechnung mit Bankverbindung (transaktional) */}
+          <div className="bg-surface border border-border p-4 mb-4 text-left flex gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
+            <div className="min-w-0">
+              <p className="font-sans text-sm font-semibold mb-1">2. Deine Rechnung — Zahlung per Banküberweisung</p>
+              <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">
+                Wir haben dir die Rechnung per E-Mail geschickt. Überweise den Betrag innerhalb der Zahlungsfrist
+                auf unser Konto und gib dabei die Rechnungsreferenz an.
+              </p>
+              <dl className="font-sans text-xs space-y-1.5 bg-background border border-border p-3">
+                <div className="flex justify-between gap-3"><dt className="text-text-secondary">Empfänger</dt><dd className="text-dark font-medium text-right">{LAEMU_BANK.company}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-text-secondary">Adresse</dt><dd className="text-dark text-right">{LAEMU_BANK.addressLines.join(', ')}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-text-secondary">IBAN</dt><dd className="text-dark font-medium text-right tabular-nums">{LAEMU_BANK.iban}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-text-secondary">Betrag</dt><dd className="text-dark font-medium text-right">{summary.price} {summary.period}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-text-secondary">Referenz</dt><dd className="text-accent-gold font-semibold text-right break-all">{orderInvoiceNumber}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-text-secondary">Zahlungsfrist</dt><dd className="text-dark text-right">{BANK_TRANSFER_DUE_DAYS} Tage{orderDueDate ? ` · bis ${new Date(orderDueDate + 'T00:00:00').toLocaleDateString('de-CH', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}</dd></div>
+              </dl>
+              <p className="font-sans text-[11px] text-text-secondary leading-relaxed mt-2">
+                Die vollständige Rechnung inkl. PDF findest du auch in deinem Konto unter «Rechnungen &amp; Zahlungen».
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Link
+              href="/login"
+              className="block w-full bg-dark text-white text-center font-sans font-semibold py-4 hover:bg-accent-gold hover:text-white transition-colors"
+            >
+              Zur Anmeldung →
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    )
   }
 
   if (done) {
@@ -1023,6 +1164,9 @@ export default function RegisterPage() {
                       { id: 'twint', label: 'TWINT', sub: 'Direkte Zahlung per Smartphone', icon: (
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                       )},
+                      { id: 'bank_transfer', label: 'Vorauskasse per Banküberweisung', sub: 'Rechnung per E-Mail — du überweist den Betrag', icon: (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><path d="M5 21V10M19 21V10M9 21V10M15 21V10"/><path d="M4 10l8-6 8 6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      )},
                     ].map((method) => (
                       <button
                         key={method.id}
@@ -1096,6 +1240,18 @@ export default function RegisterPage() {
                     </div>
                   )}
 
+                  {/* Vorauskasse per Banküberweisung — Informationstext */}
+                  {selectedPayment === 'bank_transfer' && (
+                    <div className="mt-4 border border-accent-gold/40 bg-accent-gold/10 p-4">
+                      <p className="font-sans text-sm font-semibold mb-1">Vorauszahlung per Banküberweisung</p>
+                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                        Nach Abschluss erhältst du deine Rechnung per E-Mail. Überweise den Rechnungsbetrag innerhalb
+                        der angegebenen Zahlungsfrist. Sobald deine Zahlung bei uns eingegangen ist und du deine
+                        E-Mail-Adresse bestätigt hast, schalten wir dein Abo frei.
+                      </p>
+                    </div>
+                  )}
+
                   {/* Gutscheincode — nur bei Jahresabos einlösbar */}
                   <div className="mt-5">
                     <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Gutscheincode</label>
@@ -1152,14 +1308,16 @@ export default function RegisterPage() {
                     )}
                   </div>
 
-                  {/* Stripe — sichere Abwicklung der Zahlung (golden hint) */}
-                  <div className="mt-4 flex items-center gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
-                      Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
-                      wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
-                    </p>
-                  </div>
+                  {/* Stripe — sichere Abwicklung der Zahlung (golden hint) — nur bei Karte/TWINT */}
+                  {selectedPayment !== 'bank_transfer' && (
+                    <div className="mt-4 flex items-center gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                      <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                        Sichere Zahlung über <span className="font-semibold text-dark">Stripe</span> — dein Zahlungsmittel
+                        wird im Anschluss verschlüsselt mit Stripe verbunden. LAEMU speichert keine vollständigen Kartendaten.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Abo- & Kündigungshinweis */}
                   <div className="mt-4 flex items-start gap-2.5 bg-accent-gold/10 border border-accent-gold/40 px-4 py-3">
@@ -1182,7 +1340,11 @@ export default function RegisterPage() {
                   onClick={finishRegistration}
                   className="flex-1 bg-accent-gold text-white font-sans font-semibold py-4 hover:bg-dark transition-colors"
                 >
-                  {isFree ? 'Kostenlos abschliessen ✓' : 'Zahlungspflichtig abschliessen ✓'}
+                  {isFree
+                    ? 'Kostenlos abschliessen ✓'
+                    : isBankTransfer
+                      ? 'Kostenpflichtig bestellen'
+                      : 'Zahlungspflichtig abschliessen ✓'}
                 </button>
               </div>
               <p className="font-sans text-xs text-text-secondary text-center mt-3">
