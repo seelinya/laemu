@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { setEmailVerified, activateSubscriptionIfEligible } from '@/lib/billing'
 
 // ─── E-Mail-Bestätigung / Kontoaktivierung ────────────────────────────────────
 // Ziel des Bestätigungslinks aus der Registrierungs-E-Mail. In dieser Demo gibt
@@ -25,7 +26,15 @@ function BestaetigenInner() {
   useEffect(() => {
     if (expired) return
     // Token-Prüfung simulieren.
-    const t = setTimeout(() => setStatus('success'), 1100)
+    const t = setTimeout(() => {
+      setStatus('success')
+      // E-Mail-Verifikation persistieren (unabhängig vom Zahlungsstatus) und die
+      // zentrale Aktivierung anstossen: Ist die Vorauskasse-Rechnung bereits als
+      // bezahlt bestätigt, wird das Abo jetzt freigeschaltet. Andernfalls bleibt
+      // es «Zahlung ausstehend», bis LAEMU den Zahlungseingang bestätigt.
+      setEmailVerified(true)
+      activateSubscriptionIfEligible()
+    }, 1100)
     return () => clearTimeout(t)
   }, [expired])
 

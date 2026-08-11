@@ -19,6 +19,8 @@ import {
   type UserAbo,
 } from '@/lib/academy'
 import { setStoredAbo } from '@/lib/userPlan'
+import { readStoredProfile } from '@/lib/userProfile'
+import { LAEMU_BANK, BANK_TRANSFER_DUE_DAYS, createBankTransferInvoice, formatDate } from '@/lib/billing'
 
 const chf = (n: number) => `CHF ${n.toLocaleString('de-CH')}`
 
@@ -66,7 +68,7 @@ export function UpgradeDialog({
   const [members, setMembers] = useState(3)
 
   // Zahlungsmittel
-  const [payMethod, setPayMethod] = useState<'card' | 'twint'>('card')
+  const [payMethod, setPayMethod] = useState<'card' | 'twint' | 'bank_transfer'>('card')
   const [cardNumber, setCardNumber] = useState('')
   const [cardExp, setCardExp] = useState('')
   const [cardCvc, setCardCvc] = useState('')
@@ -74,6 +76,9 @@ export function UpgradeDialog({
   const [twintPhone, setTwintPhone] = useState('+41 ')
 
   const [confirmedAbo, setConfirmedAbo] = useState<UserAbo | null>(null)
+  // Bei Vorauskasse: erstellte Rechnung (statt sofortiger Aktivierung).
+  const [bankInvoiceNumber, setBankInvoiceNumber] = useState('')
+  const [bankDueDate, setBankDueDate] = useState('')
 
   const scopeCount = (s: Scope) => (s === 'all' ? ABO_INSTRUMENTS.length : Number(s))
   const hasScope = type === 'individual' && plan !== 'lernvideo' && individualPlanMeta[plan].hasScope
@@ -105,9 +110,11 @@ export function UpgradeDialog({
   const instrumentsComplete = !hasScope || instr.length === scopeCount(scope)
   const planStepValid = instrumentsComplete
   const paymentValid =
-    payMethod === 'card'
-      ? cardNumber.trim().length >= 12 && cardExp.trim().length >= 4 && cardCvc.trim().length >= 3 && cardHolder.trim().length > 0
-      : twintPhone.replace(/\D/g, '').length >= 9
+    payMethod === 'bank_transfer'
+      ? true
+      : payMethod === 'card'
+        ? cardNumber.trim().length >= 12 && cardExp.trim().length >= 4 && cardCvc.trim().length >= 3 && cardHolder.trim().length > 0
+        : twintPhone.replace(/\D/g, '').length >= 9
 
   function buildAbo(): UserAbo {
     if (type === 'formation') {
@@ -125,6 +132,28 @@ export function UpgradeDialog({
 
   function confirm() {
     const next = buildAbo()
+    if (payMethod === 'bank_transfer') {
+      // Zahlungsrelevante Abo-Änderung per Vorauskasse: Rechnung erstellen, das
+      // BESTEHENDE Abo bleibt bis zum Zahlungseingang aktiv. Nach bestätigter
+      // Zahlung übernimmt der bestehende Aktivierungsprozess und schaltet das
+      // neue Abo frei (US-01.012 §9).
+      const profile = readStoredProfile()
+      const invoice = createBankTransferInvoice({
+        amount: price,
+        periodLabel,
+        ownerType: type,
+        ownerName: profile.name,
+        ownerEmail: profile.email,
+        ...(type === 'formation' && profile.formationName ? { formationName: profile.formationName } : {}),
+        pendingAbo: next,
+        reason: 'change',
+      })
+      setBankInvoiceNumber(invoice.invoiceNumber)
+      setBankDueDate(invoice.dueDate)
+      setConfirmedAbo(next)
+      setStep('success')
+      return
+    }
     setStoredAbo(next)
     setConfirmedAbo(next)
     onUpgraded?.(next)
@@ -137,7 +166,29 @@ export function UpgradeDialog({
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8">
       <div className="absolute inset-0 bg-dark/70" onClick={onClose} />
       <div className="relative bg-surface border border-border w-full max-w-lg mx-4 shadow-xl">
-        {step === 'success' && confirmedAbo ? (
+        {step === 'success' && confirmedAbo && payMethod === 'bank_transfer' ? (
+          <div className="p-8 text-left">
+            <div className="w-16 h-16 bg-accent-gold flex items-center justify-center mx-auto mb-5">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            <h3 className="font-heading font-bold text-2xl mb-2 text-center">Rechnung erstellt</h3>
+            <p className="font-sans text-sm text-text-secondary mb-4 text-center">
+              Wir haben dir die Rechnung für <strong className="text-dark">{aboPlanLabel(confirmedAbo)}</strong> per
+              E-Mail geschickt. Dein bestehendes Abo bleibt aktiv — die Änderung wird wirksam, sobald deine Zahlung
+              bei uns eingegangen ist.
+            </p>
+            <dl className="font-sans text-xs space-y-1.5 bg-background border border-border p-3 mb-5">
+              <div className="flex justify-between gap-3"><dt className="text-text-secondary">Empfänger</dt><dd className="text-dark font-medium text-right">{LAEMU_BANK.company}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-text-secondary">IBAN</dt><dd className="text-dark font-medium text-right tabular-nums">{LAEMU_BANK.iban}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-text-secondary">Betrag</dt><dd className="text-dark font-medium text-right">{chf(price)} {periodLabel}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-text-secondary">Referenz</dt><dd className="text-accent-gold font-semibold text-right break-all">{bankInvoiceNumber}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-text-secondary">Zahlungsfrist</dt><dd className="text-dark text-right">{bankDueDate ? `bis ${formatDate(bankDueDate)}` : `${BANK_TRANSFER_DUE_DAYS} Tage`}</dd></div>
+            </dl>
+            <button onClick={onClose} className="block w-full bg-dark text-white font-sans text-sm px-6 py-3 hover:bg-accent-gold hover:text-white transition-colors">
+              Fertig
+            </button>
+          </div>
+        ) : step === 'success' && confirmedAbo ? (
           <div className="p-8 text-center">
             <div className="w-16 h-16 bg-accent-gold flex items-center justify-center mx-auto mb-5">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -375,22 +426,31 @@ export function UpgradeDialog({
                 <p className="font-sans text-xs text-text-secondary mb-4">Dein Zahlungsmittel wird sicher über Stripe verbunden.</p>
 
                 {/* Methodenwahl */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {([
                     { id: 'card', label: 'Kredit- / Debitkarte' },
                     { id: 'twint', label: 'TWINT' },
+                    { id: 'bank_transfer', label: 'Vorauskasse' },
                   ] as const).map((m) => (
                     <button
                       key={m.id}
                       onClick={() => setPayMethod(m.id)}
-                      className={`flex-1 py-2 font-sans text-sm border transition-colors ${payMethod === m.id ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                      className={`flex-1 min-w-[30%] py-2 font-sans text-sm border transition-colors ${payMethod === m.id ? 'bg-dark text-white border-dark' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
                     >
                       {m.label}
                     </button>
                   ))}
                 </div>
 
-                {payMethod === 'card' ? (
+                {payMethod === 'bank_transfer' ? (
+                  <div className="border border-accent-gold/40 bg-accent-gold/10 p-4">
+                    <p className="font-sans text-sm font-semibold mb-1">Vorauszahlung per Banküberweisung</p>
+                    <p className="font-sans text-xs text-text-secondary leading-relaxed">
+                      Nach Abschluss erhältst du die Rechnung für die Abo-Änderung per E-Mail. Dein bestehendes Abo
+                      bleibt aktiv, bis deine Zahlung bei uns eingegangen ist — danach wird die Änderung wirksam.
+                    </p>
+                  </div>
+                ) : payMethod === 'card' ? (
                   <div className="space-y-3">
                     <div>
                       <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Kartennummer</label>
@@ -425,7 +485,9 @@ export function UpgradeDialog({
 
                 <p className="font-sans text-[11px] text-text-secondary leading-relaxed mt-4 flex items-start gap-1.5">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  Die Abo-Änderung wird sofort aktiv. Du wirst {periodLabel === '/ Jahr' ? 'jährlich' : 'monatlich'} mit {chf(price)} belastet — jederzeit kündbar.
+                  {payMethod === 'bank_transfer'
+                    ? <>Die Änderung wird wirksam, sobald deine Zahlung von {chf(price)} bei uns eingegangen ist. Dein bestehendes Abo bleibt bis dahin aktiv — jederzeit kündbar.</>
+                    : <>Die Abo-Änderung wird sofort aktiv. Du wirst {periodLabel === '/ Jahr' ? 'jährlich' : 'monatlich'} mit {chf(price)} belastet — jederzeit kündbar.</>}
                 </p>
 
                 <div className="flex items-center gap-3 justify-between mt-5 pt-4 border-t border-border">
@@ -435,7 +497,7 @@ export function UpgradeDialog({
                     disabled={!paymentValid}
                     className={`font-sans text-sm px-5 py-2.5 transition-colors ${paymentValid ? 'bg-accent-gold text-white hover:bg-dark' : 'bg-border text-text-secondary cursor-not-allowed'}`}
                   >
-                    Zahlungspflichtig bestätigen ✓
+                    {payMethod === 'bank_transfer' ? 'Kostenpflichtig bestellen' : 'Zahlungspflichtig bestätigen ✓'}
                   </button>
                 </div>
               </div>
