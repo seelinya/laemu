@@ -180,6 +180,15 @@ export default function RegisterPage() {
     return individualPricing[plan][scope][priceBilling]
   }
 
+  // Referenzpreis für die Jahres-Ersparnis: 12 × Monatspreis. Der Jahrespreis
+  // liegt darunter (≈ 2 Monate geschenkt / −16 %) — das machen wir sichtbar,
+  // indem wir diesen Referenzwert durchgestrichen neben dem Jahrespreis zeigen.
+  const planCardMonthly = (plan: IndividualPlanId) => {
+    if (plan === 'lernvideo') return individualPricing.lernvideo.monthly
+    return individualPricing[plan][scope].monthly
+  }
+  const planCardYearlyRef = (plan: IndividualPlanId) => planCardMonthly(plan) * 12
+
   const formationPrice = formationYearlyPrice(formationPlan, memberCount)
   const formationExtra = Math.max(0, memberCount - FORMATION_INCLUDED_MEMBERS)
 
@@ -207,7 +216,7 @@ export default function RegisterPage() {
       : 'Alle Instrumente'
     return {
       title: individualPlanMeta[individualPlan].label,
-      sub: `${scopeText} · ${billing === 'yearly' ? 'Jährlich' : 'Monatlich'}`,
+      sub: `${scopeText} · ${billing === 'yearly' ? 'Jährlich · 2 Monate geschenkt' : 'Monatlich'}`,
       price: chf(individualPrice),
       period: periodLabel,
     }
@@ -796,7 +805,7 @@ export default function RegisterPage() {
               {accountType === 'individual' && (
                 <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
                   {([
-                    { id: 'yearly', label: 'Jährlich', hint: null },
+                    { id: 'yearly', label: 'Jährlich', hint: '2 Mte. gratis' },
                     { id: 'monthly', label: 'Monatlich', hint: null },
                     { id: 'free', label: 'Free', hint: 'Gratis' },
                   ] as const).map(opt => (
@@ -860,8 +869,14 @@ export default function RegisterPage() {
                             </div>
                             {!isFree && (
                               <div className="text-right flex-shrink-0">
+                                {billing === 'yearly' && (
+                                  <span className="font-sans text-xs text-text-secondary/70 line-through block leading-tight">{chf(planCardYearlyRef(planId))}</span>
+                                )}
                                 <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
                                 <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
+                                {billing === 'yearly' && (
+                                  <span className="font-sans text-[10px] font-semibold text-accent-gold block mt-0.5 whitespace-nowrap">2 Monate geschenkt</span>
+                                )}
                               </div>
                             )}
                           </div>
