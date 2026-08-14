@@ -858,6 +858,9 @@ export default function RegisterPage() {
                                 {meta.badge && (
                                   <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
                                 )}
+                                {!isFree && (
+                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary">{billing === 'yearly' ? 'Jahresabo' : 'Monatsabo'}</span>
+                                )}
                                 {isFree && (
                                   <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary inline-flex items-center gap-1">
                                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
@@ -869,14 +872,16 @@ export default function RegisterPage() {
                             </div>
                             {!isFree && (
                               <div className="text-right flex-shrink-0">
+                                <div className="flex items-baseline justify-end gap-1.5 leading-tight whitespace-nowrap">
+                                  {billing === 'yearly' && (
+                                    <span className="font-sans text-sm text-text-secondary/70 line-through">{chf(planCardYearlyRef(planId))}</span>
+                                  )}
+                                  <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
+                                  <span className="font-sans text-xs text-text-secondary">{periodLabel}</span>
+                                </div>
                                 {billing === 'yearly' && (
-                                  <div className="flex items-center justify-end gap-1.5 leading-tight">
-                                    <span className="font-sans text-xs text-text-secondary/70 line-through">{chf(planCardYearlyRef(planId))}</span>
-                                    <span className="font-sans text-[10px] font-bold px-1.5 py-0.5 bg-accent-gold text-white">−16 %</span>
-                                  </div>
+                                  <span className="font-sans text-[11px] font-semibold text-accent-gold block mt-0.5 whitespace-nowrap">2 Monate geschenkt</span>
                                 )}
-                                <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
-                                <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
                               </div>
                             )}
                           </div>
