@@ -870,13 +870,13 @@ export default function RegisterPage() {
                             {!isFree && (
                               <div className="text-right flex-shrink-0">
                                 {billing === 'yearly' && (
-                                  <span className="font-sans text-xs text-text-secondary/70 line-through block leading-tight">{chf(planCardYearlyRef(planId))}</span>
+                                  <div className="flex items-center justify-end gap-1.5 leading-tight">
+                                    <span className="font-sans text-xs text-text-secondary/70 line-through">{chf(planCardYearlyRef(planId))}</span>
+                                    <span className="font-sans text-[10px] font-bold px-1.5 py-0.5 bg-accent-gold text-white">−16 %</span>
+                                  </div>
                                 )}
                                 <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
                                 <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
-                                {billing === 'yearly' && (
-                                  <span className="font-sans text-[10px] font-semibold text-accent-gold block mt-0.5 whitespace-nowrap">2 Monate geschenkt</span>
-                                )}
                               </div>
                             )}
                           </div>
