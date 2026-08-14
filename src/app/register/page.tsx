@@ -180,6 +180,15 @@ export default function RegisterPage() {
     return individualPricing[plan][scope][priceBilling]
   }
 
+  // Referenzpreis für die Jahres-Ersparnis: 12 × Monatspreis. Der Jahrespreis
+  // liegt darunter (≈ 2 Monate geschenkt / −16 %) — das machen wir sichtbar,
+  // indem wir diesen Referenzwert durchgestrichen neben dem Jahrespreis zeigen.
+  const planCardMonthly = (plan: IndividualPlanId) => {
+    if (plan === 'lernvideo') return individualPricing.lernvideo.monthly
+    return individualPricing[plan][scope].monthly
+  }
+  const planCardYearlyRef = (plan: IndividualPlanId) => planCardMonthly(plan) * 12
+
   const formationPrice = formationYearlyPrice(formationPlan, memberCount)
   const formationExtra = Math.max(0, memberCount - FORMATION_INCLUDED_MEMBERS)
 
@@ -207,7 +216,7 @@ export default function RegisterPage() {
       : 'Alle Instrumente'
     return {
       title: individualPlanMeta[individualPlan].label,
-      sub: `${scopeText} · ${billing === 'yearly' ? 'Jährlich' : 'Monatlich'}`,
+      sub: `${scopeText} · ${billing === 'yearly' ? 'Jährlich · 2 Monate geschenkt' : 'Monatlich'}`,
       price: chf(individualPrice),
       period: periodLabel,
     }
@@ -794,19 +803,19 @@ export default function RegisterPage() {
 
               {/* Billing toggle (individual only) */}
               {accountType === 'individual' && (
-                <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
+                <div className="flex items-stretch justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
                   {([
-                    { id: 'yearly', label: 'Jährlich', hint: null },
+                    { id: 'yearly', label: 'Jährlich', hint: '2 Mte. gratis' },
                     { id: 'monthly', label: 'Monatlich', hint: null },
                     { id: 'free', label: 'Free', hint: 'Gratis' },
                   ] as const).map(opt => (
                     <button
                       key={opt.id}
                       onClick={() => setBilling(opt.id)}
-                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 font-sans text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 font-sans text-xs sm:text-sm transition-colors flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                     >
-                      {opt.label}
-                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 shrink-0 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                      <span className="whitespace-nowrap">{opt.label}</span>
+                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 shrink-0 whitespace-nowrap ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
                     </button>
                   ))}
                 </div>
@@ -840,7 +849,7 @@ export default function RegisterPage() {
                           onClick={() => { if (!isFree) setIndividualPlan(planId) }}
                           className={`w-full text-left p-5 border-2 transition-all ${active ? (planId === 'pro' ? 'border-accent-gold bg-accent-gold/5' : 'border-dark bg-dark/5') : 'border-border bg-surface'} ${isFree ? 'opacity-80 cursor-default' : 'hover:border-dark'}`}
                         >
-                          <div className="flex items-start justify-between gap-4">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
                                 <span>{meta.emoji}</span>
@@ -848,6 +857,9 @@ export default function RegisterPage() {
                                 <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                                 {meta.badge && (
                                   <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
+                                )}
+                                {!isFree && (
+                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary">{billing === 'yearly' ? 'Jahresabo' : 'Monatsabo'}</span>
                                 )}
                                 {isFree && (
                                   <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary inline-flex items-center gap-1">
@@ -859,9 +871,17 @@ export default function RegisterPage() {
                               <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
                             </div>
                             {!isFree && (
-                              <div className="text-right flex-shrink-0">
-                                <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
-                                <span className="font-sans text-xs text-text-secondary block">{periodLabel}</span>
+                              <div className="text-left sm:text-right flex-shrink-0">
+                                <div className="flex items-baseline justify-start sm:justify-end gap-1.5 leading-tight whitespace-nowrap">
+                                  {billing === 'yearly' && (
+                                    <span className="font-sans text-sm text-text-secondary/70 line-through">{chf(planCardYearlyRef(planId))}</span>
+                                  )}
+                                  <span className="font-heading font-bold text-xl text-accent-gold">{chf(planCardPrice(planId))}</span>
+                                  <span className="font-sans text-xs text-text-secondary">{periodLabel}</span>
+                                </div>
+                                {billing === 'yearly' && (
+                                  <span className="font-sans text-[11px] font-semibold text-accent-gold block mt-0.5 whitespace-nowrap">2 Monate geschenkt</span>
+                                )}
                               </div>
                             )}
                           </div>
