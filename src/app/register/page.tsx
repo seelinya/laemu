@@ -805,7 +805,7 @@ export default function RegisterPage() {
               {accountType === 'individual' && (
                 <div className="flex items-stretch justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
                   {([
-                    { id: 'yearly', label: 'Jährlich', hint: '2 Mte. gratis' },
+                    { id: 'yearly', label: 'Jährlich', hint: null },
                     { id: 'monthly', label: 'Monatlich', hint: null },
                     { id: 'free', label: 'Free', hint: 'Gratis' },
                   ] as const).map(opt => (
