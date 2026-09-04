@@ -203,7 +203,7 @@ export default function MemberAcademyPage() {
         <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 uppercase tracking-wide">Für alle</span>
       </div>
       <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {allgemeinKurse.map((kurs, i) => (
           <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
             <StarterCourseCard
@@ -275,7 +275,7 @@ export default function MemberAcademyPage() {
               <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
               <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {starterKurse.map((kurs, i) => (
                 <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                   <StarterCourseCard
@@ -298,7 +298,7 @@ export default function MemberAcademyPage() {
               <h3 className="font-heading text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
             </div>
             {proKurse.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {proKurse.map((kurs, i) => (
                   <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                     <StarterCourseCard
@@ -450,7 +450,7 @@ export default function MemberAcademyPage() {
                         <h4 className="font-heading font-bold text-lg">Zuletzt angeschaut</h4>
                         <span className="font-sans text-xs text-text-secondary">— da bist du stehengeblieben</span>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {activeCourses.map((kurs, i) => (
                           <motion.div key={kurs.key} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                             <StarterCourseCard

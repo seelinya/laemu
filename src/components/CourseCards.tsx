@@ -42,14 +42,15 @@ export function StarterCourseCard({
   const preview = locked && previewable
   // Anklickbar sind freie Kurse und Vorschau-Kurse; voll gesperrte (ohne Inhalt) nicht.
   const clickable = !locked || preview
-  const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col sm:flex-row h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
+  const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
   const cardInner = (
     <>
-      <div className={`relative w-full aspect-[4/3] sm:w-44 sm:self-start flex-shrink-0 overflow-hidden ${locked && !preview ? 'grayscale' : ''}`}>
-        <CourseCover variant={variant} size="sm" />
+      {/* Cover oben — festes 4:3, zugeschnitten (crop) */}
+      <div className={`relative w-full aspect-[4/3] flex-shrink-0 overflow-hidden ${locked && !preview ? 'grayscale' : ''}`}>
+        <CourseCover variant={variant} size="md" />
         {locked && !preview && (
           <span className="absolute inset-0 bg-dark/60 flex items-center justify-center z-10">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
           </span>
         )}
         {preview && (
