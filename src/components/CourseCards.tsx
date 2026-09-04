@@ -45,7 +45,7 @@ export function StarterCourseCard({
   const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col sm:flex-row h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
   const cardInner = (
     <>
-      <div className={`relative w-full h-40 sm:h-auto sm:w-28 flex-shrink-0 sm:self-stretch overflow-hidden ${locked && !preview ? 'grayscale' : ''}`}>
+      <div className={`relative w-full aspect-[4/3] sm:w-44 sm:self-start flex-shrink-0 overflow-hidden ${locked && !preview ? 'grayscale' : ''}`}>
         <CourseCover variant={variant} size="sm" />
         {locked && !preview && (
           <span className="absolute inset-0 bg-dark/60 flex items-center justify-center z-10">
