@@ -738,65 +738,26 @@ export default function MemberCommunityPage() {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-          {/* LEFT SIDEBAR */}
-          <div className="hidden lg:block">
-            <div className="sticky top-8 space-y-4">
-              {/* Own profile quick-card */}
-              <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border rounded-xl shadow-soft p-5 hover:border-dark transition-colors text-left block">
-                <div className="flex items-center gap-3">
-                  <Avatar src={profile.avatar} name={profile.name} className="w-12 h-12" textClassName="text-base" />
-                  <div>
-                    <p className="font-heading font-bold text-sm">{profile.name}</p>
-                    <p className="font-sans text-xs text-accent-gold">@{handleFromName(profile.name)}</p>
-                  </div>
-                </div>
-              </button>
-
-              <nav className="bg-surface border border-border rounded-xl shadow-soft p-2">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveNav(item.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-sans text-sm transition-colors text-left ${
-                      activeNav === item.id
-                        ? 'bg-accent-gold text-white font-medium'
-                        : 'text-text-secondary hover:bg-surface-muted hover:text-dark'
-                    }`}
-                  >
-                    <span>{item.icon}</span>
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-            </div>
-          </div>
-
-          {/* MAIN CONTENT */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Mobile nav */}
-            <div className="lg:hidden flex items-center gap-1 overflow-x-auto pb-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveNav(item.id)}
-                  className={`lae-tab flex-shrink-0 flex items-center gap-2 ${
-                    activeNav === item.id ? 'lae-tab-active' : 'lae-tab-idle'
-                  }`}
-                >
-                  {item.icon} {item.label}
-                </button>
-              ))}
-            </div>
-
-            {activeNav === 'start' && <StartView />}
-            {activeNav === 'profile' && <ProfileView />}
-            {activeNav === 'discover' && <DiscoverView />}
-          </div>
-
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        {/* Horizontale Unternavigation — oben und einzeilig, wie auf der
+            Stücke-Seite (einheitliches Tab-System app-weit). */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveNav(item.id)}
+              className={`lae-tab flex-shrink-0 flex items-center gap-2 ${
+                activeNav === item.id ? 'lae-tab-active' : 'lae-tab-idle'
+              }`}
+            >
+              {item.icon} {item.label}
+            </button>
+          ))}
         </div>
+
+        {activeNav === 'start' && <StartView />}
+        {activeNav === 'profile' && <ProfileView />}
+        {activeNav === 'discover' && <DiscoverView />}
       </div>
     </>
   )
