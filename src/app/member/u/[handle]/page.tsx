@@ -104,7 +104,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <div className="bg-dark text-white px-6 py-3 flex items-center gap-3">
+      <div className="bg-nav-dark text-white px-6 py-3 flex items-center gap-3">
         <button onClick={() => history.back()} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
           Zurück

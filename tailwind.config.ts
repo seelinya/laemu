@@ -14,7 +14,7 @@ const config: Config = {
         background: '#EFEFEF',           // Silbergrau — Seitenhintergrund
         surface: '#FFFFFF',              // Bühnenweiss — Karten, Panels, Modals
         'surface-muted': '#F7F7F7',      // sekundäre Flächen, Listenzeilen
-        'nav-dark': '#000000',           // Klangschwarz — obere Navigationsleiste
+        'nav-dark': '#333333',           // Dunkelgrau — obere/seitliche Navigation
         'text-primary': '#000000',       // Klangschwarz — Headlines, Fliesstext
         'text-secondary': '#505050',     // Steingrau — Labels, Metadaten
         'text-on-dark': '#FFFFFF',       // Text/Icons auf nav-dark
@@ -30,11 +30,10 @@ const config: Config = {
         dark: '#000000',
       },
       fontFamily: {
-        // Radona Norm ist lizenziert (kein Google Font) → lokal via @font-face
-        // einbinden; bis dahin greift der Fallback-Stack (FOUT-/Performance-sicher).
-        heading: ['var(--font-heading)', 'var(--font-jakarta)', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        sans: ['var(--font-sans)', 'var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
-        body: ['var(--font-sans)', 'var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        // Radona Norm ist die Markenschrift (lokal via @font-face); Fallback Open Sans.
+        heading: ['var(--font-heading)', 'var(--font-opensans)', 'Open Sans', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'var(--font-opensans)', 'Open Sans', 'system-ui', 'sans-serif'],
+        body: ['var(--font-sans)', 'var(--font-opensans)', 'Open Sans', 'system-ui', 'sans-serif'],
         script: ['var(--font-script)', 'cursive'],
       },
       animation: {

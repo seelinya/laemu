@@ -197,7 +197,7 @@ function EinladungInner() {
       {/* Rechte Spalte: Einladungs-Registrierung */}
       <div className="flex-1 min-w-0">
         {/* Top bar */}
-        <div className="bg-dark py-5 px-6 flex items-center justify-between">
+        <div className="bg-nav-dark py-5 px-6 flex items-center justify-between">
           <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
           <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
         </div>

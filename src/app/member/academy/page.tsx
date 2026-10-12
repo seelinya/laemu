@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MemberTabs } from '@/components/MemberTabs'
-import { MemberTopBar } from '@/components/MemberTopBar'
+import { MemberShell } from '@/components/MemberShell'
 import { courses, ALLGEMEIN_COURSES, getCourse } from '@/lib/courses'
 import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
@@ -329,7 +328,26 @@ export default function MemberAcademyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <MemberShell
+      active="academy"
+      title={`Hallo ${greetingName}`}
+      right={
+        hasCourseAccess ? (
+          <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5 rounded-lg">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+            <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
+          </div>
+        ) : (
+          <button
+            onClick={openUpgrade}
+            className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-1.5 rounded-lg font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+            {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
+          </button>
+        )
+      }
+    >
 
       {showUpgradeModal && (
         <UpgradeDialog
@@ -338,30 +356,6 @@ export default function MemberAcademyPage() {
           onUpgraded={() => setIsUpgraded(true)}
         />
       )}
-
-      {/* TOP BAR */}
-      <MemberTopBar
-        title={`Hallo ${greetingName}`}
-        right={
-          hasCourseAccess ? (
-            <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-              <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
-            </div>
-          ) : (
-            <button
-              onClick={openUpgrade}
-              className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-1.5 font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-              {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
-            </button>
-          )
-        }
-      />
-
-      {/* AREA TABS */}
-      <MemberTabs active="academy" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
@@ -485,6 +479,6 @@ export default function MemberAcademyPage() {
 
       {/* Persönlicher Support / Live-Chat */}
       <SupportWidget />
-    </div>
+    </MemberShell>
   )
 }

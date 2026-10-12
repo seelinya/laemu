@@ -72,7 +72,7 @@ const SOCIALS: SocialIcon[] = [
 export function Footer() {
   const year = new Date().getFullYear()
   return (
-    <footer className="bg-dark text-white">
+    <footer className="bg-nav-dark text-white">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {/* Brand */}

@@ -703,7 +703,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div className="bg-nav-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
             <IconBack /> <span className="hidden sm:inline">Stücke</span>
@@ -866,7 +866,7 @@ export default function LernvideoDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* TOP BAR */}
-      <div className="bg-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div className="bg-nav-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
             <IconBack /> <span className="hidden sm:inline">Stücke</span>

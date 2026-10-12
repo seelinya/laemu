@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MemberTabs } from '@/components/MemberTabs'
-import { MemberTopBar } from '@/components/MemberTopBar'
+import { MemberShell } from '@/components/MemberShell'
 import { Avatar } from '@/components/Avatar'
 import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } from '@/lib/userProfile'
@@ -711,14 +710,8 @@ export default function MemberCommunityPage() {
   const greetingName = profile.name.trim() || 'zusammen'
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* TOP BAR */}
-      <MemberTopBar title={`Hallo ${greetingName}`} />
-
-      {/* ── AREA TABS ── */}
-      <MemberTabs active="community" />
-
-      <div className="max-w-5xl mx-auto px-4 py-8">
+    <MemberShell active="community" title={`Hallo ${greetingName}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
           {/* LEFT SIDEBAR */}
@@ -778,6 +771,6 @@ export default function MemberCommunityPage() {
 
         </div>
       </div>
-    </div>
+    </MemberShell>
   )
 }
