@@ -8,7 +8,7 @@ import { motion } from 'framer-motion'
 import { PasswordInput } from '@/components/PasswordInput'
 
 // Begrüssungsbild links auf der Anmeldeseite — freundlicher Einstieg.
-const AUTH_IMAGE = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80'
+const AUTH_IMAGE = '/images/handorgel-portrait.jpg'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -28,15 +28,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background lg:flex">
       {/* Bild links — freundlicher Einstieg; LAEMU-Branding bleibt erhalten */}
       <div className="hidden lg:block lg:w-1/2 relative">
-        <Image src={AUTH_IMAGE} alt="" fill className="object-cover" unoptimized priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
-        <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
-          <p className="font-heading text-3xl font-bold tracking-tight">LAEMU</p>
-          <p className="font-sans text-sm text-white/85 mt-1 italic">Am Puls der Ländlermusik.</p>
-          <p className="font-sans text-sm text-white/75 mt-3 leading-relaxed max-w-sm">
-            Die Online-Musikschule für echte Ländlermusik — Kurse und Lernvideos von den Besten der Szene.
-          </p>
-        </div>
+        <Image src={AUTH_IMAGE} alt="" fill sizes="50vw" className="object-cover" priority />
       </div>
 
       {/* Rechte Spalte: Anmeldeformular */}

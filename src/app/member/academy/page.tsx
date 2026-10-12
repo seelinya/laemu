@@ -225,33 +225,36 @@ export default function MemberAcademyPage() {
     // Allgemeines Poster — die Einführung gilt der ganzen LAEMU-Musikschule.
     const poster = INTRO_POSTERS.allgemein
     return (
-      <div className="space-y-6">
-        <button className="relative aspect-video w-full overflow-hidden bg-dark group text-left block">
-          <Image src={poster} alt="Einführung in die LAEMU-Musikschule" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1000px" unoptimized />
-          <span className="absolute inset-0 bg-dark/45 group-hover:bg-dark/35 transition-colors" />
-          <span className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-            <span className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="white" className="ml-1"><polygon points="6 4 20 12 6 20 6 4" /></svg>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+        {/* Video + Einführungstext — nutzt auf Desktop die volle Breite */}
+        <div className="lg:col-span-2 space-y-4">
+          <button className="relative aspect-video w-full overflow-hidden rounded-2xl shadow-soft bg-dark group text-left block">
+            <Image src={poster} alt="Einführung in die LAEMU-Musikschule" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 850px" unoptimized />
+            <span className="absolute inset-0 bg-dark/45 group-hover:bg-dark/35 transition-colors" />
+            <span className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+              <span className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white" className="ml-1"><polygon points="6 4 20 12 6 20 6 4" /></svg>
+              </span>
+              <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-white/80 mb-1">Einführungsvideo</span>
+              <span className="font-heading font-black text-2xl sm:text-3xl text-white">Willkommen in der LAEMU-Musikschule</span>
             </span>
-            <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-white/80 mb-1">Einführungsvideo</span>
-            <span className="font-heading font-black text-2xl sm:text-3xl text-white">Willkommen in der LAEMU-Musikschule</span>
-          </span>
-        </button>
-        <p className="font-sans text-sm text-text-secondary leading-relaxed">
-          Schau dir zuerst die kurze Einführung an — sie zeigt dir, wie die LAEMU-Musikschule aufgebaut
-          ist und wie du am besten startest. Danach geht&rsquo;s direkt mit deiner ersten Lektion los.
-        </p>
+          </button>
+          <p className="font-sans text-sm text-text-secondary leading-relaxed">
+            Schau dir zuerst die kurze Einführung an — sie zeigt dir, wie die LAEMU-Musikschule aufgebaut
+            ist und wie du am besten startest. Danach geht&rsquo;s direkt mit deiner ersten Lektion los.
+          </p>
+        </div>
+
+        {/* Einstiegskarte — auf Desktop seitlich neben dem Video */}
         <div>
           <h4 className="font-heading font-bold text-lg mb-3">Hier startest du</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <StarterCourseCard
-              href={`/member/academy/instrument/${introInstrument.id}/kurs/${introKurs.id}`}
-              title={introKurs.title} level={introKurs.level} modules={introKurs.modules} duration={introKurs.duration}
-              desc={introKurs.desc} completedModules={introKurs.completedModules} instrument={introInstrument.label} variant={introInstrument.id}
-              locked={!courseUnlocked('Starter', introInstrument.label)} lockLabel="Starter"
-              previewable={!!getCourse(introInstrument.id, introKurs.id)}
-            />
-          </div>
+          <StarterCourseCard
+            href={`/member/academy/instrument/${introInstrument.id}/kurs/${introKurs.id}`}
+            title={introKurs.title} level={introKurs.level} modules={introKurs.modules} duration={introKurs.duration}
+            desc={introKurs.desc} completedModules={introKurs.completedModules} instrument={introInstrument.label} variant={introInstrument.id}
+            locked={!courseUnlocked('Starter', introInstrument.label)} lockLabel="Starter"
+            previewable={!!getCourse(introInstrument.id, introKurs.id)}
+          />
         </div>
       </div>
     )
@@ -360,7 +363,7 @@ export default function MemberAcademyPage() {
       {/* AREA TABS */}
       <MemberTabs active="academy" />
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
           {/* MAIN CONTENT */}
           <div className="space-y-10">
@@ -369,8 +372,8 @@ export default function MemberAcademyPage() {
             {(
               <>
                 {/* Search */}
-                <div className="relative">
-                  <div className={`flex items-center border transition-colors ${searchFocused ? 'border-accent-gold' : 'border-border'} bg-surface`}>
+                <div className="relative max-w-3xl">
+                  <div className={`flex items-center border rounded-xl shadow-soft transition-colors ${searchFocused ? 'border-accent-gold' : 'border-border'} bg-surface`}>
                     <svg className="ml-4 flex-shrink-0 text-text-secondary" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                     <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setSearchFocused(true)} onBlur={() => setTimeout(() => setSearchFocused(false), 150)}

@@ -14,11 +14,12 @@ const COVER_GRADIENTS: Record<string, string> = {
 }
 
 // Passende Bilder je Kurs-Variante (Instrument bzw. allgemeiner Lehrgang).
+// Freundliche, originalgetreue Fotos (lokal) für Handorgel & Schwyzerörgeli.
 const COVER_IMAGES: Record<string, string> = {
-  handorgel: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80',
-  schwyzer: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=600&q=80',
+  handorgel: '/images/handorgel-portrait.jpg',
+  schwyzer: '/images/oergeli-tasten.jpg',
   bassgeige: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=600&q=80',
-  allgemein: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&q=80',
+  allgemein: '/images/handorgel-recording.jpg',
 }
 
 export function CourseCover({
