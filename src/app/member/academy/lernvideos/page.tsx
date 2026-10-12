@@ -95,7 +95,6 @@ const initialWishes: Wish[] = [
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const INSTRUMENTS = ['Alle', 'Schwyzerörgeli', 'Handorgel', 'Bassgeige']
 const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Marsch', 'Lied']
 const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
 
@@ -126,10 +125,8 @@ export default function LernvideosPage() {
   const userAbo = useUserAbo()
   const greetingName = useUserProfile().name.trim() || 'zusammen'
   const [search, setSearch] = useState('')
-  const [filterInst, setFilterInst] = useState('Alle')
   const [filterArt, setFilterArt] = useState<ArtFilter | null>(null)
   const [filterTakt, setFilterTakt] = useState<string | null>(null)
-  const [filterStyleTag, setFilterStyleTag] = useState<string | null>(null)
   const [filterGenreTag, setFilterGenreTag] = useState<string | null>(null)
   const [filterNotenV, setFilterNotenV] = useState(false)
   const [filterNotenG, setFilterNotenG] = useState(false)
@@ -197,26 +194,24 @@ export default function LernvideosPage() {
   const toggleArt = (val: ArtFilter) => {
     setFilterArt(prev => {
       const next = prev === val ? null : val
-      if (next !== 'volkstuemlich') { setFilterStyleTag(null); setFilterTakt(null) }
+      if (next !== 'volkstuemlich') { setFilterTakt(null) }
       if (next !== 'bekannte_melodie') { setFilterGenreTag(null) }
       return next
     })
   }
 
   const resetAll = () => {
-    setSearch(''); setFilterInst('Alle'); setFilterArt(null); setFilterTakt(null)
-    setFilterStyleTag(null); setFilterGenreTag(null)
+    setSearch(''); setFilterArt(null); setFilterTakt(null)
+    setFilterGenreTag(null)
     setFilterNotenV(false); setFilterNotenG(false); setFilterLearned('all')
     setFilterLevel(null)
   }
 
   const filtered = videos.filter(v => {
     const q = search.toLowerCase()
-    if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q) && !v.autoTags.some(t => t.toLowerCase().includes(q))) return false
-    if (filterInst !== 'Alle' && v.instrument !== filterInst) return false
+    if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q)) return false
     if (filterArt && v.artDesStückes !== filterArt) return false
     if (filterTakt && v.taktart !== filterTakt) return false
-    if (filterStyleTag && !(v.styleTags as string[]).includes(filterStyleTag)) return false
     if (filterGenreTag && !v.melodieTags.includes(filterGenreTag)) return false
     if (filterNotenV && !v.notesAvailable.violinschluessel) return false
     if (filterNotenG && !v.notesAvailable.griffschrift) return false
@@ -229,8 +224,8 @@ export default function LernvideosPage() {
   const savedVideos = videos.filter(v => saved.has(v.id))
 
   const activeFilterCount = [
-    filterInst !== 'Alle', filterArt !== null, filterTakt !== null,
-    filterStyleTag !== null, filterGenreTag !== null,
+    filterArt !== null, filterTakt !== null,
+    filterGenreTag !== null,
     filterNotenV, filterNotenG, filterLearned !== 'all', filterLevel !== null,
   ].filter(Boolean).length
 
@@ -287,12 +282,9 @@ export default function LernvideosPage() {
         <div className="flex-1 p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 min-w-0">
           <div className="flex-1 min-w-0">
             <h4 className="font-heading font-bold text-sm group-hover:text-accent-gold transition-colors leading-snug mb-1">{v.title}</h4>
-            <p className="font-sans text-xs text-text-secondary mb-2">{v.artist}</p>
-            {/* Tags unter dem Namen — Taktart und Level/Plan. */}
+            {/* Reihenfolge: Taktart, dann Komponist, dann Formation. */}
+            <p className="font-sans text-xs text-text-secondary mb-2">{[v.taktart, v.composer, v.artist].filter(Boolean).join(' · ')}</p>
             <div className="flex flex-wrap items-center gap-1">
-              {v.taktart && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-background border border-border text-text-secondary">{v.taktart}</span>
-              )}
               <span className={`font-sans text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
             </div>
           </div>
@@ -385,7 +377,7 @@ export default function LernvideosPage() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   type="text"
-                  placeholder="Titel, Interpret, Komponist, Tags…"
+                  placeholder="Titel, Komponist, Formation …"
                   className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                 />
                 <button
@@ -412,13 +404,6 @@ export default function LernvideosPage() {
                     className="overflow-hidden"
                   >
                     <div className="border border-border bg-surface p-4 space-y-5">
-                      {/* Instrument */}
-                      <div>
-                        <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Instrument</label>
-                        <select value={filterInst} onChange={e => setFilterInst(e.target.value)} className="w-full border border-border pl-3 pr-9 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface">
-                          {INSTRUMENTS.map(o => <option key={o}>{o}</option>)}
-                        </select>
-                      </div>
                       {/* Art des Stückes */}
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-2">Art des Stückes</label>
@@ -530,21 +515,9 @@ export default function LernvideosPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 type="text"
-                placeholder="Titel, Interpret, Komponist, Tags…"
+                placeholder="Titel, Komponist, Formation …"
                 className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
               />
-
-              {/* Instrument */}
-              <div>
-                <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Instrument</label>
-                <select
-                  value={filterInst}
-                  onChange={e => setFilterInst(e.target.value)}
-                  className="w-full border border-border pl-3 pr-9 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
-                >
-                  {INSTRUMENTS.map(o => <option key={o}>{o}</option>)}
-                </select>
-              </div>
 
               {/* Advanced filter toggle */}
               <button
@@ -681,13 +654,11 @@ export default function LernvideosPage() {
                 </p>
                 {activeFilterCount > 0 && (
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterInst}</span>}
                     {filterArt && (
                       <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
                         {filterArt === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
                       </span>
                     )}
-                    {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterStyleTag}</span>}
                     {filterTakt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterTakt}</span>}
                     {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterGenreTag}</span>}
                     {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-border text-text-secondary">Violinschlüssel</span>}
