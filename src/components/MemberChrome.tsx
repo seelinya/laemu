@@ -35,25 +35,43 @@ export function useMemberHeader(header: MemberHeader, key: string) {
 /** Konsistente Breadcrumb für die Topbar. Erbt die Textfarbe (dunkel auf hellem
  *  Desktop-Bar, weiss im mobilen dunklen Header). */
 export function MemberBreadcrumb({ items }: { items: { label: string; href?: string }[] }) {
+  const lastIdx = items.length - 1
+  const last = items[lastIdx]
+  const parent = lastIdx > 0 ? items[lastIdx - 1] : null
+  const hasAncestors = items.length > 2
   return (
-    <nav className="flex items-center gap-2 min-w-0 font-sans text-sm">
-      {items.map((it, i) => {
-        const last = i === items.length - 1
-        return (
-          <span key={i} className="flex items-center gap-2 min-w-0">
-            {it.href && !last ? (
-              <Link href={it.href} className="flex items-center gap-1.5 flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
-                {i === 0 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>}
-                {it.label}
-              </Link>
-            ) : (
-              <span className={last ? 'font-semibold truncate' : 'opacity-60 flex-shrink-0'}>{it.label}</span>
-            )}
-            {!last && <span className="opacity-30 flex-shrink-0">/</span>}
-          </span>
-        )
-      })}
-    </nav>
+    <>
+      {/* Mobile: kompakt — Zurück-Pfeil zum übergeordneten Punkt, zu lange Pfade
+          werden mit «…» abgekürzt. */}
+      <nav className="flex sm:hidden items-center gap-1.5 min-w-0 font-sans text-sm">
+        {parent?.href && (
+          <Link href={parent.href} aria-label={`Zurück zu ${parent.label}`} className="flex items-center flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          </Link>
+        )}
+        {hasAncestors && <span className="opacity-40 flex-shrink-0">…</span>}
+        <span className="font-semibold truncate">{last.label}</span>
+      </nav>
+      {/* Desktop/Tablet: vollständige Breadcrumb */}
+      <nav className="hidden sm:flex items-center gap-2 min-w-0 font-sans text-sm">
+        {items.map((it, i) => {
+          const isLast = i === items.length - 1
+          return (
+            <span key={i} className="flex items-center gap-2 min-w-0">
+              {it.href && !isLast ? (
+                <Link href={it.href} className="flex items-center gap-1.5 flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
+                  {i === 0 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>}
+                  {it.label}
+                </Link>
+              ) : (
+                <span className={isLast ? 'font-semibold truncate' : 'opacity-60 flex-shrink-0'}>{it.label}</span>
+              )}
+              {!isLast && <span className="opacity-30 flex-shrink-0">/</span>}
+            </span>
+          )
+        })}
+      </nav>
+    </>
   )
 }
 
@@ -162,23 +180,22 @@ export function MemberChrome({ children }: { children: ReactNode }) {
 
         {/* ── Hauptspalte ── */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Mobile-Header */}
+          {/* Mobile-Header — kompakt, einzeilig. Links Logo + Breadcrumb/Titel
+              (zu lange Pfade mit «…»), rechts Benachrichtigung und Burger-Menü. */}
           <header className="lg:hidden sticky top-0 z-30 bg-nav-dark text-text-on-dark">
-            <div className="flex items-center justify-between gap-2 h-14 px-4">
-              <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -ml-2 text-white/80 hover:text-white transition-colors">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
-              </button>
-              <Link href="/member/academy" className="font-heading text-xl font-bold tracking-tight text-white">LAEMU</Link>
-              <div className="flex items-center gap-0.5"><NotificationBell /><ProfileMenu /></div>
-            </div>
-            {(header?.title || header?.breadcrumb || header?.right) && (
-              <div className="flex items-center justify-between gap-3 px-4 pb-3">
-                <div className="min-w-0">
-                  {header?.breadcrumb ? header.breadcrumb : header?.title ? <h1 className="font-heading font-bold text-base text-white truncate">{header.title}</h1> : null}
-                </div>
-                {header?.right ? <div className="flex items-center gap-1.5 flex-shrink-0">{header.right}</div> : null}
+            <div className="flex items-center gap-2.5 h-12 px-4">
+              <Link href="/member/academy" className="font-heading text-lg font-bold tracking-tight text-white flex-shrink-0">LAEMU</Link>
+              <div className="min-w-0 flex-1 text-white">
+                {header?.breadcrumb ? header.breadcrumb : header?.title ? <h1 className="font-heading font-bold text-sm text-white truncate">{header.title}</h1> : null}
               </div>
-            )}
+              <div className="flex items-center gap-0.5 flex-shrink-0">
+                {header?.right}
+                <NotificationBell />
+                <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -mr-2 text-white/80 hover:text-white transition-colors">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+                </button>
+              </div>
+            </div>
           </header>
 
           {/* Desktop-Topbar */}
