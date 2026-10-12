@@ -20,7 +20,7 @@ const paddingStyles = {
 
 export function Card({ children, className, hover = false, onClick, padding = 'md' }: CardProps) {
   const baseStyles = clsx(
-    'bg-surface border border-border transition-colors',
+    'bg-surface border border-border rounded-xl shadow-soft transition-colors',
     paddingStyles[padding],
     hover && 'cursor-pointer hover:border-border-dark',
     className

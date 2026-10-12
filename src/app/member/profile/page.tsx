@@ -92,7 +92,7 @@ export default function MemberProfilePage() {
 
       <div className="max-w-2xl mx-auto px-4 py-10">
         {/* Profile header — ohne Titelbild */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border overflow-hidden mb-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden mb-6">
           <div className="p-6">
             <div className="mb-4">
               <div className="relative w-20 h-20 rounded-full overflow-hidden border border-border bg-background flex items-center justify-center text-text-secondary flex-shrink-0">

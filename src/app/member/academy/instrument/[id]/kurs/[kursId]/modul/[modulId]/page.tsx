@@ -415,7 +415,7 @@ export default function ModulPage({
 
           {/* ── LEFT SIDEBAR ── */}
           <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-24">
-            <div className="bg-surface border border-border overflow-hidden">
+            <div className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden">
               {/* Course progress */}
               <div className="p-4 border-b border-border">
                 <Link href={kursPath} className="font-heading font-bold text-sm hover:text-accent-gold transition-colors">
@@ -577,7 +577,7 @@ export default function ModulPage({
               <LessonVideoPlayer title={activeLesson?.title ?? ''} duration={activeLesson?.duration ?? ''} />
 
               {/* Text content */}
-              <div className="bg-surface border border-border p-6 prose-sm max-w-none">
+              <div className="bg-surface border border-border rounded-xl shadow-soft p-6 prose-sm max-w-none">
                 <p className="font-sans text-sm text-dark leading-relaxed">
                   Willkommen zu deiner Lektion <strong>{activeLesson?.title}</strong> in der LAEMU Musikschule! In dieser Lektion lernst du Schritt für Schritt, wie du sicher mit deiner Handorgel umgehst und die wichtigsten Teile kennenlernst. Hansruedi zeigt dir, worauf du besonders achten musst.
                 </p>
@@ -599,7 +599,7 @@ export default function ModulPage({
               </div>
 
               {/* Download section */}
-              <div className="bg-surface border border-border p-5">
+              <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
                 <h3 className="font-heading font-bold text-sm mb-3">Materialien zur Lektion</h3>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 bg-accent-gold/10 flex items-center justify-center flex-shrink-0">

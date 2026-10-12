@@ -385,7 +385,7 @@ export default function MemberAcademyPage() {
                   <AnimatePresence>
                     {showSearchDropdown && (
                       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 right-0 z-50 bg-surface border border-border shadow-lg mt-1">
+                        className="absolute top-full left-0 right-0 z-50 bg-surface border border-border rounded-xl shadow-lg mt-1">
                         {filteredResults.length === 0 ? (
                           <p className="px-4 py-4 font-sans text-sm text-text-secondary">Keine Ergebnisse für &ldquo;{searchQuery}&rdquo;</p>
                         ) : (

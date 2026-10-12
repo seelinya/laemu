@@ -740,7 +740,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
         </div>
 
         {/* Piece info */}
-        <div className="bg-surface border border-border p-6">
+        <div className="bg-surface border border-border rounded-xl shadow-soft p-6">
           <h2 className="font-heading font-bold text-2xl mb-1">{piece.title}</h2>
           <p className="font-sans text-sm text-accent-gold mb-4">{piece.artist} · {piece.year}</p>
           <div className="flex flex-wrap gap-2">
@@ -829,7 +829,7 @@ export default function LernvideoDetailPage() {
   const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean, notenKeys: string[] = ALLOWED_NOTEN_KEYS) => {
     const noten = stimme.noten.filter(n => notenKeys.includes(n.key))
     return (
-      <div key={stimme.id} className="bg-surface border border-border overflow-hidden">
+      <div key={stimme.id} className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden">
         <div className="px-5 py-3 border-b border-border bg-background flex items-center gap-2.5">
           <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stimme.color }} />
           <span className="font-heading font-bold text-sm">{stimme.label}</span>
@@ -924,7 +924,7 @@ export default function LernvideoDetailPage() {
                 </motion.div>
 
                 {/* 2 — STÜCK-INFORMATION */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border p-6">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
                   <h2 className="font-heading font-bold text-2xl mb-1">{v.title}</h2>
                   <p className="font-sans text-sm text-accent-gold mb-4">
                     {v.artist}{v.taktart ? ` · ${v.taktart}` : ''}{v.composer !== v.artist ? ` · Komp.: ${v.composer}` : ''}
@@ -972,7 +972,7 @@ export default function LernvideoDetailPage() {
 
                 {/* 3 — LIEDTEXT (einklappbar, standardmässig geschlossen) */}
                 {v.lyrics && (
-                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} className="bg-surface border border-border">
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }} className="bg-surface border border-border rounded-xl shadow-soft">
                     <button onClick={() => setShowLyrics(s => !s)} className="w-full flex items-center justify-between gap-2 px-6 py-4 hover:bg-background transition-colors" aria-expanded={showLyrics}>
                       <span className="font-heading font-bold text-lg flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
@@ -991,7 +991,7 @@ export default function LernvideoDetailPage() {
                 )}
 
                 {/* 4 — NOTEN */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="bg-surface border border-border p-6">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.07 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
                   <h3 className="font-heading font-bold text-lg mb-1 flex items-center gap-2"><IconMusic /> Noten</h3>
 
                   {noNotes ? (
@@ -1029,7 +1029,7 @@ export default function LernvideoDetailPage() {
                 </motion.div>
 
                 {/* 5 — VERWEISE */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="bg-surface border border-border p-6 space-y-6">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="bg-surface border border-border rounded-xl shadow-soft p-6 space-y-6">
                   <h3 className="font-heading font-bold text-lg">Verweise & Entdecken</h3>
 
                   {/* Spotify */}
@@ -1106,7 +1106,7 @@ export default function LernvideoDetailPage() {
                 </div>
                 {stimme1Sections.length > 0
                   ? stimme1Sections.map(s => renderStimmeSection(s, false))
-                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 1.-Stimme-Video.</p>}
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border rounded-xl shadow-soft">Für dieses Stück gibt es kein 1.-Stimme-Video.</p>}
               </motion.div>
             )}
 
@@ -1118,7 +1118,7 @@ export default function LernvideoDetailPage() {
                 </div>
                 {stimme2Sections.length > 0
                   ? stimme2Sections.map(s => renderStimmeSection(s, false))
-                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es kein 2.-Stimme-Video.</p>}
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border rounded-xl shadow-soft">Für dieses Stück gibt es kein 2.-Stimme-Video.</p>}
               </motion.div>
             )}
 
@@ -1130,7 +1130,7 @@ export default function LernvideoDetailPage() {
                 </div>
                 {begleitSections.length > 0
                   ? begleitSections.map(s => renderStimmeSection(s, true, ['violin']))
-                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border">Für dieses Stück gibt es keine Begleitvideos.</p>}
+                  : <p className="font-sans text-sm text-text-secondary py-8 text-center bg-surface border border-border rounded-xl shadow-soft">Für dieses Stück gibt es keine Begleitvideos.</p>}
               </motion.div>
             )}
 
@@ -1155,7 +1155,7 @@ export default function LernvideoDetailPage() {
           <div>
             <div className="sticky top-8 space-y-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-1">
               {/* Metadata */}
-              <div className="bg-surface border border-border p-5">
+              <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
                 <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Stück-Info</p>
                 <div className="space-y-0">
                   {([
@@ -1172,7 +1172,7 @@ export default function LernvideoDetailPage() {
               </div>
 
               {/* Actions */}
-              <div className="bg-surface border border-border p-4 space-y-2">
+              <div className="bg-surface border border-border rounded-xl shadow-soft p-4 space-y-2">
                 <button onClick={() => setFavorited(!favorited)} className={`w-full flex items-center gap-2 font-sans text-sm px-3 py-2.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark text-text-secondary'}`}>
                   <IconHeart filled={favorited} /> {favorited ? 'In Merkliste' : 'Zur Merkliste hinzufügen'}
                 </button>
@@ -1182,7 +1182,7 @@ export default function LernvideoDetailPage() {
               </div>
 
               {/* Interpret (mehrere möglich — je Instrument/Stimme) */}
-              <div className="bg-surface border border-border p-5">
+              <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
                 <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Interpret</p>
                 <div className="space-y-5">
                   {v.teachers.map((t, i) => (
@@ -1248,7 +1248,7 @@ export default function LernvideoDetailPage() {
           )
 
           return (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border p-6 mt-6 lg:mt-8">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border rounded-xl shadow-soft p-6 mt-6 lg:mt-8">
               {/* Header */}
               <div className="mb-5">
                 <h3 className="font-heading font-bold text-lg">Kommentare ({totalCount})</h3>

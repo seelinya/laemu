@@ -80,7 +80,7 @@ export function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border shadow-xl z-50">
+          <div className="absolute right-0 top-full mt-1 w-80 max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-xl shadow-xl z-50">
             <div className="flex items-center justify-between p-3 border-b border-border">
               <p className="font-heading font-bold text-sm">Benachrichtigungen</p>
               {unread > 0 && (
@@ -152,7 +152,7 @@ export function ProfileMenu() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 w-64 bg-surface border border-border shadow-xl z-50">
+          <div className="absolute right-0 top-full mt-1 w-64 bg-surface border border-border rounded-xl shadow-xl z-50">
             <div className="flex items-center gap-3 p-4 border-b border-border">
               <Avatar src={avatar} name={name} className="w-11 h-11" textClassName="text-base" />
               <div className="min-w-0">

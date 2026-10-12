@@ -115,7 +115,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
 
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border p-6 flex flex-col sm:flex-row gap-6">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col sm:flex-row gap-6">
           <div className="relative w-28 h-28 overflow-hidden flex-shrink-0 bg-background border border-border">
             {profile.avatar ? (
               <Image src={profile.avatar} alt={profile.name} fill className="object-cover" unoptimized />
@@ -155,7 +155,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
 
         {/* Shared info */}
         {hasShares ? (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-surface border border-border p-6">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
             <h2 className="font-heading font-bold text-lg mb-1">Kontakt & geteilte Infos</h2>
             <p className="font-sans text-xs text-text-secondary mb-4">Diese Angaben hat {profile.name.split(' ')[0]} freiwillig öffentlich geteilt.</p>
 
@@ -194,7 +194,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             </div>
           </motion.div>
         ) : (
-          <div className="bg-surface border border-border p-6 text-center">
+          <div className="bg-surface border border-border rounded-xl shadow-soft p-6 text-center">
             <p className="font-sans text-sm text-text-secondary">{profile.name.split(' ')[0]} hat noch keine Kontaktinfos öffentlich geteilt.</p>
           </div>
         )}

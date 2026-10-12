@@ -1,10 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { PasswordInput } from '@/components/PasswordInput'
+
+// Begrüssungsbild links auf der Anmeldeseite — freundlicher Einstieg.
+const AUTH_IMAGE = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,7 +25,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background lg:flex">
+      {/* Bild links — freundlicher Einstieg; LAEMU-Branding bleibt erhalten */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        <Image src={AUTH_IMAGE} alt="" fill className="object-cover" unoptimized priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+        <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+          <p className="font-heading text-3xl font-bold tracking-tight">LAEMU</p>
+          <p className="font-sans text-sm text-white/85 mt-1 italic">Am Puls der Ländlermusik.</p>
+          <p className="font-sans text-sm text-white/75 mt-3 leading-relaxed max-w-sm">
+            Die Online-Musikschule für echte Ländlermusik — Kurse und Lernvideos von den Besten der Szene.
+          </p>
+        </div>
+      </div>
+
+      {/* Rechte Spalte: Anmeldeformular */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
       <motion.div
         className="w-full max-w-md"
         initial={{ opacity: 0, y: 24 }}
@@ -29,7 +48,7 @@ export default function LoginPage() {
         transition={{ duration: 0.4, ease: 'easeOut' }}
       >
         {/* Logo */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 lg:hidden">
           <Link href="/" className="inline-block">
             <span className="font-heading text-4xl font-bold text-dark">LAEMU</span>
           </Link>
@@ -37,7 +56,7 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-border p-8">
+        <div className="bg-white border border-border rounded-2xl shadow-card p-8">
           <h1 className="font-heading text-2xl font-black text-dark mb-6">Anmelden</h1>
 
           <form onSubmit={handleLogin} className="space-y-5">
@@ -93,6 +112,7 @@ export default function LoginPage() {
           </div>
         </div>
       </motion.div>
+      </div>
     </div>
   )
 }

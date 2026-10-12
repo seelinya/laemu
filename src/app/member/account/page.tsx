@@ -84,7 +84,7 @@ function Field({ label, value, type = 'text' }: { label: string; value: string; 
 
 function SectionCard({ title, desc, children }: { title: string; desc?: string; children: ReactNode }) {
   return (
-    <div className="bg-surface border border-border p-6">
+    <div className="bg-surface border border-border rounded-xl shadow-soft p-6">
       <h2 className="font-heading font-bold text-xl mb-1">{title}</h2>
       {desc && <p className="font-sans text-sm text-text-secondary mb-5">{desc}</p>}
       {children}
@@ -352,7 +352,7 @@ function AboTab() {
         {showCancelModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-dark/70" onClick={() => setShowCancelModal(false)} />
-            <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+            <div className="relative bg-surface border border-border rounded-xl shadow-soft w-full max-w-sm mx-4 p-6 shadow-xl">
               <h3 className="font-heading font-bold text-xl mb-2">Formation kündigen?</h3>
               <p className="font-sans text-sm text-text-secondary mb-2">
                 Du kündigst das Abo für die gesamte Formation. Die Kündigung wird zum Ende der laufenden
@@ -449,7 +449,7 @@ function AboTab() {
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-dark/70" onClick={() => setShowCancelModal(false)} />
-          <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+          <div className="relative bg-surface border border-border rounded-xl shadow-soft w-full max-w-sm mx-4 p-6 shadow-xl">
             <h3 className="font-heading font-bold text-xl mb-2">Abo kündigen?</h3>
             <p className="font-sans text-sm text-text-secondary mb-2">
               Dein Abo wird zum Ende des laufenden Monats gekündigt.
@@ -647,7 +647,7 @@ function ZahlungsmittelTab() {
                   className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
                 />
               </div>
-              <p className="font-sans text-xs text-text-secondary bg-surface border border-border px-3 py-2">
+              <p className="font-sans text-xs text-text-secondary bg-surface border border-border rounded-xl shadow-soft px-3 py-2">
                 Nach dem Hinzufügen erhältst du eine TWINT-Anfrage auf deinem Smartphone zur Bestätigung.
               </p>
             </div>
@@ -1044,7 +1044,7 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
       {isPayer && confirmRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-dark/70" onClick={() => setConfirmRemove(null)} />
-          <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+          <div className="relative bg-surface border border-border rounded-xl shadow-soft w-full max-w-sm mx-4 p-6 shadow-xl">
             <h3 className="font-heading font-bold text-xl mb-2">E-Mail-Adresse entfernen?</h3>
             <p className="font-sans text-sm text-text-secondary mb-2">
               Möchtest du <span className="font-medium text-dark break-all">{confirmRemove.email}</span> wirklich
@@ -1146,7 +1146,7 @@ function PayerFormationSettings() {
       {confirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-dark/70" onClick={() => setConfirm(false)} />
-          <div className="relative bg-surface border border-border w-full max-w-sm mx-4 p-6 shadow-xl">
+          <div className="relative bg-surface border border-border rounded-xl shadow-soft w-full max-w-sm mx-4 p-6 shadow-xl">
             <h3 className="font-heading font-bold text-xl mb-2">Zahlungspflicht übertragen?</h3>
             <p className="font-sans text-sm text-text-secondary mb-2">
               <span className="font-medium text-dark break-all">{selected}</span> wird die zahlungspflichtige

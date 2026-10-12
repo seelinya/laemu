@@ -63,6 +63,20 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
 
+/* ─── Freundlicher Default: runde Ecken für Bedienelemente ──────────────────
+   Buttons und Formularfelder bekommen standardmässig weiche Ecken, damit das
+   gesamte UI runder/freundlicher wirkt. Explizite Tailwind-Utilities wie
+   `rounded-full` oder `rounded-none` haben höhere Spezifität und überschreiben
+   diesen Default problemlos (z. B. Toggles, Avatare). */
+@layer base {
+  button,
+  input,
+  select,
+  textarea {
+    border-radius: 0.625rem;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
