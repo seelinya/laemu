@@ -14,9 +14,11 @@ import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } f
 const LAEMU_INSTAGRAM_HANDLE = 'laemu.ch'
 const LAEMU_INSTAGRAM_URL = `https://www.instagram.com/${LAEMU_INSTAGRAM_HANDLE}`
 const LAEMU_FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61589800834530'
-// Geschlossene WhatsApp-Gruppen — echte Einladungslinks hier eintragen.
-const LAEMU_WHATSAPP_INFO_GROUP_URL = 'https://chat.whatsapp.com/'
-const LAEMU_WHATSAPP_SHARE_GROUP_URL = 'https://chat.whatsapp.com/'
+// Geschlossene WhatsApp-Gruppen der LAEMU-Community — echte Einladungslinks.
+const LAEMU_WHATSAPP_INFOCHAT_URL = 'https://chat.whatsapp.com/Bnr6odNMaYBHWAcyFQU1Ii?mode=gi_t'
+const LAEMU_WHATSAPP_MARKTPLATZ_URL = 'https://chat.whatsapp.com/HLymBDlRX0eIgvfcH60Prx?mode=gi_t'
+// Bestehender Community-Chat der Musikschule — echten Einladungslink hier eintragen.
+const LAEMU_WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/'
 
 // ─── SVG Icon Set ─────────────────────────────────────────────────────────────
 
@@ -316,54 +318,78 @@ function StartView() {
           </Link>.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Info-Gruppe */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* LAEMU Infochat */}
           <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 flex items-center justify-center bg-dark text-white flex-shrink-0">
+              <span className="w-11 h-11 rounded-lg flex items-center justify-center bg-dark text-white flex-shrink-0">
                 <IconWhatsApp />
               </span>
               <div className="min-w-0">
-                <h4 className="font-heading font-bold text-base leading-tight">Info-Gruppe</h4>
-                <p className="font-sans text-xs text-text-secondary">Nur News vom LAEMU-Team</p>
+                <h4 className="font-heading font-bold text-base leading-tight">LAEMU Infochat</h4>
+                <p className="font-sans text-xs text-text-secondary">Nur Infos vom LAEMU-Team</p>
               </div>
             </div>
             <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
-              In dieser geschlossenen Gruppe postet nur das LAEMU-Team wichtige Ankündigungen, Termine
-              und Neuigkeiten rund um LAEMU — kompakt und ohne Geplauder.
+              Hier stellt nur das LAEMU-Team Infos und Neuigkeiten rund um LAEMU selbst ein. ✨
             </p>
             <a
-              href={LAEMU_WHATSAPP_INFO_GROUP_URL}
+              href={LAEMU_WHATSAPP_INFOCHAT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 hover:bg-accent-gold hover:text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-gold hover:text-white transition-colors"
             >
-              <IconWhatsApp size={16} /> Info-Gruppe beitreten
+              <IconWhatsApp size={16} /> Infochat beitreten
             </a>
           </div>
 
-          {/* Austausch-Gruppe */}
+          {/* LAEMU Marktplatz */}
           <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
+              <span className="w-11 h-11 rounded-lg flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
                 <IconWhatsApp />
               </span>
               <div className="min-w-0">
-                <h4 className="font-heading font-bold text-base leading-tight">Austausch-Gruppe</h4>
-                <p className="font-sans text-xs text-text-secondary">Inspiration &amp; Teilen</p>
+                <h4 className="font-heading font-bold text-base leading-tight">LAEMU Marktplatz</h4>
+                <p className="font-sans text-xs text-text-secondary">Kaufen, verkaufen &amp; anfragen</p>
               </div>
             </div>
             <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
-              In dieser geschlossenen Gruppe inspiriert ihr euch gegenseitig: Teilt Videos, Bilder und
-              Stücke aus dem LAEMU-Leben — von Auftritten, Musikhöcks und spontanen Momenten.
+              Hier dürft ihr Instrumente, Notenblätter oder alles, was mit Volksmusik zu tun hat, verkaufen
+              oder anfragen. 🎶
             </p>
             <a
-              href={LAEMU_WHATSAPP_SHARE_GROUP_URL}
+              href={LAEMU_WHATSAPP_MARKTPLATZ_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 border border-dark text-dark font-sans text-sm font-medium px-5 py-2.5 hover:bg-dark hover:text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-gold hover:text-white transition-colors"
             >
-              <IconWhatsApp size={16} /> Austausch-Gruppe beitreten
+              <IconWhatsApp size={16} /> Marktplatz beitreten
+            </a>
+          </div>
+
+          {/* LAEMU Musikschule Community (bestehender Chat) */}
+          <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="w-11 h-11 rounded-lg flex items-center justify-center bg-dark text-white flex-shrink-0">
+                <IconWhatsApp />
+              </span>
+              <div className="min-w-0">
+                <h4 className="font-heading font-bold text-base leading-tight">Musikschule Community</h4>
+                <p className="font-sans text-xs text-text-secondary">Austausch &amp; Inspiration</p>
+              </div>
+            </div>
+            <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
+              Im bestehenden Chat dürft ihr wie gewohnt Events, Fragen, Inspiration, Videos und Fotos
+              einstellen. 😊
+            </p>
+            <a
+              href={LAEMU_WHATSAPP_COMMUNITY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-gold hover:text-white transition-colors"
+            >
+              <IconWhatsApp size={16} /> Community beitreten
             </a>
           </div>
         </div>

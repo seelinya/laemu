@@ -459,7 +459,7 @@ function StandardVideoPlayer({ img, label }: { img: string; label: string }) {
 
   return (
     <div ref={containerRef} className="bg-black">
-      <div className="group relative aspect-video overflow-hidden select-none">
+      <div className="group relative aspect-video overflow-hidden rounded-xl select-none">
         <Image src={img} alt={label} fill className="object-cover" unoptimized />
 
         {/* Zentraler Play-Button, solange pausiert */}
@@ -604,7 +604,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
 
   return (
     <div className="bg-dark">
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-video overflow-hidden rounded-xl">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
           <button onClick={() => setPlaying(!playing)} className="w-16 h-16 bg-accent-gold hover:bg-accent-gold-hover flex items-center justify-center transition-colors">
