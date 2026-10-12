@@ -37,10 +37,17 @@ export default function PasswortVergessenPage() {
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
               </div>
               <h1 className="font-heading text-2xl font-black text-dark mb-3">E-Mail unterwegs</h1>
-              <p className="font-sans text-sm text-text-secondary leading-relaxed">
+              <p className="font-sans text-sm text-text-secondary leading-relaxed mb-5">
                 Falls ein Konto mit <span className="text-dark font-medium">{email || 'dieser Adresse'}</span> existiert,
                 haben wir dir einen Link zum Zurücksetzen deines Passworts geschickt.
               </p>
+              {/* Demo: Der Link in der E-Mail führt zur Seite «Passwort zurücksetzen». */}
+              <Link
+                href="/passwort-zuruecksetzen"
+                className="inline-block font-sans text-xs text-accent-gold hover:underline"
+              >
+                Demo: Link aus der E-Mail öffnen →
+              </Link>
             </div>
           ) : (
             <>

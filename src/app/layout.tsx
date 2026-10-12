@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
 import './globals.css'
 import { Footer } from '@/components/Footer'
+import { TopProgressBar } from '@/components/TopProgressBar'
 
 // Fallback-Schriften für Radona Norm (lizenziert, lokal nachzureichen):
 // Plus Jakarta Sans deckt Headings ab, Inter den Fliesstext/UI.
@@ -48,6 +49,8 @@ export default function RootLayout({
   return (
     <html lang="de" className={`${plusJakarta.variable} ${inter.variable}`}>
       <body>
+        {/* Ladebalken ganz oben — über dem Header sichtbar bei jeder Navigation. */}
+        <TopProgressBar />
         <main>{children}</main>
         <Footer />
       </body>
