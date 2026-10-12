@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MemberShell } from '@/components/MemberShell'
+import { useMemberHeader } from '@/components/MemberChrome'
 import { courses, ALLGEMEIN_COURSES, getCourse } from '@/lib/courses'
 import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
@@ -199,7 +199,7 @@ export default function MemberAcademyPage() {
     <section>
       <div className="flex items-center gap-2 mb-1">
         <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
-        <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 uppercase tracking-wide">Für alle</span>
+        <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md uppercase tracking-wide">Für alle</span>
       </div>
       <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -274,7 +274,7 @@ export default function MemberAcademyPage() {
         {starterKurse.length > 0 && (
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 uppercase tracking-wide">Starter</span>
+              <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Starter</span>
               <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -296,7 +296,7 @@ export default function MemberAcademyPage() {
         {(proKurse.length > 0 || !proUnlocked) && (
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 uppercase tracking-wide">Pro</span>
+              <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Pro</span>
               <h3 className="font-heading text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
             </div>
             {proKurse.length > 0 && (
@@ -327,27 +327,29 @@ export default function MemberAcademyPage() {
     )
   }
 
+  useMemberHeader(
+    {
+      title: `Hallo ${greetingName}`,
+      right: hasCourseAccess ? (
+        <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5 rounded-lg">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+          <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
+        </div>
+      ) : (
+        <button
+          onClick={openUpgrade}
+          className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-1.5 rounded-lg font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+          {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
+        </button>
+      ),
+    },
+    `academy-${hasCourseAccess}-${isLernvideoOnly}-${greetingName}`,
+  )
+
   return (
-    <MemberShell
-      active="academy"
-      title={`Hallo ${greetingName}`}
-      right={
-        hasCourseAccess ? (
-          <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5 rounded-lg">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-            <span className="font-sans font-bold text-sm">7 Wochen Streak!</span>
-          </div>
-        ) : (
-          <button
-            onClick={openUpgrade}
-            className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-4 py-1.5 rounded-lg font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-            {isLernvideoOnly ? 'Auf Pro upgraden' : 'Jetzt upgraden'}
-          </button>
-        )
-      }
-    >
+    <>
 
       {showUpgradeModal && (
         <UpgradeDialog
@@ -393,7 +395,7 @@ export default function MemberAcademyPage() {
                                 <div className="px-4 py-2 bg-background border-b border-border"><span className="font-sans text-[10px] uppercase tracking-widest text-text-secondary">{cat}</span></div>
                                 {items.map((item) => (
                                   <Link key={item.id} href={item.href} className="flex items-center gap-3 px-4 py-3 hover:bg-background transition-colors border-b border-border last:border-0">
-                                    <span className={`text-[10px] font-sans px-2 py-0.5 ${categoryColors[item.category] ?? 'bg-border text-text-secondary'}`}>{item.category}</span>
+                                    <span className={`text-[10px] font-sans px-2 py-0.5 rounded-md ${categoryColors[item.category] ?? 'bg-border text-text-secondary'}`}>{item.category}</span>
                                     <div className="flex-1 min-w-0">
                                       <p className="font-sans text-sm font-medium truncate">{item.title}</p>
                                       <p className="font-sans text-xs text-text-secondary truncate">{item.subtitle}</p>
@@ -429,7 +431,7 @@ export default function MemberAcademyPage() {
                           onClick={() => { if (!disabled) setCourseFilter(f.id) }}
                           disabled={disabled}
                           title={disabled ? 'Noch keinen Kurs gestartet' : undefined}
-                          className={`font-sans text-sm px-4 py-2 border transition-colors ${activeCourseTab === f.id ? 'border-dark bg-dark text-white' : disabled ? 'border-border bg-surface text-text-secondary/40 cursor-not-allowed' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}
+                          className={`lae-tab ${activeCourseTab === f.id ? 'lae-tab-active' : disabled ? 'lae-tab-disabled' : 'lae-tab-idle'}`}
                         >
                           {f.label}
                         </button>
@@ -479,6 +481,6 @@ export default function MemberAcademyPage() {
 
       {/* Persönlicher Support / Live-Chat */}
       <SupportWidget />
-    </MemberShell>
+    </>
   )
 }

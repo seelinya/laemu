@@ -116,6 +116,24 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@layer components {
+  /* ─── Einheitliches Tab-/Segment-System (app-weit konsistent) ─────────────
+     Aktiv = goldene Pille, klickbar/inaktiv = graue Schrift mit Hover, gesperrt
+     = ausgegraut. Für alle Tab-Leisten auf hellem Grund. */
+  .lae-tab {
+    @apply font-sans text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap;
+  }
+  .lae-tab-active {
+    @apply bg-accent-gold text-white;
+  }
+  .lae-tab-idle {
+    @apply text-text-secondary hover:text-dark hover:bg-surface-muted;
+  }
+  .lae-tab-disabled {
+    @apply text-text-secondary/40 cursor-not-allowed;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

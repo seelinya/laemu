@@ -1,8 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
 
@@ -79,18 +79,12 @@ function SocialLinks({ social }: { social: typeof profile.social }) {
 }
 
 export default function MemberProfilePage() {
+  useMemberHeader(
+    { breadcrumb: <MemberBreadcrumb items={[{ label: 'Musikschule', href: '/member/academy' }, { label: 'Profil' }]} /> },
+    'profile',
+  )
   return (
-    <div className="min-h-screen bg-background">
-      <div className="bg-nav-dark border-b border-white/10 px-6 py-4 flex items-center justify-between">
-        <Link href="/member/academy" className="flex items-center gap-2 font-sans text-sm text-white/60 hover:text-white transition-colors">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          Zurück zur Musikschule
-        </Link>
-        <h1 className="font-heading font-bold text-base text-white">Profil</h1>
-        <div className="w-24" />
-      </div>
-
-      <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
         {/* Profile header — ohne Titelbild */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden mb-6">
           <div className="p-6">
@@ -107,7 +101,7 @@ export default function MemberProfilePage() {
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <h1 className="font-heading text-2xl font-black">{profile.name}</h1>
               {profile.openForFormation && (
-                <span className="font-sans text-[10px] inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 font-medium">
+                <span className="font-sans text-[10px] inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 rounded-md font-medium">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                   Offen für Formationen
                 </span>
@@ -134,15 +128,14 @@ export default function MemberProfilePage() {
 
             <div className="flex flex-wrap gap-1.5">
               {profile.instruments.map((inst) => (
-                <span key={inst} className="font-sans text-xs px-2.5 py-1 bg-surface-muted border border-border text-text-secondary">{inst}</span>
+                <span key={inst} className="font-sans text-xs px-2.5 py-1 rounded-md bg-surface-muted border border-border text-text-secondary">{inst}</span>
               ))}
               {profile.roles.map((r) => (
-                <span key={r} className="font-sans text-xs px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">{r}</span>
+                <span key={r} className="font-sans text-xs px-2 py-1 rounded-md bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">{r}</span>
               ))}
             </div>
           </div>
         </motion.div>
       </div>
-    </div>
   )
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MemberShell } from '@/components/MemberShell'
+import { useMemberHeader } from '@/components/MemberChrome'
 import { Avatar } from '@/components/Avatar'
 import { InstrumentTagPicker, PRESET_INSTRUMENTS } from '@/components/InstrumentTagPicker'
 import { useUserProfile, readStoredProfile, setStoredProfile, handleFromName } from '@/lib/userProfile'
@@ -223,8 +223,8 @@ function DiscoverView() {
               <Link href={`/member/u/${p.handle}`} className="font-sans font-semibold text-sm group-hover:text-accent-gold transition-colors">{p.name}</Link>
               <p className="font-sans text-xs font-normal text-text-secondary">{profileRole(p)}</p>
               <div className="flex flex-wrap gap-1.5 mt-1">
-                {p.isTeacher && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">Musiklehrer</span>}
-                {p.openForFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Offen für Formation</span>}
+                {p.isTeacher && <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-background border border-border text-text-secondary">Musiklehrer</span>}
+                {p.openForFormation && <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-accent-gold/10 border border-accent-gold/30 text-accent-gold">Offen für Formation</span>}
               </div>
             </div>
             <Link
@@ -640,10 +640,10 @@ function ProfileView() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-heading text-2xl font-black">{name}</h2>
                   {openForFormation && (
-                    <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide">Offen für Formationen</span>
+                    <span className="font-sans text-[10px] font-semibold px-2 py-1 rounded-md bg-accent-gold/10 border border-accent-gold/30 text-accent-gold uppercase tracking-wide">Offen für Formationen</span>
                   )}
                   {hiddenFromDiscover && (
-                    <span className="font-sans text-[10px] font-semibold px-2 py-1 bg-background border border-border text-text-secondary uppercase tracking-wide inline-flex items-center gap-1">
+                    <span className="font-sans text-[10px] font-semibold px-2 py-1 rounded-md bg-background border border-border text-text-secondary uppercase tracking-wide inline-flex items-center gap-1">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                       In Entdecken verborgen
                     </span>
@@ -690,7 +690,7 @@ function ProfileView() {
                 )}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {instruments.split(',').map(i => i.trim()).filter(Boolean).map(i => (
-                    <span key={i} className="font-sans text-xs px-2.5 py-1 bg-surface-muted border border-border text-text-secondary">{i}</span>
+                    <span key={i} className="font-sans text-xs px-2.5 py-1 rounded-md bg-surface-muted border border-border text-text-secondary">{i}</span>
                   ))}
                 </div>
               </motion.div>
@@ -708,9 +708,10 @@ export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('start')
   const profile = useUserProfile()
   const greetingName = profile.name.trim() || 'zusammen'
+  useMemberHeader({ title: `Hallo ${greetingName}` }, `community-${greetingName}`)
 
   return (
-    <MemberShell active="community" title={`Hallo ${greetingName}`}>
+    <>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -728,18 +729,18 @@ export default function MemberCommunityPage() {
                 </div>
               </button>
 
-              <nav className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden">
+              <nav className="bg-surface border border-border rounded-xl shadow-soft p-2">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => setActiveNav(item.id)}
-                    className={`w-full flex items-center gap-3 px-5 py-3.5 font-sans text-sm transition-colors border-b border-border last:border-0 text-left ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-sans text-sm transition-colors text-left ${
                       activeNav === item.id
-                        ? 'bg-dark text-white font-medium'
-                        : 'text-text-secondary hover:bg-background hover:text-dark'
+                        ? 'bg-accent-gold text-white font-medium'
+                        : 'text-text-secondary hover:bg-surface-muted hover:text-dark'
                     }`}
                   >
-                    <span className={activeNav === item.id ? 'text-accent-gold' : ''}>{item.icon}</span>
+                    <span>{item.icon}</span>
                     {item.label}
                   </button>
                 ))}
@@ -750,13 +751,13 @@ export default function MemberCommunityPage() {
           {/* MAIN CONTENT */}
           <div className="lg:col-span-3 space-y-6">
             {/* Mobile nav */}
-            <div className="lg:hidden flex items-center gap-1 bg-surface border border-border rounded-xl shadow-soft overflow-x-auto">
+            <div className="lg:hidden flex items-center gap-1 overflow-x-auto pb-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveNav(item.id)}
-                  className={`flex items-center gap-2 px-4 py-3 font-sans text-sm whitespace-nowrap transition-colors border-b-2 ${
-                    activeNav === item.id ? 'border-dark text-dark font-medium' : 'border-transparent text-text-secondary'
+                  className={`lae-tab flex-shrink-0 flex items-center gap-2 ${
+                    activeNav === item.id ? 'lae-tab-active' : 'lae-tab-idle'
                   }`}
                 >
                   {item.icon} {item.label}
@@ -771,6 +772,6 @@ export default function MemberCommunityPage() {
 
         </div>
       </div>
-    </MemberShell>
+    </>
   )
 }

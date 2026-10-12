@@ -205,7 +205,7 @@ function EinladungInner() {
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
         <div className="flex items-start gap-2 flex-wrap mb-2">
           <h1 className="font-heading text-3xl font-bold">Deiner Formation beitreten</h1>
-          <span className="font-sans text-[11px] font-semibold px-2 py-1 bg-accent-gold/15 border border-accent-gold/40 text-accent-gold mt-1.5">
+          <span className="font-sans text-[11px] font-semibold px-2 py-1 rounded-md bg-accent-gold/15 border border-accent-gold/40 text-accent-gold mt-1.5">
             Einladung
           </span>
         </div>

@@ -9,6 +9,7 @@ import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { ShareMenu } from '@/components/ShareMenu'
+import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 // ─── Noten ───────────────────────────────────────────────────────────────────
 // Bei Lernvideos sind generell nur Violinschlüssel- und Griffschrift-Noten
@@ -472,7 +473,7 @@ function StandardVideoPlayer({ img, label }: { img: string; label: string }) {
 
         {/* Titel oben links */}
         <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <span className="font-sans text-xs text-white/80 bg-black/40 px-2 py-1">{label}</span>
+          <span className="font-sans text-xs text-white/80 bg-black/40 px-2 py-1 rounded-md">{label}</span>
         </div>
 
         {/* Klick-Fänger, schliesst das Einstellungsmenü */}
@@ -611,11 +612,11 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
           </button>
         </div>
         <div className="absolute top-3 left-3">
-          <span className="font-sans text-xs text-white/60 bg-black/50 px-2 py-1">{label}</span>
+          <span className="font-sans text-xs text-white/60 bg-black/50 px-2 py-1 rounded-md">{label}</span>
         </div>
         <div className="absolute top-3 right-3 flex items-center gap-1.5">
-          {autoLoop && <span className="font-sans text-xs text-accent-gold bg-black/50 px-2 py-1 flex items-center gap-1"><IconRepeat /> Auto-Wiederholung</span>}
-          {loopEnabled && <span className="font-sans text-xs text-blue-300 bg-blue-900/60 px-2 py-1">Loop A–B</span>}
+          {autoLoop && <span className="font-sans text-xs text-accent-gold bg-black/50 px-2 py-1 rounded-md flex items-center gap-1"><IconRepeat /> Auto-Wiederholung</span>}
+          {loopEnabled && <span className="font-sans text-xs text-blue-300 bg-blue-900/60 px-2 py-1 rounded-md">Loop A–B</span>}
         </div>
       </div>
       <div className="px-4 py-3 space-y-3">
@@ -633,7 +634,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-sans text-white/50 text-xs tabular-nums">3:42 / 12:15</span>
-            <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
+            <button onClick={() => setLoopEnabled(!loopEnabled)} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 rounded-md border transition-colors ${loopEnabled ? 'border-blue-400 text-blue-400 bg-blue-400/10' : 'border-white/20 text-white/40 hover:border-white/50'}`}>
               <IconRepeat /> Loop A–B {loopEnabled ? 'AN' : 'AUS'}
             </button>
           </div>
@@ -701,25 +702,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
   // Starter-Mitglied bei einem Pro-Stück: Upgrade auf Pro nötig.
   const needsProUpgrade = piece.plan === 'pro' && abo.plan === 'starter'
   return (
-    <div className="min-h-screen bg-background">
-      {/* TOP BAR */}
-      <div className="bg-nav-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
-            <IconBack /> <span className="hidden sm:inline">Stücke</span>
-          </Link>
-          <span className="text-white/20 hidden sm:inline">/</span>
-          <div className="min-w-0">
-            <h1 className="font-heading font-bold text-base leading-tight truncate">{piece.title}</h1>
-          </div>
-        </div>
-        <span className="font-sans text-xs px-3 py-1.5 border border-white/20 text-white/60 flex items-center gap-1.5 flex-shrink-0">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          Gesperrt
-        </span>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Master video — Standard-Player, ohne Mixer */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <VideoPlayer img={piece.img} label={`${piece.title} — Masteraufnahme`} variant="standard" />
@@ -744,10 +727,10 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           <h2 className="font-heading font-bold text-2xl mb-1">{piece.title}</h2>
           <p className="font-sans text-sm text-accent-gold mb-4">{piece.artist} · {piece.year}</p>
           <div className="flex flex-wrap gap-2">
-            <span className={`font-sans text-xs px-2.5 py-1 font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-white' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+            <span className={`font-sans text-xs px-2.5 py-1 rounded-md font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-white' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
               {planLabel[piece.plan]}
             </span>
-            <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{piece.instrument}</span>
+            <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{piece.instrument}</span>
           </div>
         </div>
 
@@ -773,7 +756,6 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
           </Link>
         </div>
       </div>
-    </div>
   )
 }
 
@@ -845,7 +827,7 @@ export default function LernvideoDetailPage() {
           <div className="px-5 py-3 border-t border-border bg-background flex items-center gap-3 flex-wrap">
             <span className="font-sans text-xs text-text-secondary">Noten (PDF):</span>
             {noten.map(n => (
-              <a key={n.key} href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
+              <a key={n.key} href={SHOP_NOTEN_URL} target="_blank" rel="noopener noreferrer" title="Im Shop kaufen" className="font-sans text-xs px-2.5 py-1 rounded-md border border-border hover:border-dark text-text-secondary hover:text-dark transition-colors flex items-center gap-1.5">
                 {n.label}{n.price ? ` · CHF ${n.price}` : ''} <IconArrowRight />
               </a>
             ))}
@@ -858,38 +840,41 @@ export default function LernvideoDetailPage() {
   const planLabel: Record<string, string> = { free: 'Free', starter: 'Starter', pro: 'Pro' }
   const artLabel: Record<string, string> = { volkstuemlich: 'Volkstümlich', bekannte_melodie: 'Bekannte Melodie' }
 
+  const isLocked = !!(catalogEntry && !unlocked)
+  const pieceTitle = isLocked && catalogEntry ? catalogEntry.title : v.title
+  useMemberHeader(
+    {
+      breadcrumb: <MemberBreadcrumb items={[{ label: 'Stücke', href: '/member/academy/lernvideos' }, { label: pieceTitle }]} />,
+      right: isLocked ? (
+        <span className="font-sans text-xs px-3 py-1.5 border border-border rounded-lg text-text-secondary flex items-center gap-1.5 flex-shrink-0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Gesperrt
+        </span>
+      ) : (
+        <>
+          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-border rounded-lg text-text-secondary hover:border-dark hover:text-dark transition-colors">
+            <IconShare /> <span className="hidden sm:inline">Teilen</span>
+          </ShareMenu>
+          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+            <IconHeart filled={favorited} /> <span className="hidden sm:inline">{favorited ? 'In Merkliste' : 'Zur Merkliste'}</span>
+          </button>
+        </>
+      ),
+    },
+    `piece-${idNum}-${isLocked}-${favorited}`,
+  )
+
   // Gesperrte Stücke: nur Masteraufnahme (Standard-Player, ohne Mixer).
   if (catalogEntry && !unlocked) {
     return <LockedDetailView piece={catalogEntry} abo={userAbo} />
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* TOP BAR */}
-      <div className="bg-nav-dark text-white px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Link href="/member/academy/lernvideos" className="font-sans text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1 flex-shrink-0">
-            <IconBack /> <span className="hidden sm:inline">Stücke</span>
-          </Link>
-          <span className="text-white/20 hidden sm:inline">/</span>
-          <div className="min-w-0">
-            <h1 className="font-heading font-bold text-base leading-tight truncate">{v.title}</h1>
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/20 text-white/50 hover:border-white/60 transition-colors">
-            <IconShare /> <span className="hidden sm:inline">Teilen</span>
-          </ShareMenu>
-          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border transition-colors ${favorited ? 'border-accent-gold text-accent-gold' : 'border-white/20 text-white/50 hover:border-white/60'}`}>
-            <IconHeart filled={favorited} /> <span className="hidden sm:inline">{favorited ? 'In Merkliste' : 'Zur Merkliste'}</span>
-          </button>
-        </div>
-      </div>
-
+    <>
       {/* MAIN TABS — einzeilig, horizontal scrollbar auf Mobile */}
       <div className="border-b border-border bg-surface">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
+          <div className="flex gap-1 overflow-x-auto">
             {([
               { id: 'ueberblick', label: 'Überblick' },
               { id: 'stimme1', label: '1. Stimme' },
@@ -900,7 +885,7 @@ export default function LernvideoDetailPage() {
               <button
                 key={tab.id}
                 onClick={() => setMainTab(tab.id)}
-                className={`px-4 sm:px-6 py-4 font-sans text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap flex-shrink-0 ${mainTab === tab.id ? 'border-dark text-dark' : 'border-transparent text-text-secondary hover:text-dark'}`}
+                className={`lae-tab flex-shrink-0 ${mainTab === tab.id ? 'lae-tab-active' : 'lae-tab-idle'}`}
               >
                 {tab.label}
               </button>
@@ -945,7 +930,7 @@ export default function LernvideoDetailPage() {
                             <p className="font-sans text-xs text-text-secondary">{v.introVideo.duration} · Empfohlen zum Einstieg</p>
                           </div>
                         </div>
-                        <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 bg-accent-gold/10">Neu hier? Zuerst ansehen</span>
+                        <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md bg-accent-gold/10">Neu hier? Zuerst ansehen</span>
                       </div>
                       <VideoPlayer img={v.img} label={v.introVideo.label} variant="standard" />
                     </div>
@@ -953,19 +938,19 @@ export default function LernvideoDetailPage() {
 
                   {/* Tags — alle nacheinander, ohne Gruppierung */}
                   <div className="flex flex-wrap gap-1.5">
-                    <span className={`font-sans text-xs px-2.5 py-1 font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
+                    <span className={`font-sans text-xs px-2.5 py-1 rounded-md font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
                       {planLabel[v.difficulty] ?? v.difficulty}
                     </span>
-                    <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
-                    {v.taktart && <span className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{v.taktart}</span>}
+                    <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
+                    {v.taktart && <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{v.taktart}</span>}
                     {v.formations?.map(f => (
-                      <span key={f} className="font-sans text-xs px-2.5 py-1 bg-background border border-border">{f}</span>
+                      <span key={f} className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{f}</span>
                     ))}
                     {v.styleTags?.map(tag => (
-                      <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
+                      <span key={tag} className="font-sans text-xs px-2.5 py-1 rounded-md bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
                     ))}
                     {v.autoTags?.map(tag => (
-                      <span key={tag} className="font-sans text-xs px-2.5 py-1 bg-background border border-border text-text-secondary">{tag}</span>
+                      <span key={tag} className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border text-text-secondary">{tag}</span>
                     ))}
                   </div>
                 </motion.div>
@@ -1011,7 +996,7 @@ export default function LernvideoDetailPage() {
                             <div>
                               <p className="font-heading font-bold text-sm flex items-center gap-1.5">
                                 {s.label}
-                                <span className="font-sans text-[10px] font-medium px-1.5 py-0.5 bg-background border border-border text-text-secondary">PDF</span>
+                                <span className="font-sans text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-background border border-border text-text-secondary">PDF</span>
                               </p>
                               <p className="font-sans text-xs text-text-secondary">{v.title} · PDF-Download</p>
                             </div>
@@ -1270,7 +1255,7 @@ export default function LernvideoDetailPage() {
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <Link href={profileHrefFor(c.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{c.name}</Link>
                             {c.isTeam && (
-                              <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                              <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 font-medium">
                                 <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                                 {c.role ?? 'LAEMU Team'}
                               </span>
@@ -1304,7 +1289,7 @@ export default function LernvideoDetailPage() {
                                 <div className="flex-1 min-w-0 bg-background p-3 border border-border">
                                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                                     <Link href={profileHrefFor(r.user)} className="font-sans font-semibold text-xs hover:text-accent-gold transition-colors">{r.name}</Link>
-                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 font-medium">{r.role ?? 'LAEMU Team'}</span>}
+                                    {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 rounded-md font-medium">{r.role ?? 'LAEMU Team'}</span>}
                                     <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
                                   </div>
                                   <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
@@ -1375,6 +1360,6 @@ export default function LernvideoDetailPage() {
         })()}
 
       </div>
-    </div>
+    </>
   )
 }

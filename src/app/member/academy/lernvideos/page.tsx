@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { isDbVideoUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
-import { MemberShell } from '@/components/MemberShell'
+import { useMemberHeader } from '@/components/MemberChrome'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -265,11 +265,11 @@ export default function LernvideosPage() {
             </div>
           )}
           <div className="absolute bottom-2 left-2">
-            <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5">{v.instrument}</span>
+            <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded-md">{v.instrument}</span>
           </div>
           {isLearned && (
             <div className="absolute top-2 left-2">
-              <span className="font-sans text-[10px] bg-green-600 text-white px-1.5 py-0.5 flex items-center gap-1">
+              <span className="font-sans text-[10px] bg-green-600 text-white px-1.5 py-0.5 rounded-md flex items-center gap-1">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                 Gelernt
               </span>
@@ -291,9 +291,9 @@ export default function LernvideosPage() {
             {/* Tags unter dem Namen — Taktart und Level/Plan. */}
             <div className="flex flex-wrap items-center gap-1">
               {v.taktart && (
-                <span className="font-sans text-[10px] px-1.5 py-0.5 bg-background border border-border text-text-secondary">{v.taktart}</span>
+                <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-background border border-border text-text-secondary">{v.taktart}</span>
               )}
-              <span className={`font-sans text-[10px] px-1.5 py-0.5 font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
+              <span className={`font-sans text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${planColors[v.difficultyPlan]}`}>{planLabels[v.difficultyPlan]}</span>
             </div>
           </div>
 
@@ -321,7 +321,7 @@ export default function LernvideosPage() {
                 Öffnen →
               </Link>
             ) : (
-              <span className="font-sans text-[10px] px-1.5 py-0.5 bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
+              <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                 Gesperrt
               </span>
@@ -332,44 +332,46 @@ export default function LernvideosPage() {
     )
   }
 
+  useMemberHeader(
+    {
+      title: `Hallo ${greetingName}`,
+      right: userAbo.plan === 'none' ? (
+        <Link
+          href="/member/academy?upgrade=1"
+          className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-3 sm:px-4 py-1.5 rounded-lg font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+          Jetzt upgraden
+        </Link>
+      ) : (
+        <button
+          onClick={() => setTab('merkliste')}
+          title={`Merkliste (${saved.size})`}
+          aria-label={`Merkliste (${saved.size})`}
+          className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold text-white' : 'border-accent-gold/40 bg-accent-gold/10 text-accent-gold hover:bg-accent-gold/20'}`}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <span className="hidden sm:inline">Merkliste </span>
+          <span className="tabular-nums">({saved.size})</span>
+        </button>
+      ),
+    },
+    `stuecke-${userAbo.plan}-${tab}-${saved.size}-${greetingName}`,
+  )
+
   return (
-    <MemberShell
-      active="lerndatenbank"
-      title={`Hallo ${greetingName}`}
-      right={
-        userAbo.plan === 'none' ? (
-          <Link
-            href="/member/academy?upgrade=1"
-            className="flex items-center gap-2 bg-accent-gold text-white border border-accent-gold px-3 sm:px-4 py-1.5 rounded-lg font-sans font-semibold text-sm hover:bg-accent-gold-hover transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-            Jetzt upgraden
-          </Link>
-        ) : (
-          <button
-            onClick={() => setTab('merkliste')}
-            title={`Merkliste (${saved.size})`}
-            aria-label={`Merkliste (${saved.size})`}
-            className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold text-white' : 'border-accent-gold/40 bg-accent-gold/10 text-accent-gold hover:bg-accent-gold/20'}`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            <span className="hidden sm:inline">Merkliste </span>
-            <span className="tabular-nums">({saved.size})</span>
-          </button>
-        )
-      }
-    >
+    <>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Tabs — gerahmt, einzeilig, horizontal scrollbar auf Mobile */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
-          <button onClick={() => setTab('datenbank')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'datenbank' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setTab('datenbank')} className={`lae-tab flex-shrink-0 ${tab === 'datenbank' ? 'lae-tab-active' : 'lae-tab-idle'}`}>
             Lernvideos durchsuchen
           </button>
-          <button onClick={() => setTab('merkliste')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'merkliste' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setTab('merkliste')} className={`lae-tab flex-shrink-0 ${tab === 'merkliste' ? 'lae-tab-active' : 'lae-tab-idle'}`}>
             Merkliste ({saved.size})
           </button>
-          <button onClick={() => setTab('wuensche')} className={`flex-shrink-0 px-4 py-2.5 font-sans text-sm font-medium border transition-colors whitespace-nowrap ${tab === 'wuensche' ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setTab('wuensche')} className={`lae-tab flex-shrink-0 ${tab === 'wuensche' ? 'lae-tab-active' : 'lae-tab-idle'}`}>
             Stückwünsche ({wishes.length})
           </button>
         </div>
@@ -445,7 +447,7 @@ export default function LernvideosPage() {
                                           <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
                                           <div className="flex flex-wrap gap-1">
                                             {TAKTARTEN_FILTER.map(t => (
-                                              <button key={t} onClick={() => setFilterTakt(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
+                                              <button key={t} onClick={() => setFilterTakt(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
                                             ))}
                                           </div>
                                         </div>
@@ -460,7 +462,7 @@ export default function LernvideosPage() {
                                         <p className="font-sans text-[10px] uppercase tracking-widest text-text-secondary mb-2">Genre</p>
                                         <div className="flex flex-wrap gap-1">
                                           {BEKANNTE_TAGS.map(t => (
-                                            <button key={t} onClick={() => setFilterGenreTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
+                                            <button key={t} onClick={() => setFilterGenreTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}>{t}</button>
                                           ))}
                                         </div>
                                       </div>
@@ -593,7 +595,7 @@ export default function LernvideosPage() {
                                       <button
                                         key={t}
                                         onClick={() => setFilterTakt(prev => prev === t ? null : t)}
-                                        className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                                        className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
                                       >
                                         {t}
                                       </button>
@@ -616,7 +618,7 @@ export default function LernvideosPage() {
                                     <button
                                       key={t}
                                       onClick={() => setFilterGenreTag(prev => prev === t ? null : t)}
-                                      className={`font-sans text-[10px] px-2 py-1 border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
+                                      className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-text-secondary hover:border-dark'}`}
                                     >
                                       {t}
                                     </button>
@@ -679,19 +681,19 @@ export default function LernvideosPage() {
                 </p>
                 {activeFilterCount > 0 && (
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterInst}</span>}
+                    {filterInst !== 'Alle' && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterInst}</span>}
                     {filterArt && (
-                      <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
+                      <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
                         {filterArt === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
                       </span>
                     )}
-                    {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{filterStyleTag}</span>}
-                    {filterTakt && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterTakt}</span>}
-                    {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 bg-dark text-white">{filterGenreTag}</span>}
-                    {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Violinschlüssel</span>}
-                    {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 bg-border text-text-secondary">Griffschrift</span>}
-                    {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 ${filterLearned === 'learned' ? 'bg-green-600 text-white' : 'bg-dark text-white'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
-                    {filterLevel && <span className="font-sans text-xs px-2 py-0.5 bg-accent-gold text-white">{planLabels[filterLevel]}</span>}
+                    {filterStyleTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterStyleTag}</span>}
+                    {filterTakt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterTakt}</span>}
+                    {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterGenreTag}</span>}
+                    {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-border text-text-secondary">Violinschlüssel</span>}
+                    {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-border text-text-secondary">Griffschrift</span>}
+                    {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 rounded-md ${filterLearned === 'learned' ? 'bg-green-600 text-white' : 'bg-dark text-white'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
+                    {filterLevel && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{planLabels[filterLevel]}</span>}
                   </div>
                 )}
               </div>
@@ -825,7 +827,7 @@ export default function LernvideosPage() {
                       {w.composer && <p className="font-sans text-xs text-text-secondary">Komponist / Interpret: {w.composer}</p>}
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 border border-border bg-background text-text-secondary whitespace-nowrap">
+                      <span className="flex items-center gap-1.5 font-sans text-xs px-2.5 py-1 rounded-md border border-border bg-background text-text-secondary whitespace-nowrap">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-accent-gold"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
                         <span className="font-bold tabular-nums">{wishTotal(w)}</span>
                       </span>
@@ -897,6 +899,6 @@ export default function LernvideosPage() {
           </div>
         )}
       </div>
-    </MemberShell>
+    </>
   )
 }

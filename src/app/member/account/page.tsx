@@ -22,6 +22,7 @@ import {
   type FormationMemberSlot,
 } from '@/lib/formation'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
+import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 import { PasswordInput } from '@/components/PasswordInput'
 import {
   LAEMU_BANK,
@@ -119,9 +120,9 @@ function BankTransferInvoiceCard({ billing }: { billing: BillingState }) {
         </div>
         <div className="flex items-center gap-4 flex-shrink-0">
           {open ? (
-            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5">Offen</span>
+            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md">Offen</span>
           ) : (
-            <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5">Bezahlt</span>
+            <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-md">Bezahlt</span>
           )}
           <span className="font-sans text-sm font-medium whitespace-nowrap">{formatAmount(billing.amount, billing.currency)}</span>
           <a href={billing.invoicePdfUrl} className="font-sans text-xs text-accent-gold hover:underline">PDF</a>
@@ -227,7 +228,7 @@ function AboTab() {
                 <p className="font-sans text-xs text-text-secondary mt-0.5">{aboInstrumentsLabel(billing.pendingAbo)}</p>
               )}
             </div>
-            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">
+            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md flex-shrink-0">
               Zahlung ausstehend
             </span>
           </div>
@@ -261,7 +262,7 @@ function AboTab() {
               <h3 className="font-heading text-xl font-bold">{aboPlanLabel(abo)}</h3>
               {instrumentsLabel && <p className="font-sans text-xs text-text-secondary mt-0.5">{instrumentsLabel}</p>}
             </div>
-            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Über Formation</span>
+            <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md flex-shrink-0">Über Formation</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-border">
             <div>
@@ -553,7 +554,7 @@ function ZahlungsmittelTab() {
               <p className="font-sans text-sm font-medium">{pm.type} · {pm.last4}</p>
               <p className="font-sans text-xs text-text-secondary">{pm.exp}</p>
             </div>
-            {pm.primary && <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5">Standard</span>}
+            {pm.primary && <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md">Standard</span>}
             <button
               onClick={() => removeMethod(pm.id)}
               className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors"
@@ -772,7 +773,7 @@ function GeraeteTab() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className="font-sans text-sm font-medium truncate">{d.name}</p>
-                {d.current && <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5">Dieses Gerät</span>}
+                {d.current && <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5 rounded-md">Dieses Gerät</span>}
               </div>
               <p className="font-sans text-xs text-text-secondary">{d.location} · {d.last}</p>
             </div>
@@ -948,7 +949,7 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
                       <p className="font-sans text-sm font-medium truncate">{slot.email}</p>
                       <p className="font-sans text-xs text-text-secondary">Mitglied {i + 2} · Einladung gesendet</p>
                     </div>
-                    <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">Eingeladen</span>
+                    <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md flex-shrink-0">Eingeladen</span>
                     <button
                       onClick={() => setConfirmRemove(slot)}
                       className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors flex-shrink-0"
@@ -1031,7 +1032,7 @@ function FormationOverviewTab({ formationName, isPayer, selfName }: { formationN
                     <p className="font-sans text-sm font-medium truncate">{r.label}</p>
                   </div>
                   {r.role && (
-                    <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 flex-shrink-0">{r.role}</span>
+                    <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md flex-shrink-0">{r.role}</span>
                   )}
                 </div>
               ))}
@@ -1212,19 +1213,13 @@ function AccountInner() {
         { date: '26. Mär 2026', desc: invoiceDesc, amount: monthlyLabel, status: 'Bezahlt' },
       ]
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <div className="bg-nav-dark text-white px-6 py-3 flex items-center gap-3">
-        <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-          Musikschule
-        </Link>
-        <span className="text-white/30">/</span>
-        <span className="font-sans text-sm font-medium">Konto verwalten</span>
-      </div>
+  useMemberHeader(
+    { breadcrumb: <MemberBreadcrumb items={[{ label: 'Musikschule', href: '/member/academy' }, { label: 'Konto verwalten' }]} /> },
+    'account',
+  )
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Nav */}
           <nav className="lg:col-span-1">
@@ -1233,7 +1228,7 @@ function AccountInner() {
                 <button
                   key={s.id}
                   onClick={() => setTab(s.id)}
-                  className={`text-left whitespace-nowrap px-4 py-2.5 font-sans text-sm transition-colors border-l-2 ${activeTab === s.id ? 'border-accent-gold bg-surface text-dark font-medium' : 'border-transparent text-text-secondary hover:text-dark hover:bg-surface'}`}
+                  className={`lae-tab text-left ${activeTab === s.id ? 'lae-tab-active' : 'lae-tab-idle'}`}
                 >
                   {s.label}
                 </button>
@@ -1291,7 +1286,7 @@ function AccountInner() {
                         <p className="font-sans text-xs text-text-secondary">{inv.date}</p>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5">{inv.status}</span>
+                        <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-md">{inv.status}</span>
                         <span className="font-sans text-sm font-medium">{inv.amount}</span>
                         <button className="font-sans text-xs text-accent-gold hover:underline">PDF</button>
                       </div>
@@ -1310,7 +1305,6 @@ function AccountInner() {
           </div>
         </div>
       </div>
-    </div>
   )
 }
 

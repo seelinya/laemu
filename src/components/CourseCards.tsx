@@ -54,12 +54,12 @@ export function StarterCourseCard({
           </span>
         )}
         {preview && (
-          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 z-10 uppercase tracking-wide">
+          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 rounded-md z-10 uppercase tracking-wide">
             Vorschau
           </span>
         )}
         {!locked && progress > 0 && (
-          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 z-10">
+          <span className="absolute top-2 left-2 bg-accent-gold text-white text-[10px] font-sans font-medium px-1.5 py-0.5 rounded-md z-10">
             {progress}%
           </span>
         )}
@@ -68,11 +68,11 @@ export function StarterCourseCard({
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className={`font-heading font-bold text-base leading-snug transition-colors ${locked && !preview ? 'text-text-secondary group-hover:text-dark' : 'group-hover:text-accent-gold'}`}>{title}</h3>
           {preview ? (
-            <span className="font-sans text-[10px] uppercase tracking-wide bg-accent-gold/15 border border-accent-gold/30 text-accent-gold px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
+            <span className="font-sans text-[10px] uppercase tracking-wide bg-accent-gold/15 border border-accent-gold/30 text-accent-gold px-2 py-0.5 rounded-md flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
               Erste Lektionen frei
             </span>
           ) : locked && (
-            <span className="font-sans text-[10px] uppercase tracking-wide bg-dark/5 border border-border text-text-secondary px-2 py-0.5 flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
+            <span className="font-sans text-[10px] uppercase tracking-wide bg-dark/5 border border-border text-text-secondary px-2 py-0.5 rounded-md flex-shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
               {lockLabel} · Gesperrt
             </span>
@@ -131,11 +131,11 @@ export function ProCourseRow({ title, level, modules, duration }: { title: strin
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h3 className="font-heading font-bold text-base text-text-secondary truncate">{title}</h3>
-          <span className="font-sans text-[10px] uppercase tracking-wide bg-background border border-border text-text-secondary px-2 py-0.5 flex-shrink-0 hidden sm:inline">{level}</span>
+          <span className="font-sans text-[10px] uppercase tracking-wide bg-background border border-border text-text-secondary px-2 py-0.5 rounded-md flex-shrink-0 hidden sm:inline">{level}</span>
         </div>
         <p className="font-sans text-xs text-text-secondary mt-0.5">{modules} Module · {duration}</p>
       </div>
-      <span className="font-sans text-[11px] text-text-secondary bg-border px-2 py-1 flex items-center gap-1 flex-shrink-0">
+      <span className="font-sans text-[11px] text-text-secondary bg-border px-2 py-1 rounded-md flex items-center gap-1 flex-shrink-0">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
         Pro
       </span>
