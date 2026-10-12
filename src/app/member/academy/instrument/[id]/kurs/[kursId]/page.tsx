@@ -2,12 +2,27 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getCourse, courseStats, freeTrialLessonKeys, type Lesson } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { addRecentCourse } from '@/lib/recentCourses'
 import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
+
+// ─── Modul-Thumbnails ─────────────────────────────────────────────────────────
+// Kleine, freundliche Instrumentfotos für die Kursinhalt-Übersicht, damit die
+// Seite nicht so grau wirkt. Pro Modul wird reihum ein Bild gewählt (Abwechslung).
+const INSTRUMENT_THUMBS: Record<string, string[]> = {
+  handorgel: ['/images/handorgel-portrait.jpg', '/images/handorgel-recording.jpg', '/images/handorgel-sitzend.jpg'],
+  schwyzer: ['/images/oergeli-tasten.jpg', '/images/handorgel-sitzend.jpg'],
+  bassgeige: ['/images/handorgel-recording.jpg', '/images/handorgel-portrait.jpg'],
+  allgemein: ['/images/handorgel-recording.jpg', '/images/handorgel-portrait.jpg'],
+}
+function moduleThumb(instrumentId: string, index: number): string {
+  const set = INSTRUMENT_THUMBS[instrumentId] ?? INSTRUMENT_THUMBS.handorgel
+  return set[index % set.length]
+}
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
@@ -189,13 +204,17 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                     disabled={isLocked}
                     className={`w-full flex items-center gap-4 px-5 py-4 text-left ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    {/* Module number */}
-                    <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 font-heading font-bold text-sm ${mod.status === 'completed' ? 'bg-accent-gold text-white' : 'bg-background border border-border text-text-secondary'}`}>
-                      {mod.status === 'completed' ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      ) : String(i + 1).padStart(2, '0')}
+                    {/* Modul-Thumbnail: kleines Foto mit Modulnummer / Häkchen */}
+                    <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                      <Image src={moduleThumb(course.instrumentId, i)} alt="" fill className="object-cover" sizes="44px" unoptimized />
+                      <span className={`absolute inset-0 ${mod.status === 'completed' ? 'bg-accent-gold/70' : 'bg-dark/45'}`} />
+                      <span className="relative z-10 flex items-center justify-center w-full h-full font-heading font-bold text-sm text-white">
+                        {mod.status === 'completed' ? (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : String(i + 1).padStart(2, '0')}
+                      </span>
                     </div>
 
                     <div className="flex-1 min-w-0">

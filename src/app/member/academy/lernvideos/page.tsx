@@ -415,7 +415,7 @@ export default function LernvideosPage() {
                       {/* Instrument */}
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">Instrument</label>
-                        <select value={filterInst} onChange={e => setFilterInst(e.target.value)} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface">
+                        <select value={filterInst} onChange={e => setFilterInst(e.target.value)} className="w-full border border-border pl-3 pr-9 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface">
                           {INSTRUMENTS.map(o => <option key={o}>{o}</option>)}
                         </select>
                       </div>
@@ -540,7 +540,7 @@ export default function LernvideosPage() {
                 <select
                   value={filterInst}
                   onChange={e => setFilterInst(e.target.value)}
-                  className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                  className="w-full border border-border pl-3 pr-9 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
                 >
                   {INSTRUMENTS.map(o => <option key={o}>{o}</option>)}
                 </select>

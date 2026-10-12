@@ -195,7 +195,7 @@ function DiscoverView() {
             <select
               value={instrument}
               onChange={e => setInstrument(e.target.value)}
-              className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+              className="w-full border border-border pl-3 pr-9 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
             >
               <option value="">Alle Instrumente</option>
               {ALL_INSTRUMENTS.map(i => <option key={i} value={i}>{i}</option>)}
@@ -206,7 +206,7 @@ function DiscoverView() {
             <select
               value={region}
               onChange={e => setRegion(e.target.value)}
-              className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+              className="w-full border border-border pl-3 pr-9 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
             >
               <option value="">Alle Regionen</option>
               {ALL_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
