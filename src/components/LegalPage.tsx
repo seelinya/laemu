@@ -20,7 +20,7 @@ export function LegalPage({
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <div className="bg-dark py-5 px-6 flex items-center justify-between">
+      <div className="bg-nav-dark py-5 px-6 flex items-center justify-between">
         <Link href="/" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
         <Link href="/register" className="font-sans text-xs text-white/50 hover:text-white transition-colors">
           ← Zurück zur Registrierung

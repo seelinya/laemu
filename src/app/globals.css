@@ -3,13 +3,20 @@
 @tailwind utilities;
 
 /* ─── Radona Norm — die LAEMU-Markenschrift (Brand Guidelines) ──────────────
-   Lokal eingebunden (lizenziert). Medium für Fliesstext/UI, Bold für Headings;
-   Gewichts-Ranges sorgen dafür, dass font-medium/-semibold/-bold/-black ohne
-   Faux-Bold auf die passende Schnittweite fallen. */
+   Lokal eingebunden (lizenziert). Regular für Fliesstext, Medium für UI-Betonung,
+   Bold für Headings; Gewichts-Ranges bilden font-normal/-medium/-semibold/-bold
+   ohne Faux-Bold ab. Fallback (falls nicht ladbar): Open Sans. */
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/Radona-NorReg.otf') format('opentype');
+  font-weight: 100 450;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: 'Radona Norm';
   src: url('/fonts/Radona-NorMed.otf') format('opentype');
-  font-weight: 100 550;
+  font-weight: 451 550;
   font-style: normal;
   font-display: swap;
 }
@@ -40,7 +47,7 @@
   --color-background: #EFEFEF;        /* Silbergrau */
   --color-surface: #FFFFFF;           /* Bühnenweiss */
   --color-surface-muted: #F7F7F7;
-  --color-nav-dark: #000000;          /* Klangschwarz */
+  --color-nav-dark: #333333;          /* Dunkelgrau — Navigation (statt Schwarz) */
   --color-text-primary: #000000;      /* Klangschwarz */
   --color-text-secondary: #505050;    /* Steingrau */
   --color-text-on-dark: #FFFFFF;
@@ -53,11 +60,10 @@
   --color-dark: #000000;
 
   /* ─── Schriftfamilien ──────────────────────────────────────────────────
-     Radona Norm (Heading/Body) & Golden Hopes (Deko) sind lizenziert und
-     werden lokal via @font-face nachgereicht. Bis dahin greift der
-     Fallback-Stack (FOUT-/Performance-sicher). */
-  --font-heading: "Radona Norm", var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-sans: "Radona Norm", var(--font-inter), "Inter", system-ui, sans-serif;
+     Radona Norm (Heading/Body) ist die Markenschrift, lokal via @font-face.
+     Fallback ist Open Sans (nicht mehr Jakarta/Inter). */
+  --font-heading: "Radona Norm", var(--font-opensans), "Open Sans", system-ui, sans-serif;
+  --font-sans: "Radona Norm", var(--font-opensans), "Open Sans", system-ui, sans-serif;
   --font-script: "Golden Hopes", cursive;
 }
 
