@@ -56,7 +56,18 @@ const videoData = {
   styleTags: ['Urchig', 'Innerschwyzer Stil'],
   taktart: 'Walzer' as const,
   autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
-  formations: ['Hess-Rusch-Hegner Trio', 'Kapelle Schwyz', 'Bodästänix'],
+  // Formationen, die dieses Stück spielen. Aktive Formationen haben ein LAEMU-
+  // Profil (Bild + Vorschautext, Link auf laemu.ch/formationen); inaktive werden
+  // nur mit Namen gezeigt und auf Radio Tell verlinkt.
+  formations: [
+    { name: 'Hess-Rusch-Hegner Trio', active: true, img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&q=80', bio: 'Innerschwyzer Trio — Handorgel, Schwyzerörgeli & Bassgeige in bester Ländlertradition.' },
+    { name: 'Bodästänix', active: true, img: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=200&q=80', bio: 'Junge Formation mit frischem Zugang zur Volksmusik — bekannt aus Konzerten in der ganzen Innerschweiz.' },
+    { name: 'Kapelle Schwyz', active: false, img: '', bio: '' },
+  ] as { name: string; active: boolean; img: string; bio: string }[],
+  // Komponist:innen (0–mehrere möglich).
+  composers: [
+    { name: 'Willi Valotti', years: '1932–2001', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', bio: 'Einer der bedeutendsten Schweizer Volksmusikkomponisten des 20. Jahrhunderts.' },
+  ] as { name: string; years: string; img: string; bio: string }[],
   img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80',
   intro: 'Dr Alperose ist ein klassischer Ländlerwalzer im 3/4-Takt, komponiert von Willi Valotti im Jahr 1978. Das Stück gehört zum Standardrepertoire jeder Schweizer Ländlerkapelle und zeichnet sich durch seine eingängige Melodielinie und charakteristischen Begleitfiguren aus. Besondere Aufmerksamkeit verdient der harmonische Übergang von Teil A nach Teil B — ein Merkmal, das viele Ländler der 1970er-Jahre kennzeichnet und den Stücken eine besondere Tiefe verleiht.',
   masterVideo: { type: 'laemu' as const },
@@ -912,7 +923,11 @@ export default function LernvideoDetailPage() {
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
                   <h2 className="font-heading font-bold text-2xl mb-1">{v.title}</h2>
                   <p className="font-sans text-sm text-accent-gold mb-4">
-                    {v.artist}{v.taktart ? ` · ${v.taktart}` : ''}{v.composer !== v.artist ? ` · Komp.: ${v.composer}` : ''}
+                    {[
+                      v.taktart,
+                      v.composers?.map(c => c.name).join(', '),
+                      v.formations?.map(f => f.name).join(', '),
+                    ].filter(Boolean).join(' · ')}
                   </p>
 
                   <p className="font-sans text-sm text-text-secondary leading-relaxed mb-5">{v.intro}</p>
@@ -943,9 +958,6 @@ export default function LernvideoDetailPage() {
                     </span>
                     <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
                     {v.taktart && <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{v.taktart}</span>}
-                    {v.formations?.map(f => (
-                      <span key={f} className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{f}</span>
-                    ))}
                     {v.styleTags?.map(tag => (
                       <span key={tag} className="font-sans text-xs px-2.5 py-1 rounded-md bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
                     ))}
@@ -1158,30 +1170,91 @@ export default function LernvideoDetailPage() {
                 </ShareMenu>
               </div>
 
-              {/* Interpret (mehrere möglich — je Instrument/Stimme) */}
-              <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
-                <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">Interpret</p>
-                <div className="space-y-5">
-                  {v.teachers.map((t, i) => (
-                    <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
-                      <div className="relative w-12 h-12 overflow-hidden flex-shrink-0">
-                        <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+              {/* Musiklehrer:innen (max. 2) — wer das Stück unterrichtet / im Video zeigt */}
+              {v.teachers.length > 0 && (
+                <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
+                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.teachers.slice(0, 2).length > 1 ? 'Musiklehrer:innen' : 'Musiklehrer:in'}</p>
+                  <div className="space-y-5">
+                    {v.teachers.slice(0, 2).map((t, i) => (
+                      <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
+                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                          <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+                        </div>
+                        <div>
+                          <p className="font-heading font-bold text-sm">{t.name}</p>
+                          <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
+                          <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
+                          {/* «Profil ansehen» nur, wenn diese Person ein Profil hat. */}
+                          {t.hasProfile && (
+                            <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors inline-block">
+                              Profil ansehen
+                            </Link>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-heading font-bold text-sm">{t.name}</p>
-                        <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
-                        <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
-                        {/* «Profil ansehen» nur, wenn diese Person ein Profil hat. */}
-                        {t.hasProfile && (
-                          <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors">
-                            Profil ansehen
-                          </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Formation(en) — aktiv: Vorschaubild + Text + LAEMU-Link; inaktiv: Name + Radio-Tell-Link */}
+              {v.formations && v.formations.length > 0 && (
+                <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
+                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.formations.length > 1 ? 'Formationen' : 'Formation'}</p>
+                  <div className="space-y-5">
+                    {v.formations.map((f, i) => (
+                      <div key={i} className={i > 0 ? 'border-t border-border pt-5' : ''}>
+                        {f.active ? (
+                          <div className="flex items-start gap-3">
+                            {f.img && (
+                              <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                                <Image src={f.img} alt={f.name} fill className="object-cover" unoptimized />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="font-heading font-bold text-sm">{f.name}</p>
+                              {f.bio && <p className="font-sans text-xs text-text-secondary leading-relaxed mt-1 mb-3">{f.bio}</p>}
+                              <a href="https://www.laemu.ch/formationen" target="_blank" rel="noopener noreferrer" className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors inline-flex items-center gap-1">
+                                Mehr erfahren (LAEMU) <IconArrowRight />
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="font-heading font-bold text-sm mb-1.5">{f.name}</p>
+                            <a href="https://radiotell.ch/formationen/" target="_blank" rel="noopener noreferrer" className="font-sans text-xs text-text-secondary hover:text-dark hover:underline inline-flex items-center gap-1">
+                              Mehr Infos (RadioTell) <IconArrowRight />
+                            </a>
+                          </div>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Komponist(en) — 0 bis mehrere möglich */}
+              {v.composers && v.composers.length > 0 && (
+                <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
+                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.composers.length > 1 ? 'Komponisten' : 'Komponist'}</p>
+                  <div className="space-y-5">
+                    {v.composers.map((c, i) => (
+                      <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
+                        {c.img && (
+                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                            <Image src={c.img} alt={c.name} fill className="object-cover grayscale" unoptimized />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-heading font-bold text-sm">{c.name}</p>
+                          {c.years && <p className="font-sans text-xs text-accent-gold mb-2">{c.years}</p>}
+                          {c.bio && <p className="font-sans text-xs text-text-secondary leading-relaxed">{c.bio}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
