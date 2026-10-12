@@ -250,7 +250,7 @@ export function UpgradeDialog({
                           className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-1.5 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                         >
                           {opt.label}
-                          {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                          {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 rounded-md ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
                         </button>
                       ))}
                     </div>
@@ -272,7 +272,7 @@ export function UpgradeDialog({
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                                   <span>{meta.emoji}</span>
                                   <span className="font-sans font-semibold text-sm">{meta.label}</span>
-                                  {meta.badge && <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>}
+                                  {meta.badge && <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-gold text-white">{meta.badge}</span>}
                                 </div>
                                 <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
                               </div>

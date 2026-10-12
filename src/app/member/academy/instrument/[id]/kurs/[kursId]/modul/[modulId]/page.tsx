@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getCourse, freeTrialLessonKeys, type LessonType } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -62,13 +63,13 @@ function TypeBadge({ type }: { type: LessonType }) {
     'video+text': { label: 'Video+Text', cls: 'bg-blue-50 text-blue-700' },
   }
   const c = config[type]
-  return <span className={`font-sans text-[10px] px-1.5 py-0.5 ${c.cls}`}>{c.label}</span>
+  return <span className={`font-sans text-[10px] px-1.5 py-0.5 rounded-md ${c.cls}`}>{c.label}</span>
 }
 
 // Markierung für Team-Mitglieder (Lehrpersonen / LAEMU Team).
 function TeamBadge({ role }: { role?: string }) {
   return (
-    <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+    <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 font-medium">
       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
       {role ?? 'LAEMU Team'}
     </span>
@@ -131,7 +132,7 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
         {/* Platzhalter-Markierung */}
         <div className="absolute top-3 right-3 pointer-events-none">
-          <span className="font-sans text-[10px] uppercase tracking-widest text-white/40 bg-black/30 px-2 py-1 inline-flex items-center gap-1.5">
+          <span className="font-sans text-[10px] uppercase tracking-widest text-white/40 bg-black/30 px-2 py-1 rounded-md inline-flex items-center gap-1.5">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
             Video-Platzhalter
           </span>
@@ -148,7 +149,7 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
 
         {/* Titel oben links */}
         <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <span className="font-sans text-xs text-white/80 bg-black/40 px-2 py-1">{title} · {duration}</span>
+          <span className="font-sans text-xs text-white/80 bg-black/40 px-2 py-1 rounded-md">{title} · {duration}</span>
         </div>
 
         {/* Klick-Fänger, schliesst das Einstellungsmenü */}
@@ -389,28 +390,23 @@ export default function ModulPage({
 
   const kursPath = `/member/academy/instrument/${params.id}/kurs/${params.kursId}`
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Top navigation */}
-      <div className="bg-nav-dark text-white px-6 py-3 flex items-center gap-3">
-        <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors hidden md:flex items-center gap-1.5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Musikschule
-        </Link>
-        <span className="text-white/30 hidden md:block">/</span>
-        <Link href={kursPath} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5 md:gap-0">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:hidden">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          {courseTitle}
-        </Link>
-        <span className="text-white/30">/</span>
-        <span className="font-sans text-sm font-medium truncate">{activeModuleData?.title}</span>
-      </div>
+  useMemberHeader(
+    {
+      breadcrumb: (
+        <MemberBreadcrumb
+          items={[
+            { label: 'Musikschule', href: '/member/academy' },
+            { label: courseTitle, href: kursPath },
+            { label: activeModuleData?.title ?? 'Modul' },
+          ]}
+        />
+      ),
+    },
+    `modul-${params.modulId}`,
+  )
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex gap-8 items-start">
 
           {/* ── LEFT SIDEBAR ── */}
@@ -730,7 +726,7 @@ export default function ModulPage({
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <Link href={profileHref(comment.isAuthor, comment.handle)} className="font-sans text-sm font-medium hover:text-accent-gold transition-colors">{comment.name}</Link>
                         {comment.isTeam && <TeamBadge role={comment.role} />}
-                        {comment.isAuthor && !comment.isTeam && <span className="font-sans text-[10px] border border-border text-text-secondary px-1.5 py-0.5">Du</span>}
+                        {comment.isAuthor && !comment.isTeam && <span className="font-sans text-[10px] border border-border text-text-secondary px-1.5 py-0.5 rounded-md">Du</span>}
                         <span className="font-sans text-xs text-text-secondary">{comment.time}</span>
                       </div>
                       <p className="font-sans text-sm text-dark leading-relaxed">{comment.text}</p>
@@ -755,7 +751,7 @@ export default function ModulPage({
 
                       {/* Benachrichtigung bei Team-Antwort */}
                       {teamAnswered && (
-                        <div className="mt-2 inline-flex items-center gap-1.5 bg-accent-gold/10 text-accent-gold px-2 py-1 font-sans text-[11px]">
+                        <div className="mt-2 inline-flex items-center gap-1.5 bg-accent-gold/10 text-accent-gold px-2 py-1 rounded-md font-sans text-[11px]">
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
                           {comment.isAuthor ? 'Du wurdest über die Antwort benachrichtigt' : `${comment.name} wurde über die Antwort benachrichtigt`}
                         </div>
@@ -823,6 +819,5 @@ export default function ModulPage({
           </main>
         </div>
       </div>
-    </div>
   )
 }

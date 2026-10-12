@@ -595,7 +595,7 @@ export default function RegisterPage() {
               <div className="flex items-start gap-2 flex-wrap mb-2">
                 <h1 className="font-heading text-3xl font-bold">Konto erstellen</h1>
                 {accountType === 'formation' && (
-                  <span className="font-sans text-[11px] font-semibold px-2 py-1 bg-accent-gold/15 border border-accent-gold/40 text-accent-gold mt-1.5">
+                  <span className="font-sans text-[11px] font-semibold px-2 py-1 rounded-md bg-accent-gold/15 border border-accent-gold/40 text-accent-gold mt-1.5">
                     Du = 1. Mitglied &amp; zahlende Person
                   </span>
                 )}
@@ -702,7 +702,7 @@ export default function RegisterPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-dark flex-shrink-0"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                         <h3 className="font-heading font-bold text-base">Weitere Formationsmitglieder einladen</h3>
-                        <span className="font-sans text-[10px] font-semibold px-2 py-0.5 bg-background border border-border text-text-secondary uppercase tracking-wide">Optional</span>
+                        <span className="font-sans text-[10px] font-semibold px-2 py-0.5 rounded-md bg-background border border-border text-text-secondary uppercase tracking-wide">Optional</span>
                       </div>
                       <p className="font-sans text-xs text-text-secondary mb-4 leading-relaxed">
                         Mitglied 1 bist du selbst (oben erfasst). Hinterlege – wenn du sie schon kennst – für jedes
@@ -826,7 +826,7 @@ export default function RegisterPage() {
                       className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 font-sans text-xs sm:text-sm transition-colors flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                     >
                       <span className="whitespace-nowrap">{opt.label}</span>
-                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 shrink-0 whitespace-nowrap ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
+                      {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 rounded-md shrink-0 whitespace-nowrap ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
                     </button>
                   ))}
                 </div>
@@ -865,15 +865,15 @@ export default function RegisterPage() {
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
                                 <span>{meta.emoji}</span>
                                 <span className="font-sans font-semibold text-sm">{meta.label}</span>
-                                <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
+                                <span className="font-sans text-[10px] font-medium px-2 py-0.5 rounded-md bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                                 {meta.badge && (
-                                  <span className="font-sans text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-white">{meta.badge}</span>
+                                  <span className="font-sans text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-gold text-white">{meta.badge}</span>
                                 )}
                                 {!isFree && (
-                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary">{billing === 'yearly' ? 'Jahresabo' : 'Monatsabo'}</span>
+                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 rounded-md bg-border text-text-secondary">{billing === 'yearly' ? 'Jahresabo' : 'Monatsabo'}</span>
                                 )}
                                 {isFree && (
-                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-border text-text-secondary inline-flex items-center gap-1">
+                                  <span className="font-sans text-[10px] font-medium px-2 py-0.5 rounded-md bg-border text-text-secondary inline-flex items-center gap-1">
                                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                                     Upgrade
                                   </span>
@@ -1061,7 +1061,7 @@ export default function RegisterPage() {
                               <div className="flex items-center gap-2 mb-1 flex-wrap">
                                 <span>{meta.emoji}</span>
                                 <span className="font-sans font-semibold text-sm">Formation {meta.label}</span>
-                                <span className="font-sans text-[10px] font-medium px-2 py-0.5 bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
+                                <span className="font-sans text-[10px] font-medium px-2 py-0.5 rounded-md bg-accent-gold/15 text-accent-gold border border-accent-gold/30">{meta.audience}</span>
                               </div>
                               <p className="font-sans text-xs text-text-secondary leading-relaxed">{meta.desc}</p>
                             </div>

@@ -3,6 +3,7 @@
 import { type ReactNode } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 type Shares = {
   whatsapp?: string
@@ -100,20 +101,13 @@ export default function PublicProfilePage({ params }: { params: { handle: string
   const profile = profiles[params.handle] ?? fallbackProfile(params.handle)
   const s = profile.shares
   const hasShares = !!(s.whatsapp || s.instagram || s.email || s.website || s.facebook || s.tiktok || s.openForFormation)
+  useMemberHeader(
+    { breadcrumb: <MemberBreadcrumb items={[{ label: 'Community', href: '/member/community' }, { label: profile.name }]} /> },
+    `u-${params.handle}`,
+  )
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <div className="bg-nav-dark text-white px-6 py-3 flex items-center gap-3">
-        <button onClick={() => history.back()} className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-          Zurück
-        </button>
-        <span className="text-white/30">/</span>
-        <span className="font-sans text-sm font-medium">Öffentliches Profil</span>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 space-y-6">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col sm:flex-row gap-6">
           <div className="relative w-28 h-28 overflow-hidden flex-shrink-0 bg-background border border-border">
@@ -129,7 +123,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <h1 className="font-heading text-2xl font-bold">{profile.name}</h1>
               {profile.role && (
-                <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 inline-flex items-center gap-1 font-medium">
+                <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 font-medium">
                   <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                   {profile.role}
                 </span>
@@ -146,7 +140,7 @@ export default function PublicProfilePage({ params }: { params: { handle: string
             </div>
             <div className="flex flex-wrap gap-1.5 mb-3">
               {profile.instruments.map((inst) => (
-                <span key={inst} className="font-sans text-xs px-2.5 py-1 bg-surface-muted border border-border text-text-secondary">{inst}</span>
+                <span key={inst} className="font-sans text-xs px-2.5 py-1 rounded-md bg-surface-muted border border-border text-text-secondary">{inst}</span>
               ))}
             </div>
             <p className="font-sans text-sm text-text-secondary leading-relaxed">{profile.bio}</p>
@@ -199,6 +193,5 @@ export default function PublicProfilePage({ params }: { params: { handle: string
           </div>
         )}
       </div>
-    </div>
   )
 }

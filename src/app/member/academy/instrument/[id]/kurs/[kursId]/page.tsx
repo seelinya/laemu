@@ -7,6 +7,7 @@ import { getCourse, courseStats, freeTrialLessonKeys, type Lesson } from '@/lib/
 import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { addRecentCourse } from '@/lib/recentCourses'
+import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ function TypeBadge({ type }: { type: Lesson['type'] }) {
     'video+text': { label: 'Video+Text', bg: 'bg-blue-50 text-blue-700' },
   }
   const c = config[type]
-  return <span className={`font-sans text-[10px] px-1.5 py-0.5 ${c.bg}`}>{c.label}</span>
+  return <span className={`font-sans text-[10px] px-1.5 py-0.5 rounded-md ${c.bg}`}>{c.label}</span>
 }
 
 // ─── Page component ───────────────────────────────────────────────────────────
@@ -82,20 +83,17 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
       return sum + (match ? parseInt(match[1], 10) : 0)
     }, 0)
 
+  useMemberHeader(
+    { breadcrumb: <MemberBreadcrumb items={[{ label: 'Musikschule', href: '/member/academy' }, { label: course?.title ?? 'Kurs' }]} /> },
+    `kurs-${course?.id ?? 'none'}`,
+  )
+
   if (!course) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="bg-nav-dark text-white px-6 py-3 flex items-center gap-3">
-          <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-            Musikschule
-          </Link>
-        </div>
-        <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
           <div className="text-4xl mb-4">🚧</div>
           <h1 className="font-heading text-2xl font-bold mb-2">Kurs in Vorbereitung</h1>
           <p className="font-sans text-text-secondary">Dieser Kurs wird gerade aufgebaut. Schau bald wieder vorbei!</p>
-        </div>
       </div>
     )
   }
@@ -107,20 +105,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   const instrumentLabel = course.instrumentLabel
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top navigation */}
-      <div className="bg-nav-dark text-white px-6 py-3 flex items-center gap-3">
-        <Link href="/member/academy" className="font-sans text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1.5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          Musikschule
-        </Link>
-        <span className="text-white/30">/</span>
-        <span className="font-sans text-sm font-medium">{course.title}</span>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
 
         {/* ── Course header ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
@@ -130,9 +115,9 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                 <span className="font-sans text-sm">{course.emoji}</span>
                 <span className="font-sans text-xs text-accent-gold uppercase tracking-wide">{instrumentLabel}</span>
                 <span className="font-sans text-xs text-text-secondary">·</span>
-                <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5">{course.level}</span>
+                <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 rounded-md">{course.level}</span>
                 {courseCompleted && (
-                  <span className="font-sans text-xs bg-green-600 text-white px-2 py-0.5 flex items-center gap-1">
+                  <span className="font-sans text-xs bg-green-600 text-white px-2 py-0.5 rounded-md flex items-center gap-1">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                     Abgeschlossen
                   </span>
@@ -278,7 +263,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                                     <p className="font-sans text-sm text-text-secondary">{lesson.title}</p>
                                   </div>
                                   <div className="flex items-center gap-3 flex-shrink-0">
-                                    <span className="font-sans text-[10px] px-1.5 py-0.5 bg-border text-text-secondary uppercase tracking-wide">Upgrade</span>
+                                    <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-border text-text-secondary uppercase tracking-wide">Upgrade</span>
                                     <span className="font-sans text-xs text-text-secondary">{lesson.duration}</span>
                                   </div>
                                 </div>
@@ -326,6 +311,5 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
         </section>
 
       </div>
-    </div>
   )
 }
