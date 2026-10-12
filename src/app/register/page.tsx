@@ -2,6 +2,7 @@
 
 import { Fragment, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import Link from 'next/link'
 import { PasswordInput } from '@/components/PasswordInput'
 import {
@@ -25,6 +26,9 @@ import { setStoredFormation, buildMemberSlots, emptyFormation } from '@/lib/form
 
 // In der Mitgliedschaft (Musikschule) wählbare Instrumente.
 const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
+
+// Begrüssungsbild links im Registrierungsablauf — freundlicher Einstieg.
+const AUTH_IMAGE = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80'
 
 const steps = [
   { number: 1, label: 'Mitgliedschaft' },
@@ -345,7 +349,7 @@ export default function RegisterPage() {
               href="https://www.youtube.com/watch?v=GC2ifQu8bOk&list=PLQT3QakLxJRzL_7g7D6xHSerTYxqRuHO3&index=6"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-surface border border-border text-center font-sans text-sm py-3 hover:border-dark transition-colors"
+              className="flex items-center justify-center gap-2 w-full bg-surface border border-border rounded-xl shadow-soft text-center font-sans text-sm py-3 hover:border-dark transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               Einführungsvideo anschauen
@@ -357,20 +361,35 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <div className="bg-dark py-5 px-6 flex items-center justify-between">
-        <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
-        <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+    <div className="min-h-screen bg-background lg:flex">
+      {/* Bild links — freundlicher Einstieg; LAEMU-Branding bleibt erhalten */}
+      <div className="hidden lg:block lg:w-2/5 xl:w-1/2 relative lg:sticky lg:top-0 lg:h-screen">
+        <Image src={AUTH_IMAGE} alt="" fill className="object-cover" unoptimized priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+        <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+          <p className="font-heading text-3xl font-bold tracking-tight">LAEMU</p>
+          <p className="font-sans text-sm text-white/85 mt-1 italic">Am Puls der Ländlermusik.</p>
+          <p className="font-sans text-sm text-white/75 mt-3 leading-relaxed max-w-sm">
+            Lerne Ländlermusik von Profis — Online-Kurse und originalgetreue Lernvideos zu unzähligen Stücken.
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
+      {/* Rechte Spalte: Registrierungsablauf */}
+      <div className="flex-1 min-w-0">
+        {/* Top bar */}
+        <div className="bg-dark py-5 px-6 flex items-center justify-between">
+          <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
+          <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
         {/* Step indicator — Free-Account hat keinen Zahlungsschritt */}
         <div className="flex items-start mb-10">
           {visibleSteps.map((s, i) => (
             <Fragment key={s.number}>
               <div className="flex flex-col items-center gap-2 w-20 sm:w-24 shrink-0">
-                <div className={`w-10 h-10 flex items-center justify-center font-heading font-bold text-sm transition-all ${
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-heading font-bold text-sm transition-all ${
                   step > s.number ? 'bg-accent-gold text-white' :
                   step === s.number ? 'bg-dark text-white' :
                   'bg-border text-text-secondary'
@@ -475,7 +494,7 @@ export default function RegisterPage() {
                 {accountType === 'formation' && (
                   <div className="space-y-4">
                     {/* Name der Formation — Pflichtangabe */}
-                    <div className="bg-surface border-2 border-accent-gold p-5">
+                    <div className="bg-surface border-2 border-accent-gold rounded-xl p-5">
                       <label className="label text-text-secondary block mb-1.5">Name der Formation *</label>
                       <input
                         type="text"
@@ -503,7 +522,7 @@ export default function RegisterPage() {
                     </div>
 
                     {/* Weitere Mitglieder erfassen — E-Mails sind optional */}
-                    <div className="bg-surface border-2 border-accent-gold p-5">
+                    <div className="bg-surface border-2 border-accent-gold rounded-xl p-5">
                       <div className="flex items-center gap-2 mb-1">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-dark flex-shrink-0"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                         <h3 className="font-heading font-bold text-base">Weitere Formationsmitglieder einladen</h3>
@@ -619,7 +638,7 @@ export default function RegisterPage() {
 
               {/* Billing toggle (individual only) */}
               {accountType === 'individual' && (
-                <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
+                <div className="flex items-center justify-center gap-1 mb-6 bg-surface border border-border rounded-xl shadow-soft p-1 w-full sm:w-fit mx-auto">
                   {([
                     { id: 'yearly', label: 'Jährlich', hint: null },
                     { id: 'monthly', label: 'Monatlich', hint: null },
@@ -698,7 +717,7 @@ export default function RegisterPage() {
 
                   {/* Scope + instrument selection */}
                   {!isFree && individualPlanMeta[individualPlan].hasScope && (
-                    <div className="bg-surface border border-border p-5 mb-6">
+                    <div className="bg-surface border border-border rounded-xl shadow-soft p-5 mb-6">
                       <h3 className="font-heading font-bold text-sm mb-3">Umfang wählen</h3>
                       <div className="grid grid-cols-3 gap-2 mb-5">
                         {(['1', '2', '3'] as Scope[]).map(s => (
@@ -735,7 +754,7 @@ export default function RegisterPage() {
 
                   {/* Free-Account: Zusammenfassung statt Preis-/Umfangsauswahl */}
                   {isFree && (
-                    <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
+                    <div className="bg-accent-gold/10 border-2 border-accent-gold/60 rounded-2xl shadow-md shadow-accent-gold/15 p-5 mb-8">
                       <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
                         <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                         Dein Free-Account
@@ -773,7 +792,7 @@ export default function RegisterPage() {
 
                   {/* Feature list of selected plan */}
                   {!isFree && (
-                  <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
+                  <div className="bg-accent-gold/10 border-2 border-accent-gold/60 rounded-2xl shadow-md shadow-accent-gold/15 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
                       <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                       Enthalten
@@ -815,7 +834,7 @@ export default function RegisterPage() {
               {/* ── FORMATION OFFERING ── */}
               {accountType === 'formation' && (
                 <>
-                  <div className="bg-surface border border-border p-5 mb-6">
+                  <div className="bg-surface border border-border rounded-xl shadow-soft p-5 mb-6">
                     <h3 className="font-heading font-bold text-sm mb-1">Anzahl Mitglieder</h3>
                     <p className="font-sans text-xs text-text-secondary mb-4">
                       Das Formationsangebot gilt für bis zu {FORMATION_INCLUDED_MEMBERS} Mitglieder. Bei mehr als {FORMATION_INCLUDED_MEMBERS} Mitgliedern
@@ -886,7 +905,7 @@ export default function RegisterPage() {
                   )}
 
                   {/* Enthalten (Formation) */}
-                  <div className="bg-accent-gold/10 border-2 border-accent-gold/60 shadow-md shadow-accent-gold/15 p-5 mb-8">
+                  <div className="bg-accent-gold/10 border-2 border-accent-gold/60 rounded-2xl shadow-md shadow-accent-gold/15 p-5 mb-8">
                     <p className="font-heading text-sm font-bold text-dark mb-3 flex items-center gap-2">
                       <span className="inline-flex items-center justify-center w-5 h-5 bg-accent-gold text-white flex-shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></span>
                       Enthalten — Formation {formationPlanMeta[formationPlan].label}
@@ -1157,6 +1176,7 @@ export default function RegisterPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   )

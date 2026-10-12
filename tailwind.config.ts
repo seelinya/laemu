@@ -41,6 +41,13 @@ const config: Config = {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
         'fade-in': 'fadeIn 0.4s ease-out forwards',
       },
+      // Weiche, freundliche Schatten (Design-Angleichung) — dezente Tiefe für
+      // Karten, Panels und Modals auf hellem Grund.
+      boxShadow: {
+        soft: '0 1px 2px rgba(17, 17, 17, 0.04), 0 2px 8px rgba(17, 17, 17, 0.06)',
+        card: '0 2px 10px rgba(17, 17, 17, 0.06), 0 10px 30px rgba(17, 17, 17, 0.07)',
+        'soft-lg': '0 4px 16px rgba(17, 17, 17, 0.08), 0 16px 40px rgba(17, 17, 17, 0.08)',
+      },
       keyframes: {
         fadeUp: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },

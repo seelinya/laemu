@@ -101,7 +101,7 @@ export function ShareMenu({ title = 'LAEMU', text = '', url, className, children
             initial={{ opacity: 0, scale: 0.95, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
-            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full mt-1 bg-surface border border-border shadow-xl z-50 min-w-[190px] overflow-hidden`}
+            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full mt-1 bg-surface border border-border rounded-xl shadow-xl z-50 min-w-[190px] overflow-hidden`}
           >
             <button onClick={copyLink} className={linkClass}>
               <span className="text-accent-gold flex-shrink-0"><IconLink /></span>

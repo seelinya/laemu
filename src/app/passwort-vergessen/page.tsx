@@ -30,7 +30,7 @@ export default function PasswortVergessenPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-border p-8">
+        <div className="bg-white border border-border rounded-2xl shadow-card p-8">
           {sent ? (
             <div className="text-center">
               <div className="w-14 h-14 bg-accent-gold flex items-center justify-center mx-auto mb-5">

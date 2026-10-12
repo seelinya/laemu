@@ -255,7 +255,7 @@ export default function LernvideosPage() {
               onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter') router.push(href) },
             }
           : {})}
-        className={`bg-surface border border-border overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row ${unlocked ? 'cursor-pointer' : ''}`}
+        className={`bg-surface border border-border rounded-xl shadow-soft overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row ${unlocked ? 'cursor-pointer' : ''}`}
       >
         {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
         <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
@@ -732,7 +732,7 @@ export default function LernvideosPage() {
                 {savedVideos.map((v, i) => renderResultCard(v, i))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-surface border border-border">
+              <div className="text-center py-16 bg-surface border border-border rounded-xl shadow-soft">
                 <p className="font-heading font-bold text-lg mb-2">Noch keine Stücke gemerkt</p>
                 <p className="font-sans text-sm text-text-secondary mb-4">Tippe bei einem Stück auf das Herz, um es zur Merkliste hinzuzufügen.</p>
                 <button onClick={() => setTab('datenbank')} className="font-sans text-sm px-4 py-2 border border-border hover:border-dark transition-colors">Stücke durchsuchen</button>
@@ -819,7 +819,7 @@ export default function LernvideosPage() {
               {filteredWishes.map(w => {
                 const isOpen = expandedWishes.has(w.id)
                 return (
-                <div key={w.id} className="bg-surface border border-border">
+                <div key={w.id} className="bg-surface border border-border rounded-xl shadow-soft">
                   {/* Kopfzeile — klappt per Klick (Abstimmen / Chevron) die Liste auf */}
                   <button
                     onClick={() => toggleWishExpand(w.id)}

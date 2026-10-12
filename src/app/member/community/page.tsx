@@ -176,7 +176,7 @@ function DiscoverView() {
       </div>
 
       {/* Filter — basierend auf öffentlich geteilten Profilangaben */}
-      <div className="bg-surface border border-border p-4 space-y-3">
+      <div className="bg-surface border border-border rounded-xl shadow-soft p-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="font-sans text-xs uppercase tracking-[0.15em] text-text-secondary">Filtern nach</p>
           {activeFilters > 0 && (
@@ -216,7 +216,7 @@ function DiscoverView() {
 
       <div className="space-y-3">
         {results.map((p) => (
-          <div key={p.handle} className="bg-surface border border-border flex items-center gap-3 p-4 hover:border-dark transition-colors group">
+          <div key={p.handle} className="bg-surface border border-border rounded-xl shadow-soft flex items-center gap-3 p-4 hover:border-dark transition-colors group">
             <Link href={`/member/u/${p.handle}`} className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity">
               <Image src={p.img} alt={p.name} fill className="object-cover" unoptimized />
             </Link>
@@ -237,7 +237,7 @@ function DiscoverView() {
           </div>
         ))}
         {results.length === 0 && (
-          <div className="bg-surface border border-border p-8 text-center">
+          <div className="bg-surface border border-border rounded-xl shadow-soft p-8 text-center">
             <p className="font-sans text-sm text-text-secondary">Keine Profile gefunden.</p>
           </div>
         )}
@@ -253,7 +253,7 @@ function DiscoverView() {
 function StartView() {
   return (
     <div className="space-y-6">
-      <div className="bg-surface border border-border p-6 sm:p-8">
+      <div className="bg-surface border border-border rounded-xl shadow-soft p-6 sm:p-8">
         <h2 className="font-heading font-black text-2xl mb-2">Willkommen in der LAEMU-Community</h2>
         <p className="font-sans text-sm font-normal text-text-secondary leading-relaxed">
           Hier bleibst du mit der LAEMU-Szene verbunden — ganz schlank gehalten. Folge uns auf
@@ -267,7 +267,7 @@ function StartView() {
         href={LAEMU_INSTAGRAM_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
+        className="block bg-surface border border-border rounded-xl shadow-soft p-6 hover:border-dark transition-colors group"
       >
         <div className="flex items-center gap-4">
           <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-white transition-colors">
@@ -289,7 +289,7 @@ function StartView() {
         href={LAEMU_FACEBOOK_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="block bg-surface border border-border p-6 hover:border-dark transition-colors group"
+        className="block bg-surface border border-border rounded-xl shadow-soft p-6 hover:border-dark transition-colors group"
       >
         <div className="flex items-center gap-4">
           <span className="w-12 h-12 flex items-center justify-center bg-dark text-white flex-shrink-0 group-hover:bg-accent-gold group-hover:text-white transition-colors">
@@ -319,7 +319,7 @@ function StartView() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Info-Gruppe */}
-          <div className="bg-surface border border-border p-6 flex flex-col">
+          <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <span className="w-11 h-11 flex items-center justify-center bg-dark text-white flex-shrink-0">
                 <IconWhatsApp />
@@ -344,7 +344,7 @@ function StartView() {
           </div>
 
           {/* Austausch-Gruppe */}
-          <div className="bg-surface border border-border p-6 flex flex-col">
+          <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
               <span className="w-11 h-11 flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
                 <IconWhatsApp />
@@ -470,7 +470,7 @@ function ProfileView() {
   return (
     <div className="space-y-6">
       {/* Profile header — ohne Titelbild, Profilbild optional */}
-      <div className="bg-surface border border-border overflow-hidden">
+      <div className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden">
         <div className="p-6">
           <div className="flex items-end justify-between mb-5">
             <div className="flex flex-col gap-1.5">
@@ -725,7 +725,7 @@ export default function MemberCommunityPage() {
           <div className="hidden lg:block">
             <div className="sticky top-8 space-y-4">
               {/* Own profile quick-card */}
-              <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border p-5 hover:border-dark transition-colors text-left block">
+              <button onClick={() => setActiveNav('profile')} className="w-full bg-surface border border-border rounded-xl shadow-soft p-5 hover:border-dark transition-colors text-left block">
                 <div className="flex items-center gap-3">
                   <Avatar src={profile.avatar} name={profile.name} className="w-12 h-12" textClassName="text-base" />
                   <div>
@@ -735,7 +735,7 @@ export default function MemberCommunityPage() {
                 </div>
               </button>
 
-              <nav className="bg-surface border border-border overflow-hidden">
+              <nav className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
@@ -757,7 +757,7 @@ export default function MemberCommunityPage() {
           {/* MAIN CONTENT */}
           <div className="lg:col-span-3 space-y-6">
             {/* Mobile nav */}
-            <div className="lg:hidden flex items-center gap-1 bg-surface border border-border overflow-x-auto">
+            <div className="lg:hidden flex items-center gap-1 bg-surface border border-border rounded-xl shadow-soft overflow-x-auto">
               {navItems.map((item) => (
                 <button
                   key={item.id}

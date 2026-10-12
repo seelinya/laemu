@@ -136,7 +136,7 @@ export function UpgradeDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8">
       <div className="absolute inset-0 bg-dark/70" onClick={onClose} />
-      <div className="relative bg-surface border border-border w-full max-w-lg mx-4 shadow-xl">
+      <div className="relative bg-surface border border-border rounded-xl shadow-soft w-full max-w-lg mx-4 shadow-xl">
         {step === 'success' && confirmedAbo ? (
           <div className="p-8 text-center">
             <div className="w-16 h-16 bg-accent-gold flex items-center justify-center mx-auto mb-5">

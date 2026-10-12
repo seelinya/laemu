@@ -42,7 +42,7 @@ export function StarterCourseCard({
   const preview = locked && previewable
   // Anklickbar sind freie Kurse und Vorschau-Kurse; voll gesperrte (ohne Inhalt) nicht.
   const clickable = !locked || preview
-  const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col sm:flex-row h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
+  const cardClassName = `bg-surface border border-border rounded-xl shadow-soft overflow-hidden group flex flex-col sm:flex-row h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
   const cardInner = (
     <>
       <div className={`relative w-full h-40 sm:h-auto sm:w-28 flex-shrink-0 sm:self-stretch overflow-hidden ${locked && !preview ? 'grayscale' : ''}`}>
@@ -121,7 +121,7 @@ export function StarterCourseCard({
 
 export function ProCourseRow({ title, level, modules, duration }: { title: string; level: string; modules: number; duration: string }) {
   return (
-    <div className="bg-surface border border-border p-4 flex items-center gap-4">
+    <div className="bg-surface border border-border rounded-xl shadow-soft p-4 flex items-center gap-4">
       <div className="w-10 h-10 bg-background border border-border flex items-center justify-center flex-shrink-0">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-secondary">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />

@@ -123,7 +123,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
 
         {/* ── Course header ── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">

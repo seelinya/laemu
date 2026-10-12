@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { PasswordInput } from '@/components/PasswordInput'
@@ -13,6 +14,9 @@ import { setStoredFormation } from '@/lib/formation'
 // Alle in der Musikschule verfügbaren Instrumente — Formationsmitglieder haben
 // vollen Zugriff auf alle Instrumente.
 const ALL_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
+
+// Begrüssungsbild links im Einladungs-Registrierungsablauf.
+const AUTH_IMAGE = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80'
 
 // ── Geburtsdatum: ein direkt eintippbares Feld «TT.MM.JJJJ» (wie in der
 // regulären Registrierung). ────────────────────────────────────────────────
@@ -151,14 +155,29 @@ function EinladungInner() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top bar */}
-      <div className="bg-dark py-5 px-6 flex items-center justify-between">
-        <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
-        <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+    <div className="min-h-screen bg-background lg:flex">
+      {/* Bild links — freundlicher Einstieg; LAEMU-Branding bleibt erhalten */}
+      <div className="hidden lg:block lg:w-2/5 xl:w-1/2 relative lg:sticky lg:top-0 lg:h-screen">
+        <Image src={AUTH_IMAGE} alt="" fill className="object-cover" unoptimized priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
+        <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+          <p className="font-heading text-3xl font-bold tracking-tight">LAEMU</p>
+          <p className="font-sans text-sm text-white/85 mt-1 italic">Am Puls der Ländlermusik.</p>
+          <p className="font-sans text-sm text-white/75 mt-3 leading-relaxed max-w-sm">
+            Willkommen in deiner Formation — gleich bist du Teil der LAEMU-Musikschule.
+          </p>
+        </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
+      {/* Rechte Spalte: Einladungs-Registrierung */}
+      <div className="flex-1 min-w-0">
+        {/* Top bar */}
+        <div className="bg-dark py-5 px-6 flex items-center justify-between">
+          <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
+          <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
         <div className="flex items-start gap-2 flex-wrap mb-2">
           <h1 className="font-heading text-3xl font-bold">Deiner Formation beitreten</h1>
           <span className="font-sans text-[11px] font-semibold px-2 py-1 bg-accent-gold/15 border border-accent-gold/40 text-accent-gold mt-1.5">
@@ -274,6 +293,7 @@ function EinladungInner() {
             Dein persönliches Profil (Bild, Bio, Instrumente …) ergänzt du jederzeit später im Mitgliederbereich.
           </p>
         </div>
+      </div>
       </div>
     </div>
   )
