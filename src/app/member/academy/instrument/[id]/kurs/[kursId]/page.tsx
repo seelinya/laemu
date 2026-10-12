@@ -181,7 +181,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07 }}
-                  className={`border ${isLocked ? 'border-border opacity-60' : 'border-border hover:border-dark'} transition-colors bg-surface overflow-hidden`}
+                  className={`rounded-xl shadow-soft border ${isLocked ? 'border-border opacity-60' : 'border-border hover:border-dark'} transition-colors bg-surface overflow-hidden`}
                 >
                   {/* Module header */}
                   <button
@@ -256,7 +256,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                                   className="flex items-center gap-4 px-5 py-3 bg-background opacity-70 cursor-not-allowed"
                                   title="Im Free-Account gesperrt — Plan upgraden"
                                 >
-                                  <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 border border-border text-text-secondary">
+                                  <div className="w-5 h-5 rounded-sm flex items-center justify-center flex-shrink-0 border border-border text-text-secondary">
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                                   </div>
                                   <div className="flex-1 min-w-0">
@@ -276,7 +276,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                               className="flex items-center gap-4 px-5 py-3 bg-background hover:bg-surface transition-colors group"
                             >
                               {/* Completion indicator */}
-                              <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 border ${lesson.completed ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
+                              <div className={`w-5 h-5 rounded-sm flex items-center justify-center flex-shrink-0 border ${lesson.completed ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
                                 {lesson.completed && (
                                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                     <polyline points="20 6 9 17 4 12" />

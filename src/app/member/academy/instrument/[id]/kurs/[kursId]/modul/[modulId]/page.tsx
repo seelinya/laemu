@@ -126,7 +126,7 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
 
   return (
     <div ref={containerRef} className="bg-black">
-      <div className="group relative aspect-video overflow-hidden select-none">
+      <div className="group relative aspect-video overflow-hidden rounded-xl select-none">
         {/* Video-Oberfläche (Platzhalter) — dunkel mit Akzent-Verlauf */}
         <div className="absolute inset-0 bg-dark" />
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C89B3C 0%, transparent 60%)' }} />
@@ -441,7 +441,7 @@ export default function ModulPage({
                         disabled={isLocked}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${isCurrentModule ? 'bg-dark text-white' : 'hover:bg-background'} ${isLocked ? 'cursor-not-allowed opacity-50' : ''}`}
                       >
-                        <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 ${isDone ? 'bg-accent-gold' : 'bg-border'}`}>
+                        <div className={`w-5 h-5 rounded-sm flex items-center justify-center flex-shrink-0 ${isDone ? 'bg-accent-gold' : 'bg-border'}`}>
                           {isDone ? (
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="20 6 9 17 4 12" />
@@ -490,7 +490,7 @@ export default function ModulPage({
                                   title={lessonLocked ? 'Gesperrt — Plan upgraden' : undefined}
                                   className={`w-full flex items-center gap-2.5 pl-8 pr-4 py-2.5 text-left transition-colors ${isActiveLesson ? 'bg-accent-gold/10 border-l-2 border-accent-gold' : 'hover:bg-background border-l-2 border-transparent'} ${lessonLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
-                                  <div className={`w-4 h-4 flex items-center justify-center flex-shrink-0 border ${lessonDone ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
+                                  <div className={`w-4 h-4 rounded-sm flex items-center justify-center flex-shrink-0 border ${lessonDone ? 'border-accent-gold bg-accent-gold' : 'border-border'}`}>
                                     {lessonDone && (
                                       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
                                         <polyline points="20 6 9 17 4 12" />
@@ -549,7 +549,7 @@ export default function ModulPage({
             {/* ── Lektion gesperrt (nur Schnupper-Vorschau) ── */}
             {activeLessonLocked ? (
               <motion.div key={`${activeLessonId}-locked`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                <div className="aspect-video bg-dark flex flex-col items-center justify-center text-center px-6 gap-4">
+                <div className="aspect-video bg-dark flex flex-col items-center justify-center text-center px-6 gap-4 rounded-xl">
                   <div className="w-14 h-14 bg-accent-gold/15 flex items-center justify-center">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                   </div>

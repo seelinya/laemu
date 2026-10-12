@@ -42,7 +42,7 @@ export function StarterCourseCard({
   const preview = locked && previewable
   // Anklickbar sind freie Kurse und Vorschau-Kurse; voll gesperrte (ohne Inhalt) nicht.
   const clickable = !locked || preview
-  const cardClassName = `bg-surface border border-border overflow-hidden group flex flex-col h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
+  const cardClassName = `bg-surface border border-border rounded-xl shadow-soft overflow-hidden group flex flex-col h-full ${clickable ? 'hover:border-accent-gold transition-colors' : 'cursor-not-allowed'}`
   const cardInner = (
     <>
       {/* Cover oben — festes 4:3, zugeschnitten (crop) */}
