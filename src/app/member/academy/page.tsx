@@ -416,12 +416,6 @@ export default function MemberAcademyPage() {
                     Bezahlt: «Meine Kurse» (gewählte Instrumente).
                     Free/Lernvideo: «Einblick in die Lehrgänge» (alle Instrumente). */}
                 <section>
-                  <h3 className="font-heading font-bold text-xl mb-1">Kurse</h3>
-                  <p className="font-sans text-sm text-text-secondary mb-3">
-                    Tippe auf die Tabs, um dein Instrument
-                    {instrumentTabs.length > 0 ? <> ({instrumentTabs.map((t) => t.label).join(', ')})</> : null}
-                    {' '}oder eine andere Ansicht zu wählen.
-                  </p>
                   <div className="flex flex-wrap gap-2 mb-5">
                     {kursTabs.map((f) => {
                       const disabled = f.id === 'aktive' && !hasActive
