@@ -416,7 +416,8 @@ export default function MemberAcademyPage() {
                     Bezahlt: «Meine Kurse» (gewählte Instrumente).
                     Free/Lernvideo: «Einblick in die Lehrgänge» (alle Instrumente). */}
                 <section>
-                  <div className="flex flex-wrap gap-2 mb-5">
+                  {/* Tabs — einzeilig, horizontal scrollbar (einheitlich mit Stücke/Community). */}
+                  <div className="flex gap-2 mb-5 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
                     {kursTabs.map((f) => {
                       const disabled = f.id === 'aktive' && !hasActive
                       return (
@@ -425,7 +426,7 @@ export default function MemberAcademyPage() {
                           onClick={() => { if (!disabled) setCourseFilter(f.id) }}
                           disabled={disabled}
                           title={disabled ? 'Noch keinen Kurs gestartet' : undefined}
-                          className={`lae-tab ${activeCourseTab === f.id ? 'lae-tab-active' : disabled ? 'lae-tab-disabled' : 'lae-tab-idle'}`}
+                          className={`lae-tab flex-shrink-0 ${activeCourseTab === f.id ? 'lae-tab-active' : disabled ? 'lae-tab-disabled' : 'lae-tab-idle'}`}
                         >
                           {f.label}
                         </button>
