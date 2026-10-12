@@ -1121,7 +1121,7 @@ function PayerFormationSettings() {
               <select
                 value={selected}
                 onChange={(e) => setSelected(e.target.value)}
-                className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
+                className="flex-1 border border-border pl-3 pr-9 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface"
               >
                 <option value="">Mitglied auswählen …</option>
                 {invited.map((m) => (

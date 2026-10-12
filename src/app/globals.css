@@ -114,6 +114,26 @@ h1, h2, h3, h4, h5, h6 {
   textarea {
     border-radius: 0.625rem;
   }
+
+  /* ─── Einheitliche Dropdown-Pfeile (app-weit) ───────────────────────────
+     Der native Browser-Pfeil sitzt je nach System unterschiedlich weit rechts
+     und wirkt oft etwas verloren am Rand. Wir blenden ihn aus und zeichnen
+     einen eigenen Chevron an einer festen, etwas weiter innen liegenden
+     Position – damit sehen alle Selects überall gleich aus. Selects brauchen
+     dafür genügend rechten Innenabstand (pr-9). */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23505050' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem 1rem;
+  }
+  /* Doppelten Pfeil in IE/Edge-Legacy vermeiden. */
+  select::-ms-expand {
+    display: none;
+  }
 }
 
 @layer components {
