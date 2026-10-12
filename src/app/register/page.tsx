@@ -34,7 +34,7 @@ import {
 const ABO_INSTRUMENTS = ['Schwyzerörgeli', 'Handorgel', 'Bassgeige'] as const
 
 // Begrüssungsbild links im Registrierungsablauf — freundlicher Einstieg.
-const AUTH_IMAGE = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80'
+const AUTH_IMAGE = '/images/handorgel-portrait.jpg'
 
 const steps = [
   { number: 1, label: 'Mitgliedschaft' },
@@ -548,15 +548,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-background lg:flex">
       {/* Bild links — freundlicher Einstieg; LAEMU-Branding bleibt erhalten */}
       <div className="hidden lg:block lg:w-2/5 xl:w-1/2 relative lg:sticky lg:top-0 lg:h-screen">
-        <Image src={AUTH_IMAGE} alt="" fill className="object-cover" unoptimized priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10" />
-        <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
-          <p className="font-heading text-3xl font-bold tracking-tight">LAEMU</p>
-          <p className="font-sans text-sm text-white/85 mt-1 italic">Am Puls der Ländlermusik.</p>
-          <p className="font-sans text-sm text-white/75 mt-3 leading-relaxed max-w-sm">
-            Lerne Ländlermusik von Profis — Online-Kurse und originalgetreue Lernvideos zu unzähligen Stücken.
-          </p>
-        </div>
+        <Image src={AUTH_IMAGE} alt="" fill sizes="(min-width: 1280px) 50vw, 40vw" className="object-cover" priority />
       </div>
 
       {/* Rechte Spalte: Registrierungsablauf */}

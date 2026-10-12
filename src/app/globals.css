@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Radona Norm — die LAEMU-Markenschrift (Brand Guidelines) ──────────────
+   Lokal eingebunden (lizenziert). Medium für Fliesstext/UI, Bold für Headings;
+   Gewichts-Ranges sorgen dafür, dass font-medium/-semibold/-bold/-black ohne
+   Faux-Bold auf die passende Schnittweite fallen. */
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/Radona-NorMed.otf') format('opentype');
+  font-weight: 100 550;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/Radona-NorMedIt.otf') format('opentype');
+  font-weight: 100 550;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/Radona-NorBol.otf') format('opentype');
+  font-weight: 551 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Radona Norm';
+  src: url('/fonts/Radona-NorBolIt.otf') format('opentype');
+  font-weight: 551 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   /* ─── Brand-Palette (Light Mode) — 1:1 aus dem Design System ───────────── */
   --color-background: #EFEFEF;        /* Silbergrau */
