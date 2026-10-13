@@ -322,8 +322,8 @@ function StartView() {
           {/* LAEMU Infochat */}
           <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 rounded-lg flex items-center justify-center bg-dark text-white flex-shrink-0">
-                <IconWhatsApp />
+              <span className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                <Image src="/wa-infochat.png" alt="LAEMU Infochat" fill sizes="44px" className="object-cover" unoptimized />
               </span>
               <div className="min-w-0">
                 <h4 className="font-heading font-bold text-base leading-tight">LAEMU Infochat</h4>
@@ -346,8 +346,8 @@ function StartView() {
           {/* LAEMU Marktplatz */}
           <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 rounded-lg flex items-center justify-center bg-accent-gold text-white flex-shrink-0">
-                <IconWhatsApp />
+              <span className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                <Image src="/wa-marktplatz.png" alt="LAEMU Marktplatz" fill sizes="44px" className="object-cover" unoptimized />
               </span>
               <div className="min-w-0">
                 <h4 className="font-heading font-bold text-base leading-tight">LAEMU Marktplatz</h4>
@@ -371,8 +371,8 @@ function StartView() {
           {/* LAEMU Musikschule Community (bestehender Chat) */}
           <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 rounded-lg flex items-center justify-center bg-dark text-white flex-shrink-0">
-                <IconWhatsApp />
+              <span className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                <Image src="/wa-community.png" alt="Musikschule Community" fill sizes="44px" className="object-cover" unoptimized />
               </span>
               <div className="min-w-0">
                 <h4 className="font-heading font-bold text-base leading-tight">Musikschule Community</h4>
