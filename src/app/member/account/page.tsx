@@ -78,7 +78,7 @@ function Field({ label, value, type = 'text' }: { label: string; value: string; 
   return (
     <div>
       <label className="font-sans text-xs uppercase tracking-widest text-text-secondary block mb-1.5">{label}</label>
-      <input defaultValue={value} type={type} className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface" />
+      <input defaultValue={value} type={type} className="w-full border border-border rounded-lg px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark bg-surface text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:m-0 [&::-webkit-calendar-picker-indicator]:ml-auto" />
     </div>
   )
 }
@@ -381,7 +381,7 @@ function AboTab() {
   return (
     <>
       <SectionCard title="Mein Abo" desc="Übersicht deines aktuellen Plans.">
-        <div className="border border-border p-5 flex items-start justify-between mb-4">
+        <div className="border border-border rounded-xl p-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
           <div>
             <p className="font-sans text-xs uppercase tracking-wider text-text-secondary mb-1">Aktiver Plan</p>
             <h3 className="font-heading text-xl font-bold">{aboPlanLabel(abo)}</h3>
@@ -396,14 +396,13 @@ function AboTab() {
               <p className="font-sans text-xs text-text-secondary mt-1">Nächste Abrechnung: 26. Juni 2026</p>
             )}
           </div>
-          <div className="text-right">
+          <div className="sm:text-right flex-shrink-0">
             {isFree ? (
               <p className="font-heading text-2xl font-bold text-accent-gold">Gratis</p>
             ) : (
-              <>
-                <p className="font-heading text-2xl font-bold text-accent-gold">CHF {monthly}</p>
-                <p className="font-sans text-xs text-text-secondary">/ Monat</p>
-              </>
+              <p className="font-heading text-2xl font-bold text-accent-gold whitespace-nowrap">
+                CHF {monthly}<span className="font-sans text-sm font-normal text-text-secondary"> / Monat</span>
+              </p>
             )}
           </div>
         </div>
