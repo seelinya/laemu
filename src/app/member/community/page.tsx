@@ -734,7 +734,7 @@ export default function MemberCommunityPage() {
   const [activeNav, setActiveNav] = useState('start')
   const profile = useUserProfile()
   const greetingName = profile.name.trim() || 'zusammen'
-  useMemberHeader({ title: `Hallo ${greetingName}` }, `community-${greetingName}`)
+  useMemberHeader({ title: `Hallo ${greetingName.split(/\s+/)[0]},` }, `community-${greetingName}`)
 
   return (
     <>

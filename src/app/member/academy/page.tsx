@@ -329,7 +329,7 @@ export default function MemberAcademyPage() {
 
   useMemberHeader(
     {
-      title: `Hallo ${greetingName}`,
+      title: `Hallo ${greetingName.split(/\s+/)[0]},`,
       right: hasCourseAccess ? (
         <div className="hidden sm:flex items-center gap-2 bg-accent-gold/20 text-accent-gold border border-accent-gold/30 px-4 py-1.5 rounded-lg">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
