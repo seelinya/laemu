@@ -56,14 +56,14 @@ const videoData = {
   styleTags: ['Urchig', 'Innerschwyzer Stil'],
   taktart: 'Walzer' as const,
   autoTags: ['Handorgel', 'Schwyzerörgeli', 'Starter', 'Grundlagenkurs'],
-  // Formationen, die dieses Stück spielen. Aktive Formationen haben ein LAEMU-
-  // Profil (Bild + Vorschautext, Link auf laemu.ch/formationen); inaktive werden
-  // nur mit Namen gezeigt und auf Radio Tell verlinkt.
+  // Formationen, die dieses Stück spielen. Jede Formation verlinkt direkt auf
+  // ihre eigene Seite: aktive auf ihr LAEMU-Profil (Bild + Vorschautext),
+  // inaktive nur mit Namen auf ihre Radio-Tell-Seite.
   formations: [
-    { name: 'Hess-Rusch-Hegner Trio', active: true, img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&q=80', bio: 'Innerschwyzer Trio — Handorgel, Schwyzerörgeli & Bassgeige in bester Ländlertradition.' },
-    { name: 'Bodästänix', active: true, img: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=200&q=80', bio: 'Junge Formation mit frischem Zugang zur Volksmusik — bekannt aus Konzerten in der ganzen Innerschweiz.' },
-    { name: 'Kapelle Schwyz', active: false, img: '', bio: '' },
-  ] as { name: string; active: boolean; img: string; bio: string }[],
+    { name: 'Hess-Rusch-Hegner Trio', active: true, img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&q=80', bio: 'Innerschwyzer Trio — Handorgel, Schwyzerörgeli & Bassgeige in bester Ländlertradition.', url: 'https://www.laemu.ch/post/hess-rusch-hegner' },
+    { name: 'Bodästänix', active: true, img: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=200&q=80', bio: 'Junge Formation mit frischem Zugang zur Volksmusik — bekannt aus Konzerten in der ganzen Innerschweiz.', url: 'https://www.laemu.ch/post/bod%C3%A4st%C3%A4ndix' },
+    { name: 'Adlerspitz-Buebä', active: false, img: '', bio: '', url: 'https://radiotell.ch/formationen/adlerspitz-buebae/' },
+  ] as { name: string; active: boolean; img: string; bio: string; url: string }[],
   // Komponist:innen (0–mehrere möglich).
   composers: [
     { name: 'Willi Valotti', years: '1932–2001', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80', bio: 'Einer der bedeutendsten Schweizer Volksmusikkomponisten des 20. Jahrhunderts.' },
@@ -1214,7 +1214,7 @@ export default function LernvideoDetailPage() {
                             <div className="min-w-0">
                               <p className="font-heading font-bold text-sm">{f.name}</p>
                               {f.bio && <p className="font-sans text-xs text-text-secondary leading-relaxed mt-1 mb-3">{f.bio}</p>}
-                              <a href="https://www.laemu.ch/formationen" target="_blank" rel="noopener noreferrer" className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors inline-flex items-center gap-1">
+                              <a href={f.url} target="_blank" rel="noopener noreferrer" className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors inline-flex items-center gap-1">
                                 Mehr erfahren (LAEMU) <IconArrowRight />
                               </a>
                             </div>
@@ -1222,7 +1222,7 @@ export default function LernvideoDetailPage() {
                         ) : (
                           <div>
                             <p className="font-heading font-bold text-sm mb-1.5">{f.name}</p>
-                            <a href="https://radiotell.ch/formationen/" target="_blank" rel="noopener noreferrer" className="font-sans text-xs text-text-secondary hover:text-dark hover:underline inline-flex items-center gap-1">
+                            <a href={f.url} target="_blank" rel="noopener noreferrer" className="font-sans text-xs text-text-secondary hover:text-dark hover:underline inline-flex items-center gap-1">
                               Mehr Infos (RadioTell) <IconArrowRight />
                             </a>
                           </div>
