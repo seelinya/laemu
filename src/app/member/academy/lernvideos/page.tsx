@@ -34,7 +34,7 @@ const videos = [
     price: 18, purchased: true,
   },
   {
-    id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', instrument: 'Handorgel', formation: 'Quartett',
+    id: 3, title: 'Abendstern-Polka', artist: 'Bodäständix', instrument: 'Handorgel', formation: 'Quartett',
     composer: 'Unbekannt', year: 2003, difficultyNum: 4, level: 3, taktart: 'Polka',
     artDesStückes: 'volkstuemlich' as const, difficultyPlan: 'pro' as const,
     styleTags: ['Urchig', 'Berner Stil'], melodieTags: [] as string[],
@@ -326,7 +326,7 @@ export default function LernvideosPage() {
 
   useMemberHeader(
     {
-      title: `Hallo ${greetingName}`,
+      title: `Hallo ${greetingName.split(/\s+/)[0]},`,
       right: userAbo.plan === 'none' ? (
         <Link
           href="/member/academy?upgrade=1"
@@ -418,7 +418,7 @@ export default function LernvideosPage() {
                                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                                       <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
                                         <div>
-                                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
+                                          <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stückart</p>
                                           <div className="flex flex-wrap gap-1">
                                             {TAKTARTEN_FILTER.map(t => (
                                               <button key={t} onClick={() => setFilterTakt(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{t}</button>
@@ -552,7 +552,7 @@ export default function LernvideosPage() {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                               <div className="border border-t-0 border-accent-gold/20 bg-background px-3 py-3 space-y-3">
                                 <div>
-                                  <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Taktart</p>
+                                  <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stückart</p>
                                   <div className="flex flex-wrap gap-1">
                                     {TAKTARTEN_FILTER.map(t => (
                                       <button

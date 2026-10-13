@@ -815,7 +815,7 @@ export default function RegisterPage() {
 
               {/* Billing toggle (individual only) */}
               {accountType === 'individual' && (
-                <div className="flex items-stretch justify-center gap-1 mb-6 bg-surface border border-border p-1 w-full sm:w-fit mx-auto">
+                <div className="flex items-stretch justify-center gap-1 mb-6 bg-surface border border-border rounded-xl p-1 w-full sm:w-fit mx-auto">
                   {([
                     { id: 'yearly', label: 'Jährlich', hint: null },
                     { id: 'monthly', label: 'Monatlich', hint: null },
@@ -824,7 +824,7 @@ export default function RegisterPage() {
                     <button
                       key={opt.id}
                       onClick={() => setBilling(opt.id)}
-                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 font-sans text-xs sm:text-sm transition-colors flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 rounded-lg font-sans text-xs sm:text-sm transition-colors flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                     >
                       <span className="whitespace-nowrap">{opt.label}</span>
                       {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 rounded-md shrink-0 whitespace-nowrap ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}

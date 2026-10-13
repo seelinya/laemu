@@ -7,7 +7,7 @@ import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
-import { useUserProfile } from '@/lib/userProfile'
+import { useUserProfile, initialsFromName } from '@/lib/userProfile'
 import { ShareMenu } from '@/components/ShareMenu'
 import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
@@ -61,7 +61,7 @@ const videoData = {
   // inaktive nur mit Namen auf ihre Radio-Tell-Seite.
   formations: [
     { name: 'Hess-Rusch-Hegner Trio', active: true, img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&q=80', bio: 'Innerschwyzer Trio — Handorgel, Schwyzerörgeli & Bassgeige in bester Ländlertradition.', url: 'https://www.laemu.ch/post/hess-rusch-hegner' },
-    { name: 'Bodästänix', active: true, img: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=200&q=80', bio: 'Junge Formation mit frischem Zugang zur Volksmusik — bekannt aus Konzerten in der ganzen Innerschweiz.', url: 'https://www.laemu.ch/post/bod%C3%A4st%C3%A4ndix' },
+    { name: 'Bodäständix', active: true, img: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=200&q=80', bio: 'Junge Formation mit frischem Zugang zur Volksmusik — bekannt aus Konzerten in der ganzen Innerschweiz.', url: 'https://www.laemu.ch/post/bod%C3%A4st%C3%A4ndix' },
     { name: 'Adlerspitz-Buebä', active: false, img: '', bio: '', url: 'https://radiotell.ch/formationen/adlerspitz-buebae/' },
   ] as { name: string; active: boolean; img: string; bio: string; url: string }[],
   // Komponist:innen (0–mehrere möglich).
@@ -219,7 +219,7 @@ const videoData = {
   originalRecordings: [
     { label: 'Originalaufnahme 1978 (Ur-Formation)', type: 'audio' as const, artist: 'Willi Valotti' },
     { label: 'Hess-Rusch-Hegner Trio', type: 'youtube' as const, artist: 'Live-Aufnahme 2019', url: '#' },
-    { label: 'Bodästänix', type: 'youtube' as const, artist: 'Konzert Luzern 2022', url: '#' },
+    { label: 'Bodäständix', type: 'youtube' as const, artist: 'Konzert Luzern 2022', url: '#' },
     { label: 'Ländlerkapelle Schwyz', type: 'audio' as const, artist: 'Studio 2015' },
   ],
   composerInfo: {
@@ -1042,10 +1042,7 @@ export default function LernvideoDetailPage() {
                         {STANDARD_NOTEN.map(s => (
                           <div key={s.key} className="border border-border p-3 flex flex-col gap-3 hover:border-dark transition-colors group">
                             <div>
-                              <p className="font-heading font-bold text-sm flex items-center gap-1.5">
-                                {s.label}
-                                <span className="font-sans text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-background border border-border text-text-secondary">PDF</span>
-                              </p>
+                              <p className="font-heading font-bold text-sm">{s.label}</p>
                               <p className="font-sans text-xs text-text-secondary">{v.title} · PDF-Download</p>
                             </div>
                             <div className="flex items-center justify-between mt-auto">
@@ -1149,8 +1146,7 @@ export default function LernvideoDetailPage() {
                 <div className="space-y-0">
                   {([
                     { label: 'Komponist', value: v.composer },
-                    { label: 'Takt', value: v.meter },
-                    ...(v.taktart ? [{ label: 'Taktart', value: v.taktart }] : []),
+                    ...(v.taktart ? [{ label: 'Stückart', value: v.taktart }] : []),
                   ] as { label: string; value: string }[]).map(item => (
                     <div key={item.label} className="flex justify-between items-center py-2.5 border-b border-border last:border-0 last:pb-0">
                       <span className="font-sans text-xs text-text-secondary">{item.label}</span>
@@ -1405,8 +1401,12 @@ export default function LernvideoDetailPage() {
 
               {/* Input */}
               <div className="flex gap-3">
-                <div className="w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 text-text-secondary">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div className="relative w-9 h-9 bg-background border border-border flex items-center justify-center flex-shrink-0 overflow-hidden text-text-secondary">
+                  {MY.avatar ? (
+                    <Image src={MY.avatar} alt={MY.name} fill className="object-cover" unoptimized />
+                  ) : (
+                    <span className="font-heading font-bold text-xs text-accent-gold">{initialsFromName(MY.name)}</span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
                   <input
