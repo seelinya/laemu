@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { PasswordInput } from '@/components/PasswordInput'
+import { LaemuLogo } from '@/components/LaemuLogo'
 
 // Begrüssungsbild links auf der Anmeldeseite — freundlicher Einstieg.
 const AUTH_IMAGE = '/images/handorgel-portrait.jpg'
@@ -42,7 +43,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-10 lg:hidden">
           <Link href="/" className="inline-block">
-            <span className="font-heading text-4xl font-bold text-dark">LAEMU</span>
+            <LaemuLogo className="h-9 w-auto text-dark mx-auto" />
           </Link>
           <p className="font-sans text-sm text-text-secondary mt-2 italic">Am Puls der Ländlermusik.</p>
         </div>

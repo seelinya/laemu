@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { NotificationBell, ProfileMenu } from '@/components/MemberTabs'
+import { LaemuLogo } from '@/components/LaemuLogo'
 import { useUserAbo } from '@/lib/userPlan'
 
 // ─── Mitglieder-Chrome: persistente, einklappbare Seitenleiste (Desktop) +
@@ -166,7 +167,7 @@ export function MemberChrome({ children }: { children: ReactNode }) {
         {/* ── Desktop-Seitenleiste (persistent, einklappbar) ── */}
         <aside className={`hidden lg:flex lg:flex-col lg:shrink-0 bg-nav-dark text-text-on-dark lg:sticky lg:top-0 lg:h-screen transition-[width] duration-200 ${collapsed ? 'lg:w-[76px]' : 'lg:w-64'}`}>
           <div className={`flex items-center h-16 border-b border-white/10 ${collapsed ? 'justify-center px-2' : 'justify-between px-5'}`}>
-            {!collapsed && <Link href="/member/academy" className="font-heading text-2xl font-bold tracking-tight text-white">LAEMU</Link>}
+            {!collapsed && <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white"><LaemuLogo className="h-6 w-auto" /></Link>}
             <button onClick={toggleCollapsed} aria-label={collapsed ? 'Menü ausklappen' : 'Menü einklappen'}
               className="w-8 h-8 rounded-full bg-accent-gold text-white flex items-center justify-center hover:bg-accent-gold-hover transition-colors flex-shrink-0">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${collapsed ? 'rotate-180' : ''}`}><polyline points="15 18 9 12 15 6" /></svg>
@@ -180,18 +181,25 @@ export function MemberChrome({ children }: { children: ReactNode }) {
 
         {/* ── Hauptspalte ── */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Mobile-Header — kompakt, einzeilig. Links Logo + Breadcrumb/Titel
-              (zu lange Pfade mit «…»), rechts Benachrichtigung und Burger-Menü. */}
+          {/* Mobile-Header — kompakt, einzeilig: links der Standort (Breadcrumb/
+              Titel), in der Mitte das LAEMU-Logo, rechts Benachrichtigung und
+              Burger-Menü. Die beiden Seitenzonen sind gleich breit (flex-1),
+              damit das Logo mittig bleibt. */}
           <header className="lg:hidden sticky top-0 z-30 bg-nav-dark text-text-on-dark">
-            <div className="flex items-center gap-2.5 h-12 px-4">
-              <Link href="/member/academy" className="font-heading text-lg font-bold tracking-tight text-white flex-shrink-0">LAEMU</Link>
-              <div className="min-w-0 flex-1 text-white">
+            <div className="flex items-center gap-2 h-12 px-4">
+              {/* Links: Standort-Label */}
+              <div className="min-w-0 flex-1 flex items-center text-white">
                 {header?.breadcrumb ? header.breadcrumb : header?.title ? <h1 className="font-heading font-bold text-sm text-white truncate">{header.title}</h1> : null}
               </div>
-              <div className="flex items-center gap-0.5 flex-shrink-0">
+              {/* Mitte: Logo */}
+              <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white flex-shrink-0">
+                <LaemuLogo className="h-5 w-auto" />
+              </Link>
+              {/* Rechts: Aktionen */}
+              <div className="min-w-0 flex-1 flex items-center justify-end gap-0.5">
                 {header?.right}
-                <NotificationBell />
-                <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -mr-2 text-white/80 hover:text-white transition-colors">
+                <NotificationBell className="text-white hover:text-accent-gold" />
+                <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -mr-2 text-white hover:text-accent-gold transition-colors">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
                 </button>
               </div>
@@ -219,7 +227,7 @@ export function MemberChrome({ children }: { children: ReactNode }) {
             <div className="absolute inset-0 bg-black/50" onClick={() => setDrawerOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-nav-dark text-text-on-dark flex flex-col shadow-xl">
               <div className="flex items-center justify-between px-5 h-14 border-b border-white/10">
-                <span className="font-heading text-xl font-bold tracking-tight text-white">LAEMU</span>
+                <span className="text-white"><LaemuLogo className="h-6 w-auto" /></span>
                 <button onClick={() => setDrawerOpen(false)} aria-label="Menü schliessen" className="p-2 -mr-2 text-white/80 hover:text-white">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 </button>

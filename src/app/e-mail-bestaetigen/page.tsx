@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { LaemuLogo } from '@/components/LaemuLogo'
 import { setEmailVerified, activateSubscriptionIfEligible } from '@/lib/billing'
 
 // ─── E-Mail-Bestätigung / Kontoaktivierung ────────────────────────────────────
@@ -49,7 +50,7 @@ function BestaetigenInner() {
         {/* Logo */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-block">
-            <span className="font-heading text-4xl font-bold text-dark">LAEMU</span>
+            <LaemuLogo className="h-9 w-auto text-dark mx-auto" />
           </Link>
           <p className="font-sans text-sm text-text-secondary mt-2 italic">Am Puls der Ländlermusik.</p>
         </div>

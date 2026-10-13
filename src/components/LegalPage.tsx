@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { LaemuLogo } from '@/components/LaemuLogo'
 import type { ReactNode } from 'react'
 
 type LegalSection = {
@@ -21,7 +22,7 @@ export function LegalPage({
     <div className="min-h-screen bg-background">
       {/* Top bar */}
       <div className="bg-nav-dark py-5 px-6 flex items-center justify-between">
-        <Link href="/" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
+        <Link href="/" aria-label="LAEMU" className="text-white"><LaemuLogo className="h-5 w-auto" /></Link>
         <Link href="/register" className="font-sans text-xs text-white/50 hover:text-white transition-colors">
           ← Zurück zur Registrierung
         </Link>

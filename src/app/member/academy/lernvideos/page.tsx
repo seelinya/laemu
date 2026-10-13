@@ -335,18 +335,7 @@ export default function LernvideosPage() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
           Jetzt upgraden
         </Link>
-      ) : (
-        <button
-          onClick={() => setTab('merkliste')}
-          title={`Merkliste (${saved.size})`}
-          aria-label={`Merkliste (${saved.size})`}
-          className={`font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors flex items-center gap-1.5 ${tab === 'merkliste' ? 'border-accent-gold bg-accent-gold text-white' : 'border-accent-gold/40 bg-accent-gold/10 text-accent-gold hover:bg-accent-gold/20'}`}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill={tab === 'merkliste' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-          <span className="hidden sm:inline">Merkliste </span>
-          <span className="tabular-nums">({saved.size})</span>
-        </button>
-      ),
+      ) : undefined,
     },
     `stuecke-${userAbo.plan}-${tab}-${saved.size}-${greetingName}`,
   )
@@ -519,13 +508,14 @@ export default function LernvideosPage() {
                 className="w-full border border-border-dark px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
               />
 
-              {/* Advanced filter toggle */}
+              {/* Advanced filter toggle — als klar klickbare, umrandete Box */}
               <button
                 onClick={() => setShowAdvancedDesktop(p => !p)}
-                className="w-full flex items-center justify-between font-sans text-xs font-semibold text-dark hover:text-dark transition-colors border-b border-border-dark pb-2"
+                aria-expanded={showAdvancedDesktop}
+                className="w-full flex items-center justify-between gap-2 border border-border-dark rounded-lg px-3.5 py-2.5 font-sans text-xs font-semibold uppercase tracking-widest text-dark hover:border-dark hover:text-accent-gold transition-colors"
               >
-                <span className="uppercase tracking-widest">Erweiterte Filter</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showAdvancedDesktop ? '' : '-rotate-90'}`}><polyline points="6 9 12 15 18 9"/></svg>
+                <span>Erweiterte Filter</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 transition-transform ${showAdvancedDesktop ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
               </button>
 
               <AnimatePresence initial={false}>

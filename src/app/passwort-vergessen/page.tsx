@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { LaemuLogo } from '@/components/LaemuLogo'
 
 export default function PasswortVergessenPage() {
   const [email, setEmail] = useState('')
@@ -24,7 +25,7 @@ export default function PasswortVergessenPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-block">
-            <span className="font-heading text-4xl font-bold text-dark">LAEMU</span>
+            <LaemuLogo className="h-9 w-auto text-dark mx-auto" />
           </Link>
           <p className="font-sans text-sm text-text-secondary mt-2 italic">Am Puls der Ländlermusik.</p>
         </div>

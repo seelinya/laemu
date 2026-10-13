@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { PasswordInput } from '@/components/PasswordInput'
+import { LaemuLogo } from '@/components/LaemuLogo'
 
 // ─── Passwort zurücksetzen ────────────────────────────────────────────────────
 // Ziel des Links aus der «Passwort vergessen»-E-Mail. Man vergibt ein neues
@@ -41,7 +42,7 @@ function ZuruecksetzenInner() {
         {/* Logo */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-block">
-            <span className="font-heading text-4xl font-bold text-dark">LAEMU</span>
+            <LaemuLogo className="h-9 w-auto text-dark mx-auto" />
           </Link>
           <p className="font-sans text-sm text-text-secondary mt-2 italic">Am Puls der Ländlermusik.</p>
         </div>
