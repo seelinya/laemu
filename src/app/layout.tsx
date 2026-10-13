@@ -19,7 +19,12 @@ export const metadata: Metadata = {
     'Der exklusive LAEMU Mitgliederbereich: Musikschule, Community und Stücke für die Schweizer Ländlermusik.',
   keywords: ['Ländlermusik', 'Schweizer Volksmusik', 'LAEMU', 'Musikschule', 'Community', 'Stücke', 'Schwyzerörgeli', 'Handorgel'],
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     title: 'LAEMU — Der exklusive Bereich für Ländlermusik',

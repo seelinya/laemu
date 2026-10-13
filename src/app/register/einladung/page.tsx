@@ -200,7 +200,7 @@ function EinladungInner() {
         {/* Top bar */}
         <div className="bg-nav-dark py-5 px-6 flex items-center justify-between">
           <Link href="/login" aria-label="LAEMU" className="text-white"><LaemuLogo className="h-5 w-auto" /></Link>
-          <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
+          <Link href="/login" className="font-sans text-xs font-medium text-white border border-white/50 rounded-lg px-3 py-1.5 hover:bg-white/10 hover:border-white transition-colors">Abbrechen</Link>
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
