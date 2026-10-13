@@ -125,7 +125,7 @@ function LessonVideoPlayer({ title, duration }: { title: string; duration: strin
   const Check = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold"><polyline points="20 6 9 17 4 12"/></svg>
 
   return (
-    <div ref={containerRef} className="bg-black">
+    <div ref={containerRef} className="bg-black rounded-xl overflow-hidden">
       <div className="group relative aspect-video overflow-hidden rounded-xl select-none">
         {/* Video-Oberfläche (Platzhalter) — dunkel mit Akzent-Verlauf */}
         <div className="absolute inset-0 bg-dark" />
