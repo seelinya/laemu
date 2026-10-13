@@ -239,7 +239,7 @@ export function UpgradeDialog({
                 {type === 'individual' ? (
                   <>
                     {/* Billing */}
-                    <div className="flex items-center justify-center gap-1 mb-5 bg-background border border-border p-1 w-fit mx-auto">
+                    <div className="flex items-center justify-center gap-1 mb-5 bg-background border border-border rounded-xl p-1 w-fit mx-auto">
                       {([
                         { id: 'yearly', label: 'Jährlich', hint: '−16 %' },
                         { id: 'monthly', label: 'Monatlich', hint: null },
@@ -247,7 +247,7 @@ export function UpgradeDialog({
                         <button
                           key={opt.id}
                           onClick={() => setBilling(opt.id)}
-                          className={`px-4 py-2 font-sans text-sm transition-colors flex items-center gap-1.5 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
+                          className={`px-4 py-2 rounded-lg font-sans text-sm transition-colors flex items-center gap-1.5 ${billing === opt.id ? 'bg-dark text-white' : 'text-text-secondary hover:text-dark'}`}
                         >
                           {opt.label}
                           {opt.hint && <span className={`font-sans text-[10px] leading-none px-1.5 py-0.5 rounded-md ${billing === opt.id ? 'bg-accent-gold text-white' : 'bg-accent-gold/15 text-accent-gold'}`}>{opt.hint}</span>}
