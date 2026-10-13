@@ -857,16 +857,16 @@ export default function LernvideoDetailPage() {
     {
       breadcrumb: <MemberBreadcrumb items={[{ label: 'Stücke', href: '/member/academy/lernvideos' }, { label: pieceTitle }]} />,
       right: isLocked ? (
-        <span className="font-sans text-xs px-3 py-1.5 border border-border rounded-lg text-text-secondary flex items-center gap-1.5 flex-shrink-0">
+        <span className="font-sans text-xs px-3 py-1.5 border border-white/40 lg:border-border rounded-lg text-white lg:text-text-secondary flex items-center gap-1.5 flex-shrink-0">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           Gesperrt
         </span>
       ) : (
         <>
-          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-border rounded-lg text-text-secondary hover:border-dark hover:text-dark transition-colors">
+          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/40 lg:border-border rounded-lg text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors">
             <IconShare /> <span className="hidden sm:inline">Teilen</span>
           </ShareMenu>
-          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-border text-text-secondary hover:border-dark hover:text-dark'}`}>
+          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-white/40 lg:border-border text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold'}`}>
             <IconHeart filled={favorited} /> <span className="hidden sm:inline">{favorited ? 'In Merkliste' : 'Zur Merkliste'}</span>
           </button>
         </>
