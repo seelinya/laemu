@@ -746,11 +746,11 @@ export default function MemberCommunityPage() {
             <button
               key={item.id}
               onClick={() => setActiveNav(item.id)}
-              className={`lae-tab flex-shrink-0 flex items-center gap-2 ${
+              className={`lae-tab flex-shrink-0 ${
                 activeNav === item.id ? 'lae-tab-active' : 'lae-tab-idle'
               }`}
             >
-              {item.icon} {item.label}
+              {item.label}
             </button>
           ))}
         </div>
