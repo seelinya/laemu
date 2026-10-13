@@ -56,7 +56,7 @@ const initialNotifications: Notification[] = [
   },
 ]
 
-export function NotificationBell() {
+export function NotificationBell({ className = 'text-text-secondary hover:text-dark' }: { className?: string } = {}) {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<Notification[]>(initialNotifications)
   const unread = items.filter((n) => !n.read).length
@@ -68,7 +68,7 @@ export function NotificationBell() {
 
   return (
     <div className="relative flex-shrink-0">
-      <button onClick={openMenu} className="relative p-2 text-text-secondary hover:text-dark transition-colors" aria-label="Benachrichtigungen">
+      <button onClick={openMenu} className={`relative p-2 transition-colors ${className}`} aria-label="Benachrichtigungen">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" />
         </svg>

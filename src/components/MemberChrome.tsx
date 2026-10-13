@@ -181,18 +181,25 @@ export function MemberChrome({ children }: { children: ReactNode }) {
 
         {/* ── Hauptspalte ── */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Mobile-Header — kompakt, einzeilig. Links Logo + Breadcrumb/Titel
-              (zu lange Pfade mit «…»), rechts Benachrichtigung und Burger-Menü. */}
+          {/* Mobile-Header — kompakt, einzeilig: links der Standort (Breadcrumb/
+              Titel), in der Mitte das LAEMU-Logo, rechts Benachrichtigung und
+              Burger-Menü. Die beiden Seitenzonen sind gleich breit (flex-1),
+              damit das Logo mittig bleibt. */}
           <header className="lg:hidden sticky top-0 z-30 bg-nav-dark text-text-on-dark">
-            <div className="flex items-center gap-2.5 h-12 px-4">
-              <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white flex-shrink-0"><LaemuLogo className="h-5 w-auto" /></Link>
-              <div className="min-w-0 flex-1 text-white">
+            <div className="flex items-center gap-2 h-12 px-4">
+              {/* Links: Standort-Label */}
+              <div className="min-w-0 flex-1 flex items-center text-white">
                 {header?.breadcrumb ? header.breadcrumb : header?.title ? <h1 className="font-heading font-bold text-sm text-white truncate">{header.title}</h1> : null}
               </div>
-              <div className="flex items-center gap-0.5 flex-shrink-0">
+              {/* Mitte: Logo */}
+              <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white flex-shrink-0">
+                <LaemuLogo className="h-5 w-auto" />
+              </Link>
+              {/* Rechts: Aktionen */}
+              <div className="min-w-0 flex-1 flex items-center justify-end gap-0.5">
                 {header?.right}
-                <NotificationBell />
-                <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -mr-2 text-white/80 hover:text-white transition-colors">
+                <NotificationBell className="text-white hover:text-accent-gold" />
+                <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -mr-2 text-white hover:text-accent-gold transition-colors">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
                 </button>
               </div>
