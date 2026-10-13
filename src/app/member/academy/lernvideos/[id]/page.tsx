@@ -1166,26 +1166,22 @@ export default function LernvideoDetailPage() {
                 </ShareMenu>
               </div>
 
-              {/* Musiklehrer:innen (max. 2) — wer das Stück unterrichtet / im Video zeigt */}
-              {v.teachers.length > 0 && (
+              {/* Komponist(en) — 0 bis mehrere möglich */}
+              {v.composers && v.composers.length > 0 && (
                 <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
-                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.teachers.slice(0, 2).length > 1 ? 'Musiklehrer:innen' : 'Musiklehrer:in'}</p>
+                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.composers.length > 1 ? 'Komponisten' : 'Komponist'}</p>
                   <div className="space-y-5">
-                    {v.teachers.slice(0, 2).map((t, i) => (
+                    {v.composers.map((c, i) => (
                       <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
-                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
-                          <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
-                        </div>
+                        {c.img && (
+                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                            <Image src={c.img} alt={c.name} fill className="object-cover grayscale" unoptimized />
+                          </div>
+                        )}
                         <div>
-                          <p className="font-heading font-bold text-sm">{t.name}</p>
-                          <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
-                          <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
-                          {/* «Profil ansehen» nur, wenn diese Person ein Profil hat. */}
-                          {t.hasProfile && (
-                            <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors inline-block">
-                              Profil ansehen
-                            </Link>
-                          )}
+                          <p className="font-heading font-bold text-sm">{c.name}</p>
+                          {c.years && <p className="font-sans text-xs text-accent-gold mb-2">{c.years}</p>}
+                          {c.bio && <p className="font-sans text-xs text-text-secondary leading-relaxed">{c.bio}</p>}
                         </div>
                       </div>
                     ))}
@@ -1229,22 +1225,26 @@ export default function LernvideoDetailPage() {
                 </div>
               )}
 
-              {/* Komponist(en) — 0 bis mehrere möglich */}
-              {v.composers && v.composers.length > 0 && (
+              {/* Musiklehrer:innen (max. 2) — wer das Stück unterrichtet / im Video zeigt */}
+              {v.teachers.length > 0 && (
                 <div className="bg-surface border border-border rounded-xl shadow-soft p-5">
-                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.composers.length > 1 ? 'Komponisten' : 'Komponist'}</p>
+                  <p className="font-sans text-xs uppercase tracking-widest text-text-secondary mb-4">{v.teachers.slice(0, 2).length > 1 ? 'Musiklehrer:innen' : 'Musiklehrer:in'}</p>
                   <div className="space-y-5">
-                    {v.composers.map((c, i) => (
+                    {v.teachers.slice(0, 2).map((t, i) => (
                       <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
-                        {c.img && (
-                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
-                            <Image src={c.img} alt={c.name} fill className="object-cover grayscale" unoptimized />
-                          </div>
-                        )}
+                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                          <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
+                        </div>
                         <div>
-                          <p className="font-heading font-bold text-sm">{c.name}</p>
-                          {c.years && <p className="font-sans text-xs text-accent-gold mb-2">{c.years}</p>}
-                          {c.bio && <p className="font-sans text-xs text-text-secondary leading-relaxed">{c.bio}</p>}
+                          <p className="font-heading font-bold text-sm">{t.name}</p>
+                          <p className="font-sans text-xs text-accent-gold mb-2">{t.instrument}</p>
+                          <p className="font-sans text-xs text-text-secondary leading-relaxed mb-3">{t.bio}</p>
+                          {/* «Profil ansehen» nur, wenn diese Person ein Profil hat. */}
+                          {t.hasProfile && (
+                            <Link href={`/member/u/${t.handle.replace('@', '')}`} className="font-sans text-xs border border-border px-3 py-1.5 hover:bg-dark hover:text-white hover:border-dark transition-colors inline-block">
+                              Profil ansehen
+                            </Link>
+                          )}
                         </div>
                       </div>
                     ))}
