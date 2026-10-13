@@ -4,6 +4,7 @@ import { Fragment, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { LaemuLogo } from '@/components/LaemuLogo'
 import { PasswordInput } from '@/components/PasswordInput'
 import {
   individualPricing,
@@ -555,7 +556,7 @@ export default function RegisterPage() {
       <div className="flex-1 min-w-0">
         {/* Top bar */}
         <div className="bg-nav-dark py-5 px-6 flex items-center justify-between">
-          <Link href="/login" className="font-heading font-bold text-white text-lg tracking-tight">LAEMU</Link>
+          <Link href="/login" aria-label="LAEMU" className="text-white"><LaemuLogo className="h-5 w-auto" /></Link>
           <Link href="/login" className="font-sans text-xs text-white/50 hover:text-white transition-colors">Abbrechen</Link>
         </div>
 

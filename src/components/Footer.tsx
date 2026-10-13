@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { LaemuLogo } from '@/components/LaemuLogo'
 
 // ─── Offizielle LAEMU-Kanäle ──────────────────────────────────────────────────
 // Zentrale Stelle für die echten Links — hier eintragen, sobald verfügbar.
@@ -77,7 +78,7 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {/* Brand */}
           <div>
-            <p className="font-heading font-bold text-lg tracking-tight mb-2">LAEMU</p>
+            <LaemuLogo className="h-6 w-auto mb-3 text-white" />
             <p className="font-sans text-sm text-white/50 leading-relaxed max-w-xs">
               Musikschule, Community und Stücke für die Schweizer Ländlermusik.
             </p>
