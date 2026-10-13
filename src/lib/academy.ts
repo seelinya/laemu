@@ -273,7 +273,7 @@ export type CatalogEntry = {
 export const pieceCatalog: Record<number, CatalogEntry> = {
   1: { id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', year: 1978, instrument: 'Handorgel', plan: 'starter', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80' },
   2: { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', year: 1995, instrument: 'Schwyzerörgeli', plan: 'starter', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },
-  3: { id: 3, title: 'Abendstern-Polka', artist: 'Bodästänix', year: 2003, instrument: 'Handorgel', plan: 'pro', img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=800&q=80' },
+  3: { id: 3, title: 'Abendstern-Polka', artist: 'Bodäständix', year: 2003, instrument: 'Handorgel', plan: 'pro', img: 'https://images.unsplash.com/photo-1415886670524-cc42c35e9fd4?w=800&q=80' },
   4: { id: 4, title: 'Innerschwizer Schottisch', artist: 'Trio Rigi', year: 1988, instrument: 'Klarinette', plan: 'starter', img: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80' },
   5: { id: 5, title: 'Walzer am See', artist: 'Lisa Frei', year: 2015, instrument: 'Klavierbegleitung', plan: 'free', img: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80' },
   6: { id: 6, title: 'Bergbach-Mazurka', artist: 'Hess-Rusch-Hegner', year: 1972, instrument: 'Bassgeige', plan: 'pro', img: 'https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=800&q=80' },
