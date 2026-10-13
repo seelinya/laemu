@@ -675,7 +675,7 @@ export default function ModulPage({
               <h2 className="font-heading text-xl font-bold">Fragen &amp; Kommentare</h2>
 
               {/* Hinweis: echter Name & Team-Antworten */}
-              <div className="bg-accent-gold/5 border border-accent-gold/20 px-4 py-3 flex items-start gap-2.5">
+              <div className="bg-accent-gold/5 border border-accent-gold/20 rounded-xl px-4 py-3 flex items-start gap-2.5">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
                   Kommentare erscheinen mit deinem echten Namen (<strong className="text-dark">{CURRENT_USER.name}</strong>). Antworten kommen direkt von einer Person aus dem LAEMU Team — du wirst benachrichtigt, sobald jemand antwortet. Für persönliches oder vertrauliches Feedback melde dich bitte direkt beim Team.
