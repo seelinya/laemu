@@ -745,7 +745,7 @@ export default function LernvideosPage() {
                         <input value={wishTitle} onChange={e => setWishTitle(e.target.value)} placeholder="z.B. Dr Alperose" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                       <div>
-                        <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-1.5">Komponist / Interpret <span className="normal-case tracking-normal text-text-secondary/70">(optional)</span></label>
+                        <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-1.5">Komponist / Formation <span className="normal-case tracking-normal text-text-secondary/70">(optional)</span></label>
                         <input value={wishComposer} onChange={e => setWishComposer(e.target.value)} placeholder="z.B. Willi Valotti" className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark" />
                       </div>
                     </div>
