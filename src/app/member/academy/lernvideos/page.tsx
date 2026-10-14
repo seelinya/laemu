@@ -328,7 +328,7 @@ export default function LernvideosPage() {
 
   useMemberHeader(
     {
-      title: `Hallo ${greetingName.split(/\s+/)[0]},`,
+      title: `Hallo ${greetingName.split(/\s+/)[0]}`,
       right: userAbo.plan === 'none' ? (
         <Link
           href="/member/academy?upgrade=1"
