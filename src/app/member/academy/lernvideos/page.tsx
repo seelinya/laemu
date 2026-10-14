@@ -246,24 +246,19 @@ export default function LernvideosPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.03 }}
-        {...(unlocked
-          ? {
-              role: 'link',
-              tabIndex: 0,
-              onClick: () => router.push(href),
-              onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter') router.push(href) },
-            }
-          : {})}
-        className={`bg-surface border border-border rounded-xl shadow-soft overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row ${unlocked ? 'cursor-pointer' : ''}`}
+        role="link"
+        tabIndex={0}
+        onClick={() => router.push(href)}
+        onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') router.push(href) }}
+        className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden group hover:border-dark transition-colors flex flex-col sm:flex-row cursor-pointer"
       >
         {/* Thumbnail — auf Mobile oben über dem Text, auf Desktop links */}
         <div className="relative w-full h-44 sm:h-auto sm:w-52 flex-shrink-0 sm:self-stretch">
-          <Image src={v.img} alt={v.title} fill className={`object-cover transition-transform duration-500 ${unlocked ? 'group-hover:scale-105' : 'grayscale'}`} unoptimized />
-          {unlocked && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
-            </div>
-          )}
+          <Image src={v.img} alt={v.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized />
+          {/* Vorschau abspielbar — auch bei gesperrten Stücken (nur Masteraufnahme) */}
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="w-9 h-9 bg-accent-gold flex items-center justify-center"><span className="text-white ml-0.5 text-sm">▶</span></div>
+          </div>
           <div className="absolute bottom-2 left-2">
             <span className="font-sans text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded-md">{v.instrument}</span>
           </div>
@@ -276,9 +271,11 @@ export default function LernvideosPage() {
             </div>
           )}
           {!unlocked && (
-            <div className="absolute inset-0 bg-dark/55 flex flex-col items-center justify-center gap-1 text-white">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              <span className="font-sans text-[10px] uppercase tracking-wide">Gesperrt</span>
+            <div className="absolute top-2 right-2">
+              <span className="font-sans text-[10px] bg-dark/75 text-white px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Gesperrt
+              </span>
             </div>
           )}
         </div>
@@ -314,14 +311,14 @@ export default function LernvideosPage() {
               </button>
             </div>
             {unlocked ? (
-              <Link href={`/member/academy/lernvideos/${v.id}`} className="block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center bg-dark text-white hover:bg-accent-gold hover:text-white">
+              <Link href={href} className="block font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center bg-dark text-white hover:bg-accent-gold hover:text-white">
                 Öffnen →
               </Link>
             ) : (
-              <span className="font-sans text-[10px] px-1.5 py-0.5 rounded-md bg-dark/10 text-text-secondary flex items-center gap-1 whitespace-nowrap">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                Gesperrt
-              </span>
+              <Link href={href} title="Masteraufnahme ansehen" className="font-sans text-xs px-3 py-1.5 transition-colors whitespace-nowrap text-center border border-border-dark text-dark hover:border-accent-gold hover:text-accent-gold flex items-center gap-1.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Vorschau →
+              </Link>
             )}
           </div>
         </div>
