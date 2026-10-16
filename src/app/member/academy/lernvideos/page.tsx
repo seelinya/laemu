@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { isDbVideoUnlocked } from '@/lib/academy'
+import { isDbVideoUnlocked, pieceLerninhalte } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { useMemberHeader } from '@/components/MemberChrome'
@@ -101,23 +101,15 @@ const BEKANNTE_TAGS = ['Bekannte Melodie', 'Kinderlied', 'Weihnachtslied']
 // automatisch mitwächst (mind. Handorgel, Schwyzerörgeli, Bassgeige …).
 const INSTRUMENTS = Array.from(new Set(videos.map(v => v.instrument)))
 // Lerninhalt-Filter — welche Inhalte ein Stück anbietet (Reihenfolge wie auf der
-// Detailseite: 1. Stimme, 2. Stimme, Begleitvorschläge, Mitspielen).
+// Detailseite: 1. Stimme, 2. Stimme, Begleitvorschläge, Mitspielen). Die
+// tatsächlich verfügbaren Lerninhalte je Stück liegen zentral in academy.ts
+// (pieceLerninhalte) — dieselbe Quelle steuert auch die Tabs der Detailseite.
 const LERNINHALT_FILTER: { value: string; label: string }[] = [
   { value: 'stimme1', label: '1. Stimme' },
   { value: 'stimme2', label: '2. Stimme' },
   { value: 'begleit', label: 'Begleitvorschläge' },
   { value: 'mitspielen', label: 'Mitspielen' },
 ]
-// Verfügbare Lerninhalte je Stück (für den Lerninhalt-Filter).
-const LERNINHALTE_BY_ID: Record<number, string[]> = {
-  1: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
-  2: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
-  3: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
-  4: ['stimme1', 'stimme2', 'mitspielen'],
-  5: ['stimme1', 'mitspielen'],
-  6: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
-  7: ['stimme1', 'begleit', 'mitspielen'],
-}
 
 // Optionen für Stimmen bei Stückwünschen — gruppiert nach 1. Stimme, 2. Stimme
 // und Begleitstimmvorschlägen.
@@ -235,7 +227,7 @@ export default function LernvideosPage() {
     if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q)) return false
     if (filterArt && v.artDesStückes !== filterArt) return false
     if (filterInstrument && v.instrument !== filterInstrument) return false
-    if (filterLerninhalt && !(LERNINHALTE_BY_ID[v.id] ?? []).includes(filterLerninhalt)) return false
+    if (filterLerninhalt && !pieceLerninhalte(v.id).includes(filterLerninhalt as never)) return false
     if (filterTakt && v.taktart !== filterTakt) return false
     if (filterGenreTag && !v.melodieTags.includes(filterGenreTag)) return false
     if (filterNotenV && !v.notesAvailable.violinschluessel) return false

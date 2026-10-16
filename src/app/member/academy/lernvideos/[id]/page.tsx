@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
+import { pieceCatalog, isDbVideoUnlocked, pieceLerninhalte, type CatalogEntry, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile, initialsFromName } from '@/lib/userProfile'
 import { ShareMenu } from '@/components/ShareMenu'
@@ -820,13 +820,17 @@ export default function LernvideoDetailPage() {
   const begleitSections = v.stimmenSections.filter(s => s.label.toLowerCase().includes('begleitung'))
 
   // Tabs ohne Inhalt werden ausgeblendet (Überblick ist immer vorhanden).
-  // Mitspielen hat nur Inhalt, wenn ein Mixer verfügbar ist.
+  // Massgebend sind die zentral hinterlegten Lerninhalte des Stücks
+  // (pieceLerninhalte) — dieselbe Quelle wie der Lerninhalt-Filter in der
+  // Übersicht. Zusätzlich muss der Inhalt tatsächlich vorhanden sein
+  // (Mitspielen nur mit Mixer).
+  const lerninhalte = pieceLerninhalte(idNum)
   const mainTabs: { id: typeof mainTab; label: string; show: boolean }[] = [
     { id: 'ueberblick', label: 'Überblick', show: true },
-    { id: 'stimme1', label: '1. Stimme', show: stimme1Sections.length > 0 },
-    { id: 'stimme2', label: '2. Stimme', show: stimme2Sections.length > 0 },
-    { id: 'begleit', label: 'Begleitvorschläge', show: begleitSections.length > 0 },
-    { id: 'mitspielen', label: 'Mitspielen', show: v.hasMixer },
+    { id: 'stimme1', label: '1. Stimme', show: lerninhalte.includes('stimme1') && stimme1Sections.length > 0 },
+    { id: 'stimme2', label: '2. Stimme', show: lerninhalte.includes('stimme2') && stimme2Sections.length > 0 },
+    { id: 'begleit', label: 'Begleitvorschläge', show: lerninhalte.includes('begleit') && begleitSections.length > 0 },
+    { id: 'mitspielen', label: 'Mitspielen', show: lerninhalte.includes('mitspielen') && v.hasMixer },
   ]
   const visibleTabs = mainTabs.filter(t => t.show)
 
