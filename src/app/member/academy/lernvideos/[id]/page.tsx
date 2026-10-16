@@ -819,6 +819,23 @@ export default function LernvideoDetailPage() {
   const stimme2Sections = v.stimmenSections.filter(s => s.label.startsWith('2. Stimme') && MELODIC.includes(s.instrument))
   const begleitSections = v.stimmenSections.filter(s => s.label.toLowerCase().includes('begleitung'))
 
+  // Tabs ohne Inhalt werden ausgeblendet (Überblick ist immer vorhanden).
+  // Mitspielen hat nur Inhalt, wenn ein Mixer verfügbar ist.
+  const mainTabs: { id: typeof mainTab; label: string; show: boolean }[] = [
+    { id: 'ueberblick', label: 'Überblick', show: true },
+    { id: 'stimme1', label: '1. Stimme', show: stimme1Sections.length > 0 },
+    { id: 'stimme2', label: '2. Stimme', show: stimme2Sections.length > 0 },
+    { id: 'begleit', label: 'Begleitvorschläge', show: begleitSections.length > 0 },
+    { id: 'mitspielen', label: 'Mitspielen', show: v.hasMixer },
+  ]
+  const visibleTabs = mainTabs.filter(t => t.show)
+
+  // Falls der aktive Tab ausgeblendet ist, zurück auf den Überblick.
+  useEffect(() => {
+    if (!visibleTabs.some(t => t.id === mainTab)) setMainTab('ueberblick')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainTab, visibleTabs.length])
+
   const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean, notenKeys: string[] = ALLOWED_NOTEN_KEYS) => {
     const noten = stimme.noten.filter(n => notenKeys.includes(n.key))
     return (
@@ -886,13 +903,7 @@ export default function LernvideoDetailPage() {
       <div className="border-b border-border bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
           <div className="flex gap-1 overflow-x-auto">
-            {([
-              { id: 'ueberblick', label: 'Überblick' },
-              { id: 'stimme1', label: '1. Stimme' },
-              { id: 'stimme2', label: '2. Stimme' },
-              { id: 'begleit', label: 'Begleitvorschläge' },
-              { id: 'mitspielen', label: 'Mitspielen' },
-            ] as const).map(tab => (
+            {visibleTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setMainTab(tab.id)}
