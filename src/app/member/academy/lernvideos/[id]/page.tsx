@@ -966,20 +966,6 @@ export default function LernvideoDetailPage() {
                     </div>
                   )}
 
-                  {/* Tags — alle nacheinander, ohne Gruppierung */}
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className={`font-sans text-xs px-2.5 py-1 rounded-md font-medium ${v.difficulty === 'starter' ? 'bg-accent-gold text-white' : v.difficulty === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
-                      {planLabel[v.difficulty] ?? v.difficulty}
-                    </span>
-                    <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{artLabel[v.artDesStückes] ?? v.artDesStückes}</span>
-                    {v.taktart && <span className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border">{v.taktart}</span>}
-                    {v.styleTags?.map(tag => (
-                      <span key={tag} className="font-sans text-xs px-2.5 py-1 rounded-md bg-accent-gold/10 text-accent-gold border border-accent-gold/20">{tag}</span>
-                    ))}
-                    {v.autoTags?.map(tag => (
-                      <span key={tag} className="font-sans text-xs px-2.5 py-1 rounded-md bg-background border border-border text-text-secondary">{tag}</span>
-                    ))}
-                  </div>
                 </motion.div>
 
                 {/* 3 — LIEDTEXT (einklappbar, standardmässig geschlossen) */}

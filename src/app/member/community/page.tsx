@@ -343,31 +343,6 @@ function StartView() {
             </a>
           </div>
 
-          {/* LAEMU Marktplatz */}
-          <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
-                <Image src="/wa-marktplatz.png" alt="LAEMU Marktplatz" fill sizes="44px" className="object-cover" unoptimized />
-              </span>
-              <div className="min-w-0">
-                <h4 className="font-heading font-bold text-base leading-tight">LAEMU Marktplatz</h4>
-                <p className="font-sans text-xs text-text-secondary">Kaufen, verkaufen &amp; anfragen</p>
-              </div>
-            </div>
-            <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
-              Hier dürft ihr Instrumente, Notenblätter oder alles, was mit Volksmusik zu tun hat, verkaufen
-              oder anfragen. 🎶
-            </p>
-            <a
-              href={LAEMU_WHATSAPP_MARKTPLATZ_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-gold hover:text-white transition-colors"
-            >
-              <IconWhatsApp size={16} /> Marktplatz beitreten
-            </a>
-          </div>
-
           {/* LAEMU Musikschule Community (bestehender Chat) */}
           <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
             <div className="flex items-center gap-3 mb-3">
@@ -390,6 +365,31 @@ function StartView() {
               className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-gold hover:text-white transition-colors"
             >
               <IconWhatsApp size={16} /> Community beitreten
+            </a>
+          </div>
+
+          {/* LAEMU Marktplatz */}
+          <div className="bg-surface border border-border rounded-xl shadow-soft p-6 flex flex-col">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                <Image src="/wa-marktplatz.png" alt="LAEMU Marktplatz" fill sizes="44px" className="object-cover" unoptimized />
+              </span>
+              <div className="min-w-0">
+                <h4 className="font-heading font-bold text-base leading-tight">LAEMU Marktplatz</h4>
+                <p className="font-sans text-xs text-text-secondary">Kaufen, verkaufen &amp; anfragen</p>
+              </div>
+            </div>
+            <p className="font-sans text-sm font-normal text-text-secondary leading-snug flex-1 mb-4">
+              Hier dürft ihr Instrumente, Notenblätter oder alles, was mit Volksmusik zu tun hat, verkaufen
+              oder anfragen. 🎶
+            </p>
+            <a
+              href={LAEMU_WHATSAPP_MARKTPLATZ_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-dark text-white font-sans text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-accent-gold hover:text-white transition-colors"
+            >
+              <IconWhatsApp size={16} /> Marktplatz beitreten
             </a>
           </div>
         </div>
