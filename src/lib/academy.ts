@@ -270,6 +270,26 @@ export type CatalogEntry = {
   img: string
 }
 
+// ─── Lerninhalte je Stück ─────────────────────────────────────────────────────
+// Welche Lerninhalte ein Stück anbietet. Einzige Quelle der Wahrheit — steuert
+// sowohl den Lerninhalt-Filter in der Übersicht als auch, welche Tabs auf der
+// Detailseite angezeigt werden (fehlt z. B. 'stimme2', wird der 2.-Stimme-Tab
+// ausgeblendet und das Stück im Filter «2. Stimme» nicht angezeigt).
+export type Lerninhalt = 'stimme1' | 'stimme2' | 'begleit' | 'mitspielen'
+const ALL_LERNINHALTE: Lerninhalt[] = ['stimme1', 'stimme2', 'begleit', 'mitspielen']
+export const LERNINHALTE_BY_ID: Record<number, Lerninhalt[]> = {
+  1: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
+  2: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
+  3: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
+  4: ['stimme1', 'stimme2', 'mitspielen'],
+  5: ['stimme1', 'mitspielen'],
+  6: ['stimme1', 'stimme2', 'begleit', 'mitspielen'],
+  7: ['stimme1', 'begleit', 'mitspielen'],
+}
+export function pieceLerninhalte(id: number): Lerninhalt[] {
+  return LERNINHALTE_BY_ID[id] ?? ALL_LERNINHALTE
+}
+
 export const pieceCatalog: Record<number, CatalogEntry> = {
   1: { id: 1, title: 'Dr Alperose', artist: 'Willi Valotti', year: 1978, instrument: 'Handorgel', plan: 'starter', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=800&q=80' },
   2: { id: 2, title: 'Ländler im Dreivierteltakt', artist: 'Kapelle Hess-Ruedi-Hegner', year: 1995, instrument: 'Schwyzerörgeli', plan: 'starter', img: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?w=800&q=80' },

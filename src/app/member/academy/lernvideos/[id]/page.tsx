@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { pieceCatalog, isDbVideoUnlocked, type CatalogEntry, type UserAbo } from '@/lib/academy'
+import { pieceCatalog, isDbVideoUnlocked, pieceLerninhalte, type CatalogEntry, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile, initialsFromName } from '@/lib/userProfile'
 import { ShareMenu } from '@/components/ShareMenu'
@@ -819,6 +819,27 @@ export default function LernvideoDetailPage() {
   const stimme2Sections = v.stimmenSections.filter(s => s.label.startsWith('2. Stimme') && MELODIC.includes(s.instrument))
   const begleitSections = v.stimmenSections.filter(s => s.label.toLowerCase().includes('begleitung'))
 
+  // Tabs ohne Inhalt werden ausgeblendet (Überblick ist immer vorhanden).
+  // Massgebend sind die zentral hinterlegten Lerninhalte des Stücks
+  // (pieceLerninhalte) — dieselbe Quelle wie der Lerninhalt-Filter in der
+  // Übersicht. Zusätzlich muss der Inhalt tatsächlich vorhanden sein
+  // (Mitspielen nur mit Mixer).
+  const lerninhalte = pieceLerninhalte(idNum)
+  const mainTabs: { id: typeof mainTab; label: string; show: boolean }[] = [
+    { id: 'ueberblick', label: 'Überblick', show: true },
+    { id: 'stimme1', label: '1. Stimme', show: lerninhalte.includes('stimme1') && stimme1Sections.length > 0 },
+    { id: 'stimme2', label: '2. Stimme', show: lerninhalte.includes('stimme2') && stimme2Sections.length > 0 },
+    { id: 'begleit', label: 'Begleitvorschläge', show: lerninhalte.includes('begleit') && begleitSections.length > 0 },
+    { id: 'mitspielen', label: 'Mitspielen', show: lerninhalte.includes('mitspielen') && v.hasMixer },
+  ]
+  const visibleTabs = mainTabs.filter(t => t.show)
+
+  // Falls der aktive Tab ausgeblendet ist, zurück auf den Überblick.
+  useEffect(() => {
+    if (!visibleTabs.some(t => t.id === mainTab)) setMainTab('ueberblick')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainTab, visibleTabs.length])
+
   const renderStimmeSection = (stimme: StimmeSection, showNoten: boolean, notenKeys: string[] = ALLOWED_NOTEN_KEYS) => {
     const noten = stimme.noten.filter(n => notenKeys.includes(n.key))
     return (
@@ -886,13 +907,7 @@ export default function LernvideoDetailPage() {
       <div className="border-b border-border bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
           <div className="flex gap-1 overflow-x-auto">
-            {([
-              { id: 'ueberblick', label: 'Überblick' },
-              { id: 'stimme1', label: '1. Stimme' },
-              { id: 'stimme2', label: '2. Stimme' },
-              { id: 'begleit', label: 'Begleitvorschläge' },
-              { id: 'mitspielen', label: 'Mitspielen' },
-            ] as const).map(tab => (
+            {visibleTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setMainTab(tab.id)}

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { isDbVideoUnlocked } from '@/lib/academy'
+import { isDbVideoUnlocked, pieceLerninhalte } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
 import { useMemberHeader } from '@/components/MemberChrome'
@@ -95,11 +95,21 @@ const initialWishes: Wish[] = [
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Walzer', 'Mazurka', 'Polka', 'Schnellpolka', 'Stümpäli', 'Marsch', 'Lied']
-const BEKANNTE_TAGS = ['Schlager', 'Kinderlied', 'Weihnachtslied', 'Pop', 'Rock']
+const TAKTARTEN_FILTER = ['Schottisch', 'Ländler', 'Polka', 'Schnellpolka', 'Marsch', 'Walzer', 'Mazurka', 'Stümpäli', 'Lied', 'Potpurri', 'Sonstiges']
+const BEKANNTE_TAGS = ['Bekannte Melodie', 'Kinderlied', 'Weihnachtslied']
 // Verfügbare Instrumente — direkt aus den Stücken abgeleitet, damit die Liste
 // automatisch mitwächst (mind. Handorgel, Schwyzerörgeli, Bassgeige …).
 const INSTRUMENTS = Array.from(new Set(videos.map(v => v.instrument)))
+// Lerninhalt-Filter — welche Inhalte ein Stück anbietet (Reihenfolge wie auf der
+// Detailseite: 1. Stimme, 2. Stimme, Begleitvorschläge, Mitspielen). Die
+// tatsächlich verfügbaren Lerninhalte je Stück liegen zentral in academy.ts
+// (pieceLerninhalte) — dieselbe Quelle steuert auch die Tabs der Detailseite.
+const LERNINHALT_FILTER: { value: string; label: string }[] = [
+  { value: 'stimme1', label: '1. Stimme' },
+  { value: 'stimme2', label: '2. Stimme' },
+  { value: 'begleit', label: 'Begleitvorschläge' },
+  { value: 'mitspielen', label: 'Mitspielen' },
+]
 
 // Optionen für Stimmen bei Stückwünschen — gruppiert nach 1. Stimme, 2. Stimme
 // und Begleitstimmvorschlägen.
@@ -130,6 +140,7 @@ export default function LernvideosPage() {
   const [search, setSearch] = useState('')
   const [filterArt, setFilterArt] = useState<ArtFilter | null>(null)
   const [filterInstrument, setFilterInstrument] = useState<string | null>(null)
+  const [filterLerninhalt, setFilterLerninhalt] = useState<string | null>(null)
   const [filterTakt, setFilterTakt] = useState<string | null>(null)
   const [filterGenreTag, setFilterGenreTag] = useState<string | null>(null)
   const [filterNotenV, setFilterNotenV] = useState(false)
@@ -205,7 +216,7 @@ export default function LernvideosPage() {
   }
 
   const resetAll = () => {
-    setSearch(''); setFilterArt(null); setFilterInstrument(null); setFilterTakt(null)
+    setSearch(''); setFilterArt(null); setFilterInstrument(null); setFilterLerninhalt(null); setFilterTakt(null)
     setFilterGenreTag(null)
     setFilterNotenV(false); setFilterNotenG(false); setFilterLearned('all')
     setFilterLevel(null)
@@ -216,6 +227,7 @@ export default function LernvideosPage() {
     if (q && !v.title.toLowerCase().includes(q) && !v.artist.toLowerCase().includes(q) && !v.composer.toLowerCase().includes(q)) return false
     if (filterArt && v.artDesStückes !== filterArt) return false
     if (filterInstrument && v.instrument !== filterInstrument) return false
+    if (filterLerninhalt && !pieceLerninhalte(v.id).includes(filterLerninhalt as never)) return false
     if (filterTakt && v.taktart !== filterTakt) return false
     if (filterGenreTag && !v.melodieTags.includes(filterGenreTag)) return false
     if (filterNotenV && !v.notesAvailable.violinschluessel) return false
@@ -229,7 +241,7 @@ export default function LernvideosPage() {
   const savedVideos = videos.filter(v => saved.has(v.id))
 
   const activeFilterCount = [
-    filterArt !== null, filterInstrument !== null, filterTakt !== null,
+    filterArt !== null, filterInstrument !== null, filterLerninhalt !== null, filterTakt !== null,
     filterGenreTag !== null,
     filterNotenV, filterNotenG, filterLearned !== 'all', filterLevel !== null,
   ].filter(Boolean).length
@@ -401,7 +413,7 @@ export default function LernvideosPage() {
                         <div className="space-y-2">
                           {([
                             ['volkstuemlich', 'Volkstümlich', 'Ländler, Schottisch, Walzer …'],
-                            ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder …'],
+                            ['bekannte_melodie', 'Bekannte Melodie', 'Bekannte Melodie, Kinderlied, Weihnachtslied …'],
                           ] as const).map(([val, label, desc]) => {
                             const active = filterArt === val
                             return (
@@ -457,6 +469,15 @@ export default function LernvideosPage() {
                           <button onClick={() => setFilterInstrument(null)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === null ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}>Alle</button>
                           {INSTRUMENTS.map(inst => (
                             <button key={inst} onClick={() => setFilterInstrument(prev => prev === inst ? null : inst)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === inst ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{inst}</button>
+                          ))}
+                        </div>
+                      </div>
+                      {/* Lerninhalt */}
+                      <div>
+                        <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Lerninhalt</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {LERNINHALT_FILTER.map(li => (
+                            <button key={li.value} onClick={() => setFilterLerninhalt(prev => prev === li.value ? null : li.value)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterLerninhalt === li.value ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{li.label}</button>
                           ))}
                         </div>
                       </div>
@@ -540,7 +561,7 @@ export default function LernvideosPage() {
                 <div className="space-y-2">
                   {([
                     ['volkstuemlich', 'Volkstümlich', 'Ländler, Schottisch, Walzer …'],
-                    ['bekannte_melodie', 'Bekannte Melodie', 'Schlager, Pop, Weihnachtslieder …'],
+                    ['bekannte_melodie', 'Bekannte Melodie', 'Bekannte Melodie, Kinderlied, Weihnachtslied …'],
                   ] as const).map(([val, label, desc]) => {
                     const active = filterArt === val
                     return (
@@ -620,6 +641,16 @@ export default function LernvideosPage() {
                 </div>
               </div>
 
+              {/* Lerninhalt */}
+              <div>
+                <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Lerninhalt</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {LERNINHALT_FILTER.map(li => (
+                    <button key={li.value} onClick={() => setFilterLerninhalt(prev => prev === li.value ? null : li.value)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterLerninhalt === li.value ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{li.label}</button>
+                  ))}
+                </div>
+              </div>
+
               {/* Noten */}
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Noten</label>
@@ -673,6 +704,7 @@ export default function LernvideosPage() {
                       </span>
                     )}
                     {filterInstrument && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterInstrument}</span>}
+                    {filterLerninhalt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{LERNINHALT_FILTER.find(li => li.value === filterLerninhalt)?.label}</span>}
                     {filterTakt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterTakt}</span>}
                     {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterGenreTag}</span>}
                     {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-border text-text-secondary">Violinschlüssel</span>}
