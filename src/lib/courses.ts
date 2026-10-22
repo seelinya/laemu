@@ -334,6 +334,56 @@ const bassgeigeFortgeschrittenModules: CourseModule[] = [
   ]),
 ]
 
+// ─── Allgemeiner Lehrgang — Starter- & Pro-Kurse (instrumentenübergreifend) ───
+// Freischaltung rein nach Abo-Stufe (nicht nach Instrument).
+// Starter
+const notenLesenModules: CourseModule[] = [
+  M('notenschrift', 'Die Notenschrift', [
+    L('notenzeilen', 'Notenzeilen & Schlüssel', '9 min'),
+    L('notenwerte', 'Notenwerte & Pausen', '11 min', 'video+text'),
+    L('vorzeichen', 'Vorzeichen verstehen', '8 min'),
+  ]),
+  M('vom-blatt', 'Vom Blatt spielen', [
+    L('einfache-melodien', 'Einfache Melodien lesen', '12 min'),
+    L('rhythmus-lesen', 'Rhythmus vom Blatt', '13 min'),
+    L('uebung', 'Übung: erstes Ländler-Thema', '14 min', 'video+text'),
+  ]),
+]
+const gehoerbildungModules: CourseModule[] = [
+  M('intervalle-hoeren', 'Intervalle hören', [
+    L('grundintervalle', 'Grundintervalle erkennen', '10 min'),
+    L('melodiediktat', 'Einfaches Melodiediktat', '12 min', 'video+text'),
+  ]),
+  M('akkorde-hoeren', 'Akkorde & Rhythmus hören', [
+    L('dur-moll', 'Dur oder Moll?', '9 min'),
+    L('rhythmusdiktat', 'Rhythmusdiktat', '11 min'),
+  ]),
+]
+// Pro
+const arrangierenModules: CourseModule[] = [
+  M('stimmfuehrung', 'Stimmführung im Satz', [
+    L('zweistimmig', 'Zweistimmige Sätze', '13 min', 'video+text'),
+    L('dreistimmig', 'Dreistimmige Sätze', '15 min'),
+    L('bass-fuellstimmen', 'Bass & Füllstimmen', '14 min'),
+  ]),
+  M('arrangement', 'Das ganze Arrangement', [
+    L('einleitung-schluss', 'Einleitung & Schluss', '12 min'),
+    L('dynamik', 'Dynamik & Aufbau', '13 min'),
+    L('eigenes-arrangement', 'Eigenes Arrangement', '16 min', 'video+text'),
+  ]),
+]
+const improvisationModules: CourseModule[] = [
+  M('verzierungen', 'Verzierungen', [
+    L('vorschlaege', 'Vorschläge & Triller', '11 min'),
+    L('laeufe', 'Läufe & Umspielungen', '13 min', 'video+text'),
+  ]),
+  M('improvisieren', 'Frei improvisieren', [
+    L('skalen', 'Passende Skalen', '12 min'),
+    L('variationen', 'Variationen entwickeln', '14 min'),
+    L('solo', 'Das eigene Solo', '15 min'),
+  ]),
+]
+
 // ─── Kurs-Katalog ─────────────────────────────────────────────────────────────
 
 const handorgelCourses: Record<string, Course> = {
@@ -406,6 +456,24 @@ const allgemeinCourses: Record<string, Course> = {
     id: 'buehnenpraesenz', title: 'Bühnenpräsenz', instrumentId: 'allgemein', instrumentLabel: 'Allgemein',
     emoji: '🎤', level: 'Allgemein', teacher: 'Cécile Schmidig', modules: buehnenpraesenzModules,
   },
+  // Starter (instrumentenübergreifend)
+  'noten-lesen': {
+    id: 'noten-lesen', title: 'Noten lesen lernen', instrumentId: 'allgemein', instrumentLabel: 'Allgemein',
+    emoji: '🎼', level: 'Starter', teacher: 'Franz Hess', modules: notenLesenModules,
+  },
+  gehoerbildung: {
+    id: 'gehoerbildung', title: 'Gehörbildung', instrumentId: 'allgemein', instrumentLabel: 'Allgemein',
+    emoji: '👂', level: 'Starter', teacher: 'Cécile Schmidig', modules: gehoerbildungModules,
+  },
+  // Pro (instrumentenübergreifend)
+  arrangieren: {
+    id: 'arrangieren', title: 'Arrangieren für Kapellen', instrumentId: 'allgemein', instrumentLabel: 'Allgemein',
+    emoji: '🎹', level: 'Pro', teacher: 'Franz Hess', modules: arrangierenModules,
+  },
+  improvisation: {
+    id: 'improvisation', title: 'Improvisation & Verzierung', instrumentId: 'allgemein', instrumentLabel: 'Allgemein',
+    emoji: '🎷', level: 'Pro', teacher: 'Seebi Diener', modules: improvisationModules,
+  },
 }
 
 // Kurskatalog nach Instrument verschachtelt — ein Kurs-Slug (z. B. "grundlagen")
@@ -421,7 +489,10 @@ const courseRegistry: Record<string, Record<string, Course>> = {
 export const courses: Record<string, Course> = { ...handorgelCourses, ...allgemeinCourses }
 
 // Reihenfolge der Kurse im allgemeinen Lehrgang.
+// «Für alle» (immer frei) sowie zusätzliche Starter- & Pro-Kurse nach Abo-Stufe.
 export const ALLGEMEIN_COURSES = ['harmonielehre', 'taktarten', 'buehnenpraesenz'] as const
+export const ALLGEMEIN_STARTER_COURSES = ['noten-lesen', 'gehoerbildung'] as const
+export const ALLGEMEIN_PRO_COURSES = ['arrangieren', 'improvisation'] as const
 
 export const instrumentLabels: Record<string, string> = {
   handorgel: 'Handorgel',
