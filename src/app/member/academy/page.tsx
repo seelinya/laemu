@@ -208,26 +208,6 @@ export default function MemberAcademyPage() {
     const proUnlocked = courseUnlocked('Pro', 'Allgemein')
     return (
       <div className="space-y-10">
-        {/* Für alle */}
-        <section>
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
-            <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md uppercase tracking-wide">Für alle</span>
-          </div>
-          <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allgemeinKurse.map((kurs, i) => (
-              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                <StarterCourseCard
-                  href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
-                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-                  desc={kurs.desc} completedModules={kurs.completedModules} instrument="Allgemein" variant="allgemein"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
         {/* Starter */}
         <section>
           <div className="flex items-center gap-3 mb-4">
