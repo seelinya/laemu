@@ -238,6 +238,14 @@ export function isInstrumentInAbo(instrument: string, abo: UserAbo): boolean {
 // Andernfalls nur Schnupper-Lektionen.
 export function isCourseUnlocked(level: string, instrumentLabel: string, abo: UserAbo = mockUserAbo): boolean {
   if (level === 'Allgemein') return true
+  // Allgemeine (instrumentenübergreifende) Lehrgänge: Freischaltung rein nach
+  // Abo-Stufe, nicht nach Instrument — Starter schaltet die Starter-Kurse frei,
+  // Pro zusätzlich die Pro-Kurse.
+  if (instrumentLabel === 'Allgemein') {
+    if (abo.plan === 'pro') return true
+    if (abo.plan === 'starter') return level === 'Starter'
+    return false
+  }
   if (abo.plan === 'pro') return isInstrumentInAbo(instrumentLabel, abo)
   if (abo.plan === 'starter') return level === 'Starter' && isInstrumentInAbo(instrumentLabel, abo)
   return false

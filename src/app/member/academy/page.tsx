@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMemberHeader } from '@/components/MemberChrome'
-import { courses, ALLGEMEIN_COURSES, getCourse } from '@/lib/courses'
+import { courses, ALLGEMEIN_COURSES, ALLGEMEIN_STARTER_COURSES, ALLGEMEIN_PRO_COURSES, getCourse } from '@/lib/courses'
 import { isCourseUnlocked, individualPricing, aboScope, type Scope, type UserAbo } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile } from '@/lib/userProfile'
@@ -14,18 +14,24 @@ import { INSTRUMENT_OVERVIEWS, SUBSCRIBED_INSTRUMENTS, overviewIdsFromLabels, ty
 import { StarterCourseCard, ProUpgradeBanner } from '@/components/CourseCards'
 import { UpgradeDialog } from '@/components/UpgradeDialog'
 
-// Allgemeine Grundlagen-Kurse (für alle Abos) — aus den geteilten Kursdaten.
-const allgemeinKurse: (StarterKurs & { emoji: string })[] = ALLGEMEIN_COURSES.map((cid) => {
-  const c = courses[cid]
-  const completedModules = c.modules.filter((m) => m.lessons.length > 0 && m.lessons.every((l) => l.completed)).length
-  const minutes = c.modules.flatMap((m) => m.lessons).reduce((s, l) => s + (parseInt(l.duration, 10) || 0), 0)
-  return {
-    id: c.id, title: c.title, desc: `Lehrgang mit ${c.teacher}`,
-    modules: c.modules.length, completedModules,
-    duration: minutes >= 60 ? `${Math.round(minutes / 60)}h` : `${minutes} min`,
-    level: 'Für alle', emoji: c.emoji,
-  }
-})
+// Allgemeine Grundlagen-Kurse — aus den geteilten Kursdaten. «Für alle» ist für
+// jedes Abo frei; zusätzlich gibt es (wie bei den Instrument-Lehrgängen) einen
+// Starter- und einen Pro-Bereich, die nach Abo-Stufe freigeschaltet werden.
+const mkAllgemeinKurse = (ids: readonly string[], level: string): (StarterKurs & { emoji: string })[] =>
+  ids.map((cid) => {
+    const c = courses[cid]
+    const completedModules = c.modules.filter((m) => m.lessons.length > 0 && m.lessons.every((l) => l.completed)).length
+    const minutes = c.modules.flatMap((m) => m.lessons).reduce((s, l) => s + (parseInt(l.duration, 10) || 0), 0)
+    return {
+      id: c.id, title: c.title, desc: `Lehrgang mit ${c.teacher}`,
+      modules: c.modules.length, completedModules,
+      duration: minutes >= 60 ? `${Math.round(minutes / 60)}h` : `${minutes} min`,
+      level, emoji: c.emoji,
+    }
+  })
+const allgemeinKurse = mkAllgemeinKurse(ALLGEMEIN_COURSES, 'Für alle')
+const allgemeinStarterKurse = mkAllgemeinKurse(ALLGEMEIN_STARTER_COURSES, 'Starter')
+const allgemeinProKurse = mkAllgemeinKurse(ALLGEMEIN_PRO_COURSES, 'Pro')
 
 type MockSearchResult = {
   id: string
@@ -152,7 +158,7 @@ export default function MemberAcademyPage() {
       })
     }
   })
-  allgemeinKurse.forEach((k) => {
+  ;[...allgemeinKurse, ...allgemeinStarterKurse, ...allgemeinProKurse].forEach((k) => {
     if (!getCourse('allgemein', k.id)) return
     courseLookup.set(`allgemein-${k.id}`, { key: `allgemein-${k.id}`, href: `/member/academy/instrument/allgemein/kurs/${k.id}`, title: k.title, level: k.level, modules: k.modules, duration: k.duration, desc: k.desc, completedModules: k.completedModules, instrument: 'Allgemein', variant: 'allgemein' })
   })
@@ -194,27 +200,85 @@ export default function MemberAcademyPage() {
     }
   }, [])
 
-  // Allgemeine Grundlagen — für alle Abos freigeschaltet.
-  const renderAllgemein = () => (
-    <section>
-      <div className="flex items-center gap-2 mb-1">
-        <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
-        <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md uppercase tracking-wide">Für alle</span>
-      </div>
-      <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {allgemeinKurse.map((kurs, i) => (
-          <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-            <StarterCourseCard
-              href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
-              title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
-              desc={kurs.desc} completedModules={kurs.completedModules} instrument="Allgemein" variant="allgemein"
+  // Allgemeine Grundlagen — «Für alle» (immer frei) plus Starter- & Pro-Bereich,
+  // analog zu den Instrument-Lehrgängen. Starter/Pro werden nach Abo-Stufe
+  // freigeschaltet (instrumentenübergreifend).
+  const renderAllgemein = () => {
+    const starterUnlocked = courseUnlocked('Starter', 'Allgemein')
+    const proUnlocked = courseUnlocked('Pro', 'Allgemein')
+    return (
+      <div className="space-y-10">
+        {/* Für alle */}
+        <section>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-heading font-bold text-xl">Allgemeine Grundlagen</h3>
+            <span className="font-sans text-[10px] bg-accent-gold/15 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md uppercase tracking-wide">Für alle</span>
+          </div>
+          <p className="font-sans text-sm text-text-secondary mb-4">Instrumentenübergreifende Grundlagen — für jedes Mitglied freigeschaltet.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allgemeinKurse.map((kurs, i) => (
+              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <StarterCourseCard
+                  href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
+                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                  desc={kurs.desc} completedModules={kurs.completedModules} instrument="Allgemein" variant="allgemein"
+                />
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Starter */}
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Starter</span>
+            <h3 className="font-heading text-xl font-bold">Allgemeine Grundlagen — Starter</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allgemeinStarterKurse.map((kurs, i) => (
+              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <StarterCourseCard
+                  href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
+                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                  desc={kurs.desc} completedModules={kurs.completedModules} instrument="Allgemein" variant="allgemein"
+                  locked={!starterUnlocked} lockLabel="Starter"
+                  previewable={!!getCourse('allgemein', kurs.id)}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Pro */}
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Pro</span>
+            <h3 className="font-heading text-xl font-bold">Allgemeine Grundlagen — Pro</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allgemeinProKurse.map((kurs, i) => (
+              <motion.div key={kurs.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <StarterCourseCard
+                  href={`/member/academy/instrument/allgemein/kurs/${kurs.id}`}
+                  title={kurs.title} level={kurs.level} modules={kurs.modules} duration={kurs.duration}
+                  desc={kurs.desc} completedModules={0} instrument="Allgemein" variant="allgemein"
+                  locked={!proUnlocked} lockLabel="Pro"
+                  previewable={!!getCourse('allgemein', kurs.id)}
+                />
+              </motion.div>
+            ))}
+          </div>
+          {!proUnlocked && (
+            <ProUpgradeBanner
+              onUpgrade={openUpgrade}
+              monthlyLabel={proPriceLabel}
+              yearlyLabel={chf(proPrice.yearly)}
             />
-          </motion.div>
-        ))}
+          )}
+        </section>
       </div>
-    </section>
-  )
+    )
+  }
 
   // Einführung — das erste, was Neueinsteiger:innen sehen: ein Video, das den
   // Lehrgang vorstellt (der Kurs ist bereits aufs Dashboard gelegt), plus der
