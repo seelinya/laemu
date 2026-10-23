@@ -210,9 +210,9 @@ export default function MemberAcademyPage() {
       <div className="space-y-10">
         {/* Starter */}
         <section>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3 mb-4">
             <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Starter</span>
-            <h3 className="font-heading text-xl font-bold">Allgemeine Grundlagen — Starter</h3>
+            <h3 className="font-heading text-lg sm:text-xl font-bold">Allgemeine Grundlagen — Starter</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {allgemeinStarterKurse.map((kurs, i) => (
@@ -231,9 +231,9 @@ export default function MemberAcademyPage() {
 
         {/* Pro */}
         <section>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3 mb-4">
             <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Pro</span>
-            <h3 className="font-heading text-xl font-bold">Allgemeine Grundlagen — Pro</h3>
+            <h3 className="font-heading text-lg sm:text-xl font-bold">Allgemeine Grundlagen — Pro</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {allgemeinProKurse.map((kurs, i) => (
@@ -317,9 +317,9 @@ export default function MemberAcademyPage() {
       <div className="space-y-10">
         {starterKurse.length > 0 && (
           <section>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3 mb-4">
               <span className="font-sans text-xs bg-accent-gold text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Starter</span>
-              <h3 className="font-heading text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
+              <h3 className="font-heading text-lg sm:text-xl font-bold">{ov.label} — Starter-Lehrgang</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {starterKurse.map((kurs, i) => (
@@ -339,9 +339,9 @@ export default function MemberAcademyPage() {
 
         {(proKurse.length > 0 || !proUnlocked) && (
           <section>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3 mb-4">
               <span className="font-sans text-xs bg-dark text-white px-2 py-0.5 rounded-md uppercase tracking-wide">Pro</span>
-              <h3 className="font-heading text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
+              <h3 className="font-heading text-lg sm:text-xl font-bold">{ov.label} — Pro-Lehrgang</h3>
             </div>
             {proKurse.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
