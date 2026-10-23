@@ -521,21 +521,21 @@ export default function ModulPage({
 
             {/* Lesson header */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-sans text-xs text-text-secondary">{activeModuleData.title}</span>
+              <div className="flex items-center gap-2 mb-4 md:mb-2">
+                <span className="font-sans text-xs text-accent-gold font-medium">{activeModuleData.title}</span>
                 <span className="text-text-secondary">·</span>
                 <span className="font-sans text-xs text-text-secondary">
                   Lektion {activeLessonIndex + 1} von {activeModuleData.lessons.length}
                 </span>
               </div>
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                <h1 className="font-heading text-2xl md:text-3xl font-bold">{activeLesson?.title}</h1>
-                {/* Action bar */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 md:gap-4">
+                <h1 className="order-2 md:order-1 font-heading text-2xl md:text-3xl font-bold">{activeLesson?.title}</h1>
+                {/* Action bar — auf Mobile oben rechts über dem Titel, etwas kleiner */}
+                <div className="order-1 md:order-2 flex justify-end flex-shrink-0">
                   <motion.button
                     onClick={toggleActiveLessonDone}
                     whileTap={{ scale: 0.9 }}
-                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-sm transition-colors ${activeLessonDone ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 md:px-3 md:py-2 border rounded-lg font-sans text-xs md:text-sm transition-colors ${activeLessonDone ? 'border-green-500 bg-green-50 text-green-600' : 'border-border hover:border-dark text-text-secondary hover:text-dark'}`}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={activeLessonDone ? 3 : 2} strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
