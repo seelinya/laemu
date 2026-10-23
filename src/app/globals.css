@@ -154,6 +154,17 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* iOS Safari zoomt beim Fokussieren von Eingabefeldern mit Schriftgrösse < 16px
+   automatisch hinein und springt nicht sauber zurück. 16px auf kleinen Screens
+   verhindert das — die Ansicht bleibt beim Tippen statisch. */
+@media (max-width: 639px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
