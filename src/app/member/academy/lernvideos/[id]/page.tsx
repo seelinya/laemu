@@ -614,8 +614,8 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
   }
 
   return (
-    <div className="bg-dark">
-      <div className="relative aspect-video overflow-hidden rounded-xl">
+    <div className="bg-dark rounded-xl overflow-hidden">
+      <div className="relative aspect-video overflow-hidden">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
           <button onClick={() => setPlaying(!playing)} className="w-16 h-16 bg-accent-gold hover:bg-accent-gold-hover flex items-center justify-center transition-colors">
@@ -698,7 +698,9 @@ function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; l
       <AnimatePresence>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
+            <div className="px-4 sm:px-5 pb-4">
+              <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -735,7 +737,7 @@ function LockedDetailView({ piece, abo }: { piece: CatalogEntry; abo: UserAbo })
 
         {/* Piece info */}
         <div className="bg-surface border border-border rounded-xl shadow-soft p-6">
-          <h2 className="font-heading font-bold text-2xl mb-1">{piece.title}</h2>
+          <h2 className="font-heading font-bold text-xl sm:text-2xl mb-1">{piece.title}</h2>
           <p className="font-sans text-sm text-accent-gold mb-4">{piece.artist} · {piece.year}</p>
           <div className="flex flex-wrap gap-2">
             <span className={`font-sans text-xs px-2.5 py-1 rounded-md font-medium ${piece.plan === 'starter' ? 'bg-accent-gold text-white' : piece.plan === 'pro' ? 'bg-dark text-white' : 'bg-background border border-border text-text-secondary'}`}>
@@ -884,11 +886,11 @@ export default function LernvideoDetailPage() {
         </span>
       ) : (
         <>
-          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/40 lg:border-border rounded-lg text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors">
-            <IconShare /> <span className="hidden sm:inline">Teilen</span>
+          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/40 lg:border-border rounded-lg text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors">
+            Teilen
           </ShareMenu>
-          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center gap-1.5 font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-white/40 lg:border-border text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold'}`}>
-            <IconHeart filled={favorited} /> <span className="hidden sm:inline">{favorited ? 'In Merkliste' : 'Zur Merkliste'}</span>
+          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-white/40 lg:border-border text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold'}`}>
+            {favorited ? 'In Merkliste' : 'Zur Merkliste'}
           </button>
         </>
       ),
@@ -936,7 +938,7 @@ export default function LernvideoDetailPage() {
 
                 {/* 2 — STÜCK-INFORMATION */}
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
-                  <h2 className="font-heading font-bold text-2xl mb-1">{v.title}</h2>
+                  <h2 className="font-heading font-bold text-xl sm:text-2xl mb-1">{v.title}</h2>
                   <p className="font-sans text-sm text-accent-gold mb-4">
                     {[
                       v.taktart,
@@ -949,7 +951,7 @@ export default function LernvideoDetailPage() {
 
                   {/* Einführungsvideo (nach dem Beschrieb) */}
                   {'introVideo' in v && v.introVideo && (
-                    <div className="mb-5 border border-accent-gold/30 overflow-hidden">
+                    <div className="mb-5 border border-accent-gold/30 rounded-xl overflow-hidden">
                       <div className="px-5 py-3 border-b border-accent-gold/20 bg-accent-gold/5 flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <div className="w-5 h-5 bg-accent-gold flex items-center justify-center flex-shrink-0">
@@ -962,7 +964,9 @@ export default function LernvideoDetailPage() {
                         </div>
                         <span className="font-sans text-[10px] text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md bg-accent-gold/10">Neu hier? Zuerst ansehen</span>
                       </div>
-                      <VideoPlayer img={v.img} label={v.introVideo.label} variant="standard" />
+                      <div className="p-4">
+                        <VideoPlayer img={v.img} label={v.introVideo.label} variant="standard" />
+                      </div>
                     </div>
                   )}
 
@@ -1295,7 +1299,7 @@ export default function LernvideoDetailPage() {
           )
 
           return (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border rounded-xl shadow-soft p-6 mt-6 lg:mt-8">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="bg-surface border border-border rounded-xl shadow-soft p-6 mt-6">
               {/* Header */}
               <div className="mb-5">
                 <h3 className="font-heading font-bold text-lg">Kommentare ({totalCount})</h3>

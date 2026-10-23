@@ -381,11 +381,11 @@ export default function LernvideosPage() {
                   onChange={e => setSearch(e.target.value)}
                   type="text"
                   placeholder="Titel, Komponist, Formation …"
-                  className="flex-1 border border-border-dark px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                  className="flex-1 border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
                 />
                 <button
                   onClick={() => setShowMobileFilters(p => !p)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 font-sans text-xs border transition-colors ${showMobileFilters ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 font-sans text-xs border transition-colors ${showMobileFilters ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
                   <span className="hidden sm:inline">Erweiterte Suche</span>
@@ -406,7 +406,7 @@ export default function LernvideosPage() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="border border-border bg-surface p-4 space-y-5">
+                    <div className="border border-border rounded-lg p-4 space-y-5">
                       {/* Art des Stückes */}
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Art des Stückes</label>
@@ -418,7 +418,7 @@ export default function LernvideosPage() {
                             const active = filterArt === val
                             return (
                               <div key={val}>
-                                <button onClick={() => toggleArt(val)} className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border-dark hover:border-dark'}`}>
+                                <button onClick={() => toggleArt(val)} className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
                                   <div>
                                     <p className={`font-sans text-sm font-medium ${active ? 'text-accent-gold' : ''}`}>{label}</p>
                                     <p className="font-sans text-xs text-text-secondary leading-snug">{desc}</p>
@@ -435,7 +435,7 @@ export default function LernvideosPage() {
                                           <p className="font-sans text-[10px] uppercase tracking-widest text-accent-gold mb-2">Stückart</p>
                                           <div className="flex flex-wrap gap-1">
                                             {TAKTARTEN_FILTER.map(t => (
-                                              <button key={t} onClick={() => setFilterTakt(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{t}</button>
+                                              <button key={t} onClick={() => setFilterTakt(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}>{t}</button>
                                             ))}
                                           </div>
                                         </div>
@@ -450,7 +450,7 @@ export default function LernvideosPage() {
                                         <p className="font-sans text-[10px] uppercase tracking-widest font-semibold text-dark mb-2">Genre</p>
                                         <div className="flex flex-wrap gap-1">
                                           {BEKANNTE_TAGS.map(t => (
-                                            <button key={t} onClick={() => setFilterGenreTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{t}</button>
+                                            <button key={t} onClick={() => setFilterGenreTag(prev => prev === t ? null : t)} className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}>{t}</button>
                                           ))}
                                         </div>
                                       </div>
@@ -466,9 +466,9 @@ export default function LernvideosPage() {
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Instrument</label>
                         <div className="flex flex-wrap gap-1.5">
-                          <button onClick={() => setFilterInstrument(null)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === null ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}>Alle</button>
+                          <button onClick={() => setFilterInstrument(null)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === null ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}>Alle</button>
                           {INSTRUMENTS.map(inst => (
-                            <button key={inst} onClick={() => setFilterInstrument(prev => prev === inst ? null : inst)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === inst ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{inst}</button>
+                            <button key={inst} onClick={() => setFilterInstrument(prev => prev === inst ? null : inst)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === inst ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-dark hover:border-dark'}`}>{inst}</button>
                           ))}
                         </div>
                       </div>
@@ -477,7 +477,7 @@ export default function LernvideosPage() {
                         <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Lerninhalt</label>
                         <div className="flex flex-wrap gap-1.5">
                           {LERNINHALT_FILTER.map(li => (
-                            <button key={li.value} onClick={() => setFilterLerninhalt(prev => prev === li.value ? null : li.value)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterLerninhalt === li.value ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{li.label}</button>
+                            <button key={li.value} onClick={() => setFilterLerninhalt(prev => prev === li.value ? null : li.value)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterLerninhalt === li.value ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-dark hover:border-dark'}`}>{li.label}</button>
                           ))}
                         </div>
                       </div>
@@ -485,11 +485,11 @@ export default function LernvideosPage() {
                       <div>
                         <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Noten</label>
                         <div className="space-y-1.5">
-                          <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border-dark hover:border-dark'}`}>
+                          <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
                             <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#BC8C33]" />
                             <span className={`font-sans text-sm ${filterNotenV ? 'text-accent-gold' : 'text-text-secondary'}`}>Violinschlüssel</span>
                           </label>
-                          <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border-dark hover:border-dark'}`}>
+                          <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
                             <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#BC8C33]" />
                             <span className={`font-sans text-sm ${filterNotenG ? 'text-accent-gold' : 'text-text-secondary'}`}>Griffschrift</span>
                           </label>
@@ -500,7 +500,7 @@ export default function LernvideosPage() {
                         <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Lernstatus</label>
                         <div className="grid grid-cols-3 gap-1.5">
                           {([['all', 'Alle'], ['learned', 'Gelernt'], ['unlearned', 'Offen']] as const).map(([val, lbl]) => (
-                            <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border-dark text-dark hover:border-dark'}`}>{lbl}</button>
+                            <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border text-dark hover:border-dark'}`}>{lbl}</button>
                           ))}
                         </div>
                       </div>
@@ -509,7 +509,7 @@ export default function LernvideosPage() {
                         <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Level</label>
                         <div className="grid grid-cols-3 gap-1.5">
                           {(['free', 'starter', 'pro'] as const).map(lvl => (
-                            <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{planLabels[lvl]}</button>
+                            <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-dark hover:border-dark'}`}>{planLabels[lvl]}</button>
                           ))}
                         </div>
                       </div>
@@ -538,23 +538,24 @@ export default function LernvideosPage() {
                 onChange={e => setSearch(e.target.value)}
                 type="text"
                 placeholder="Titel, Komponist, Formation …"
-                className="w-full border border-border-dark px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+                className="w-full border border-border px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
               />
 
-              {/* Advanced filter toggle — als klar klickbare, umrandete Box */}
-              <button
-                onClick={() => setShowAdvancedDesktop(p => !p)}
-                aria-expanded={showAdvancedDesktop}
-                className="w-full flex items-center justify-between gap-2 border border-border-dark rounded-lg px-3.5 py-2.5 font-sans text-xs font-semibold uppercase tracking-widest text-dark hover:border-dark hover:text-accent-gold transition-colors"
-              >
-                <span>Erweiterte Filter</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 transition-transform ${showAdvancedDesktop ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
+              {/* Erweiterte Filter — Umschalter & Panel als eine verbundene Box */}
+              <div className="border border-border rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setShowAdvancedDesktop(p => !p)}
+                  aria-expanded={showAdvancedDesktop}
+                  className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 font-sans text-xs font-semibold uppercase tracking-widest text-dark hover:text-accent-gold transition-colors"
+                >
+                  <span>Erweiterte Filter</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 transition-transform ${showAdvancedDesktop ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
 
-              <AnimatePresence initial={false}>
-                {showAdvancedDesktop && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="space-y-6">
+                <AnimatePresence initial={false}>
+                  {showAdvancedDesktop && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="border-t border-border p-4 space-y-6">
               {/* Art des Stückes — multi-select like upload form */}
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Art des Stückes</label>
@@ -568,7 +569,7 @@ export default function LernvideosPage() {
                       <div key={val}>
                         <button
                           onClick={() => toggleArt(val)}
-                          className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border-dark hover:border-dark'}`}
+                          className={`w-full p-3 border text-left transition-colors flex items-start justify-between gap-2 ${active ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}
                         >
                           <div>
                             <p className={`font-sans text-sm font-medium ${active ? 'text-accent-gold' : ''}`}>{label}</p>
@@ -591,7 +592,7 @@ export default function LernvideosPage() {
                                       <button
                                         key={t}
                                         onClick={() => setFilterTakt(prev => prev === t ? null : t)}
-                                        className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}
+                                        className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterTakt === t ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}
                                       >
                                         {t}
                                       </button>
@@ -614,7 +615,7 @@ export default function LernvideosPage() {
                                     <button
                                       key={t}
                                       onClick={() => setFilterGenreTag(prev => prev === t ? null : t)}
-                                      className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}
+                                      className={`font-sans text-[10px] px-2 py-1 rounded-md border transition-colors ${filterGenreTag === t ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}
                                     >
                                       {t}
                                     </button>
@@ -634,9 +635,9 @@ export default function LernvideosPage() {
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Instrument</label>
                 <div className="flex flex-wrap gap-1.5">
-                  <button onClick={() => setFilterInstrument(null)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === null ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}>Alle</button>
+                  <button onClick={() => setFilterInstrument(null)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === null ? 'border-dark bg-dark text-white' : 'border-border text-dark hover:border-dark'}`}>Alle</button>
                   {INSTRUMENTS.map(inst => (
-                    <button key={inst} onClick={() => setFilterInstrument(prev => prev === inst ? null : inst)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === inst ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{inst}</button>
+                    <button key={inst} onClick={() => setFilterInstrument(prev => prev === inst ? null : inst)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterInstrument === inst ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-dark hover:border-dark'}`}>{inst}</button>
                   ))}
                 </div>
               </div>
@@ -646,7 +647,7 @@ export default function LernvideosPage() {
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Lerninhalt</label>
                 <div className="flex flex-wrap gap-1.5">
                   {LERNINHALT_FILTER.map(li => (
-                    <button key={li.value} onClick={() => setFilterLerninhalt(prev => prev === li.value ? null : li.value)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterLerninhalt === li.value ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{li.label}</button>
+                    <button key={li.value} onClick={() => setFilterLerninhalt(prev => prev === li.value ? null : li.value)} className={`font-sans text-xs px-2.5 py-1.5 border transition-colors ${filterLerninhalt === li.value ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-dark hover:border-dark'}`}>{li.label}</button>
                   ))}
                 </div>
               </div>
@@ -655,11 +656,11 @@ export default function LernvideosPage() {
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Noten</label>
                 <div className="space-y-1.5">
-                  <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border-dark hover:border-dark'}`}>
+                  <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenV ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
                     <input type="checkbox" checked={filterNotenV} onChange={e => setFilterNotenV(e.target.checked)} className="accent-[#BC8C33]" />
                     <span className={`font-sans text-sm ${filterNotenV ? 'text-accent-gold' : 'text-text-secondary'}`}>Violinschlüssel</span>
                   </label>
-                  <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border-dark hover:border-dark'}`}>
+                  <label className={`flex items-center gap-2.5 px-3 py-2 border cursor-pointer transition-colors ${filterNotenG ? 'border-accent-gold bg-accent-gold/5' : 'border-border hover:border-dark'}`}>
                     <input type="checkbox" checked={filterNotenG} onChange={e => setFilterNotenG(e.target.checked)} className="accent-[#BC8C33]" />
                     <span className={`font-sans text-sm ${filterNotenG ? 'text-accent-gold' : 'text-text-secondary'}`}>Griffschrift</span>
                   </label>
@@ -671,7 +672,7 @@ export default function LernvideosPage() {
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Lernstatus</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {([['all', 'Alle'], ['learned', 'Gelernt'], ['unlearned', 'Offen']] as const).map(([val, lbl]) => (
-                    <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border-dark text-dark hover:border-dark'}`}>{lbl}</button>
+                    <button key={val} onClick={() => setFilterLearned(val)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLearned === val ? (val === 'learned' ? 'border-green-600 bg-green-600 text-white' : 'border-dark bg-dark text-white') : 'border-border text-dark hover:border-dark'}`}>{lbl}</button>
                   ))}
                 </div>
               </div>
@@ -680,14 +681,15 @@ export default function LernvideosPage() {
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Level</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {(['free', 'starter', 'pro'] as const).map(lvl => (
-                    <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border-dark text-dark hover:border-dark'}`}>{planLabels[lvl]}</button>
+                    <button key={lvl} onClick={() => setFilterLevel(prev => prev === lvl ? null : lvl)} className={`font-sans text-xs px-2 py-2 border transition-colors ${filterLevel === lvl ? 'border-accent-gold bg-accent-gold text-white' : 'border-border text-dark hover:border-dark'}`}>{planLabels[lvl]}</button>
                   ))}
                 </div>
               </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* ── Results ── */}
@@ -698,18 +700,15 @@ export default function LernvideosPage() {
                 </p>
                 {activeFilterCount > 0 && (
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {filterArt && (
-                      <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
-                        {filterArt === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}
-                      </span>
-                    )}
+                    {/* Aktive Filter — einheitlich goldene Pillen; nur «Gelernt» grün. */}
+                    {filterArt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterArt === 'volkstuemlich' ? 'Volkstümlich' : 'Bekannte Melodie'}</span>}
                     {filterInstrument && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterInstrument}</span>}
                     {filterLerninhalt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{LERNINHALT_FILTER.find(li => li.value === filterLerninhalt)?.label}</span>}
-                    {filterTakt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterTakt}</span>}
-                    {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-dark text-white">{filterGenreTag}</span>}
-                    {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-border text-text-secondary">Violinschlüssel</span>}
-                    {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-border text-text-secondary">Griffschrift</span>}
-                    {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 rounded-md ${filterLearned === 'learned' ? 'bg-green-600 text-white' : 'bg-dark text-white'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
+                    {filterTakt && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterTakt}</span>}
+                    {filterGenreTag && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{filterGenreTag}</span>}
+                    {filterNotenV && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">Violinschlüssel</span>}
+                    {filterNotenG && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">Griffschrift</span>}
+                    {filterLearned !== 'all' && <span className={`font-sans text-xs px-2 py-0.5 rounded-md text-white ${filterLearned === 'learned' ? 'bg-green-600' : 'bg-accent-gold'}`}>{filterLearned === 'learned' ? 'Gelernt' : 'Offen'}</span>}
                     {filterLevel && <span className="font-sans text-xs px-2 py-0.5 rounded-md bg-accent-gold text-white">{planLabels[filterLevel]}</span>}
                   </div>
                 )}
