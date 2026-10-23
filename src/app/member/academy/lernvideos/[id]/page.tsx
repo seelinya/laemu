@@ -886,11 +886,11 @@ export default function LernvideoDetailPage() {
         </span>
       ) : (
         <>
-          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center font-sans text-xs px-2.5 sm:px-3 py-1.5 border border-white/40 lg:border-border rounded-lg text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors">
-            Teilen
+          <ShareMenu title={v.title} text={`${v.title} — ${v.artist} auf LAEMU`} align="right" className="flex items-center justify-center p-2 border border-white/40 lg:border-border rounded-lg text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold transition-colors">
+            <IconShare />
           </ShareMenu>
-          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center font-sans text-xs px-2.5 sm:px-3 py-1.5 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-white/40 lg:border-border text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold'}`}>
-            {favorited ? 'In Merkliste' : 'Zur Merkliste'}
+          <button onClick={() => setFavorited(!favorited)} title={favorited ? 'In Merkliste' : 'Zur Merkliste'} aria-label={favorited ? 'In Merkliste' : 'Zur Merkliste'} className={`flex items-center justify-center p-2 border rounded-lg transition-colors ${favorited ? 'border-accent-gold text-accent-gold bg-accent-gold/10' : 'border-white/40 lg:border-border text-white lg:text-text-secondary hover:text-accent-gold hover:border-accent-gold'}`}>
+            <IconHeart filled={favorited} />
           </button>
         </>
       ),
