@@ -181,18 +181,19 @@ export function MemberChrome({ children }: { children: ReactNode }) {
 
         {/* ── Hauptspalte ── */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Mobile-Header — kompakt, einzeilig: links das LAEMU-Logo, daneben
-              der Standort (Breadcrumb auf Detailseiten), rechts Benachrichtigung
-              und Burger-Menü. Die Begrüssung wird auf Mobile nicht gezeigt. */}
+          {/* Mobile-Header — kompakt, einzeilig: links auf Unterseiten die
+              Zurück-Navigation (Breadcrumb), auf den Startseiten stattdessen das
+              LAEMU-Logo; rechts Benachrichtigung und Burger-Menü. Die Begrüssung
+              wird auf Mobile nicht gezeigt. */}
           <header className="lg:hidden sticky top-0 z-30 bg-nav-dark text-text-on-dark">
             <div className="flex items-center gap-2 h-12 px-4">
-              {/* Links: Logo */}
-              <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white flex-shrink-0">
-                <LaemuLogo className="h-[18px] w-auto" />
-              </Link>
-              {/* Mitte: Standort-Label (Breadcrumb) — ohne Begrüssung */}
+              {/* Links: Zurück-Navigation (Unterseiten) oder Logo (Startseiten) */}
               <div className="min-w-0 flex-1 flex items-center text-white">
-                {header?.breadcrumb ?? null}
+                {header?.breadcrumb ? header.breadcrumb : (
+                  <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white flex-shrink-0">
+                    <LaemuLogo className="h-[18px] w-auto" />
+                  </Link>
+                )}
               </div>
               {/* Rechts: Aktionen */}
               <div className="flex items-center justify-end gap-0.5 flex-shrink-0">
