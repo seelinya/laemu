@@ -181,22 +181,21 @@ export function MemberChrome({ children }: { children: ReactNode }) {
 
         {/* ── Hauptspalte ── */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {/* Mobile-Header — kompakt, einzeilig: links der Standort (Breadcrumb/
-              Titel), in der Mitte das LAEMU-Logo, rechts Benachrichtigung und
-              Burger-Menü. Die beiden Seitenzonen sind gleich breit (flex-1),
-              damit das Logo mittig bleibt. */}
+          {/* Mobile-Header — kompakt, einzeilig: links das LAEMU-Logo, daneben
+              der Standort (Breadcrumb auf Detailseiten), rechts Benachrichtigung
+              und Burger-Menü. Die Begrüssung wird auf Mobile nicht gezeigt. */}
           <header className="lg:hidden sticky top-0 z-30 bg-nav-dark text-text-on-dark">
             <div className="flex items-center gap-2 h-12 px-4">
-              {/* Links: Standort-Label */}
-              <div className="min-w-0 flex-1 flex items-center text-white">
-                {header?.breadcrumb ? header.breadcrumb : header?.title ? <h1 className="font-heading font-bold text-sm text-white truncate">{header.title}</h1> : null}
-              </div>
-              {/* Mitte: Logo */}
+              {/* Links: Logo */}
               <Link href="/member/academy" aria-label="LAEMU — zur Musikschule" className="text-white flex-shrink-0">
-                <LaemuLogo className="h-5 w-auto" />
+                <LaemuLogo className="h-[18px] w-auto" />
               </Link>
+              {/* Mitte: Standort-Label (Breadcrumb) — ohne Begrüssung */}
+              <div className="min-w-0 flex-1 flex items-center text-white">
+                {header?.breadcrumb ?? null}
+              </div>
               {/* Rechts: Aktionen */}
-              <div className="min-w-0 flex-1 flex items-center justify-end gap-0.5">
+              <div className="flex items-center justify-end gap-0.5 flex-shrink-0">
                 {header?.right}
                 <NotificationBell className="text-white hover:text-accent-gold" />
                 <button onClick={() => setDrawerOpen(true)} aria-label="Menü öffnen" className="p-2 -mr-2 text-white hover:text-accent-gold transition-colors">
