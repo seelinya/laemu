@@ -541,20 +541,21 @@ export default function LernvideosPage() {
                 className="w-full border border-border-dark px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
               />
 
-              {/* Advanced filter toggle — als klar klickbare, umrandete Box */}
-              <button
-                onClick={() => setShowAdvancedDesktop(p => !p)}
-                aria-expanded={showAdvancedDesktop}
-                className="w-full flex items-center justify-between gap-2 border border-border-dark rounded-lg px-3.5 py-2.5 font-sans text-xs font-semibold uppercase tracking-widest text-dark hover:border-dark hover:text-accent-gold transition-colors"
-              >
-                <span>Erweiterte Filter</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 transition-transform ${showAdvancedDesktop ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
+              {/* Erweiterte Filter — Umschalter & Panel als eine verbundene Box */}
+              <div className="border border-border-dark rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setShowAdvancedDesktop(p => !p)}
+                  aria-expanded={showAdvancedDesktop}
+                  className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 font-sans text-xs font-semibold uppercase tracking-widest text-dark hover:text-accent-gold transition-colors"
+                >
+                  <span>Erweiterte Filter</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 transition-transform ${showAdvancedDesktop ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
 
-              <AnimatePresence initial={false}>
-                {showAdvancedDesktop && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="space-y-6">
+                <AnimatePresence initial={false}>
+                  {showAdvancedDesktop && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <div className="border-t border-border-dark p-4 space-y-6">
               {/* Art des Stückes — multi-select like upload form */}
               <div>
                 <label className="font-sans text-xs uppercase tracking-widest font-semibold text-dark block mb-2">Art des Stückes</label>
@@ -684,10 +685,11 @@ export default function LernvideosPage() {
                   ))}
                 </div>
               </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* ── Results ── */}

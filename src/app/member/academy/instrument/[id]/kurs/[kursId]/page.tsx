@@ -138,7 +138,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                   </span>
                 )}
               </div>
-              <h1 className="font-heading text-3xl font-bold mb-2">{course.title}</h1>
+              <h1 className="font-heading text-2xl sm:text-3xl font-bold mb-2">{course.title}</h1>
               <div className="flex items-center gap-3 text-sm font-sans text-text-secondary">
                 <div className="relative w-8 h-8 overflow-hidden rounded-full flex-shrink-0">
                   {/* Avatar placeholder */}
@@ -226,11 +226,11 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                           </svg>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 mt-0.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-0.5">
                         <span className="font-sans text-xs text-text-secondary">{mod.lessons.length} Lektionen · {totalMinutes} Minuten</span>
                         {mod.status !== 'not-started' && mod.status !== 'locked' && (
                           <>
-                            <span className="text-text-secondary">·</span>
+                            <span className="hidden sm:inline text-text-secondary">·</span>
                             <div className="flex items-center gap-1.5">
                               <div className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
                               <span className={`font-sans text-xs ${sc.color}`}>
