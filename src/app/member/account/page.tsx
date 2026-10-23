@@ -108,24 +108,24 @@ const billingReasonLabel: Record<BillingState['reason'], string> = {
 function BankTransferInvoiceCard({ billing }: { billing: BillingState }) {
   const open = billing.invoiceStatus === 'open'
   return (
-    <div className="border border-border">
-      <div className="flex items-center justify-between gap-3 p-4 border-b border-border">
+    <div className="border border-border rounded-xl overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-4 border-b border-border">
         <div className="min-w-0">
           <p className="font-sans text-sm font-medium">
             {billingReasonLabel[billing.reason]} · Vorauskasse
           </p>
-          <p className="font-sans text-xs text-text-secondary">
+          <p className="font-sans text-xs text-text-secondary break-words">
             {formatDate(billing.createdAt)} · Referenz <span className="tabular-nums">{billing.invoiceNumber}</span>
           </p>
         </div>
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
           {open ? (
             <span className="font-sans text-[10px] bg-accent-gold/10 text-accent-gold border border-accent-gold/30 px-2 py-0.5 rounded-md">Offen</span>
           ) : (
             <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-md">Bezahlt</span>
           )}
           <span className="font-sans text-sm font-medium whitespace-nowrap">{formatAmount(billing.amount, billing.currency)}</span>
-          <a href={billing.invoicePdfUrl} className="font-sans text-xs text-accent-gold hover:underline">PDF</a>
+          <a href={billing.invoicePdfUrl} className="font-sans text-xs text-accent-gold hover:underline ml-auto sm:ml-0">PDF</a>
         </div>
       </div>
 
@@ -136,13 +136,13 @@ function BankTransferInvoiceCard({ billing }: { billing: BillingState }) {
             folgendes Konto. Dein Zugang wird freigeschaltet, sobald die Zahlung bei uns eingegangen und deine
             E-Mail-Adresse bestätigt ist.
           </p>
-          <dl className="font-sans text-xs space-y-1.5 bg-background border border-border p-3">
-            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Empfänger</dt><dd className="text-dark font-medium text-right">{LAEMU_BANK.company}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Adresse</dt><dd className="text-dark text-right">{LAEMU_BANK.addressLines.join(', ')}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-text-secondary">IBAN</dt><dd className="text-dark font-medium text-right tabular-nums">{LAEMU_BANK.iban}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Betrag</dt><dd className="text-dark font-medium text-right">{formatAmount(billing.amount, billing.currency)} {billing.periodLabel}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Referenz</dt><dd className="text-accent-gold font-semibold text-right break-all">{billing.invoiceNumber}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-text-secondary">Zahlungsfrist</dt><dd className="text-dark text-right">bis {formatDate(billing.dueDate)}</dd></div>
+          <dl className="font-sans text-xs space-y-2.5 sm:space-y-1.5 bg-background border border-border rounded-lg p-3">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-3"><dt className="text-text-secondary">Empfänger</dt><dd className="text-dark font-medium sm:text-right">{LAEMU_BANK.company}</dd></div>
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-3"><dt className="text-text-secondary">Adresse</dt><dd className="text-dark sm:text-right">{LAEMU_BANK.addressLines.join(', ')}</dd></div>
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-3"><dt className="text-text-secondary">IBAN</dt><dd className="text-dark font-medium sm:text-right tabular-nums break-all">{LAEMU_BANK.iban}</dd></div>
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-3"><dt className="text-text-secondary">Betrag</dt><dd className="text-dark font-medium sm:text-right">{formatAmount(billing.amount, billing.currency)} {billing.periodLabel}</dd></div>
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-3"><dt className="text-text-secondary">Referenz</dt><dd className="text-accent-gold font-semibold sm:text-right break-all">{billing.invoiceNumber}</dd></div>
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-3"><dt className="text-text-secondary">Zahlungsfrist</dt><dd className="text-dark sm:text-right">bis {formatDate(billing.dueDate)}</dd></div>
           </dl>
 
           {/* Demo: manuelle Bestätigung des Bankeingangs durch LAEMU. */}
@@ -324,9 +324,9 @@ function AboTab() {
           </div>
 
           {cancelled && (
-            <div className="bg-red-50 border border-red-200 px-4 py-3 mb-4 flex items-center justify-between">
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <p className="font-sans text-sm text-red-700">Deine Formation wurde gekündigt. Alle Mitglieder haben noch Zugang bis zum {expiryDateLabel}.</p>
-              <button onClick={undoCancel} className="font-sans text-xs text-red-700 underline hover:no-underline ml-4 whitespace-nowrap">Kündigung rückgängig machen</button>
+              <button onClick={undoCancel} className="font-sans text-xs text-red-700 underline hover:no-underline self-start sm:ml-4 whitespace-nowrap">Kündigung rückgängig machen</button>
             </div>
           )}
 
@@ -417,9 +417,9 @@ function AboTab() {
         )}
 
         {!isFree && cancelled && (
-          <div className="bg-red-50 border border-red-200 px-4 py-3 mb-4 flex items-center justify-between">
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <p className="font-sans text-sm text-red-700">Dein Abo wurde gekündigt. Du hast noch Zugang bis zum {cancelDateLabel}.</p>
-            <button onClick={undoCancel} className="font-sans text-xs text-red-700 underline hover:no-underline ml-4 whitespace-nowrap">Kündigung rückgängig machen</button>
+            <button onClick={undoCancel} className="font-sans text-xs text-red-700 underline hover:no-underline self-start sm:ml-4 whitespace-nowrap">Kündigung rückgängig machen</button>
           </div>
         )}
 
@@ -1277,17 +1277,17 @@ function AccountInner() {
                     Mit deinem Free-Account fallen keine Rechnungen an.
                   </p>
                 ) : (
-                <div className="divide-y divide-border border border-border">
+                <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
                   {invoices.map((inv, i) => (
-                    <div key={i} className="flex items-center justify-between p-4">
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-4">
                       <div>
                         <p className="font-sans text-sm font-medium">{inv.desc}</p>
                         <p className="font-sans text-xs text-text-secondary">{inv.date}</p>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                         <span className="font-sans text-[10px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-md">{inv.status}</span>
                         <span className="font-sans text-sm font-medium">{inv.amount}</span>
-                        <button className="font-sans text-xs text-accent-gold hover:underline">PDF</button>
+                        <button className="font-sans text-xs text-accent-gold hover:underline ml-auto sm:ml-0">PDF</button>
                       </div>
                     </div>
                   ))}
