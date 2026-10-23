@@ -359,7 +359,7 @@ export default function LernvideosPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Tabs — gerahmt, einzeilig, horizontal scrollbar auf Mobile */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
           <button onClick={() => setTab('datenbank')} className={`lae-tab flex-shrink-0 ${tab === 'datenbank' ? 'lae-tab-active' : 'lae-tab-idle'}`}>
             Lernvideos durchsuchen
           </button>

@@ -461,7 +461,7 @@ export default function MemberAcademyPage() {
                     Free/Lernvideo: «Einblick in die Lehrgänge» (alle Instrumente). */}
                 <section>
                   {/* Tabs — einzeilig, horizontal scrollbar (einheitlich mit Stücke/Community). */}
-                  <div className="flex gap-2 mb-5 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <div className="flex gap-2 mb-5 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
                     {kursTabs.map((f) => {
                       const disabled = f.id === 'aktive' && !hasActive
                       return (

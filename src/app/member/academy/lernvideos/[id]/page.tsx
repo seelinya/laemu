@@ -348,7 +348,7 @@ function MixerFaders({ musicians }: { musicians: MixerMusician[] }) {
           Zurücksetzen
         </button>
       </div>
-      <div className="px-6 py-6 overflow-x-auto">
+      <div className="px-6 py-6 overflow-x-auto no-scrollbar">
         <div className="flex items-end gap-8 min-w-max">
           {state.map(m => (
             <div key={m.id} className={`flex flex-col items-center gap-2 transition-opacity duration-200 ${m.muted ? 'opacity-50' : ''}`}>
@@ -908,7 +908,7 @@ export default function LernvideoDetailPage() {
       {/* MAIN TABS — einzeilig, horizontal scrollbar auf Mobile */}
       <div className="border-b border-border bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
-          <div className="flex gap-1 overflow-x-auto">
+          <div className="flex gap-1 overflow-x-auto no-scrollbar">
             {visibleTabs.map(tab => (
               <button
                 key={tab.id}

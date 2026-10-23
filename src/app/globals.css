@@ -169,6 +169,15 @@ h1, h2, h3, h4, h5, h6 {
   .text-balance {
     text-wrap: balance;
   }
+  /* Horizontal scrollbare Menüs/Leisten: Scrollen bleibt möglich, aber der
+     sichtbare Scrollbalken wird ausgeblendet (v. a. auf Mobile). */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
   /* ─── Typografische Abstufungen (Design System Kap. 2) ─────────────────
      Radona Norm Bold für Headings, Regular für Fliesstext. */
   .heading-xl {

@@ -1222,7 +1222,7 @@ function AccountInner() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Nav */}
           <nav className="lg:col-span-1">
-            <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible">
+            <div className="flex lg:flex-col gap-1 overflow-x-auto no-scrollbar lg:overflow-visible">
               {visibleSections.map((s) => (
                 <button
                   key={s.id}
