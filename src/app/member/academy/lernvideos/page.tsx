@@ -375,22 +375,26 @@ export default function LernvideosPage() {
           <>
             {/* ── Mobile: Search + collapsible advanced filters ── */}
             <div className="lg:hidden mb-6 space-y-3">
+              {/* Suchfeld — auf Mobile immer offen (eigene, volle Zeile) */}
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                type="text"
+                placeholder="Titel, Komponist, Formation …"
+                className="w-full border border-border-dark px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
+              />
+              {/* Erweiterte Filter — Umschalter, standardmässig zugeklappt (enthält u. a. den Instrument-Filter) */}
               <div className="flex items-center gap-2">
-                <input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  type="text"
-                  placeholder="Titel, Komponist, Formation …"
-                  className="flex-1 border border-border-dark px-3 py-2.5 font-sans text-sm focus:outline-none focus:border-dark"
-                />
                 <button
                   onClick={() => setShowMobileFilters(p => !p)}
-                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 font-sans text-xs border transition-colors ${showMobileFilters ? 'border-dark bg-dark text-white' : 'border-border-dark text-dark hover:border-dark'}`}
+                  aria-expanded={showMobileFilters}
+                  className="flex-1 flex items-center justify-between gap-2 border border-border-dark rounded-lg px-3.5 py-2.5 font-sans text-xs font-semibold uppercase tracking-widest text-dark hover:text-accent-gold transition-colors"
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-                  <span className="hidden sm:inline">Erweiterte Suche</span>
-                  <span className="sm:hidden">Filter</span>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
+                  <span className="flex items-center gap-1.5">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+                    Erweiterte Filter
+                  </span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`flex-shrink-0 transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 {activeFilterCount > 0 && (
                   <button onClick={resetAll} className="font-sans text-xs text-accent-gold hover:underline flex-shrink-0">
