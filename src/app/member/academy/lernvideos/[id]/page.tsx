@@ -614,7 +614,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
   }
 
   return (
-    <div className="bg-dark rounded-xl overflow-hidden">
+    <div className="bg-dark">
       <div className="relative aspect-video overflow-hidden">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -698,9 +698,7 @@ function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; l
       <AnimatePresence>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="px-4 sm:px-5 pb-4">
-              <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
-            </div>
+            <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
           </motion.div>
         )}
       </AnimatePresence>
