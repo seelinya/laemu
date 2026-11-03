@@ -75,6 +75,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Grundschriftgrösse leicht erhöht (16px → 17px): da das gesamte UI in rem
+     aufgebaut ist, wächst damit nicht nur die Schrift ~1px, sondern auch alle
+     Abstände, Innenabstände und Rundungen proportional mit. */
+  font-size: 17px;
   /* Verhindert horizontales Verrutschen/Wackeln auf Mobilgeräten.
      `clip` (statt `hidden`) bricht position: sticky NICHT. */
   overflow-x: clip;
