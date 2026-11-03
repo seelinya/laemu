@@ -949,7 +949,7 @@ export default function LernvideoDetailPage() {
 
                   {/* Einführungsvideo (nach dem Beschrieb) */}
                   {'introVideo' in v && v.introVideo && (
-                    <div className="mb-5 border border-accent-gold/30 rounded-xl overflow-hidden">
+                    <div className="mb-5 rounded-xl overflow-hidden">
                       <div className="px-5 py-3 border-b border-accent-gold/20 bg-accent-gold/5 flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <div className="w-5 h-5 bg-accent-gold flex items-center justify-center flex-shrink-0">
