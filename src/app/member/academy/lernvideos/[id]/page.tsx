@@ -905,7 +905,7 @@ export default function LernvideoDetailPage() {
     <>
       {/* MAIN TABS — einzeilig, horizontal scrollbar auf Mobile */}
       <div className="border-b border-border bg-surface">
-        <div className="px-4 sm:px-6 py-2">
+        <div className="px-4 sm:px-6 lg:px-12 2xl:px-20 py-2">
           <div className="flex gap-1 overflow-x-auto no-scrollbar">
             {visibleTabs.map(tab => (
               <button
@@ -920,7 +920,7 @@ export default function LernvideoDetailPage() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 py-8">
+      <div className="px-4 sm:px-6 lg:px-12 2xl:px-20 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* MAIN CONTENT */}
