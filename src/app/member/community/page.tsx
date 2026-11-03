@@ -738,7 +738,7 @@ export default function MemberCommunityPage() {
 
   return (
     <>
-      <div className="px-4 sm:px-6 py-8">
+      <div className="px-4 sm:px-6 lg:px-12 2xl:px-20 py-8">
         {/* Horizontale Unternavigation — oben und einzeilig, wie auf der
             Stücke-Seite (einheitliches Tab-System app-weit). */}
         <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">

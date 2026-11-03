@@ -406,7 +406,7 @@ export default function ModulPage({
   )
 
   return (
-    <div className="px-4 sm:px-6 py-8">
+    <div className="px-4 sm:px-6 lg:px-12 2xl:px-20 py-8">
         <div className="flex gap-8 items-start">
 
           {/* ── LEFT SIDEBAR ── */}
