@@ -1177,7 +1177,7 @@ export default function LernvideoDetailPage() {
                     {v.composers.map((c, i) => (
                       <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
                         {c.img && (
-                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-full">
                             <Image src={c.img} alt={c.name} fill className="object-cover grayscale" unoptimized />
                           </div>
                         )}
@@ -1202,7 +1202,7 @@ export default function LernvideoDetailPage() {
                         {f.active ? (
                           <div className="flex items-start gap-3">
                             {f.img && (
-                              <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                              <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-full">
                                 <Image src={f.img} alt={f.name} fill className="object-cover" unoptimized />
                               </div>
                             )}
@@ -1235,7 +1235,7 @@ export default function LernvideoDetailPage() {
                   <div className="space-y-5">
                     {v.teachers.slice(0, 2).map((t, i) => (
                       <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
-                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-full">
                           <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
                         </div>
                         <div>
