@@ -1218,7 +1218,7 @@ function AccountInner() {
   )
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <div className="px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Nav */}
           <nav className="lg:col-span-1">

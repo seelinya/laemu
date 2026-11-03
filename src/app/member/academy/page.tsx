@@ -403,7 +403,7 @@ export default function MemberAcademyPage() {
         />
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="px-4 sm:px-6 py-8">
 
           {/* MAIN CONTENT */}
           <div className="space-y-10">

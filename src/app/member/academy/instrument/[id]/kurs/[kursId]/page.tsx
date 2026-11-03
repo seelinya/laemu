@@ -120,7 +120,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   const instrumentLabel = course.instrumentLabel
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="px-4 sm:px-6 py-10 space-y-8">
 
         {/* ── Course header ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
@@ -204,8 +204,8 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
                     disabled={isLocked}
                     className={`w-full flex items-center gap-4 px-5 py-4 text-left ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                   >
-                    {/* Modul-Thumbnail: kleines Foto mit Modulnummer / Häkchen */}
-                    <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0">
+                    {/* Modul-Thumbnail: kleines, rundes Foto mit Modulnummer / Häkchen */}
+                    <div className="relative w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
                       <Image src={moduleThumb(course.instrumentId, i)} alt="" fill className="object-cover" sizes="44px" unoptimized />
                       <span className={`absolute inset-0 ${mod.status === 'completed' ? 'bg-accent-gold/70' : 'bg-dark/45'}`} />
                       <span className="relative z-10 flex items-center justify-center w-full h-full font-heading font-bold text-sm text-white">

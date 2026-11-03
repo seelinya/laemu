@@ -614,7 +614,7 @@ function ExtendedVideoPlayer({ img, label, autoLoop = false }: { img: string; la
   }
 
   return (
-    <div className="bg-dark rounded-xl overflow-hidden">
+    <div className="bg-dark">
       <div className="relative aspect-video overflow-hidden">
         <Image src={img} alt={label} fill className="object-cover opacity-50" unoptimized />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -698,9 +698,7 @@ function StimmeVideoItem({ lv, img, defaultOpen = false }: { lv: { id: string; l
       <AnimatePresence>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="px-4 sm:px-5 pb-4">
-              <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
-            </div>
+            <VideoPlayer img={img} label={lv.label} variant="extended" autoLoop />
           </motion.div>
         )}
       </AnimatePresence>
@@ -907,7 +905,7 @@ export default function LernvideoDetailPage() {
     <>
       {/* MAIN TABS — einzeilig, horizontal scrollbar auf Mobile */}
       <div className="border-b border-border bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
+        <div className="px-4 sm:px-6 py-2">
           <div className="flex gap-1 overflow-x-auto no-scrollbar">
             {visibleTabs.map(tab => (
               <button
@@ -922,7 +920,7 @@ export default function LernvideoDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* MAIN CONTENT */}
@@ -951,7 +949,7 @@ export default function LernvideoDetailPage() {
 
                   {/* Einführungsvideo (nach dem Beschrieb) */}
                   {'introVideo' in v && v.introVideo && (
-                    <div className="mb-5 border border-accent-gold/30 rounded-xl overflow-hidden">
+                    <div className="mb-5 rounded-xl overflow-hidden">
                       <div className="px-5 py-3 border-b border-accent-gold/20 bg-accent-gold/5 flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <div className="w-5 h-5 bg-accent-gold flex items-center justify-center flex-shrink-0">
@@ -1179,7 +1177,7 @@ export default function LernvideoDetailPage() {
                     {v.composers.map((c, i) => (
                       <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
                         {c.img && (
-                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                          <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-full">
                             <Image src={c.img} alt={c.name} fill className="object-cover grayscale" unoptimized />
                           </div>
                         )}
@@ -1204,7 +1202,7 @@ export default function LernvideoDetailPage() {
                         {f.active ? (
                           <div className="flex items-start gap-3">
                             {f.img && (
-                              <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                              <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-full">
                                 <Image src={f.img} alt={f.name} fill className="object-cover" unoptimized />
                               </div>
                             )}
@@ -1237,7 +1235,7 @@ export default function LernvideoDetailPage() {
                   <div className="space-y-5">
                     {v.teachers.slice(0, 2).map((t, i) => (
                       <div key={i} className={`flex items-start gap-3 ${i > 0 ? 'border-t border-border pt-5' : ''}`}>
-                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-lg">
+                        <div className="relative w-12 h-12 overflow-hidden flex-shrink-0 rounded-full">
                           <Image src={t.img} alt={t.name} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-500" unoptimized />
                         </div>
                         <div>
