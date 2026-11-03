@@ -120,7 +120,7 @@ export default function KursPage({ params }: { params: { id: string; kursId: str
   const instrumentLabel = course.instrumentLabel
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div className="px-4 sm:px-6 py-10 space-y-8">
 
         {/* ── Course header ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
