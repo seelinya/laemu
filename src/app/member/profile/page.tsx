@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 // ─── Demo profile data (Hansruedi Wenger) ─────────────────────────────────────
@@ -79,11 +80,14 @@ function SocialLinks({ social }: { social: typeof profile.social }) {
 }
 
 export default function MemberProfilePage() {
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [scheduledDeletion, setScheduledDeletion] = useState(false)
   useMemberHeader(
     { breadcrumb: <MemberBreadcrumb items={[{ label: 'Musikschule', href: '/member/academy' }, { label: 'Profil' }]} /> },
     'profile',
   )
   return (
+    <>
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
         {/* Profile header — ohne Titelbild */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-surface border border-border rounded-xl shadow-soft overflow-hidden mb-6">
@@ -136,6 +140,76 @@ export default function MemberProfilePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* ── Profil löschen (Gefahrenzone) ── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="bg-surface border border-border rounded-xl shadow-soft p-6">
+          <h2 className="font-heading font-bold text-lg mb-1">Profil löschen</h2>
+          {scheduledDeletion ? (
+            <div className="mt-3 flex items-start gap-2.5 bg-accent-gold/5 border border-accent-gold/30 rounded-lg px-4 py-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><polyline points="20 6 9 17 4 12" /></svg>
+              <p className="font-sans text-sm text-text-secondary leading-relaxed">
+                Dein Profil wird auf <strong className="text-dark font-medium">Ende deines Abos</strong> gelöscht. Du kannst dies bis dahin jederzeit wieder rückgängig machen, indem du dich beim LAEMU-Team meldest.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="font-sans text-sm text-text-secondary leading-relaxed mb-4">
+                Beim Löschen wird dein Profil mit allen Angaben auf das Ende deines Abos entfernt. Bis dahin bleibt dein Zugang bestehen.
+              </p>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="font-sans text-sm px-5 py-2.5 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-400 transition-colors"
+              >
+                Profil löschen
+              </button>
+            </>
+          )}
+          <p className="font-sans text-xs text-text-secondary leading-relaxed mt-4 pt-4 border-t border-border">
+            Möchtest du dein Profil <strong className="text-dark font-medium">per sofort</strong> löschen, melde dich bitte bei{' '}
+            <a href="mailto:musikschule@laemu.ch" className="text-accent-gold hover:underline">musikschule@laemu.ch</a>{' '}
+            mit deiner E-Mail-Adresse sowie deinem Vor- und Nachnamen.
+          </p>
+        </motion.div>
       </div>
+
+      {/* Bestätigungs-Dialog */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            onClick={() => setShowDeleteModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-surface rounded-xl shadow-xl max-w-md w-full p-6"
+            >
+              <div className="w-11 h-11 rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-600 mb-4">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+              </div>
+              <h3 className="font-heading font-bold text-xl mb-2">Profil wirklich löschen?</h3>
+              <p className="font-sans text-sm text-text-secondary leading-relaxed mb-5">
+                Bist du sicher, dass du dein Profil auf <strong className="text-dark font-medium">Ende deines Abos</strong> löschen willst? Dein Zugang bleibt bis dahin bestehen.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="font-sans text-sm px-5 py-2.5 border border-border rounded-lg text-text-secondary hover:border-dark transition-colors"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={() => { setScheduledDeletion(true); setShowDeleteModal(false) }}
+                  className="font-sans text-sm px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Ja, auf Ende des Abos löschen
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

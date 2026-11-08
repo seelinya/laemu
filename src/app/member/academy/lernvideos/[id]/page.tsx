@@ -796,6 +796,12 @@ export default function LernvideoDetailPage() {
   // Direktsprung zu einem Kommentar (z.B. aus einer Benachrichtigung über ein
   // erhaltenes Feedback): #comment-<id> in der URL → Kommentar scrollen & hervorheben.
   const [highlightedComment, setHighlightedComment] = useState<string | null>(null)
+  // Kommentar-Moderation: eigene Kommentare (bzw. als Admin alle) bearbeiten/löschen.
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  // Hinweis nach einer Antwort: die/der Verfasser:in wird per E-Mail informiert.
+  const [replyNotice, setReplyNotice] = useState<string | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -1276,12 +1282,45 @@ export default function LernvideoDetailPage() {
             setComment('')
           }
 
+          const myUser = 'ich'
+          // Darf der/die aktuelle Nutzer:in diesen Beitrag moderieren? Eigene
+          // Beiträge immer; Admin-/Team-Rolle alle.
+          const canModerate = (author: string) => author === myUser || userProfile.isAdmin
+
           const handleReply = (commentId: string) => {
             if (!replyText.trim()) return
+            const parent = videoComments.find(c => c.id === commentId)
             setVideoComments(prev => prev.map(c => c.id === commentId
               ? { ...c, replies: [...c.replies, { id: `r-${Date.now()}`, ...MY, text: replyText.trim(), time: 'Gerade eben' }] }
               : c))
             setReplyText(''); setReplyTo(null)
+            // Verfasser:in des Original-Kommentars wird per E-Mail benachrichtigt
+            // (sofern es nicht der eigene Kommentar ist).
+            if (parent && parent.user !== myUser) {
+              setReplyNotice(`${parent.name} wird per E-Mail über deine Antwort benachrichtigt.`)
+              setTimeout(() => setReplyNotice(null), 5000)
+            }
+          }
+
+          const startEdit = (id: string, text: string) => { setEditingId(id); setEditDraft(text); setConfirmDeleteId(null) }
+          const cancelEdit = () => { setEditingId(null); setEditDraft('') }
+          const saveEdit = () => {
+            const text = editDraft.trim()
+            if (!text || !editingId) return
+            setVideoComments(prev => prev.map(c => {
+              if (c.id === editingId) return { ...c, text, time: `${c.time} · bearbeitet` }
+              if (c.replies.some(r => r.id === editingId)) {
+                return { ...c, replies: c.replies.map(r => r.id === editingId ? { ...r, text, time: `${r.time} · bearbeitet` } : r) }
+              }
+              return c
+            }))
+            cancelEdit()
+          }
+          const deleteItem = (id: string) => {
+            setVideoComments(prev => prev
+              .filter(c => c.id !== id)
+              .map(c => ({ ...c, replies: c.replies.filter(r => r.id !== id) })))
+            setConfirmDeleteId(null)
           }
 
           const Avatar = ({ user, name, avatar, small = false }: { user: string; name: string; avatar: string; small?: boolean }) => (
@@ -1326,8 +1365,18 @@ export default function LernvideoDetailPage() {
                             )}
                             <span className="font-sans text-[10px] text-text-secondary">{c.time}</span>
                           </div>
-                          <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
-                          <div className="flex items-center gap-4">
+                          {editingId === c.id ? (
+                            <div className="mb-3">
+                              <textarea value={editDraft} onChange={e => setEditDraft(e.target.value)} rows={2} className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none" />
+                              <div className="flex gap-2 mt-2">
+                                <button onClick={saveEdit} disabled={!editDraft.trim()} className="bg-dark text-white px-3 py-1.5 font-sans text-xs hover:bg-accent-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Speichern</button>
+                                <button onClick={cancelEdit} className="border border-border text-text-secondary px-3 py-1.5 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="font-sans text-sm text-text-secondary leading-relaxed mb-3">{c.text}</p>
+                          )}
+                          <div className="flex items-center gap-4 flex-wrap">
                             <button
                               onClick={() => setCommentLikes(prev => ({ ...prev, [c.id]: !prev[c.id] }))}
                               className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${commentLikes[c.id] ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
@@ -1341,6 +1390,21 @@ export default function LernvideoDetailPage() {
                             >
                               Beantworten
                             </button>
+                            {canModerate(c.user) && editingId !== c.id && (
+                              confirmDeleteId === c.id ? (
+                                <span className="flex items-center gap-2 font-sans text-xs text-text-secondary">
+                                  Löschen?
+                                  <button onClick={() => deleteItem(c.id)} className="text-red-600 font-medium hover:underline">Ja</button>
+                                  <button onClick={() => setConfirmDeleteId(null)} className="hover:text-dark">Nein</button>
+                                </span>
+                              ) : (
+                                <>
+                                  <button onClick={() => startEdit(c.id, c.text)} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">Bearbeiten</button>
+                                  <button onClick={() => setConfirmDeleteId(c.id)} className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors">Löschen</button>
+                                  {userProfile.isAdmin && c.user !== 'ich' && <span className="font-sans text-[10px] text-accent-gold uppercase tracking-wide">Admin</span>}
+                                </>
+                              )
+                            )}
                           </div>
                         </div>
 
@@ -1356,7 +1420,34 @@ export default function LernvideoDetailPage() {
                                     {r.isTeam && <span className="font-sans text-[10px] bg-accent-gold text-white px-1.5 py-0.5 rounded-md font-medium">{r.role ?? 'LAEMU Team'}</span>}
                                     <span className="font-sans text-[10px] text-text-secondary">{r.time}</span>
                                   </div>
-                                  <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
+                                  {editingId === r.id ? (
+                                    <div>
+                                      <textarea value={editDraft} onChange={e => setEditDraft(e.target.value)} rows={2} className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark bg-surface resize-none" />
+                                      <div className="flex gap-2 mt-2">
+                                        <button onClick={saveEdit} disabled={!editDraft.trim()} className="bg-dark text-white px-3 py-1.5 font-sans text-xs hover:bg-accent-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Speichern</button>
+                                        <button onClick={cancelEdit} className="border border-border text-text-secondary px-3 py-1.5 font-sans text-xs hover:border-dark transition-colors">Abbrechen</button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="font-sans text-sm text-text-secondary leading-relaxed">{r.text}</p>
+                                  )}
+                                  {canModerate(r.user) && editingId !== r.id && (
+                                    <div className="flex items-center gap-3 mt-1.5">
+                                      {confirmDeleteId === r.id ? (
+                                        <span className="flex items-center gap-2 font-sans text-[11px] text-text-secondary">
+                                          Löschen?
+                                          <button onClick={() => deleteItem(r.id)} className="text-red-600 font-medium hover:underline">Ja</button>
+                                          <button onClick={() => setConfirmDeleteId(null)} className="hover:text-dark">Nein</button>
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <button onClick={() => startEdit(r.id, r.text)} className="font-sans text-[11px] text-text-secondary hover:text-dark transition-colors">Bearbeiten</button>
+                                          <button onClick={() => setConfirmDeleteId(r.id)} className="font-sans text-[11px] text-text-secondary hover:text-red-600 transition-colors">Löschen</button>
+                                          {userProfile.isAdmin && r.user !== 'ich' && <span className="font-sans text-[10px] text-accent-gold uppercase tracking-wide">Admin</span>}
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             ))}
@@ -1400,6 +1491,14 @@ export default function LernvideoDetailPage() {
                   {showAllComments ? 'Weniger anzeigen' : `Alle ${videoComments.length} Kommentare anzeigen`}
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${showAllComments ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
+              )}
+
+              {/* Hinweis: Verfasser:in wird per E-Mail über die Antwort informiert */}
+              {replyNotice && (
+                <div className="mb-4 flex items-start gap-2.5 bg-accent-gold/5 border border-accent-gold/30 px-4 py-2.5 rounded-lg">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">{replyNotice}</p>
+                </div>
               )}
 
               {/* Input */}

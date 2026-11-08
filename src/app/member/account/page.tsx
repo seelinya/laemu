@@ -15,6 +15,7 @@ import {
 } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
 import { useUserProfile, setStoredProfile } from '@/lib/userProfile'
+import { useNotificationSettings } from '@/lib/notificationSettings'
 import {
   readStoredFormation,
   setStoredFormation,
@@ -39,6 +40,7 @@ const SECTIONS = [
   { id: 'abo', label: 'Mein Abo' },
   { id: 'rechnungen', label: 'Rechnungen & Zahlungen' },
   { id: 'zahlungsmittel', label: 'Zahlungsmittel' },
+  { id: 'benachrichtigungen', label: 'Benachrichtigungen' },
   { id: 'sicherheit', label: 'Sicherheit' },
   { id: 'geraete', label: 'Geräte' },
 ] as const
@@ -676,6 +678,60 @@ function ZahlungsmittelTab() {
 // ---------------------------------------------------------------------------
 // Sicherheit Tab — Passwort ändern
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Benachrichtigungen Tab — E-Mail-Einstellungen
+// ---------------------------------------------------------------------------
+function ToggleRow({ title, desc, checked, onChange }: { title: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-4 border-b border-border last:border-0">
+      <div className="min-w-0">
+        <p className="font-sans text-sm font-medium">{title}</p>
+        <p className="font-sans text-xs text-text-secondary mt-0.5 leading-snug">{desc}</p>
+      </div>
+      <button
+        role="switch"
+        aria-checked={checked}
+        aria-label={title}
+        onClick={() => onChange(!checked)}
+        className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors ${checked ? 'bg-accent-gold' : 'bg-border-dark/40'}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
+      </button>
+    </div>
+  )
+}
+
+function BenachrichtigungenTab() {
+  const [settings, update] = useNotificationSettings()
+  return (
+    <SectionCard title="Benachrichtigungen" desc="Lege fest, worüber dich LAEMU per E-Mail informiert.">
+      <div className="-mt-1">
+        <ToggleRow
+          title="Antwort auf meinen Kommentar"
+          desc="Erhalte eine E-Mail, sobald jemand direkt auf einen deiner Kommentare antwortet."
+          checked={settings.emailOnReply}
+          onChange={(v) => update({ emailOnReply: v })}
+        />
+        <ToggleRow
+          title="Neuigkeiten vom LAEMU-Team"
+          desc="News, neue Lernvideos und Infos rund um LAEMU."
+          checked={settings.emailOnNews}
+          onChange={(v) => update({ emailOnNews: v })}
+        />
+        <ToggleRow
+          title="Mein Stückwunsch wurde veröffentlicht"
+          desc="Erhalte eine E-Mail, sobald ein von dir gewünschtes Stück verfügbar ist."
+          checked={settings.emailOnWish}
+          onChange={(v) => update({ emailOnWish: v })}
+        />
+      </div>
+      <p className="font-sans text-xs text-text-secondary mt-5 pt-4 border-t border-border leading-relaxed">
+        Deine Änderungen werden automatisch gespeichert.
+      </p>
+    </SectionCard>
+  )
+}
+
 function SicherheitTab() {
   // ── Passwort ändern ──
   const [current, setCurrent] = useState('')
@@ -1297,6 +1353,8 @@ function AccountInner() {
             )}
 
             {activeTab === 'zahlungsmittel' && <ZahlungsmittelTab />}
+
+            {activeTab === 'benachrichtigungen' && <BenachrichtigungenTab />}
 
             {activeTab === 'sicherheit' && <SicherheitTab />}
 
