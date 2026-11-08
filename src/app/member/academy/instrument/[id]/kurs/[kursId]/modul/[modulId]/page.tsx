@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getCourse, freeTrialLessonKeys, type LessonType } from '@/lib/courses'
 import { isCourseUnlocked } from '@/lib/academy'
 import { useUserAbo } from '@/lib/userPlan'
+import { useUserProfile } from '@/lib/userProfile'
 import { useMemberHeader, MemberBreadcrumb } from '@/components/MemberChrome'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -278,6 +279,34 @@ export default function ModulPage({
   const [comments, setComments] = useState<CommentData[]>(mockComments)
   const [replyTo, setReplyTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
+  // Moderation: eigene Kommentare (bzw. als Admin alle) bearbeiten/löschen.
+  const userProfile = useUserProfile()
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDraft, setEditDraft] = useState('')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [replyNotice, setReplyNotice] = useState<string | null>(null)
+  const canModerateComment = (c: CommentData) => !!c.isAuthor || userProfile.isAdmin
+  const canModerateReply = (r: Reply) => r.name === CURRENT_USER.name || userProfile.isAdmin
+  const startEdit = (id: string, text: string) => { setEditingId(id); setEditDraft(text); setConfirmDeleteId(null) }
+  const cancelEdit = () => { setEditingId(null); setEditDraft('') }
+  const saveEdit = () => {
+    const text = editDraft.trim()
+    if (!text || !editingId) return
+    setComments((prev) => prev.map((c) => {
+      if (c.id === editingId) return { ...c, text, time: `${c.time} · bearbeitet` }
+      if (c.replies.some((r) => r.id === editingId)) {
+        return { ...c, replies: c.replies.map((r) => (r.id === editingId ? { ...r, text, time: `${r.time} · bearbeitet` } : r)) }
+      }
+      return c
+    }))
+    cancelEdit()
+  }
+  const deleteItem = (id: string) => {
+    setComments((prev) => prev
+      .filter((c) => c.id !== id)
+      .map((c) => ({ ...c, replies: c.replies.filter((r) => r.id !== id) })))
+    setConfirmDeleteId(null)
+  }
 
   // Manuell abgeschlossene Lektionen ("moduleId:lessonId") — initial aus den Daten.
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(() => {
@@ -376,6 +405,7 @@ export default function ModulPage({
 
   const handleSubmitReply = (commentId: string) => {
     if (!replyText.trim()) return
+    const parent = comments.find((c) => c.id === commentId)
     const reply: Reply = {
       id: `r${Date.now()}`,
       name: CURRENT_USER.name,
@@ -386,6 +416,11 @@ export default function ModulPage({
     setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, replies: [...c.replies, reply] } : c)))
     setReplyText('')
     setReplyTo(null)
+    // Verfasser:in des Kommentars wird per E-Mail benachrichtigt (ausser eigener Kommentar).
+    if (parent && !parent.isAuthor) {
+      setReplyNotice(`${parent.name} wird per E-Mail über deine Antwort benachrichtigt.`)
+      setTimeout(() => setReplyNotice(null), 5000)
+    }
   }
 
   const kursPath = `/member/academy/instrument/${params.id}/kurs/${params.kursId}`
@@ -708,8 +743,16 @@ export default function ModulPage({
                 </div>
               </div>
 
+              {/* Hinweis: Verfasser:in wird per E-Mail über die Antwort informiert */}
+              {replyNotice && (
+                <div className="mt-4 flex items-start gap-2.5 bg-accent-gold/5 border border-accent-gold/30 px-4 py-2.5 rounded-lg">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-gold flex-shrink-0 mt-0.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+                  <p className="font-sans text-xs text-text-secondary leading-relaxed">{replyNotice}</p>
+                </div>
+              )}
+
               {/* Comment list */}
-              <div className="space-y-5">
+              <div className="space-y-5 mt-6">
                 {comments.map((comment) => {
                   const teamAnswered = comment.replies.some((r) => r.isTeam)
                   return (
@@ -729,8 +772,18 @@ export default function ModulPage({
                         {comment.isAuthor && !comment.isTeam && <span className="font-sans text-[10px] border border-border text-text-secondary px-1.5 py-0.5 rounded-md">Du</span>}
                         <span className="font-sans text-xs text-text-secondary">{comment.time}</span>
                       </div>
-                      <p className="font-sans text-sm text-dark leading-relaxed">{comment.text}</p>
-                      <div className="flex items-center gap-4 mt-2">
+                      {editingId === comment.id ? (
+                        <div>
+                          <textarea value={editDraft} onChange={(e) => setEditDraft(e.target.value)} rows={2} className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark resize-none" />
+                          <div className="flex gap-2 mt-2">
+                            <button onClick={saveEdit} disabled={!editDraft.trim()} className="font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Speichern</button>
+                            <button onClick={cancelEdit} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors px-2 py-1.5">Abbrechen</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="font-sans text-sm text-dark leading-relaxed">{comment.text}</p>
+                      )}
+                      <div className="flex items-center gap-4 mt-2 flex-wrap">
                         <button
                           onClick={() => handleLikeComment(comment.id)}
                           className={`flex items-center gap-1.5 font-sans text-xs transition-colors ${comment.liked ? 'text-accent-gold' : 'text-text-secondary hover:text-dark'}`}
@@ -747,6 +800,21 @@ export default function ModulPage({
                         >
                           Beantworten
                         </button>
+                        {canModerateComment(comment) && editingId !== comment.id && (
+                          confirmDeleteId === comment.id ? (
+                            <span className="flex items-center gap-2 font-sans text-xs text-text-secondary">
+                              Löschen?
+                              <button onClick={() => deleteItem(comment.id)} className="text-red-600 font-medium hover:underline">Ja</button>
+                              <button onClick={() => setConfirmDeleteId(null)} className="hover:text-dark">Nein</button>
+                            </span>
+                          ) : (
+                            <>
+                              <button onClick={() => startEdit(comment.id, comment.text)} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors">Bearbeiten</button>
+                              <button onClick={() => setConfirmDeleteId(comment.id)} className="font-sans text-xs text-text-secondary hover:text-red-600 transition-colors">Löschen</button>
+                              {userProfile.isAdmin && !comment.isAuthor && <span className="font-sans text-[10px] text-accent-gold uppercase tracking-wide">Admin</span>}
+                            </>
+                          )
+                        )}
                       </div>
 
                       {/* Benachrichtigung bei Team-Antwort */}
@@ -771,7 +839,34 @@ export default function ModulPage({
                                     {r.isTeam && <TeamBadge role={r.role} />}
                                     <span className="font-sans text-xs text-text-secondary">{r.time}</span>
                                   </div>
-                                  <p className="font-sans text-sm text-dark leading-relaxed">{r.text}</p>
+                                  {editingId === r.id ? (
+                                    <div>
+                                      <textarea value={editDraft} onChange={(e) => setEditDraft(e.target.value)} rows={2} className="w-full border border-border px-3 py-2 font-sans text-sm focus:outline-none focus:border-dark resize-none" />
+                                      <div className="flex gap-2 mt-2">
+                                        <button onClick={saveEdit} disabled={!editDraft.trim()} className="font-sans text-xs bg-dark text-white px-3 py-1.5 hover:bg-accent-gold hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Speichern</button>
+                                        <button onClick={cancelEdit} className="font-sans text-xs text-text-secondary hover:text-dark transition-colors px-2 py-1.5">Abbrechen</button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="font-sans text-sm text-dark leading-relaxed">{r.text}</p>
+                                  )}
+                                  {canModerateReply(r) && editingId !== r.id && (
+                                    <div className="flex items-center gap-3 mt-1.5">
+                                      {confirmDeleteId === r.id ? (
+                                        <span className="flex items-center gap-2 font-sans text-[11px] text-text-secondary">
+                                          Löschen?
+                                          <button onClick={() => deleteItem(r.id)} className="text-red-600 font-medium hover:underline">Ja</button>
+                                          <button onClick={() => setConfirmDeleteId(null)} className="hover:text-dark">Nein</button>
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <button onClick={() => startEdit(r.id, r.text)} className="font-sans text-[11px] text-text-secondary hover:text-dark transition-colors">Bearbeiten</button>
+                                          <button onClick={() => setConfirmDeleteId(r.id)} className="font-sans text-[11px] text-text-secondary hover:text-red-600 transition-colors">Löschen</button>
+                                          {userProfile.isAdmin && r.name !== CURRENT_USER.name && <span className="font-sans text-[10px] text-accent-gold uppercase tracking-wide">Admin</span>}
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             )

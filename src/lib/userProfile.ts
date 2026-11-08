@@ -27,6 +27,9 @@ export type UserProfile = {
   // Formation registriert und das Abo bezahlt, ist zahlungspflichtig; per
   // Einladung beigetretene Mitglieder sind es nicht.
   formationPayer: boolean
+  // Admin-/Team-Rolle: darf Kommentare aller Nutzer:innen bearbeiten & löschen
+  // (Moderation). Normale Mitglieder bearbeiten/löschen nur ihre eigenen.
+  isAdmin: boolean
 }
 
 // Standardprofil (Demo-Nutzer), falls noch keine Registrierungsdaten vorliegen.
@@ -43,6 +46,7 @@ export const defaultProfile: UserProfile = {
   inFormation: false,
   formationName: '',
   formationPayer: false,
+  isAdmin: false,
 }
 
 // Initialen aus dem Namen ableiten (z. B. «Niklaus Hess» → «NH») — als
